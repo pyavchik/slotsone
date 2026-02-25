@@ -5,17 +5,21 @@ import { SlotCanvas } from './SlotCanvas';
 import { BetPanel } from './BetPanel';
 import { HUD } from './HUD';
 import { WinOverlay } from './WinOverlay';
+import { PayTable } from './PayTable';
+import './app.css';
 
 function App() {
   const token = useGameStore((s) => s.token);
   const sessionId = useGameStore((s) => s.sessionId);
   const gameId = useGameStore((s) => s.gameId);
   const bet = useGameStore((s) => s.bet);
+  const lines = useGameStore((s) => s.lines);
   const setInit = useGameStore((s) => s.setInit);
   const setSpinResult = useGameStore((s) => s.setSpinResult);
   const setSpinning = useGameStore((s) => s.setSpinning);
   const setError = useGameStore((s) => s.setError);
   const error = useGameStore((s) => s.error);
+  const spinning = useGameStore((s) => s.spinning);
 
   const [size, setSize] = useState(() => ({
     w: typeof window !== 'undefined' ? window.innerWidth : 800,
@@ -63,39 +67,55 @@ function App() {
   }, [token, gameId, setInit, setError]);
 
   const handleSpin = useCallback(() => {
-    if (!sessionId) return;
+    if (!sessionId || spinning) return;
     setSpinning(true);
     const idempotencyKey = `spin-${Date.now()}-${Math.random().toString(36).slice(2)}`;
-    spin(token, sessionId, gameId, { amount: bet, currency: 'USD', lines: 20 }, idempotencyKey)
+    spin(token, sessionId, gameId, { amount: bet, currency: 'USD', lines }, idempotencyKey)
       .then((data) => {
         setSpinResult(data);
       })
       .catch((e) => {
         setError(e.message);
       });
-  }, [token, sessionId, gameId, bet, setSpinning, setSpinResult, setError]);
+  }, [token, sessionId, gameId, bet, lines, spinning, setSpinning, setSpinResult, setError]);
 
   const handleAllReelsStopped = useCallback(() => {
     setSpinning(false);
   }, [setSpinning]);
 
+  useEffect(() => {
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.code !== 'Space' || event.repeat) return;
+      const target = event.target as HTMLElement | null;
+      if (
+        target?.isContentEditable ||
+        target?.tagName === 'INPUT' ||
+        target?.tagName === 'TEXTAREA' ||
+        target?.tagName === 'SELECT' ||
+        target?.tagName === 'BUTTON'
+      ) {
+        return;
+      }
+      if (document.getElementById('paytable-dialog')) return;
+      event.preventDefault();
+      handleSpin();
+    };
+    window.addEventListener('keydown', onKeyDown);
+    return () => window.removeEventListener('keydown', onKeyDown);
+  }, [handleSpin]);
+
+  useEffect(() => {
+    if (!error) return;
+    const timer = window.setTimeout(() => setError(null), 5000);
+    return () => window.clearTimeout(timer);
+  }, [error, setError]);
+
   if (!ready) {
     return (
-      <div
-        style={{
-          width: '100%',
-          height: '100%',
-          display: 'flex',
-          flexDirection: 'column',
-          alignItems: 'center',
-          justifyContent: 'center',
-          background: '#0D0D12',
-          color: '#FFF',
-          gap: 16,
-        }}
-      >
+      <div className="loading-shell">
+        <div className="loading-spinner" aria-hidden="true" />
         <div>Loading game…</div>
-        <div style={{ color: '#A1A1AA', fontSize: 14 }}>Ensure backend is running: cd backend && npm run dev</div>
+        <div className="loading-hint">Ensure backend is running: cd backend && npm run dev</div>
       </div>
     );
   }
@@ -104,6 +124,7 @@ function App() {
     <div style={{ width: '100%', height: '100%', minHeight: '100vh', position: 'relative', background: '#0D0D12' }}>
       <SlotCanvas width={size.w} height={size.h} onAllReelsStopped={handleAllReelsStopped} />
       <HUD />
+      <PayTable />
       <div
         style={{
           position: 'absolute',
@@ -137,21 +158,39 @@ function App() {
           }}
         >
           <span>{error}</span>
-          <button
-            type="button"
-            onClick={handleRetryInit}
-            style={{
-              padding: '8px 16px',
-              background: '#E8B84A',
-              color: '#0D0D12',
-              border: 'none',
-              borderRadius: 6,
-              cursor: 'pointer',
-              fontWeight: 600,
-            }}
-          >
-            Retry
-          </button>
+          <div style={{ display: 'flex', gap: 8 }}>
+            <button
+              type="button"
+              onClick={handleRetryInit}
+              style={{
+                padding: '8px 16px',
+                background: '#E8B84A',
+                color: '#0D0D12',
+                border: 'none',
+                borderRadius: 6,
+                cursor: 'pointer',
+                fontWeight: 600,
+              }}
+            >
+              Retry
+            </button>
+            <button
+              type="button"
+              onClick={() => setError(null)}
+              aria-label="Dismiss error"
+              style={{
+                padding: '8px 12px',
+                background: 'transparent',
+                color: '#FCA5A5',
+                border: '1px solid #FCA5A5',
+                borderRadius: 6,
+                cursor: 'pointer',
+                fontWeight: 700,
+              }}
+            >
+              ×
+            </button>
+          </div>
         </div>
       )}
     </div>

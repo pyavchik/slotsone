@@ -9,6 +9,9 @@ import {
   ROWS,
   CURRENCY,
   DEFAULT_BALANCE,
+  PAYTABLE,
+  SYMBOLS,
+  SCATTER_FREE_SPINS,
 } from './engine/gameConfig.js';
 import { runSpin } from './engine/spinEngine.js';
 import { randomUUID } from 'crypto';
@@ -39,11 +42,32 @@ export interface IdempotencyEntry {
 const TTL_IDEMPOTENCY_MS = 24 * 60 * 60 * 1000;
 const TTL_SESSION_MS = 60 * 60 * 1000;
 const RATE_LIMIT_SPINS_PER_SEC = 5;
+const MIN_ACTIVE_LINES = 1;
+const MAX_ACTIVE_LINES = PAYLINES;
 const rateCounts = new Map<string, { count: number; resetAt: number }>();
 
 const sessions = new Map<string, Session>();
 const balances = new Map<string, Balance>(); // key: `${user_id}:${currency}`
 const idempotency = new Map<string, IdempotencyEntry>();
+
+const lineWins = SYMBOLS.map((symbol, index) => {
+  const [x3, x4, x5] = PAYTABLE[index] ?? [0, 0, 0];
+  return { symbol, x3, x4, x5 };
+})
+  .filter((item) => item.x3 > 0 || item.x4 > 0 || item.x5 > 0)
+  .sort((a, b) => b.x5 - a.x5);
+
+const paytableConfig = {
+  line_wins: lineWins,
+  scatter: {
+    symbol: 'Scatter',
+    awards: SCATTER_FREE_SPINS.map(([count, freeSpins]) => ({ count, free_spins: freeSpins })),
+  },
+  wild: {
+    symbol: 'Wild',
+    substitutes_for: lineWins.map((item) => item.symbol),
+  },
+} as const;
 
 function balanceKey(userId: string, currency: string): string {
   return `${userId}:${currency}`;
@@ -53,8 +77,8 @@ function idempotencyKeyForUser(userId: string, key: string): string {
   return `${userId}:${key}`;
 }
 
-function spinFingerprint(sessionId: string, gameId: string, betAmount: number, currency: string): string {
-  return `${sessionId}|${gameId}|${betAmount.toFixed(2)}|${currency}`;
+function spinFingerprint(sessionId: string, gameId: string, betAmount: number, currency: string, lines: number): string {
+  return `${sessionId}|${gameId}|${betAmount.toFixed(2)}|${currency}|${lines}`;
 }
 
 function ensureBalance(userId: string, currency: string): Balance {
@@ -112,8 +136,12 @@ export function getConfig() {
     currencies: [CURRENCY],
     min_bet: MIN_BET,
     max_bet: MAX_BET,
+    min_lines: MIN_ACTIVE_LINES,
+    max_lines: MAX_ACTIVE_LINES,
+    default_lines: MAX_ACTIVE_LINES,
     bet_levels: BET_LEVELS,
     paytable_url: '',
+    paytable: paytableConfig,
     rules_url: '',
     rtp: 96.5,
     volatility: 'high' as const,
@@ -126,7 +154,7 @@ export interface SpinResult {
   session_id: string;
   game_id: string;
   balance: { amount: number; currency: string };
-  bet: { amount: number; currency: string };
+  bet: { amount: number; currency: string; lines: number };
   outcome: SpinOutcome;
   next_state: string;
   timestamp: number;
@@ -138,6 +166,7 @@ export function executeSpin(
   gameId: string,
   betAmount: number,
   currency: string,
+  lines: number,
   idempotencyKey?: string
 ): { result: SpinResult; code: 200 } | { error: string; code: 400 | 401 | 403 | 409 | 422 | 429 } {
   const session = getSession(sessionId);
@@ -157,8 +186,11 @@ export function executeSpin(
   if (currency !== CURRENCY) {
     return { error: 'Invalid currency', code: 422 };
   }
+  if (!Number.isInteger(lines) || lines < MIN_ACTIVE_LINES || lines > MAX_ACTIVE_LINES) {
+    return { error: 'Invalid lines count', code: 422 };
+  }
 
-  const requestFingerprint = spinFingerprint(sessionId, gameId, betAmount, currency);
+  const requestFingerprint = spinFingerprint(sessionId, gameId, betAmount, currency, lines);
   if (idempotencyKey) {
     const scopedKey = idempotencyKeyForUser(userId, idempotencyKey);
     const existing = idempotency.get(scopedKey);
@@ -179,7 +211,7 @@ export function executeSpin(
     return { error: 'Too many requests', code: 429 };
   }
 
-  const { outcome } = runSpin(betAmount, currency);
+  const { outcome } = runSpin(betAmount, currency, lines);
   bal.amount = Math.round((bal.amount - betAmount + outcome.win.amount) * 100) / 100;
 
   const spin_id = `spin_${randomUUID().slice(0, 12)}`;
@@ -188,7 +220,7 @@ export function executeSpin(
     session_id: sessionId,
     game_id: gameId,
     balance: { amount: bal.amount, currency: bal.currency },
-    bet: { amount: betAmount, currency },
+    bet: { amount: betAmount, currency, lines },
     outcome,
     next_state: outcome.bonus_triggered ? 'free_spins' : 'base_game',
     timestamp: Date.now(),
