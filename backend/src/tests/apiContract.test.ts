@@ -1,18 +1,26 @@
 import assert from 'node:assert/strict';
-import { createHmac } from 'node:crypto';
 import { createServer } from 'node:net';
+import { generateKeyPairSync, sign as signJwt } from 'node:crypto';
 import test from 'node:test';
 import request from 'supertest';
-import { app } from '../app.js';
-import { DEV_HS256_SECRET } from '../config/authConstants.js';
 import { resetStoreForTests } from '../store.js';
 
 function encodeBase64Url(input: string): string {
   return Buffer.from(input, 'utf8').toString('base64url');
 }
 
-function createHs256Token(sub: string): string {
-  const header = { alg: 'HS256', typ: 'JWT' };
+const { privateKey, publicKey } = generateKeyPairSync('rsa', { modulusLength: 2048 });
+const publicKeyPem = publicKey.export({ type: 'spki', format: 'pem' }).toString();
+
+process.env.JWT_ALLOWED_ALGS = 'RS256';
+process.env.JWT_PUBLIC_KEY = publicKeyPem;
+process.env.JWT_ISSUER = 'slotsone-dev';
+process.env.JWT_AUDIENCE = 'slotsone-client';
+
+const { app } = await import('../app.js');
+
+function createRs256Token(sub: string): string {
+  const header = { alg: 'RS256', typ: 'JWT' };
   const now = Math.floor(Date.now() / 1000);
   const payload = {
     sub,
@@ -23,7 +31,7 @@ function createHs256Token(sub: string): string {
   const encodedHeader = encodeBase64Url(JSON.stringify(header));
   const encodedPayload = encodeBase64Url(JSON.stringify(payload));
   const signingInput = `${encodedHeader}.${encodedPayload}`;
-  const signature = createHmac('sha256', DEV_HS256_SECRET).update(signingInput).digest('base64url');
+  const signature = signJwt('RSA-SHA256', Buffer.from(signingInput), privateKey).toString('base64url');
   return `${signingInput}.${signature}`;
 }
 
@@ -42,9 +50,24 @@ const supportsSockets = await canBindLocalPort();
 if (!supportsSockets) {
   test.skip('API contract tests skipped: local sockets are blocked in this execution environment', () => {});
 } else {
+  test('init rejects unauthenticated request even if user_id is supplied in body', async () => {
+    resetStoreForTests();
+
+    await request(app)
+      .post('/api/v1/game/init')
+      .send({
+        user_id: 'spoofed-user',
+        game_id: 'slot_mega_fortune_001',
+        platform: 'web',
+        locale: 'en',
+        client_version: '1.0.0',
+      })
+      .expect(401);
+  });
+
   test('frontend init request contract is accepted via Authorization header', async () => {
     resetStoreForTests();
-    const token = createHs256Token('contract-init-user');
+    const token = createRs256Token('contract-init-user');
 
     const response = await request(app)
       .post('/api/v1/game/init')
@@ -66,7 +89,7 @@ if (!supportsSockets) {
 
   test('frontend spin request contract returns frontend response shape', async () => {
     resetStoreForTests();
-    const token = createHs256Token('contract-spin-user');
+    const token = createRs256Token('contract-spin-user');
 
     const init = await request(app)
       .post('/api/v1/game/init')
@@ -112,7 +135,7 @@ if (!supportsSockets) {
 
   test('idempotency key is taken from header and replays return the same spin', async () => {
     resetStoreForTests();
-    const token = createHs256Token('contract-idempotency-user');
+    const token = createRs256Token('contract-idempotency-user');
 
     const init = await request(app)
       .post('/api/v1/game/init')

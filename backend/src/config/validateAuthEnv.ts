@@ -1,7 +1,7 @@
-import { DEV_HS256_SECRET, SUPPORTED_JWT_ALGORITHMS, type SupportedJwtAlgorithm } from './authConstants.js';
+import { SUPPORTED_JWT_ALGORITHMS, type SupportedJwtAlgorithm } from './authConstants.js';
 
 function parseAllowedAlgorithms(rawValue: string | undefined): SupportedJwtAlgorithm[] {
-  const value = rawValue ?? 'HS256,RS256';
+  const value = rawValue ?? 'RS256';
   const requested = value
     .split(',')
     .map((alg) => alg.trim())
@@ -23,22 +23,10 @@ function parseAllowedAlgorithms(rawValue: string | undefined): SupportedJwtAlgor
 
 export function validateAuthEnvironment(): void {
   const allowedAlgs = parseAllowedAlgorithms(process.env.JWT_ALLOWED_ALGS);
-  const isProduction = process.env.NODE_ENV === 'production';
-
-  if (!isProduction) return;
-
   const errors: string[] = [];
-
-  if (allowedAlgs.includes('HS256') && !process.env.JWT_HS256_SECRET) {
-    errors.push('JWT_HS256_SECRET is required when JWT_ALLOWED_ALGS includes HS256');
-  }
 
   if (allowedAlgs.includes('RS256') && !process.env.JWT_PUBLIC_KEY) {
     errors.push('JWT_PUBLIC_KEY is required when JWT_ALLOWED_ALGS includes RS256');
-  }
-
-  if (process.env.JWT_HS256_SECRET === DEV_HS256_SECRET) {
-    errors.push('JWT_HS256_SECRET must not use the built-in dev secret in production');
   }
 
   if (errors.length > 0) {

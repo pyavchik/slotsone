@@ -1,6 +1,5 @@
-import { createHmac, createPublicKey, timingSafeEqual, verify as verifySignature } from 'crypto';
+import { createPublicKey, verify as verifySignature } from 'crypto';
 import type { Request, Response, NextFunction } from 'express';
-import { DEV_HS256_SECRET } from '../config/authConstants.js';
 
 interface JwtHeader {
   alg?: string;
@@ -17,18 +16,13 @@ export interface JwtPayload {
 }
 
 function getAllowedAlgorithms(): Set<string> {
-  const configured = process.env.JWT_ALLOWED_ALGS ?? 'HS256,RS256';
+  const configured = process.env.JWT_ALLOWED_ALGS ?? 'RS256';
   return new Set(
     configured
       .split(',')
       .map((alg) => alg.trim())
       .filter(Boolean)
   );
-}
-
-function readHs256Secret(): string | null {
-  if (process.env.JWT_HS256_SECRET) return process.env.JWT_HS256_SECRET;
-  return process.env.NODE_ENV === 'production' ? null : DEV_HS256_SECRET;
 }
 
 function readRs256PublicKey(): string | null {
@@ -43,22 +37,6 @@ function parseSegment<T>(segment: string): T | null {
   } catch {
     return null;
   }
-}
-
-function verifyHs256(signingInput: string, signatureB64Url: string): boolean {
-  const secret = readHs256Secret();
-  if (!secret) return false;
-
-  let signature: Buffer;
-  try {
-    signature = Buffer.from(signatureB64Url, 'base64url');
-  } catch {
-    return false;
-  }
-
-  const expected = createHmac('sha256', secret).update(signingInput).digest();
-  if (expected.length !== signature.length) return false;
-  return timingSafeEqual(expected, signature);
 }
 
 function verifyRs256(signingInput: string, signatureB64Url: string): boolean {
@@ -116,12 +94,7 @@ export function authMiddleware(req: Request, res: Response, next: NextFunction):
   }
 
   const signingInput = `${encodedHeader}.${encodedPayload}`;
-  const signatureOk =
-    algorithm === 'HS256'
-      ? verifyHs256(signingInput, encodedSignature)
-      : algorithm === 'RS256'
-      ? verifyRs256(signingInput, encodedSignature)
-      : false;
+  const signatureOk = algorithm === 'RS256' ? verifyRs256(signingInput, encodedSignature) : false;
 
   if (!signatureOk) {
     res.status(401).json({ error: 'Unauthorized', code: 'invalid_token_signature' });
