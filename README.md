@@ -274,6 +274,19 @@ newman run slots-collection.json -e dev.env.json
 
 See `postman/README.md` for the full regression suite details.
 
+## Frontend E2E Tests (Playwright)
+
+```bash
+cd frontend
+npx playwright install chromium
+npm run test:e2e
+```
+
+The suite mocks `/api/v1/game/init` and `/api/v1/spin` to validate UI flow deterministically:
+- CV landing is visible
+- Slots screen opens
+- SPIN triggers a request and displays WIN feedback
+
 ## Game Flow Summary
 
 1. Client calls `POST /api/v1/game/init`

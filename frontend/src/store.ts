@@ -85,7 +85,6 @@ export const useGameStore = create<GameState>((set) => ({
   setSpinResult: (data) =>
     set({
       balance: data.balance.amount,
-      lines: data.bet.lines,
       lastOutcome: data.outcome,
       lastWinAmount: data.outcome.win.amount,
       error: null,

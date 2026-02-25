@@ -1,4 +1,4 @@
-import { useEffect, useState, useCallback } from 'react';
+import { useEffect, useState, useCallback, useRef } from 'react';
 import { initGame, spin } from './api';
 import { useGameStore } from './store';
 import { SlotCanvas } from './SlotCanvas';
@@ -7,6 +7,7 @@ import { HUD } from './HUD';
 import { WinOverlay } from './WinOverlay';
 import { PayTable } from './PayTable';
 import { CVLanding } from './CVLanding';
+import { playSpinSound, playWinSound } from './audio';
 import './app.css';
 
 function App() {
@@ -22,6 +23,7 @@ function App() {
   const setError = useGameStore((s) => s.setError);
   const error = useGameStore((s) => s.error);
   const spinning = useGameStore((s) => s.spinning);
+  const lastWinAmount = useGameStore((s) => s.lastWinAmount);
 
   const [size, setSize] = useState(() => ({
     w: typeof window !== 'undefined' ? window.innerWidth : 800,
@@ -29,6 +31,8 @@ function App() {
   }));
   const [screen, setScreen] = useState<'cv' | 'slots'>('cv');
   const [ready, setReady] = useState(false);
+  const [spinCooldown, setSpinCooldown] = useState(false);
+  const spinCooldownRef = useRef<number | null>(null);
 
   useEffect(() => {
     const root = document.getElementById('root');
@@ -89,8 +93,14 @@ function App() {
   }, [token, gameId, setInit, setError]);
 
   const handleSpin = useCallback(() => {
-    if (!sessionId || spinning) return;
+    if (!sessionId || spinning || spinCooldown) return;
+    playSpinSound();
     setSpinning(true);
+    setSpinCooldown(true);
+    if (spinCooldownRef.current) {
+      window.clearTimeout(spinCooldownRef.current);
+    }
+    spinCooldownRef.current = window.setTimeout(() => setSpinCooldown(false), 250);
     const idempotencyKey = `spin-${Date.now()}-${Math.random().toString(36).slice(2)}`;
     spin(token, sessionId, gameId, { amount: bet, currency, lines }, idempotencyKey)
       .then((data) => {
@@ -110,7 +120,15 @@ function App() {
     setSpinning,
     setSpinResult,
     setError,
+    spinCooldown,
   ]);
+
+  useEffect(() => {
+    if (screen !== 'slots') return;
+    if (lastWinAmount <= 0) return;
+    const multiplier = bet > 0 ? lastWinAmount / bet : 1;
+    playWinSound(multiplier);
+  }, [screen, lastWinAmount, bet]);
 
   const handleAllReelsStopped = useCallback(() => {
     setSpinning(false);
@@ -121,6 +139,14 @@ function App() {
     setReady(false);
     setError(null);
   }, [setError]);
+
+  useEffect(() => {
+    return () => {
+      if (spinCooldownRef.current) {
+        window.clearTimeout(spinCooldownRef.current);
+      }
+    };
+  }, []);
 
   useEffect(() => {
     if (screen !== 'slots') return;
@@ -167,12 +193,12 @@ function App() {
 
   return (
     <div
+      className="slots-shell"
       style={{
         width: '100%',
         height: '100%',
         minHeight: '100vh',
         position: 'relative',
-        background: '#0D0D12',
       }}
     >
       <SlotCanvas width={size.w} height={size.h} onAllReelsStopped={handleAllReelsStopped} />
@@ -181,14 +207,14 @@ function App() {
       <div
         style={{
           position: 'absolute',
-          bottom: 48,
+          bottom: 'calc(48px + env(safe-area-inset-bottom))',
           left: 0,
           right: 0,
           display: 'flex',
           justifyContent: 'center',
         }}
       >
-        <BetPanel onSpin={handleSpin} />
+        <BetPanel onSpin={handleSpin} spinDisabled={spinCooldown} />
       </div>
       <WinOverlay />
       {error && (
