@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import type { GamePaytable } from './api';
 import { useGameStore } from './store';
+import { normalizeSymbolId, symbolColorCss, symbolLabel } from './symbols';
 import './payTable.css';
 
 const FALLBACK_PAYTABLE: GamePaytable = {
@@ -24,17 +25,6 @@ const FALLBACK_PAYTABLE: GamePaytable = {
     symbol: 'Wild',
     substitutes_for: ['10', 'J', 'Q', 'K', 'A', 'Star'],
   },
-};
-
-const SYMBOL_META: Record<string, { label: string; color: string }> = {
-  '10': { label: '10', color: '#4ade80' },
-  J: { label: 'J', color: '#60a5fa' },
-  Q: { label: 'Q', color: '#a78bfa' },
-  K: { label: 'K', color: '#f472b6' },
-  A: { label: 'A', color: '#fbbf24' },
-  Star: { label: 'Star', color: '#f59e0b' },
-  Scatter: { label: 'Scatter', color: '#22d3ee' },
-  Wild: { label: 'Wild', color: '#e879f9' },
 };
 
 function formatMultiplier(value: number): string {
@@ -74,7 +64,7 @@ export function PayTable() {
     return new Set(
       (lastOutcome?.win.breakdown ?? [])
         .filter((item) => item.type === 'line')
-        .map((item) => item.symbol)
+        .map((item) => normalizeSymbolId(item.symbol))
     );
   }, [lastOutcome]);
 
@@ -157,8 +147,11 @@ export function PayTable() {
                 </thead>
                 <tbody>
                   {paytable.line_wins.map((line) => {
-                    const symbol = SYMBOL_META[line.symbol] ?? { label: line.symbol, color: '#6b7280' };
-                    const hasWon = winningLineSymbols.has(line.symbol);
+                    const symbol = {
+                      label: symbolLabel(line.symbol),
+                      color: symbolColorCss(line.symbol),
+                    };
+                    const hasWon = winningLineSymbols.has(normalizeSymbolId(line.symbol));
                     return (
                       <tr key={line.symbol} className={hasWon ? 'paytable-row paytable-row-hit' : 'paytable-row'}>
                         <th scope="row">
