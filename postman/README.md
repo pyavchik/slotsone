@@ -15,9 +15,9 @@
 
 | Переменная | Пример | Описание |
 |------------|--------|----------|
-| `base_url` | `https://api.casino-dev.com` | Базовый URL API |
+| `base_url` | `http://localhost:3001` | Базовый URL API |
 | `jwt_token` | `eyJhbGciOiJSUzI1NiIs...` | JWT (Bearer) |
-| `session_id` | `sess_abc123xyz` | Идентификатор игровой сессии (можно перезаписать из ответа TC-01) |
+| `session_id` | `(set by TC-01)` | Идентификатор игровой сессии (можно перезаписать из ответа TC-01) |
 | `user_id` | `12345` | ID пользователя (для проверок IDOR) |
 | `game_id` | `slot_mega_fortune_001` | ID игры |
 

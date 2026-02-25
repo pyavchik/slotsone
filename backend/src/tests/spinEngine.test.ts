@@ -1,0 +1,30 @@
+import assert from 'node:assert/strict';
+import test from 'node:test';
+import { runSpin } from '../engine/spinEngine.js';
+import { PAYLINES } from '../engine/gameConfig.js';
+
+test('runSpin is deterministic with same seed and input', () => {
+  const a = runSpin(1, 'USD', PAYLINES, 4);
+  const b = runSpin(1, 'USD', PAYLINES, 4);
+  assert.deepEqual(a, b);
+});
+
+test('runSpin payout equals rounded sum of line breakdown payouts', () => {
+  const { outcome } = runSpin(1, 'USD', PAYLINES, 4);
+
+  let sum = 0;
+  for (const line of outcome.win.breakdown) {
+    sum += line.payout;
+    assert.ok(line.line_index >= 0 && line.line_index < PAYLINES);
+    assert.ok(line.count >= 3 && line.count <= 5);
+  }
+
+  assert.equal(outcome.win.amount, Math.round(sum * 100) / 100);
+});
+
+test('seeded spin can trigger free spins bonus', () => {
+  const { outcome } = runSpin(1, 'USD', PAYLINES, 28);
+  assert.ok(outcome.bonus_triggered);
+  assert.equal(outcome.bonus_triggered?.type, 'free_spins');
+  assert.equal(outcome.bonus_triggered?.free_spins_count, 5);
+});

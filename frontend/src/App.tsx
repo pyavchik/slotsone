@@ -15,6 +15,7 @@ function App() {
   const gameId = useGameStore((s) => s.gameId);
   const bet = useGameStore((s) => s.bet);
   const lines = useGameStore((s) => s.lines);
+  const currency = useGameStore((s) => s.currency);
   const setInit = useGameStore((s) => s.setInit);
   const setSpinResult = useGameStore((s) => s.setSpinResult);
   const setSpinning = useGameStore((s) => s.setSpinning);
@@ -86,14 +87,14 @@ function App() {
     if (!sessionId || spinning) return;
     setSpinning(true);
     const idempotencyKey = `spin-${Date.now()}-${Math.random().toString(36).slice(2)}`;
-    spin(token, sessionId, gameId, { amount: bet, currency: 'USD', lines }, idempotencyKey)
+    spin(token, sessionId, gameId, { amount: bet, currency, lines }, idempotencyKey)
       .then((data) => {
         setSpinResult(data);
       })
       .catch((e) => {
         setError(e.message);
       });
-  }, [token, sessionId, gameId, bet, lines, spinning, setSpinning, setSpinResult, setError]);
+  }, [token, sessionId, gameId, bet, lines, currency, spinning, setSpinning, setSpinResult, setError]);
 
   const handleAllReelsStopped = useCallback(() => {
     setSpinning(false);

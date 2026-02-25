@@ -29,6 +29,7 @@ npm run dev
 ```
 
 Backend runs on `http://localhost:3001`.
+Interactive Swagger docs: `http://localhost:3001/api-docs` (spec: `/api-docs.json`).
 
 2. Start frontend in a second terminal:
 
@@ -46,6 +47,8 @@ Open `http://localhost:5173`. Vite proxies `/api` to the backend.
 - `POST /api/v1/spin`
 - `GET /api/v1/history`
 - `GET /health`
+- `GET /api-docs` (Swagger UI)
+- `GET /api-docs.json` (OpenAPI spec)
 
 ## Authentication (JWT)
 

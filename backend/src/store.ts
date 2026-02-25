@@ -5,6 +5,7 @@ import {
   MAX_BET,
   BET_LEVELS,
   PAYLINES,
+  LINE_DEFS,
   REELS,
   ROWS,
   CURRENCY,
@@ -41,14 +42,17 @@ export interface IdempotencyEntry {
 
 const TTL_IDEMPOTENCY_MS = 24 * 60 * 60 * 1000;
 const TTL_SESSION_MS = 60 * 60 * 1000;
+const CLEANUP_INTERVAL_MS = 5 * 60 * 1000;
 const RATE_LIMIT_SPINS_PER_SEC = 5;
 const MIN_ACTIVE_LINES = 1;
 const MAX_ACTIVE_LINES = PAYLINES;
+const MAX_HISTORY_ITEMS_PER_USER = 100;
 const rateCounts = new Map<string, { count: number; resetAt: number }>();
 
 const sessions = new Map<string, Session>();
 const balances = new Map<string, Balance>(); // key: `${user_id}:${currency}`
 const idempotency = new Map<string, IdempotencyEntry>();
+const historyByUser = new Map<string, SpinResult[]>();
 
 const lineWins = SYMBOLS.map((symbol, index) => {
   const [x3, x4, x5] = PAYTABLE[index] ?? [0, 0, 0];
@@ -91,23 +95,47 @@ function ensureBalance(userId: string, currency: string): Balance {
   return b;
 }
 
-function rateLimit(userId: string): boolean {
+function cleanupExpiredSessions(now = Date.now()) {
+  sessions.forEach((session, key) => {
+    if (session.status !== 'active' || now > session.expires_at) sessions.delete(key);
+  });
+}
+
+setInterval(() => {
+  cleanupExpiredSessions();
+}, CLEANUP_INTERVAL_MS).unref();
+
+function rateLimit(userId: string): { limited: false } | { limited: true; retryAfterSeconds: number } {
   const now = Date.now();
   let entry = rateCounts.get(userId);
   if (!entry) {
     rateCounts.set(userId, { count: 1, resetAt: now + 1000 });
-    return false;
+    return { limited: false };
   }
   if (now >= entry.resetAt) {
     entry = { count: 1, resetAt: now + 1000 };
     rateCounts.set(userId, entry);
-    return false;
+    return { limited: false };
   }
   entry.count++;
-  return entry.count > RATE_LIMIT_SPINS_PER_SEC;
+  if (entry.count > RATE_LIMIT_SPINS_PER_SEC) {
+    return {
+      limited: true,
+      retryAfterSeconds: Math.max(1, Math.ceil((entry.resetAt - now) / 1000)),
+    };
+  }
+  return { limited: false };
+}
+
+function appendHistory(userId: string, result: SpinResult) {
+  const existing = historyByUser.get(userId) ?? [];
+  existing.unshift(result);
+  if (existing.length > MAX_HISTORY_ITEMS_PER_USER) existing.length = MAX_HISTORY_ITEMS_PER_USER;
+  historyByUser.set(userId, existing);
 }
 
 export function createSession(userId: string, gameId: string): Session {
+  cleanupExpiredSessions();
   const session_id = `sess_${randomUUID().slice(0, 12)}`;
   const now = Date.now();
   const session: Session = {
@@ -124,7 +152,11 @@ export function createSession(userId: string, gameId: string): Session {
 
 export function getSession(sessionId: string): Session | undefined {
   const s = sessions.get(sessionId);
-  if (!s || s.status !== 'active' || Date.now() > s.expires_at) return undefined;
+  if (!s) return undefined;
+  if (s.status !== 'active' || Date.now() > s.expires_at) {
+    sessions.delete(sessionId);
+    return undefined;
+  }
   return s;
 }
 
@@ -139,6 +171,7 @@ export function getConfig() {
     min_lines: MIN_ACTIVE_LINES,
     max_lines: MAX_ACTIVE_LINES,
     default_lines: MAX_ACTIVE_LINES,
+    line_defs: LINE_DEFS,
     bet_levels: BET_LEVELS,
     paytable_url: '',
     paytable: paytableConfig,
@@ -168,7 +201,7 @@ export function executeSpin(
   currency: string,
   lines: number,
   idempotencyKey?: string
-): { result: SpinResult; code: 200 } | { error: string; code: 400 | 401 | 403 | 409 | 422 | 429 } {
+): { result: SpinResult; code: 200 } | { error: string; code: 400 | 401 | 403 | 409 | 422 | 429; retry_after_seconds?: number } {
   const session = getSession(sessionId);
   if (!session) {
     return { error: 'Session not found or expired', code: 403 };
@@ -207,8 +240,9 @@ export function executeSpin(
     return { error: 'insufficient_balance', code: 422 };
   }
 
-  if (rateLimit(userId)) {
-    return { error: 'Too many requests', code: 429 };
+  const rate = rateLimit(userId);
+  if (rate.limited) {
+    return { error: 'Too many requests', code: 429, retry_after_seconds: rate.retryAfterSeconds };
   }
 
   const { outcome } = runSpin(betAmount, currency, lines);
@@ -226,6 +260,8 @@ export function executeSpin(
     timestamp: Date.now(),
   };
 
+  appendHistory(userId, result);
+
   if (idempotencyKey) {
     const scopedKey = idempotencyKeyForUser(userId, idempotencyKey);
     idempotency.set(scopedKey, {
@@ -235,7 +271,7 @@ export function executeSpin(
       response: result,
       created_at: Date.now(),
     });
-    setTimeout(() => idempotency.delete(scopedKey), TTL_IDEMPOTENCY_MS);
+    setTimeout(() => idempotency.delete(scopedKey), TTL_IDEMPOTENCY_MS).unref();
   }
 
   return { result, code: 200 };
@@ -243,4 +279,24 @@ export function executeSpin(
 
 export function getBalance(userId: string, currency: string): Balance {
   return ensureBalance(userId, currency);
+}
+
+export function getHistory(userId: string, limit = 50, offset = 0) {
+  const clampedLimit = Math.max(1, Math.min(100, Math.floor(limit)));
+  const clampedOffset = Math.max(0, Math.floor(offset));
+  const items = historyByUser.get(userId) ?? [];
+  return {
+    items: items.slice(clampedOffset, clampedOffset + clampedLimit),
+    total: items.length,
+    limit: clampedLimit,
+    offset: clampedOffset,
+  };
+}
+
+export function resetStoreForTests() {
+  sessions.clear();
+  balances.clear();
+  idempotency.clear();
+  historyByUser.clear();
+  rateCounts.clear();
 }

@@ -15,8 +15,10 @@ export function SlotCanvas({ width, height, onAllReelsStopped }: SlotCanvasProps
   onAllStoppedRef.current = onAllReelsStopped;
   const [pixiError, setPixiError] = useState<string | null>(null);
   const [announcement, setAnnouncement] = useState('Slot game loaded.');
+  const config = useGameStore((s) => s.config);
   const lastOutcome = useGameStore((s) => s.lastOutcome);
   const spinning = useGameStore((s) => s.spinning);
+  const lineDefs = useMemo(() => config?.line_defs ?? [], [config?.line_defs]);
   const safeArea = useMemo(() => {
     const safeTop = Math.round(Math.min(128, Math.max(74, height * 0.14)));
     const safeBottom = Math.round(Math.min(260, Math.max(152, height * 0.24)));
@@ -45,6 +47,7 @@ export function SlotCanvas({ width, height, onAllReelsStopped }: SlotCanvasProps
     const canvas = canvasRef.current;
     if (!canvas || width < 1 || height < 1) return;
     if (gridRef.current) {
+      gridRef.current.setLineDefs(lineDefs);
       gridRef.current.resize(width, height, safeArea);
       return;
     }
@@ -55,6 +58,7 @@ export function SlotCanvas({ width, height, onAllReelsStopped }: SlotCanvasProps
       ReelGrid.create(canvas, {
         width,
         height,
+        lineDefs,
         ...safeArea,
         onReelStopped: () => {},
         onAllStopped: () => onAllStoppedRef.current?.(),
@@ -79,7 +83,7 @@ export function SlotCanvas({ width, height, onAllReelsStopped }: SlotCanvasProps
       // Let StrictMode second run create the grid if the first was cancelled
       if (!gridRef.current) hasCreatedRef.current = false;
     };
-  }, [width, height, safeArea]);
+  }, [width, height, safeArea, lineDefs]);
 
   useEffect(() => {
     if (!lastOutcome || !spinning) return;

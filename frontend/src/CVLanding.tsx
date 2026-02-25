@@ -2,7 +2,7 @@ import './cvLanding.css';
 
 const CV_PDF_PATH = '/QA_Oleksander_Pyavchik_CV.pdf';
 const POSTMAN_TESTS_PATH = '/postman-tests.html';
-const SWAGER_PATH = '/swager.html';
+const SWAGER_PATH = '/api-docs';
 
 const SKILLS = [
   'Java',
@@ -86,8 +86,11 @@ export function CVLanding({ onOpenSlots }: { onOpenSlots: () => void }) {
         </div>
 
         <div className="cv-actions">
+          <button type="button" className="cv-open-slots" onClick={onOpenSlots}>
+            slots
+          </button>
           <a className="cv-link" href={POSTMAN_TESTS_PATH} target="_blank" rel="noreferrer">
-            postmam
+            postman
           </a>
           <a className="cv-link" href={SWAGER_PATH} target="_blank" rel="noreferrer">
             swager
@@ -95,9 +98,6 @@ export function CVLanding({ onOpenSlots }: { onOpenSlots: () => void }) {
           <a className="cv-link" href={CV_PDF_PATH} target="_blank" rel="noreferrer">
             Download PDF CV
           </a>
-          <button type="button" className="cv-open-slots" onClick={onOpenSlots}>
-            slots
-          </button>
         </div>
       </header>
 
