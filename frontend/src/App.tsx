@@ -99,7 +99,18 @@ function App() {
       .catch((e) => {
         setError(e.message);
       });
-  }, [token, sessionId, gameId, bet, lines, currency, spinning, setSpinning, setSpinResult, setError]);
+  }, [
+    token,
+    sessionId,
+    gameId,
+    bet,
+    lines,
+    currency,
+    spinning,
+    setSpinning,
+    setSpinResult,
+    setError,
+  ]);
 
   const handleAllReelsStopped = useCallback(() => {
     setSpinning(false);
@@ -155,7 +166,15 @@ function App() {
   }
 
   return (
-    <div style={{ width: '100%', height: '100%', minHeight: '100vh', position: 'relative', background: '#0D0D12' }}>
+    <div
+      style={{
+        width: '100%',
+        height: '100%',
+        minHeight: '100vh',
+        position: 'relative',
+        background: '#0D0D12',
+      }}
+    >
       <SlotCanvas width={size.w} height={size.h} onAllReelsStopped={handleAllReelsStopped} />
       <HUD />
       <PayTable />

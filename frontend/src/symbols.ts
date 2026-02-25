@@ -32,7 +32,10 @@ const THEMED_COLORS: Record<string, number> = {
 };
 
 function normalizeKey(symbolId: string): string {
-  return symbolId.trim().toLowerCase().replace(/[\s-]+/g, '_');
+  return symbolId
+    .trim()
+    .toLowerCase()
+    .replace(/[\s-]+/g, '_');
 }
 
 function toTitleCase(value: string): string {

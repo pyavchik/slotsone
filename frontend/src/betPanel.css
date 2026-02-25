@@ -56,7 +56,10 @@
   border: 1px solid rgba(255, 255, 255, 0.2);
   border-radius: 10px;
   cursor: pointer;
-  transition: transform 120ms ease, box-shadow 120ms ease, background-color 120ms ease;
+  transition:
+    transform 120ms ease,
+    box-shadow 120ms ease,
+    background-color 120ms ease;
 }
 
 .bet-panel-adjust:hover:not(:disabled) {
@@ -84,7 +87,10 @@
   border: none;
   border-radius: 10px;
   cursor: pointer;
-  transition: transform 120ms ease, box-shadow 150ms ease, filter 150ms ease;
+  transition:
+    transform 120ms ease,
+    box-shadow 150ms ease,
+    filter 150ms ease;
 }
 
 .spin-button:hover:not(:disabled) {

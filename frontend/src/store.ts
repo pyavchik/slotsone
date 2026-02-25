@@ -53,7 +53,10 @@ export const useGameStore = create<GameState>((set) => ({
   setInit: (data) => {
     const maxLines = Math.max(1, data.config.max_lines ?? data.config.paylines);
     const minLines = Math.max(1, Math.min(maxLines, data.config.min_lines ?? 1));
-    const defaultLines = Math.max(minLines, Math.min(maxLines, Math.round(data.config.default_lines ?? maxLines)));
+    const defaultLines = Math.max(
+      minLines,
+      Math.min(maxLines, Math.round(data.config.default_lines ?? maxLines))
+    );
     set({
       sessionId: data.session_id,
       gameId: data.game_id,

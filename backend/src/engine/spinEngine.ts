@@ -24,7 +24,12 @@ export interface WinBreakdownItem {
 export interface SpinOutcome {
   reel_matrix: ReelMatrix;
   win: { amount: number; currency: string; breakdown: WinBreakdownItem[] };
-  bonus_triggered: { type: 'free_spins'; free_spins_count: number; bonus_round_id: string; multiplier: number } | null;
+  bonus_triggered: {
+    type: 'free_spins';
+    free_spins_count: number;
+    bonus_round_id: string;
+    multiplier: number;
+  } | null;
 }
 
 function getSymbolId(symbolIndex: number): string {

@@ -1,6 +1,5 @@
 import type { SpinOutcome } from './engine/spinEngine.js';
 import {
-  GAME_ID,
   MIN_BET,
   MAX_BET,
   BET_LEVELS,
@@ -81,7 +80,13 @@ function idempotencyKeyForUser(userId: string, key: string): string {
   return `${userId}:${key}`;
 }
 
-function spinFingerprint(sessionId: string, gameId: string, betAmount: number, currency: string, lines: number): string {
+function spinFingerprint(
+  sessionId: string,
+  gameId: string,
+  betAmount: number,
+  currency: string,
+  lines: number
+): string {
   return `${sessionId}|${gameId}|${betAmount.toFixed(2)}|${currency}|${lines}`;
 }
 
@@ -127,7 +132,9 @@ setInterval(() => {
   cleanupExpiredState();
 }, CLEANUP_INTERVAL_MS).unref();
 
-function rateLimit(userId: string): { limited: false } | { limited: true; retryAfterSeconds: number } {
+function rateLimit(
+  userId: string
+): { limited: false } | { limited: true; retryAfterSeconds: number } {
   const now = Date.now();
   let entry = rateCounts.get(userId);
   if (!entry) {
@@ -223,7 +230,9 @@ export function executeSpin(
   currency: string,
   lines: number,
   idempotencyKey?: string
-): { result: SpinResult; code: 200 } | { error: string; code: 400 | 401 | 403 | 409 | 422 | 429; retry_after_seconds?: number } {
+):
+  | { result: SpinResult; code: 200 }
+  | { error: string; code: 400 | 401 | 403 | 409 | 422 | 429; retry_after_seconds?: number } {
   const session = getSession(sessionId);
   if (!session) {
     return { error: 'Session not found or expired', code: 403 };

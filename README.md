@@ -83,6 +83,25 @@ npm run dev
 
 Open `http://localhost:5173`. Vite proxies `/api` to the backend.
 
+## Quick Start (Docker Compose)
+
+1. Create docker env file:
+
+```bash
+cp .env.docker.example .env.docker
+```
+
+2. Set `JWT_PUBLIC_KEY` (and optional values) in `.env.docker`.
+
+3. Start both services:
+
+```bash
+docker compose --env-file .env.docker up -d --build
+```
+
+App URL: `http://localhost:8080`  
+Backend health: `http://localhost:3001/health`
+
 ## API Endpoints
 
 - `POST /api/v1/game/init`
@@ -237,6 +256,13 @@ npm start
 # Frontend
 cd frontend
 npm run build
+```
+
+## Lint & Format
+
+```bash
+cd backend && npm run lint && npm run format:check
+cd ../frontend && npm run lint && npm run format:check
 ```
 
 ## Testing (Postman/Newman)

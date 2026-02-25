@@ -50,9 +50,7 @@ export function BetPanel({ onSpin }: { onSpin: () => void }) {
         >
           −
         </button>
-        <span className="bet-panel-value">
-          {bet.toFixed(2)}
-        </span>
+        <span className="bet-panel-value">{bet.toFixed(2)}</span>
         <button
           type="button"
           onClick={handleBetUp}
@@ -74,9 +72,7 @@ export function BetPanel({ onSpin }: { onSpin: () => void }) {
         >
           −
         </button>
-        <span className="bet-panel-value bet-panel-lines-value">
-          {lines}
-        </span>
+        <span className="bet-panel-value bet-panel-lines-value">{lines}</span>
         <button
           type="button"
           onClick={handleLineUp}

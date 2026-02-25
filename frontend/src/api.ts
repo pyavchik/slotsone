@@ -8,8 +8,10 @@ type ErrorResponse = components['schemas']['ErrorResponse'];
 
 export type GameConfig = components['schemas']['GameConfig'];
 export type GamePaytable = GameConfig['paytable'];
-export type InitResponse = paths['/api/v1/game/init']['post']['responses'][200]['content']['application/json'];
-export type SpinResponse = paths['/api/v1/spin']['post']['responses'][200]['content']['application/json'];
+export type InitResponse =
+  paths['/api/v1/game/init']['post']['responses'][200]['content']['application/json'];
+export type SpinResponse =
+  paths['/api/v1/spin']['post']['responses'][200]['content']['application/json'];
 
 export async function initGame(token: string, gameId: string): Promise<InitResponse> {
   const body: InitRequestBody = {

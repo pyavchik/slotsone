@@ -113,7 +113,9 @@ export function PayTable() {
             <header className="paytable-header">
               <div>
                 <h2 id="paytable-title">Pay Table</h2>
-                <p id="paytable-description">Line payouts are multipliers of the current line bet.</p>
+                <p id="paytable-description">
+                  Line payouts are multipliers of the current line bet.
+                </p>
               </div>
               <button
                 ref={closeButtonRef}
@@ -153,10 +155,17 @@ export function PayTable() {
                     };
                     const hasWon = winningLineSymbols.has(normalizeSymbolId(line.symbol));
                     return (
-                      <tr key={line.symbol} className={hasWon ? 'paytable-row paytable-row-hit' : 'paytable-row'}>
+                      <tr
+                        key={line.symbol}
+                        className={hasWon ? 'paytable-row paytable-row-hit' : 'paytable-row'}
+                      >
                         <th scope="row">
                           <span className="paytable-symbol">
-                            <span className="paytable-symbol-swatch" style={{ backgroundColor: symbol.color }} aria-hidden="true" />
+                            <span
+                              className="paytable-symbol-swatch"
+                              style={{ backgroundColor: symbol.color }}
+                              aria-hidden="true"
+                            />
                             {symbol.label}
                           </span>
                         </th>
@@ -183,10 +192,13 @@ export function PayTable() {
               <h3>Special Symbols</h3>
               <p>
                 <strong>{paytable.scatter.symbol}:</strong>{' '}
-                {paytable.scatter.awards.map((award) => `${award.count} = ${award.free_spins} free spins`).join(' • ')}
+                {paytable.scatter.awards
+                  .map((award) => `${award.count} = ${award.free_spins} free spins`)
+                  .join(' • ')}
               </p>
               <p>
-                <strong>{paytable.wild.symbol}:</strong> substitutes for {paytable.wild.substitutes_for.join(', ')}.
+                <strong>{paytable.wild.symbol}:</strong> substitutes for{' '}
+                {paytable.wild.substitutes_for.join(', ')}.
               </p>
             </section>
           </section>

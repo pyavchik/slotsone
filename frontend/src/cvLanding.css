@@ -109,7 +109,9 @@
   background: linear-gradient(180deg, #f5d06a 0%, #e8b84a 100%);
   box-shadow: 0 0 24px rgba(245, 208, 106, 0.35);
   cursor: pointer;
-  transition: transform 120ms ease, filter 120ms ease;
+  transition:
+    transform 120ms ease,
+    filter 120ms ease;
 }
 
 .cv-open-slots:hover {

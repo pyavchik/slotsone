@@ -33,6 +33,14 @@ jobs:
         working-directory: backend
         run: npm run openapi:check
 
+      - name: Backend lint
+        working-directory: backend
+        run: npm run lint
+
+      - name: Backend format check
+        working-directory: backend
+        run: npm run format:check
+
       - name: Backend tests
         working-directory: backend
         run: npm test
@@ -40,6 +48,14 @@ jobs:
       - name: Frontend install
         working-directory: frontend
         run: npm ci
+
+      - name: Frontend lint
+        working-directory: frontend
+        run: npm run lint
+
+      - name: Frontend format check
+        working-directory: frontend
+        run: npm run format:check
 
       - name: Frontend contract types check
         working-directory: frontend

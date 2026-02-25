@@ -2,7 +2,11 @@ import { Router } from 'express';
 import { authMiddleware } from '../middleware/auth.js';
 import { createSession, getConfig, executeSpin, getBalance, getHistory } from '../store.js';
 import { GAME_ID } from '../engine/gameConfig.js';
-import { HistoryQuerySchema, InitRequestSchema, SpinRequestSchema } from '../contracts/gameContract.js';
+import {
+  HistoryQuerySchema,
+  InitRequestSchema,
+  SpinRequestSchema,
+} from '../contracts/gameContract.js';
 
 const router = Router();
 
@@ -70,7 +74,15 @@ router.post('/spin', authMiddleware, (req, res) => {
     return;
   }
 
-  const result = executeSpin(userId, session_id, game_id, betAmount, currency, lines, idempotencyKey);
+  const result = executeSpin(
+    userId,
+    session_id,
+    game_id,
+    betAmount,
+    currency,
+    lines,
+    idempotencyKey
+  );
 
   if ('error' in result) {
     if (result.code === 429 && typeof result.retry_after_seconds === 'number') {

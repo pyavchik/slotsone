@@ -70,7 +70,8 @@ export function CVLanding({ onOpenSlots }: { onOpenSlots: () => void }) {
             <p className="cv-kicker">Automated QA Engineer</p>
             <h1 className="cv-title">Oleksander Pyavchik</h1>
             <p className="cv-subtitle">
-              Experienced QA engineer with 7+ years in automation, API/E2E testing, CI/CD, and performance testing.
+              Experienced QA engineer with 7+ years in automation, API/E2E testing, CI/CD, and
+              performance testing.
             </p>
 
             <ul className="cv-contact-list" aria-label="Contact information">
@@ -104,9 +105,10 @@ export function CVLanding({ onOpenSlots }: { onOpenSlots: () => void }) {
       <section className="cv-section">
         <h2>Professional Summary</h2>
         <p>
-          Experienced Automated QA Engineer with 7+ years of expertise in test automation, CI/CD, and test framework
-          development. Strong background in building automation frameworks from scratch and maintaining large test
-          suites, with deep hands-on experience in Java, API, end-to-end, and performance testing using JMeter.
+          Experienced Automated QA Engineer with 7+ years of expertise in test automation, CI/CD,
+          and test framework development. Strong background in building automation frameworks from
+          scratch and maintaining large test suites, with deep hands-on experience in Java, API,
+          end-to-end, and performance testing using JMeter.
         </p>
       </section>
 

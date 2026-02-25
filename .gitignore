@@ -14,6 +14,7 @@ coverage/
 !**/.env.development.example
 !**/.env.production.example
 !/.env.production.example
+!/.env.docker.example
 backend/jwt_private.pem
 backend/jwt_public.pem
 
