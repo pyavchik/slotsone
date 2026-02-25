@@ -72,38 +72,67 @@ Configuration is loaded automatically from:
 Frontend uses a built-in dev token by default.  
 Override with `VITE_DEMO_JWT` if needed.
 
-## Production Setup
+## Production Deployment (GitHub Actions + Docker Compose)
 
-1. Prepare backend config:
+This repository includes:
+- `docker-compose.prod.yml`
+- `backend/Dockerfile`
+- `frontend/Dockerfile`
+- `.github/workflows/deploy.yml`
+- `ops/server/bootstrap_deploy_user.sh`
 
-```bash
-cd backend
-cp .env.production.example .env.production
-```
-
-2. Build and run:
-
-```bash
-npm run build
-NODE_ENV=production npm start
-```
-
-### Generate Secrets/Keys
-
-Generate HS256 secret:
+### 1) Prepare the server (run once as root)
 
 ```bash
-openssl rand -base64 48
+git clone <your-repo-url>
+cd slotsone
+sudo DEPLOY_USER=deploy DEPLOY_PUBLIC_KEY="<your-public-key>" bash ops/server/bootstrap_deploy_user.sh
 ```
 
-Generate RS256 key pair:
+After script execution:
+- Docker + Compose plugin are installed
+- non-root `deploy` user exists
+- `/opt/slotsone` is owned by `deploy`
+
+### 2) Configure runtime env files on the server
+
+Login as `deploy` and create:
+- `/opt/slotsone/backend/.env.production` (backend JWT config)
+- `/opt/slotsone/.env.production` (root file used for compose build args)
+
+You can start from:
+- `backend/.env.production.example`
+- `.env.production.example`
+
+Example root file:
 
 ```bash
-openssl genpkey -algorithm RSA -pkeyopt rsa_keygen_bits:2048 -out jwt_private.pem
-openssl rsa -pubout -in jwt_private.pem -out jwt_public.pem
+VITE_DEMO_JWT=<production-jwt-for-frontend-build>
 ```
 
-## Build Commands
+### 3) Add GitHub repository secrets
+
+Required secrets for `.github/workflows/deploy.yml`:
+- `DEPLOY_HOST` (for example `64.176.72.28`)
+- `DEPLOY_PORT` (usually `22`)
+- `DEPLOY_USER` (for example `deploy`)
+- `DEPLOY_PATH` (for example `/opt/slotsone`)
+- `DEPLOY_SSH_KEY` (private key matching `DEPLOY_PUBLIC_KEY`)
+- `DEPLOY_KNOWN_HOSTS` (optional but recommended)
+
+### 4) Deploy
+
+- Push to `main` (or run workflow manually via `workflow_dispatch`)
+- GitHub Actions builds backend/frontend
+- Workflow syncs files over SSH and runs:
+
+```bash
+docker compose --env-file .env.production -f docker-compose.prod.yml up -d --build --remove-orphans
+```
+
+App is served by frontend nginx container on port `80` and proxies `/api` to backend.
+
+## Manual Build Commands
 
 ```bash
 # Backend
@@ -115,8 +144,6 @@ npm start
 cd frontend
 npm run build
 ```
-
-Frontend static output is in `frontend/dist`.
 
 ## Testing (Postman/Newman)
 
