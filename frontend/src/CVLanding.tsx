@@ -2,6 +2,7 @@ import './cvLanding.css';
 
 const CV_PDF_PATH = '/QA_Oleksander_Pyavchik_CV.pdf';
 const POSTMAN_TESTS_PATH = '/postman-tests.html';
+const SWAGER_PATH = '/swager.html';
 
 const SKILLS = [
   'Java',
@@ -62,7 +63,7 @@ export function CVLanding({ onOpenSlots }: { onOpenSlots: () => void }) {
       <header className="cv-header-card">
         <div className="cv-header-main">
           <figure className="cv-avatar-wrap">
-            <img src="/cv-photo.jpg" alt="Oleksander Pyavchik" className="cv-avatar" />
+            <img src="/cv-photo.png" alt="Oleksander Pyavchik" className="cv-avatar" />
           </figure>
 
           <div className="cv-identity">
@@ -86,13 +87,16 @@ export function CVLanding({ onOpenSlots }: { onOpenSlots: () => void }) {
 
         <div className="cv-actions">
           <a className="cv-link" href={POSTMAN_TESTS_PATH} target="_blank" rel="noreferrer">
-            Postman Tests
+            postmam
+          </a>
+          <a className="cv-link" href={SWAGER_PATH} target="_blank" rel="noreferrer">
+            swager
           </a>
           <a className="cv-link" href={CV_PDF_PATH} target="_blank" rel="noreferrer">
             Download PDF CV
           </a>
           <button type="button" className="cv-open-slots" onClick={onOpenSlots}>
-            Open Slots App
+            slots
           </button>
         </div>
       </header>
@@ -149,7 +153,7 @@ export function CVLanding({ onOpenSlots }: { onOpenSlots: () => void }) {
         <h2>Project Demo</h2>
         <p>Use the button below to launch the interactive slots application.</p>
         <button type="button" className="cv-open-slots" onClick={onOpenSlots}>
-          Open Slots App
+          slots
         </button>
       </section>
     </main>
