@@ -205,4 +205,81 @@ if (!supportsSockets) {
 
     assert.equal(replay.body.spin_id, first.body.spin_id);
   });
+
+  test('history returns paginated per-user items with documented response shape', async () => {
+    resetStoreForTests();
+
+    const tokenA = createRs256Token('contract-history-user-a');
+    const tokenB = createRs256Token('contract-history-user-b');
+
+    const initA = await request(app)
+      .post('/api/v1/game/init')
+      .set('Authorization', `Bearer ${tokenA}`)
+      .send({ game_id: 'slot_mega_fortune_001', platform: 'web', locale: 'en', client_version: '1.0.0' })
+      .expect(200);
+
+    const initB = await request(app)
+      .post('/api/v1/game/init')
+      .set('Authorization', `Bearer ${tokenB}`)
+      .send({ game_id: 'slot_mega_fortune_001', platform: 'web', locale: 'en', client_version: '1.0.0' })
+      .expect(200);
+
+    const sessionA = initA.body.session_id as string;
+    const sessionB = initB.body.session_id as string;
+
+    const aSpinIds: string[] = [];
+    const bSpinIds: string[] = [];
+
+    for (let i = 0; i < 3; i++) {
+      const spin = await request(app)
+        .post('/api/v1/spin')
+        .set('Authorization', `Bearer ${tokenA}`)
+        .set('Idempotency-Key', `contract-history-a-${i}`)
+        .send({
+          session_id: sessionA,
+          game_id: 'slot_mega_fortune_001',
+          bet: { amount: 1, currency: 'USD', lines: 20 },
+          client_timestamp: Date.now(),
+        })
+        .expect(200);
+      aSpinIds.push(spin.body.spin_id as string);
+    }
+
+    for (let i = 0; i < 2; i++) {
+      const spin = await request(app)
+        .post('/api/v1/spin')
+        .set('Authorization', `Bearer ${tokenB}`)
+        .set('Idempotency-Key', `contract-history-b-${i}`)
+        .send({
+          session_id: sessionB,
+          game_id: 'slot_mega_fortune_001',
+          bet: { amount: 1, currency: 'USD', lines: 20 },
+          client_timestamp: Date.now(),
+        })
+        .expect(200);
+      bSpinIds.push(spin.body.spin_id as string);
+    }
+
+    const history = await request(app)
+      .get('/api/v1/history')
+      .set('Authorization', `Bearer ${tokenA}`)
+      .query({ limit: 2, offset: 1 })
+      .expect(200);
+
+    assert.equal(Array.isArray(history.body.items), true);
+    assert.equal(typeof history.body.total, 'number');
+    assert.equal(typeof history.body.limit, 'number');
+    assert.equal(typeof history.body.offset, 'number');
+
+    assert.equal(history.body.total, 3);
+    assert.equal(history.body.limit, 2);
+    assert.equal(history.body.offset, 1);
+
+    const returnedIds = (history.body.items as Array<{ spin_id: string }>).map((item) => item.spin_id);
+    assert.deepEqual(returnedIds, [aSpinIds[1], aSpinIds[0]]);
+
+    for (const spinId of bSpinIds) {
+      assert.equal(returnedIds.includes(spinId), false);
+    }
+  });
 }
