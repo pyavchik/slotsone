@@ -44,6 +44,14 @@
   animation: hud-nowin-fade 1.2s ease both;
 }
 
+.hud-hint {
+  margin-top: 10px;
+  font-size: 12px;
+  color: rgba(241, 245, 249, 0.7);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
 @keyframes hud-nowin-fade {
   0% {
     opacity: 0;

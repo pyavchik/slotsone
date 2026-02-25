@@ -1,7 +1,13 @@
 import { useGameStore } from './store';
 import './betPanel.css';
 
-export function BetPanel({ onSpin }: { onSpin: () => void }) {
+export function BetPanel({
+  onSpin,
+  spinDisabled = false,
+}: {
+  onSpin: () => void;
+  spinDisabled?: boolean;
+}) {
   const bet = useGameStore((s) => s.bet);
   const setBet = useGameStore((s) => s.setBet);
   const lines = useGameStore((s) => s.lines);
@@ -19,6 +25,8 @@ export function BetPanel({ onSpin }: { onSpin: () => void }) {
   const canLineDecrease = lines > minLines;
   const canLineIncrease = lines < maxLines;
   const lineBet = lines > 0 ? bet / lines : 0;
+  const canSpin = !spinning && balance >= bet && !spinDisabled;
+  const balanceAfterBet = Math.max(0, balance - bet);
 
   const handleBetDown = () => {
     if (!canDecrease) return;
@@ -40,7 +48,7 @@ export function BetPanel({ onSpin }: { onSpin: () => void }) {
   return (
     <div className="bet-panel">
       <div className="bet-panel-group">
-        <span className="bet-panel-label">BET</span>
+        <span className="bet-panel-label">TOTAL BET</span>
         <button
           type="button"
           onClick={handleBetDown}
@@ -89,12 +97,15 @@ export function BetPanel({ onSpin }: { onSpin: () => void }) {
       <button
         type="button"
         onClick={onSpin}
-        disabled={spinning || balance < bet}
-        className="spin-button"
+        disabled={!canSpin}
+        className={`spin-button${canSpin ? ' spin-button-ready' : ''}`}
         aria-label="Spin reels"
       >
         {spinning ? 'SPINNING…' : 'SPIN'}
       </button>
+      <span className="bet-panel-meta">
+        After bet: {balanceAfterBet.toFixed(2)} {currency}
+      </span>
     </div>
   );
 }

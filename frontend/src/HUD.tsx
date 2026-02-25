@@ -104,6 +104,11 @@ export function HUD() {
             NO WIN
           </div>
         )}
+        {!spinning && (
+          <div className="hud-hint" aria-hidden="true">
+            Press Space to spin
+          </div>
+        )}
       </div>
       <div style={{ display: 'flex', flexDirection: 'column', gap: 4, alignItems: 'flex-end' }}>
         <span style={{ color: '#A1A1AA', fontSize: 12 }}>BET</span>
