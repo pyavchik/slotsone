@@ -1,0 +1,1300 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "Slots API",
+    "version": "1.0.0",
+    "description": "Slots backend API for session init, spin execution, and history retrieval."
+  },
+  "servers": [
+    {
+      "url": "http://localhost:3001",
+      "description": "Local development"
+    }
+  ],
+  "tags": [
+    {
+      "name": "Game"
+    },
+    {
+      "name": "System"
+    }
+  ],
+  "components": {
+    "securitySchemes": {
+      "bearerAuth": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "JWT"
+      }
+    },
+    "schemas": {
+      "ErrorResponse": {
+        "type": "object",
+        "properties": {
+          "error": {
+            "type": "string"
+          },
+          "code": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "error",
+          "code"
+        ],
+        "additionalProperties": false
+      },
+      "Bet": {
+        "type": "object",
+        "properties": {
+          "amount": {
+            "type": "number"
+          },
+          "currency": {
+            "type": "string",
+            "minLength": 1
+          },
+          "lines": {
+            "type": "integer"
+          }
+        },
+        "required": [
+          "amount",
+          "currency",
+          "lines"
+        ],
+        "additionalProperties": false
+      },
+      "Balance": {
+        "type": "object",
+        "properties": {
+          "amount": {
+            "type": "number"
+          },
+          "currency": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "amount",
+          "currency"
+        ],
+        "additionalProperties": false
+      },
+      "WinBreakdownItem": {
+        "type": "object",
+        "properties": {
+          "type": {
+            "type": "string",
+            "enum": [
+              "line"
+            ]
+          },
+          "line_index": {
+            "type": "integer"
+          },
+          "symbol": {
+            "type": "string"
+          },
+          "count": {
+            "type": "integer"
+          },
+          "payout": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "type",
+          "line_index",
+          "symbol",
+          "count",
+          "payout"
+        ],
+        "additionalProperties": false
+      },
+      "SpinOutcome": {
+        "type": "object",
+        "properties": {
+          "reel_matrix": {
+            "type": "array",
+            "items": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          },
+          "win": {
+            "type": "object",
+            "properties": {
+              "amount": {
+                "type": "number"
+              },
+              "currency": {
+                "type": "string"
+              },
+              "breakdown": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "type": {
+                      "type": "string",
+                      "enum": [
+                        "line"
+                      ]
+                    },
+                    "line_index": {
+                      "type": "integer"
+                    },
+                    "symbol": {
+                      "type": "string"
+                    },
+                    "count": {
+                      "type": "integer"
+                    },
+                    "payout": {
+                      "type": "number"
+                    }
+                  },
+                  "required": [
+                    "type",
+                    "line_index",
+                    "symbol",
+                    "count",
+                    "payout"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            },
+            "required": [
+              "amount",
+              "currency",
+              "breakdown"
+            ],
+            "additionalProperties": false
+          },
+          "bonus_triggered": {
+            "type": "object",
+            "nullable": true,
+            "properties": {
+              "type": {
+                "type": "string",
+                "enum": [
+                  "free_spins"
+                ]
+              },
+              "free_spins_count": {
+                "type": "integer"
+              },
+              "bonus_round_id": {
+                "type": "string"
+              },
+              "multiplier": {
+                "type": "number"
+              }
+            },
+            "required": [
+              "type",
+              "free_spins_count",
+              "bonus_round_id",
+              "multiplier"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "required": [
+          "reel_matrix",
+          "win",
+          "bonus_triggered"
+        ],
+        "additionalProperties": false
+      },
+      "GameConfig": {
+        "type": "object",
+        "properties": {
+          "reels": {
+            "type": "integer"
+          },
+          "rows": {
+            "type": "integer"
+          },
+          "paylines": {
+            "type": "integer"
+          },
+          "currencies": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "min_bet": {
+            "type": "number"
+          },
+          "max_bet": {
+            "type": "number"
+          },
+          "min_lines": {
+            "type": "integer"
+          },
+          "max_lines": {
+            "type": "integer"
+          },
+          "default_lines": {
+            "type": "integer"
+          },
+          "line_defs": {
+            "type": "array",
+            "items": {
+              "type": "array",
+              "items": {
+                "type": "integer"
+              }
+            }
+          },
+          "bet_levels": {
+            "type": "array",
+            "items": {
+              "type": "number"
+            }
+          },
+          "paytable_url": {
+            "type": "string"
+          },
+          "paytable": {
+            "type": "object",
+            "properties": {
+              "line_wins": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "symbol": {
+                      "type": "string"
+                    },
+                    "x3": {
+                      "type": "number"
+                    },
+                    "x4": {
+                      "type": "number"
+                    },
+                    "x5": {
+                      "type": "number"
+                    }
+                  },
+                  "required": [
+                    "symbol",
+                    "x3",
+                    "x4",
+                    "x5"
+                  ],
+                  "additionalProperties": false
+                }
+              },
+              "scatter": {
+                "type": "object",
+                "properties": {
+                  "symbol": {
+                    "type": "string"
+                  },
+                  "awards": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "count": {
+                          "type": "integer"
+                        },
+                        "free_spins": {
+                          "type": "integer"
+                        }
+                      },
+                      "required": [
+                        "count",
+                        "free_spins"
+                      ],
+                      "additionalProperties": false
+                    }
+                  }
+                },
+                "required": [
+                  "symbol",
+                  "awards"
+                ],
+                "additionalProperties": false
+              },
+              "wild": {
+                "type": "object",
+                "properties": {
+                  "symbol": {
+                    "type": "string"
+                  },
+                  "substitutes_for": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    }
+                  }
+                },
+                "required": [
+                  "symbol",
+                  "substitutes_for"
+                ],
+                "additionalProperties": false
+              }
+            },
+            "required": [
+              "line_wins",
+              "scatter",
+              "wild"
+            ],
+            "additionalProperties": false
+          },
+          "rules_url": {
+            "type": "string"
+          },
+          "rtp": {
+            "type": "number"
+          },
+          "volatility": {
+            "type": "string",
+            "enum": [
+              "low",
+              "medium",
+              "high"
+            ]
+          },
+          "features": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "required": [
+          "reels",
+          "rows",
+          "paylines",
+          "currencies",
+          "min_bet",
+          "max_bet",
+          "min_lines",
+          "max_lines",
+          "default_lines",
+          "line_defs",
+          "bet_levels",
+          "paytable_url",
+          "paytable",
+          "rules_url",
+          "rtp",
+          "volatility",
+          "features"
+        ],
+        "additionalProperties": false
+      },
+      "InitRequest": {
+        "type": "object",
+        "properties": {
+          "game_id": {
+            "type": "string",
+            "minLength": 1
+          },
+          "platform": {
+            "type": "string",
+            "minLength": 1
+          },
+          "locale": {
+            "type": "string",
+            "minLength": 1
+          },
+          "client_version": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "additionalProperties": false
+      },
+      "InitResponse": {
+        "type": "object",
+        "properties": {
+          "session_id": {
+            "type": "string"
+          },
+          "game_id": {
+            "type": "string"
+          },
+          "config": {
+            "type": "object",
+            "properties": {
+              "reels": {
+                "type": "integer"
+              },
+              "rows": {
+                "type": "integer"
+              },
+              "paylines": {
+                "type": "integer"
+              },
+              "currencies": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              },
+              "min_bet": {
+                "type": "number"
+              },
+              "max_bet": {
+                "type": "number"
+              },
+              "min_lines": {
+                "type": "integer"
+              },
+              "max_lines": {
+                "type": "integer"
+              },
+              "default_lines": {
+                "type": "integer"
+              },
+              "line_defs": {
+                "type": "array",
+                "items": {
+                  "type": "array",
+                  "items": {
+                    "type": "integer"
+                  }
+                }
+              },
+              "bet_levels": {
+                "type": "array",
+                "items": {
+                  "type": "number"
+                }
+              },
+              "paytable_url": {
+                "type": "string"
+              },
+              "paytable": {
+                "type": "object",
+                "properties": {
+                  "line_wins": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "symbol": {
+                          "type": "string"
+                        },
+                        "x3": {
+                          "type": "number"
+                        },
+                        "x4": {
+                          "type": "number"
+                        },
+                        "x5": {
+                          "type": "number"
+                        }
+                      },
+                      "required": [
+                        "symbol",
+                        "x3",
+                        "x4",
+                        "x5"
+                      ],
+                      "additionalProperties": false
+                    }
+                  },
+                  "scatter": {
+                    "type": "object",
+                    "properties": {
+                      "symbol": {
+                        "type": "string"
+                      },
+                      "awards": {
+                        "type": "array",
+                        "items": {
+                          "type": "object",
+                          "properties": {
+                            "count": {
+                              "type": "integer"
+                            },
+                            "free_spins": {
+                              "type": "integer"
+                            }
+                          },
+                          "required": [
+                            "count",
+                            "free_spins"
+                          ],
+                          "additionalProperties": false
+                        }
+                      }
+                    },
+                    "required": [
+                      "symbol",
+                      "awards"
+                    ],
+                    "additionalProperties": false
+                  },
+                  "wild": {
+                    "type": "object",
+                    "properties": {
+                      "symbol": {
+                        "type": "string"
+                      },
+                      "substitutes_for": {
+                        "type": "array",
+                        "items": {
+                          "type": "string"
+                        }
+                      }
+                    },
+                    "required": [
+                      "symbol",
+                      "substitutes_for"
+                    ],
+                    "additionalProperties": false
+                  }
+                },
+                "required": [
+                  "line_wins",
+                  "scatter",
+                  "wild"
+                ],
+                "additionalProperties": false
+              },
+              "rules_url": {
+                "type": "string"
+              },
+              "rtp": {
+                "type": "number"
+              },
+              "volatility": {
+                "type": "string",
+                "enum": [
+                  "low",
+                  "medium",
+                  "high"
+                ]
+              },
+              "features": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              }
+            },
+            "required": [
+              "reels",
+              "rows",
+              "paylines",
+              "currencies",
+              "min_bet",
+              "max_bet",
+              "min_lines",
+              "max_lines",
+              "default_lines",
+              "line_defs",
+              "bet_levels",
+              "paytable_url",
+              "paytable",
+              "rules_url",
+              "rtp",
+              "volatility",
+              "features"
+            ],
+            "additionalProperties": false
+          },
+          "balance": {
+            "type": "object",
+            "properties": {
+              "amount": {
+                "type": "number"
+              },
+              "currency": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "amount",
+              "currency"
+            ],
+            "additionalProperties": false
+          },
+          "expires_at": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "session_id",
+          "game_id",
+          "config",
+          "balance",
+          "expires_at"
+        ],
+        "additionalProperties": false
+      },
+      "SpinRequest": {
+        "type": "object",
+        "properties": {
+          "session_id": {
+            "type": "string",
+            "minLength": 1
+          },
+          "game_id": {
+            "type": "string",
+            "minLength": 1
+          },
+          "bet": {
+            "type": "object",
+            "properties": {
+              "amount": {
+                "type": "number"
+              },
+              "currency": {
+                "type": "string",
+                "minLength": 1
+              },
+              "lines": {
+                "type": "integer"
+              }
+            },
+            "required": [
+              "amount",
+              "currency",
+              "lines"
+            ],
+            "additionalProperties": false
+          },
+          "client_timestamp": {
+            "type": "integer"
+          }
+        },
+        "required": [
+          "session_id",
+          "game_id",
+          "bet",
+          "client_timestamp"
+        ],
+        "additionalProperties": false
+      },
+      "SpinResponse": {
+        "type": "object",
+        "properties": {
+          "spin_id": {
+            "type": "string"
+          },
+          "session_id": {
+            "type": "string"
+          },
+          "game_id": {
+            "type": "string"
+          },
+          "balance": {
+            "type": "object",
+            "properties": {
+              "amount": {
+                "type": "number"
+              },
+              "currency": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "amount",
+              "currency"
+            ],
+            "additionalProperties": false
+          },
+          "bet": {
+            "type": "object",
+            "properties": {
+              "amount": {
+                "type": "number"
+              },
+              "currency": {
+                "type": "string",
+                "minLength": 1
+              },
+              "lines": {
+                "type": "integer"
+              }
+            },
+            "required": [
+              "amount",
+              "currency",
+              "lines"
+            ],
+            "additionalProperties": false
+          },
+          "outcome": {
+            "type": "object",
+            "properties": {
+              "reel_matrix": {
+                "type": "array",
+                "items": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              },
+              "win": {
+                "type": "object",
+                "properties": {
+                  "amount": {
+                    "type": "number"
+                  },
+                  "currency": {
+                    "type": "string"
+                  },
+                  "breakdown": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "type": {
+                          "type": "string",
+                          "enum": [
+                            "line"
+                          ]
+                        },
+                        "line_index": {
+                          "type": "integer"
+                        },
+                        "symbol": {
+                          "type": "string"
+                        },
+                        "count": {
+                          "type": "integer"
+                        },
+                        "payout": {
+                          "type": "number"
+                        }
+                      },
+                      "required": [
+                        "type",
+                        "line_index",
+                        "symbol",
+                        "count",
+                        "payout"
+                      ],
+                      "additionalProperties": false
+                    }
+                  }
+                },
+                "required": [
+                  "amount",
+                  "currency",
+                  "breakdown"
+                ],
+                "additionalProperties": false
+              },
+              "bonus_triggered": {
+                "type": "object",
+                "nullable": true,
+                "properties": {
+                  "type": {
+                    "type": "string",
+                    "enum": [
+                      "free_spins"
+                    ]
+                  },
+                  "free_spins_count": {
+                    "type": "integer"
+                  },
+                  "bonus_round_id": {
+                    "type": "string"
+                  },
+                  "multiplier": {
+                    "type": "number"
+                  }
+                },
+                "required": [
+                  "type",
+                  "free_spins_count",
+                  "bonus_round_id",
+                  "multiplier"
+                ],
+                "additionalProperties": false
+              }
+            },
+            "required": [
+              "reel_matrix",
+              "win",
+              "bonus_triggered"
+            ],
+            "additionalProperties": false
+          },
+          "next_state": {
+            "type": "string"
+          },
+          "timestamp": {
+            "type": "integer"
+          }
+        },
+        "required": [
+          "spin_id",
+          "session_id",
+          "game_id",
+          "balance",
+          "bet",
+          "outcome",
+          "next_state",
+          "timestamp"
+        ],
+        "additionalProperties": false
+      },
+      "HistoryResponse": {
+        "type": "object",
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "spin_id": {
+                  "type": "string"
+                },
+                "session_id": {
+                  "type": "string"
+                },
+                "game_id": {
+                  "type": "string"
+                },
+                "balance": {
+                  "type": "object",
+                  "properties": {
+                    "amount": {
+                      "type": "number"
+                    },
+                    "currency": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "amount",
+                    "currency"
+                  ],
+                  "additionalProperties": false
+                },
+                "bet": {
+                  "type": "object",
+                  "properties": {
+                    "amount": {
+                      "type": "number"
+                    },
+                    "currency": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "lines": {
+                      "type": "integer"
+                    }
+                  },
+                  "required": [
+                    "amount",
+                    "currency",
+                    "lines"
+                  ],
+                  "additionalProperties": false
+                },
+                "outcome": {
+                  "type": "object",
+                  "properties": {
+                    "reel_matrix": {
+                      "type": "array",
+                      "items": {
+                        "type": "array",
+                        "items": {
+                          "type": "string"
+                        }
+                      }
+                    },
+                    "win": {
+                      "type": "object",
+                      "properties": {
+                        "amount": {
+                          "type": "number"
+                        },
+                        "currency": {
+                          "type": "string"
+                        },
+                        "breakdown": {
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "type": {
+                                "type": "string",
+                                "enum": [
+                                  "line"
+                                ]
+                              },
+                              "line_index": {
+                                "type": "integer"
+                              },
+                              "symbol": {
+                                "type": "string"
+                              },
+                              "count": {
+                                "type": "integer"
+                              },
+                              "payout": {
+                                "type": "number"
+                              }
+                            },
+                            "required": [
+                              "type",
+                              "line_index",
+                              "symbol",
+                              "count",
+                              "payout"
+                            ],
+                            "additionalProperties": false
+                          }
+                        }
+                      },
+                      "required": [
+                        "amount",
+                        "currency",
+                        "breakdown"
+                      ],
+                      "additionalProperties": false
+                    },
+                    "bonus_triggered": {
+                      "type": "object",
+                      "nullable": true,
+                      "properties": {
+                        "type": {
+                          "type": "string",
+                          "enum": [
+                            "free_spins"
+                          ]
+                        },
+                        "free_spins_count": {
+                          "type": "integer"
+                        },
+                        "bonus_round_id": {
+                          "type": "string"
+                        },
+                        "multiplier": {
+                          "type": "number"
+                        }
+                      },
+                      "required": [
+                        "type",
+                        "free_spins_count",
+                        "bonus_round_id",
+                        "multiplier"
+                      ],
+                      "additionalProperties": false
+                    }
+                  },
+                  "required": [
+                    "reel_matrix",
+                    "win",
+                    "bonus_triggered"
+                  ],
+                  "additionalProperties": false
+                },
+                "next_state": {
+                  "type": "string"
+                },
+                "timestamp": {
+                  "type": "integer"
+                }
+              },
+              "required": [
+                "spin_id",
+                "session_id",
+                "game_id",
+                "balance",
+                "bet",
+                "outcome",
+                "next_state",
+                "timestamp"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "total": {
+            "type": "integer"
+          },
+          "limit": {
+            "type": "integer"
+          },
+          "offset": {
+            "type": "integer"
+          }
+        },
+        "required": [
+          "items",
+          "total",
+          "limit",
+          "offset"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "parameters": {}
+  },
+  "paths": {
+    "/health": {
+      "get": {
+        "tags": [
+          "System"
+        ],
+        "summary": "Health check",
+        "responses": {
+          "200": {
+            "description": "Service is healthy",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "example": "ok"
+                    }
+                  },
+                  "required": [
+                    "status"
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/game/init": {
+      "post": {
+        "tags": [
+          "Game"
+        ],
+        "summary": "Initialize game session",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": false,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/InitRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Session created",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/InitResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/spin": {
+      "post": {
+        "tags": [
+          "Game"
+        ],
+        "summary": "Execute one spin",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "string"
+            },
+            "required": false,
+            "name": "Idempotency-Key",
+            "in": "header"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SpinRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Spin result",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SpinResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden or expired session",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Idempotency key reused with different payload",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation or business rule error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limited (may include Retry-After header)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/history": {
+      "get": {
+        "tags": [
+          "Game"
+        ],
+        "summary": "Get spin history for current user",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 100
+            },
+            "required": false,
+            "name": "limit",
+            "in": "query"
+          },
+          {
+            "schema": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "required": false,
+            "name": "offset",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "History response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HistoryResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid query params",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

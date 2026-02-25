@@ -1,7 +1,8 @@
 import { Router } from 'express';
 import { authMiddleware } from '../middleware/auth.js';
 import { createSession, getConfig, executeSpin, getBalance, getHistory } from '../store.js';
-import { GAME_ID, PAYLINES } from '../engine/gameConfig.js';
+import { GAME_ID } from '../engine/gameConfig.js';
+import { HistoryQuerySchema, InitRequestSchema, SpinRequestSchema } from '../contracts/gameContract.js';
 
 const router = Router();
 
@@ -32,12 +33,12 @@ function toErrorCode(error: string): string {
 
 router.post('/game/init', authMiddleware, (req, res) => {
   const userId = (req as unknown as { userId: string }).userId;
-  const body = req.body as { game_id?: string; platform?: string; locale?: string; client_version?: string };
-  const game_id = body?.game_id ?? GAME_ID;
-  if (!game_id) {
-    res.status(400).json({ error: 'Invalid request', code: 'invalid_game_id' });
+  const parsed = InitRequestSchema.safeParse(req.body ?? {});
+  if (!parsed.success) {
+    res.status(400).json({ error: 'Invalid request', code: 'invalid_body' });
     return;
   }
+  const game_id = parsed.data.game_id ?? GAME_ID;
   const session = createSession(userId, game_id);
   const balance = getBalance(userId, 'USD');
   res.json({
@@ -51,24 +52,19 @@ router.post('/game/init', authMiddleware, (req, res) => {
 
 router.post('/spin', authMiddleware, (req, res) => {
   const userId = (req as unknown as { userId: string }).userId;
-  const body = req.body as {
-    session_id?: string;
-    game_id?: string;
-    bet?: { amount?: number; currency?: string; lines?: number };
-    client_timestamp?: number;
-  };
   const idempotencyKey = req.headers['idempotency-key'] as string | undefined;
-
-  const session_id = body?.session_id;
-  const game_id = body?.game_id ?? GAME_ID;
-  const betAmount = Number(body?.bet?.amount);
-  const lines = Number(body?.bet?.lines ?? PAYLINES);
-  const currency = body?.bet?.currency ?? 'USD';
-
-  if (!session_id || typeof betAmount !== 'number' || !Number.isFinite(betAmount) || !Number.isFinite(lines)) {
+  const parsed = SpinRequestSchema.safeParse(req.body);
+  if (!parsed.success) {
     res.status(400).json({ error: 'Invalid request', code: 'invalid_body' });
     return;
   }
+
+  const session_id = parsed.data.session_id;
+  const game_id = parsed.data.game_id;
+  const betAmount = parsed.data.bet.amount;
+  const lines = parsed.data.bet.lines;
+  const currency = parsed.data.bet.currency;
+
   if (betAmount < 0) {
     res.status(400).json({ error: 'Invalid bet amount', code: 'invalid_bet' });
     return;
@@ -91,8 +87,14 @@ router.post('/spin', authMiddleware, (req, res) => {
 
 router.get('/history', authMiddleware, (req, res) => {
   const userId = (req as unknown as { userId: string }).userId;
-  const limit = Number(req.query.limit ?? 50);
-  const offset = Number(req.query.offset ?? 0);
+  const parsed = HistoryQuerySchema.safeParse(req.query);
+  if (!parsed.success) {
+    res.status(400).json({ error: 'Invalid request', code: 'invalid_query' });
+    return;
+  }
+
+  const limit = parsed.data.limit ?? 50;
+  const offset = parsed.data.offset ?? 0;
   res.json(getHistory(userId, limit, offset));
 });
 

@@ -6,14 +6,18 @@
   "scripts": {
     "build": "tsc",
     "test": "npm run build && node --test --test-concurrency=1 dist/tests",
+    "openapi:generate": "npm run build && node dist/scripts/openapi.js",
+    "openapi:check": "npm run build && node dist/scripts/openapi.js --check",
     "jwt:generate": "node scripts/generate-rs256-jwt.mjs",
     "start": "node dist/index.js",
     "dev": "tsx watch src/index.ts"
   },
   "dependencies": {
+    "@asteasolutions/zod-to-openapi": "^8.4.1",
     "express": "^4.21.0",
     "swagger-ui-express": "^5.0.1",
-    "uuid": "^10.0.0"
+    "uuid": "^10.0.0",
+    "zod": "^4.3.6"
   },
   "devDependencies": {
     "@types/express": "^4.17.21",
