@@ -30,6 +30,19 @@ function App() {
   const [ready, setReady] = useState(false);
 
   useEffect(() => {
+    const root = document.getElementById('root');
+    const previousRootOverflow = root?.style.overflow ?? '';
+    const previousBodyOverflow = document.body.style.overflow;
+    const overflowMode = screen === 'slots' ? 'hidden' : 'auto';
+    if (root) root.style.overflow = overflowMode;
+    document.body.style.overflow = overflowMode;
+    return () => {
+      if (root) root.style.overflow = previousRootOverflow;
+      document.body.style.overflow = previousBodyOverflow;
+    };
+  }, [screen]);
+
+  useEffect(() => {
     let timeoutId: ReturnType<typeof setTimeout>;
     const onResize = () => {
       clearTimeout(timeoutId);

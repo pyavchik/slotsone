@@ -1,6 +1,7 @@
 import './cvLanding.css';
 
 const CV_PDF_PATH = '/QA_Oleksander_Pyavchik_CV.pdf';
+const POSTMAN_TESTS_PATH = '/postman-tests.html';
 
 const SKILLS = [
   'Java',
@@ -84,6 +85,9 @@ export function CVLanding({ onOpenSlots }: { onOpenSlots: () => void }) {
         </div>
 
         <div className="cv-actions">
+          <a className="cv-link" href={POSTMAN_TESTS_PATH} target="_blank" rel="noreferrer">
+            Postman Tests
+          </a>
           <a className="cv-link" href={CV_PDF_PATH} target="_blank" rel="noreferrer">
             Download PDF CV
           </a>

@@ -1,0 +1,113 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Postman Tests</title>
+    <style>
+      * { box-sizing: border-box; }
+      body {
+        margin: 0;
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+        background: linear-gradient(180deg, #0f1118 0%, #0b0d13 100%);
+        color: #f8fafc;
+        min-height: 100vh;
+      }
+      .wrap {
+        max-width: 980px;
+        margin: 0 auto;
+        padding: 28px 18px 36px;
+      }
+      .card {
+        border: 1px solid rgba(255, 255, 255, 0.14);
+        border-radius: 14px;
+        background: rgba(17, 20, 30, 0.78);
+        padding: 18px;
+      }
+      h1 {
+        margin: 0 0 6px;
+        font-size: 30px;
+      }
+      p {
+        color: #dbe2ec;
+        line-height: 1.55;
+      }
+      .actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        margin: 16px 0 4px;
+      }
+      .btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 44px;
+        padding: 10px 14px;
+        border-radius: 10px;
+        border: 1px solid rgba(148, 163, 184, 0.5);
+        background: rgba(15, 23, 42, 0.65);
+        color: #e2e8f0;
+        font-weight: 600;
+        text-decoration: none;
+      }
+      .btn.primary {
+        border: none;
+        color: #0a0b10;
+        background: linear-gradient(180deg, #f5d06a 0%, #e8b84a 100%);
+      }
+      .section {
+        margin-top: 14px;
+      }
+      h2 {
+        margin: 0 0 8px;
+        font-size: 18px;
+      }
+      code, pre {
+        font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+      }
+      pre {
+        margin: 0;
+        padding: 12px;
+        border-radius: 10px;
+        background: rgba(15, 23, 42, 0.85);
+        border: 1px solid rgba(148, 163, 184, 0.22);
+        color: #dbe2ec;
+        overflow-x: auto;
+      }
+      ul {
+        margin: 8px 0 0 20px;
+        padding: 0;
+      }
+      li { margin: 6px 0; color: #dbe2ec; }
+    </style>
+  </head>
+  <body>
+    <main class="wrap">
+      <section class="card">
+        <h1>Postman Tests</h1>
+        <p>Download the regression collection and environment below, then run tests in Postman or Newman.</p>
+
+        <div class="actions">
+          <a class="btn primary" href="/postman/slots-collection.json" download>Download Collection</a>
+          <a class="btn" href="/postman/dev.env.json" download>Download Environment</a>
+          <a class="btn" href="/postman/README.md" target="_blank" rel="noreferrer">Open Test Guide</a>
+        </div>
+
+        <div class="section">
+          <h2>Quick Start</h2>
+          <ul>
+            <li>Open Postman and import <code>slots-collection.json</code> and <code>dev.env.json</code>.</li>
+            <li>Set <code>base_url</code> and <code>jwt_token</code> in the imported environment.</li>
+            <li>Run the full collection from Collection Runner.</li>
+          </ul>
+        </div>
+
+        <div class="section">
+          <h2>Newman</h2>
+          <pre>newman run slots-collection.json -e dev.env.json</pre>
+        </div>
+      </section>
+    </main>
+  </body>
+</html>
