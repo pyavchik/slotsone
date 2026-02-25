@@ -115,5 +115,9 @@ jobs:
             cd '${DEPLOY_PATH}'; \
             test -f backend/.env.production || { echo 'Missing backend/.env.production on server'; exit 1; }; \
             test -f .env.production || { echo 'Missing .env.production on server'; exit 1; }; \
+            TLS_DOMAIN=\$(grep '^TLS_DOMAIN=' .env.production | cut -d= -f2- || true); \
+            ACME_EMAIL=\$(grep '^ACME_EMAIL=' .env.production | cut -d= -f2- || true); \
+            test -n \"\${TLS_DOMAIN}\" || { echo 'Missing TLS_DOMAIN in .env.production'; exit 1; }; \
+            test -n \"\${ACME_EMAIL}\" || { echo 'Missing ACME_EMAIL in .env.production'; exit 1; }; \
             docker compose --env-file .env.production -f docker-compose.prod.yml up -d --build --remove-orphans; \
             docker image prune -f"

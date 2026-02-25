@@ -117,7 +117,7 @@ Required secrets for `.github/workflows/deploy.yml`:
 - `DEPLOY_PORT` (usually `22`)
 - `DEPLOY_USER` (for example `deploy`)
 - `DEPLOY_PATH` (for example `/opt/slotsone`)
-- `DEPLOY_SSH_KEY` (private key matching `DEPLOY_PUBLIC_KEY`)
+- `DEPLOY_SSH_KEY_B64` (base64-encoded private key for SSH)
 - `DEPLOY_KNOWN_HOSTS` (optional but recommended)
 
 ### 4) Deploy
@@ -131,6 +131,23 @@ docker compose --env-file .env.production -f docker-compose.prod.yml up -d --bui
 ```
 
 App is served by frontend nginx container on port `80` and proxies `/api` to backend.
+
+### SSL (Let's Encrypt via Caddy)
+
+Production compose now includes a Caddy reverse proxy with automatic TLS.
+
+Requirements:
+1. Point your DNS A record to the server IP.
+2. Ensure inbound ports `80` and `443` are open.
+3. Set these values in `/opt/slotsone/.env.production`:
+
+```bash
+VITE_DEMO_JWT=<production-jwt-for-frontend-build>
+TLS_DOMAIN=<your-domain.example.com>
+ACME_EMAIL=<ops-email@example.com>
+```
+
+After deploy, Caddy requests and renews certificates automatically.
 
 ## Manual Build Commands
 
