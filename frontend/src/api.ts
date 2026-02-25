@@ -1,4 +1,4 @@
-const API_BASE = '/api/v1';
+const API_BASE = (import.meta.env.VITE_API_BASE ?? '/api/v1').replace(/\/$/, '');
 
 export interface GamePaytable {
   line_wins: Array<{ symbol: string; x3: number; x4: number; x5: number }>;
@@ -10,6 +10,7 @@ export interface GameConfig {
   reels: number;
   rows: number;
   paylines: number;
+  line_defs?: number[][];
   min_bet: number;
   max_bet: number;
   min_lines?: number;

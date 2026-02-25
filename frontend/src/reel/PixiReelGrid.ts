@@ -9,14 +9,7 @@ const CELL_W = 172;
 const CELL_H = 172;
 const GAP = 8;
 
-/** Payline definitions: 20 lines, each [row for reel0, reel1, ..., reel4]. Row 0=top, 1=mid, 2=bottom. */
-const LINE_DEFS: number[][] = [
-  [1, 1, 1, 1, 1], [0, 0, 0, 0, 0], [2, 2, 2, 2, 2],
-  [1, 0, 0, 0, 1], [1, 2, 2, 2, 1], [0, 1, 0, 1, 0], [2, 1, 2, 1, 2],
-  [0, 0, 1, 0, 0], [2, 2, 1, 2, 2], [1, 1, 0, 1, 1], [1, 1, 2, 1, 1],
-  [0, 1, 1, 1, 0], [2, 1, 1, 1, 2], [0, 2, 0, 2, 0], [2, 0, 2, 0, 2],
-  [1, 0, 1, 0, 1], [1, 2, 1, 2, 1], [0, 1, 2, 1, 0], [2, 1, 0, 1, 2], [0, 2, 1, 2, 0],
-];
+const FALLBACK_LINE_DEFS: number[][] = [];
 const PAYLINE_COLORS = [
   0xfbbf24, // gold
   0x22d3ee, // cyan
@@ -72,6 +65,7 @@ function makeSymbolGraphic(symbolId: string, width: number, height: number): Gra
 export interface ReelGridOptions {
   width: number;
   height: number;
+  lineDefs?: number[][];
   safeTop?: number;
   safeBottom?: number;
   safeLeft?: number;
@@ -111,6 +105,7 @@ export class ReelGrid {
   private stepHeight: number;
   private paylinesContainer: Container | null = null;
   private winningLines: WinningLineInfo[] = [];
+  private lineDefs: number[][] = [];
 
   /** PixiJS v8 requires async init(). Use ReelGrid.create() instead of new ReelGrid(). */
   static async create(canvas: HTMLCanvasElement, options: ReelGridOptions): Promise<ReelGrid> {
@@ -132,6 +127,23 @@ export class ReelGrid {
     this.stepHeight = CELL_H + GAP;
     this.app = new Application();
     this.container = new Container();
+    this.lineDefs = this.normalizeLineDefs(options.lineDefs ?? FALLBACK_LINE_DEFS);
+  }
+
+  private normalizeLineDefs(lineDefs: number[][]): number[][] {
+    return lineDefs
+      .filter(
+        (line): line is number[] =>
+          Array.isArray(line) &&
+          line.length === REELS &&
+          line.every((row) => Number.isInteger(row) && row >= 0 && row < ROWS)
+      )
+      .map((line) => [...line]);
+  }
+
+  setLineDefs(lineDefs: number[][]) {
+    this.lineDefs = this.normalizeLineDefs(lineDefs);
+    this.winningLines = this.winningLines.filter((line) => line.lineIndex >= 0 && line.lineIndex < this.lineDefs.length);
   }
 
   private layoutContainer(width: number, height: number) {
@@ -182,7 +194,7 @@ export class ReelGrid {
   /** Set winning line data for line drawing, symbol highlight and payout labels. */
   setWinningLines(lines: WinningLineInfo[]) {
     this.winningLines = lines
-      .filter((line) => line.lineIndex >= 0 && line.lineIndex < LINE_DEFS.length)
+      .filter((line) => line.lineIndex >= 0 && line.lineIndex < this.lineDefs.length)
       .sort((a, b) => b.payout - a.payout);
   }
 
@@ -195,7 +207,7 @@ export class ReelGrid {
     const byCell = new Map<string, { reel: number; row: number; color: number; overlaps: number }>();
 
     for (const line of this.winningLines) {
-      const path = LINE_DEFS[line.lineIndex];
+      const path = this.lineDefs[line.lineIndex];
       if (!path) continue;
       for (let reel = 0; reel < Math.min(line.count, REELS); reel++) {
         const row = path[reel];
@@ -230,7 +242,7 @@ export class ReelGrid {
     this.paylinesContainer.removeChildren();
     this.drawWinningCells();
     for (const winningLine of this.winningLines) {
-      const path = LINE_DEFS[winningLine.lineIndex];
+      const path = this.lineDefs[winningLine.lineIndex];
       if (!path || path.length !== REELS) continue;
       const points: number[] = [];
       for (let r = 0; r < REELS; r++) {
