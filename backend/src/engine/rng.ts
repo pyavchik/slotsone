@@ -1,3 +1,5 @@
+import { randomFillSync } from 'node:crypto';
+
 /**
  * Seeded PRNG (Mulberry32) for deterministic outcomes.
  * For certified use replace with Mersenne Twister (MT19937).
@@ -14,9 +16,12 @@ export function createSeededRNG(seed: number): () => number {
 
 export function getRandomSeed(): number {
   const buf = new Uint32Array(1);
-  if (typeof crypto !== 'undefined' && crypto.getRandomValues) {
-    crypto.getRandomValues(buf);
+  if (typeof globalThis.crypto !== 'undefined' && typeof globalThis.crypto.getRandomValues === 'function') {
+    globalThis.crypto.getRandomValues(buf);
     return buf[0]!;
   }
-  return (Math.random() * 0xffffffff) >>> 0;
+
+  // Fallback for runtimes without Web Crypto global.
+  randomFillSync(buf);
+  return buf[0]!;
 }
