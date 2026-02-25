@@ -1,4 +1,5 @@
 import express from 'express';
+import cors from 'cors';
 import swaggerUi from 'swagger-ui-express';
 import { loadEnvironmentFiles } from './config/loadEnv.js';
 import { validateAuthEnvironment } from './config/validateAuthEnv.js';
@@ -15,22 +16,22 @@ const corsOrigins = (process.env.CORS_ORIGINS ?? '*')
   .map((origin) => origin.trim())
   .filter(Boolean);
 
-app.use((req, res, next) => {
-  const origin = req.headers.origin;
-  if (corsOrigins.includes('*')) {
-    res.setHeader('Access-Control-Allow-Origin', '*');
-  } else if (origin && corsOrigins.includes(origin)) {
-    res.setHeader('Access-Control-Allow-Origin', origin);
-    res.setHeader('Vary', 'Origin');
-  }
-  res.setHeader('Access-Control-Allow-Methods', 'GET,POST,OPTIONS');
-  res.setHeader('Access-Control-Allow-Headers', 'Content-Type,Authorization,Idempotency-Key');
-  if (req.method === 'OPTIONS') {
-    res.status(204).end();
-    return;
-  }
-  next();
-});
+const corsOptions: cors.CorsOptions = {
+  origin: corsOrigins.includes('*')
+    ? '*'
+    : (origin, callback) => {
+        if (!origin) {
+          callback(null, true);
+          return;
+        }
+        callback(null, corsOrigins.includes(origin));
+      },
+  methods: ['GET', 'POST', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'Idempotency-Key'],
+  optionsSuccessStatus: 204,
+};
+
+app.use(cors(corsOptions));
 
 app.use((req, res, next) => {
   const startedAt = performance.now();
