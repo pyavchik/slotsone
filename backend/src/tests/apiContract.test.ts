@@ -50,6 +50,19 @@ const supportsSockets = await canBindLocalPort();
 if (!supportsSockets) {
   test.skip('API contract tests skipped: local sockets are blocked in this execution environment', () => {});
 } else {
+  test('CORS preflight is enabled for API routes', async () => {
+    const response = await request(app)
+      .options('/api/v1/spin')
+      .set('Origin', 'https://example.com')
+      .set('Access-Control-Request-Method', 'POST')
+      .set('Access-Control-Request-Headers', 'Content-Type,Authorization,Idempotency-Key')
+      .expect(204);
+
+    assert.equal(response.headers['access-control-allow-origin'], '*');
+    assert.match(String(response.headers['access-control-allow-methods'] ?? ''), /POST/);
+    assert.match(String(response.headers['access-control-allow-headers'] ?? ''), /authorization/i);
+  });
+
   test('init rejects unauthenticated request even if user_id is supplied in body', async () => {
     resetStoreForTests();
 

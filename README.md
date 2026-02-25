@@ -112,6 +112,11 @@ Configuration is loaded automatically from:
 - `JWT_ISSUER` — optional claim check
 - `JWT_AUDIENCE` — optional claim check
 
+### CORS Environment Variable
+
+- `CORS_ORIGINS` — comma-separated allowlist for browser clients (for example `https://app.example.com,https://admin.example.com`).
+  Use `*` only for local/dev use cases.
+
 Frontend does not ship a built-in token.  
 Set `VITE_DEMO_JWT` to a valid RS256 JWT.
 
