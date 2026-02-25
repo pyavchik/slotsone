@@ -2,6 +2,7 @@
  * PixiJS ReelGrid: 5x3, spin/stop animation per design spec.
  */
 import { Application, Container, Graphics, Text } from 'pixi.js';
+import { symbolColorNumber, symbolShortLabel } from '../symbols';
 
 const REELS = 5;
 const ROWS = 3;
@@ -35,24 +36,13 @@ function easeOutCubic(t: number): number {
   return 1 - (1 - t) ** 3;
 }
 
-const SYMBOL_COLORS: Record<string, number> = {
-  '10': 0x4ade80,
-  J: 0x60a5fa,
-  Q: 0xa78bfa,
-  K: 0xf472b6,
-  A: 0xfbbf24,
-  Star: 0xf59e0b,
-  Scatter: 0x22d3ee,
-  Wild: 0xe879f9,
-};
-
 function makeSymbolGraphic(symbolId: string, width: number, height: number): Graphics {
   const g = new Graphics();
-  const color = SYMBOL_COLORS[symbolId] ?? 0x6b7280;
+  const color = symbolColorNumber(symbolId);
   g.rect(0, 0, width, height).fill(color);
   g.rect(2, 2, width - 4, height - 4).stroke({ width: 2, color: 0x1f2937 });
   const text = new Text({
-    text: symbolId.length > 2 ? symbolId.slice(0, 2) : symbolId,
+    text: symbolShortLabel(symbolId),
     style: { fontSize: 32, fill: 0xffffff, fontWeight: 'bold' },
   });
   text.anchor.set(0.5);
@@ -271,7 +261,7 @@ export class ReelGrid {
       this.paylinesContainer.addChild(labelBg);
 
       const payoutLabel = new Text({
-        text: `L${winningLine.lineIndex + 1} ${winningLine.symbol}x${winningLine.count}  +${winningLine.payout.toFixed(2)}`,
+        text: `L${winningLine.lineIndex + 1} ${symbolShortLabel(winningLine.symbol)}x${winningLine.count}  +${winningLine.payout.toFixed(2)}`,
         style: {
           fontSize: 12,
           fill: 0xffffff,
