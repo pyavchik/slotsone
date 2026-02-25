@@ -1,7 +1,7 @@
 import { Router } from 'express';
 import { authMiddleware } from '../middleware/auth.js';
 import { createSession, getConfig, executeSpin, getBalance } from '../store.js';
-import { GAME_ID } from '../engine/gameConfig.js';
+import { GAME_ID, PAYLINES } from '../engine/gameConfig.js';
 
 const router = Router();
 
@@ -21,6 +21,8 @@ function toErrorCode(error: string): string {
       return 'invalid_bet';
     case 'Invalid currency':
       return 'invalid_currency';
+    case 'Invalid lines count':
+      return 'invalid_lines';
     case 'Idempotency key reused with different request payload':
       return 'idempotency_key_reused';
     default:
@@ -60,9 +62,10 @@ router.post('/spin', authMiddleware, (req, res) => {
   const session_id = body?.session_id;
   const game_id = body?.game_id ?? GAME_ID;
   const betAmount = Number(body?.bet?.amount);
+  const lines = Number(body?.bet?.lines ?? PAYLINES);
   const currency = body?.bet?.currency ?? 'USD';
 
-  if (!session_id || typeof betAmount !== 'number' || !Number.isFinite(betAmount)) {
+  if (!session_id || typeof betAmount !== 'number' || !Number.isFinite(betAmount) || !Number.isFinite(lines)) {
     res.status(400).json({ error: 'Invalid request', code: 'invalid_body' });
     return;
   }
@@ -71,7 +74,7 @@ router.post('/spin', authMiddleware, (req, res) => {
     return;
   }
 
-  const result = executeSpin(userId, session_id, game_id, betAmount, currency, idempotencyKey);
+  const result = executeSpin(userId, session_id, game_id, betAmount, currency, lines, idempotencyKey);
 
   if ('error' in result) {
     res.status(result.code).json({

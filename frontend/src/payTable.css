@@ -1,0 +1,251 @@
+.paytable-toggle {
+  position: absolute;
+  top: 78px;
+  right: 24px;
+  z-index: 35;
+  padding: 10px 14px;
+  border-radius: 999px;
+  border: 1px solid rgba(245, 208, 106, 0.7);
+  background: rgba(16, 16, 24, 0.9);
+  color: #f8fafc;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  cursor: pointer;
+  transition: background-color 150ms ease, transform 150ms ease;
+}
+
+.paytable-toggle:hover {
+  background: rgba(29, 29, 44, 0.95);
+  transform: translateY(-1px);
+}
+
+.paytable-toggle:focus-visible {
+  outline: 2px solid #f5d06a;
+  outline-offset: 2px;
+}
+
+.paytable-backdrop {
+  position: absolute;
+  inset: 0;
+  z-index: 120;
+  display: flex;
+  justify-content: flex-end;
+  background: rgba(0, 0, 0, 0.5);
+  animation: paytable-fade-in 160ms ease;
+}
+
+.paytable-dialog {
+  width: min(430px, 100%);
+  height: 100%;
+  background: linear-gradient(180deg, #151523 0%, #0f0f18 100%);
+  border-left: 1px solid rgba(255, 255, 255, 0.12);
+  box-shadow: -24px 0 48px rgba(0, 0, 0, 0.45);
+  display: flex;
+  flex-direction: column;
+  color: #f8fafc;
+  animation: paytable-slide-in 220ms ease;
+}
+
+.paytable-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 16px;
+  padding: 20px 20px 14px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+}
+
+.paytable-header h2 {
+  margin: 0;
+  font-size: 24px;
+  line-height: 1.1;
+}
+
+.paytable-header p {
+  margin: 6px 0 0;
+  color: #a1a1aa;
+  font-size: 13px;
+  line-height: 1.4;
+}
+
+.paytable-close {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  border: 1px solid rgba(255, 255, 255, 0.24);
+  background: transparent;
+  color: #f8fafc;
+  font-size: 24px;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.paytable-close:focus-visible {
+  outline: 2px solid #f5d06a;
+  outline-offset: 2px;
+}
+
+.paytable-meta {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  padding: 12px 20px 10px;
+  color: #d4d4d8;
+  font-size: 13px;
+}
+
+.paytable-meta p {
+  margin: 0;
+  padding: 10px 12px;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.paytable-scroll {
+  padding: 0 20px;
+  overflow: auto;
+}
+
+.paytable-table {
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 360px;
+  font-size: 13px;
+}
+
+.paytable-table thead th {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  background: #11111c;
+  color: #a1a1aa;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  padding: 10px 8px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+  text-align: left;
+}
+
+.paytable-table tbody th,
+.paytable-table tbody td {
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  padding: 10px 8px;
+  vertical-align: middle;
+  text-align: left;
+}
+
+.paytable-symbol {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 700;
+}
+
+.paytable-symbol-swatch {
+  width: 14px;
+  height: 14px;
+  border-radius: 4px;
+  border: 1px solid rgba(17, 17, 28, 0.8);
+  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.16);
+}
+
+.paytable-table td strong {
+  display: block;
+  color: #f8fafc;
+  font-size: 14px;
+}
+
+.paytable-table td span {
+  display: block;
+  margin-top: 2px;
+  color: #a1a1aa;
+  font-size: 12px;
+}
+
+.paytable-row-hit {
+  background: linear-gradient(90deg, rgba(74, 222, 128, 0.12) 0%, rgba(74, 222, 128, 0) 100%);
+}
+
+.paytable-note {
+  margin: 14px 20px 18px;
+  padding: 12px 14px;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: rgba(255, 255, 255, 0.04);
+  color: #d4d4d8;
+}
+
+.paytable-note h3 {
+  margin: 0 0 8px;
+  color: #f8fafc;
+  font-size: 14px;
+}
+
+.paytable-note p {
+  margin: 0;
+  font-size: 13px;
+  line-height: 1.45;
+}
+
+.paytable-note p + p {
+  margin-top: 8px;
+}
+
+@media (max-width: 900px) {
+  .paytable-toggle {
+    top: 70px;
+    right: 12px;
+    padding: 9px 12px;
+    font-size: 12px;
+  }
+
+  .paytable-backdrop {
+    align-items: flex-end;
+  }
+
+  .paytable-dialog {
+    width: 100%;
+    height: auto;
+    max-height: min(78vh, 640px);
+    border-left: none;
+    border-top: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 20px 20px 0 0;
+    box-shadow: 0 -20px 48px rgba(0, 0, 0, 0.5);
+  }
+
+  .paytable-meta {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .paytable-toggle,
+  .paytable-backdrop,
+  .paytable-dialog {
+    transition: none;
+    animation: none;
+  }
+}
+
+@keyframes paytable-fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes paytable-slide-in {
+  from {
+    transform: translateX(24px);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}

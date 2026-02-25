@@ -1,15 +1,24 @@
 import { useGameStore } from './store';
+import './betPanel.css';
 
 export function BetPanel({ onSpin }: { onSpin: () => void }) {
   const bet = useGameStore((s) => s.bet);
   const setBet = useGameStore((s) => s.setBet);
+  const lines = useGameStore((s) => s.lines);
+  const setLines = useGameStore((s) => s.setLines);
   const betLevels = useGameStore((s) => s.betLevels);
+  const minLines = useGameStore((s) => s.minLines);
+  const maxLines = useGameStore((s) => s.maxLines);
   const spinning = useGameStore((s) => s.spinning);
   const balance = useGameStore((s) => s.balance);
+  const currency = useGameStore((s) => s.currency);
 
   const idx = betLevels.indexOf(bet);
   const canDecrease = idx > 0;
   const canIncrease = idx >= 0 && idx < betLevels.length - 1;
+  const canLineDecrease = lines > minLines;
+  const canLineIncrease = lines < maxLines;
+  const lineBet = lines > 0 ? bet / lines : 0;
 
   const handleBetDown = () => {
     if (!canDecrease) return;
@@ -19,73 +28,77 @@ export function BetPanel({ onSpin }: { onSpin: () => void }) {
     if (!canIncrease) return;
     setBet(betLevels[idx + 1]!);
   };
+  const handleLineDown = () => {
+    if (!canLineDecrease) return;
+    setLines(lines - 1);
+  };
+  const handleLineUp = () => {
+    if (!canLineIncrease) return;
+    setLines(lines + 1);
+  };
 
   return (
-    <div
-      style={{
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        gap: 16,
-        padding: '16px 24px',
-        background: 'rgba(26, 26, 36, 0.95)',
-        borderRadius: 12,
-        border: '1px solid rgba(255,255,255,0.15)',
-        minHeight: 72,
-      }}
-    >
-      <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-        <span style={{ color: '#A1A1AA', fontSize: 14 }}>BET</span>
+    <div className="bet-panel">
+      <div className="bet-panel-group">
+        <span className="bet-panel-label">BET</span>
         <button
           type="button"
           onClick={handleBetDown}
           disabled={!canDecrease || spinning}
-          style={btnStyle}
+          className="bet-panel-adjust"
           aria-label="Decrease bet"
         >
           −
         </button>
-        <span style={{ color: '#FFF', fontSize: 20, fontWeight: 700, minWidth: 64, textAlign: 'center' }}>
+        <span className="bet-panel-value">
           {bet.toFixed(2)}
         </span>
         <button
           type="button"
           onClick={handleBetUp}
           disabled={!canIncrease || spinning}
-          style={btnStyle}
+          className="bet-panel-adjust"
           aria-label="Increase bet"
         >
           +
         </button>
       </div>
+      <div className="bet-panel-group bet-panel-lines">
+        <span className="bet-panel-label">LINES</span>
+        <button
+          type="button"
+          onClick={handleLineDown}
+          disabled={!canLineDecrease || spinning}
+          className="bet-panel-adjust"
+          aria-label="Decrease lines"
+        >
+          −
+        </button>
+        <span className="bet-panel-value bet-panel-lines-value">
+          {lines}
+        </span>
+        <button
+          type="button"
+          onClick={handleLineUp}
+          disabled={!canLineIncrease || spinning}
+          className="bet-panel-adjust"
+          aria-label="Increase lines"
+        >
+          +
+        </button>
+        <span className="bet-panel-subvalue">
+          Line bet: {lineBet.toFixed(2)} {currency}
+        </span>
+      </div>
       <button
         type="button"
         onClick={onSpin}
         disabled={spinning || balance < bet}
-        style={{
-          ...btnStyle,
-          background: 'linear-gradient(180deg, #F5D06A 0%, #E8B84A 100%)',
-          color: '#0D0D12',
-          padding: '14px 48px',
-          fontSize: 18,
-          fontWeight: 700,
-          minWidth: 140,
-        }}
+        className="spin-button"
+        aria-label="Spin reels"
       >
         {spinning ? 'SPINNING…' : 'SPIN'}
       </button>
     </div>
   );
 }
-
-const btnStyle: React.CSSProperties = {
-  padding: '10px 16px',
-  fontSize: 18,
-  fontWeight: 600,
-  color: '#FFF',
-  background: '#252532',
-  border: 'none',
-  borderRadius: 8,
-  cursor: 'pointer',
-  minWidth: 44,
-};

@@ -1,9 +1,10 @@
 import { useEffect, useState } from 'react';
 import { useGameStore } from './store';
 
-const BIG_WIN_THRESHOLD = 10;   // x bet
-const MEGA_WIN_THRESHOLD = 25;
-const ULTRA_WIN_THRESHOLD = 100;
+const NICE_WIN_THRESHOLD = 3; // x bet
+const BIG_WIN_THRESHOLD = 5;
+const MEGA_WIN_THRESHOLD = 15;
+const ULTRA_WIN_THRESHOLD = 40;
 
 export function WinOverlay() {
   const lastWinAmount = useGameStore((s) => s.lastWinAmount);
@@ -13,7 +14,15 @@ export function WinOverlay() {
 
   const mult = bet > 0 ? lastWinAmount / bet : 0;
   const tier =
-    mult >= ULTRA_WIN_THRESHOLD ? 'ULTRA WIN' : mult >= MEGA_WIN_THRESHOLD ? 'MEGA WIN' : mult >= BIG_WIN_THRESHOLD ? 'BIG WIN' : null;
+    mult >= ULTRA_WIN_THRESHOLD
+      ? 'ULTRA WIN'
+      : mult >= MEGA_WIN_THRESHOLD
+      ? 'MEGA WIN'
+      : mult >= BIG_WIN_THRESHOLD
+      ? 'BIG WIN'
+      : mult >= NICE_WIN_THRESHOLD
+      ? 'NICE WIN'
+      : null;
 
   useEffect(() => {
     if (!tier || lastWinAmount <= 0) {

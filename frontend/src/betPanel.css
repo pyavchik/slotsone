@@ -1,0 +1,129 @@
+.bet-panel {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 16px;
+  padding: 16px 24px;
+  background: rgba(26, 26, 36, 0.95);
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  min-height: 86px;
+}
+
+.bet-panel-group {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 280px;
+}
+
+.bet-panel-lines {
+  min-width: 290px;
+}
+
+.bet-panel-label {
+  color: #a1a1aa;
+  font-size: 14px;
+  min-width: 44px;
+}
+
+.bet-panel-value {
+  color: #fff;
+  font-size: 20px;
+  font-weight: 700;
+  min-width: 64px;
+  text-align: center;
+}
+
+.bet-panel-lines-value {
+  min-width: 46px;
+}
+
+.bet-panel-subvalue {
+  color: #a1a1aa;
+  font-size: 12px;
+}
+
+.bet-panel-adjust {
+  min-width: 48px;
+  min-height: 48px;
+  padding: 10px 14px;
+  font-size: 20px;
+  font-weight: 700;
+  color: #fff;
+  background: #252532;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 10px;
+  cursor: pointer;
+  transition: transform 120ms ease, box-shadow 120ms ease, background-color 120ms ease;
+}
+
+.bet-panel-adjust:hover:not(:disabled) {
+  background: #2f2f40;
+  box-shadow: 0 0 0 2px rgba(245, 208, 106, 0.2);
+}
+
+.bet-panel-adjust:active:not(:disabled) {
+  transform: scale(0.96);
+}
+
+.bet-panel-adjust:focus-visible {
+  outline: 2px solid #f5d06a;
+  outline-offset: 2px;
+}
+
+.spin-button {
+  min-width: 152px;
+  min-height: 52px;
+  padding: 14px 48px;
+  font-size: 18px;
+  font-weight: 700;
+  color: #0d0d12;
+  background: linear-gradient(180deg, #f5d06a 0%, #e8b84a 100%);
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: transform 120ms ease, box-shadow 150ms ease, filter 150ms ease;
+}
+
+.spin-button:hover:not(:disabled) {
+  box-shadow: 0 0 24px rgba(245, 208, 106, 0.45);
+  filter: brightness(1.02);
+}
+
+.spin-button:active:not(:disabled) {
+  transform: scale(0.97);
+  filter: brightness(0.95);
+}
+
+.spin-button:focus-visible {
+  outline: 2px solid #f8fafc;
+  outline-offset: 2px;
+  box-shadow: 0 0 0 4px rgba(245, 208, 106, 0.35);
+}
+
+.spin-button:disabled,
+.bet-panel-adjust:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+@media (max-width: 820px) {
+  .bet-panel {
+    gap: 12px;
+    padding: 14px 16px;
+  }
+
+  .bet-panel-group,
+  .bet-panel-lines {
+    width: 100%;
+    min-width: 0;
+  }
+
+  .spin-button {
+    width: 100%;
+  }
+}

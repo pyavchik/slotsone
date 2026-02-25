@@ -1,13 +1,23 @@
 const API_BASE = '/api/v1';
 
+export interface GamePaytable {
+  line_wins: Array<{ symbol: string; x3: number; x4: number; x5: number }>;
+  scatter: { symbol: string; awards: Array<{ count: number; free_spins: number }> };
+  wild: { symbol: string; substitutes_for: string[] };
+}
+
 export interface GameConfig {
   reels: number;
   rows: number;
   paylines: number;
   min_bet: number;
   max_bet: number;
+  min_lines?: number;
+  max_lines?: number;
+  default_lines?: number;
   bet_levels: number[];
   currency: string;
+  paytable?: GamePaytable;
 }
 
 export interface InitResponse {
@@ -23,7 +33,7 @@ export interface SpinResponse {
   session_id: string;
   game_id: string;
   balance: { amount: number; currency: string };
-  bet: { amount: number; currency: string };
+  bet: { amount: number; currency: string; lines: number };
   outcome: {
     reel_matrix: string[][];
     win: { amount: number; currency: string; breakdown: Array<{ type: string; line_index?: number; symbol: string; count: number; payout: number }> };
