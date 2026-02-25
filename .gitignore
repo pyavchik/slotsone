@@ -1,0 +1,68 @@
+# Dependencies
+**/node_modules/
+
+# Build artifacts
+**/dist/
+**/*.tsbuildinfo
+coverage/
+.nyc_output/
+*.lcov
+
+# Environment and secrets
+**/.env
+**/.env.*
+!**/.env.development.example
+!**/.env.production.example
+backend/jwt_private.pem
+backend/jwt_public.pem
+
+# Local tooling
+.idea/
+.playwright-mcp/
+.vscode/
+
+# Logs and caches
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+.pnpm-debug.log*
+.cache/
+.eslintcache
+*.pid
+*.pid.lock
+*.out
+*.err
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Editor temp files
+*.swp
+*.swo
+*~
+
+# Temporary directories
+tmp/
+.tmp/
+temp/
+
+# Local env tooling
+.direnv/
+.envrc
+
+# Test artifacts
+playwright-report/
+test-results/
+
+# Generic local certs/keys
+*.pem
+*.key
+*.crt
+
+# Local database files
+*.sqlite
+*.sqlite3
+*.db
