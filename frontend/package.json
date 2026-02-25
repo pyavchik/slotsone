@@ -10,6 +10,8 @@
     "lint:fix": "npm run lint -- --fix",
     "format:check": "prettier --check \"src/**/*.{ts,tsx,css}\"",
     "format": "prettier --write \"src/**/*.{ts,tsx,css}\"",
+    "test:e2e": "playwright test",
+    "test:e2e:headed": "playwright test --headed",
     "api:types:generate": "openapi-typescript ../backend/openapi.json -o src/generated/openapi.ts",
     "api:types:check": "npm run api:types:generate && git diff --exit-code -- src/generated/openapi.ts",
     "preview": "vite preview"
@@ -21,6 +23,7 @@
     "zustand": "^4.5.0"
   },
   "devDependencies": {
+    "@playwright/test": "^1.54.2",
     "@typescript-eslint/eslint-plugin": "^7.18.0",
     "@typescript-eslint/parser": "^7.18.0",
     "@types/react": "^18.2.0",

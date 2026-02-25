@@ -64,3 +64,11 @@ jobs:
       - name: Frontend build
         working-directory: frontend
         run: npm run build
+
+      - name: Install Playwright browsers
+        working-directory: frontend
+        run: npx playwright install --with-deps chromium
+
+      - name: Frontend E2E tests
+        working-directory: frontend
+        run: npm run test:e2e
