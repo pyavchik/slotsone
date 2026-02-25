@@ -6,6 +6,7 @@ import { BetPanel } from './BetPanel';
 import { HUD } from './HUD';
 import { WinOverlay } from './WinOverlay';
 import { PayTable } from './PayTable';
+import { CVLanding } from './CVLanding';
 import './app.css';
 
 function App() {
@@ -25,6 +26,7 @@ function App() {
     w: typeof window !== 'undefined' ? window.innerWidth : 800,
     h: typeof window !== 'undefined' ? window.innerHeight : 600,
   }));
+  const [screen, setScreen] = useState<'cv' | 'slots'>('cv');
   const [ready, setReady] = useState(false);
 
   useEffect(() => {
@@ -43,6 +45,7 @@ function App() {
   }, []);
 
   useEffect(() => {
+    if (screen !== 'slots') return;
     initGame(token, gameId)
       .then((data) => {
         setInit(data);
@@ -53,7 +56,7 @@ function App() {
         setError(e?.message ?? 'Connection failed');
         setReady(true); // show UI so user sees error and can retry
       });
-  }, [token, gameId, setInit, setError]);
+  }, [screen, token, gameId, setInit, setError]);
 
   const handleRetryInit = useCallback(() => {
     setError(null);
@@ -83,7 +86,14 @@ function App() {
     setSpinning(false);
   }, [setSpinning]);
 
+  const handleOpenSlots = useCallback(() => {
+    setScreen('slots');
+    setReady(false);
+    setError(null);
+  }, [setError]);
+
   useEffect(() => {
+    if (screen !== 'slots') return;
     const onKeyDown = (event: KeyboardEvent) => {
       if (event.code !== 'Space' || event.repeat) return;
       const target = event.target as HTMLElement | null;
@@ -102,13 +112,18 @@ function App() {
     };
     window.addEventListener('keydown', onKeyDown);
     return () => window.removeEventListener('keydown', onKeyDown);
-  }, [handleSpin]);
+  }, [screen, handleSpin]);
 
   useEffect(() => {
+    if (screen !== 'slots') return;
     if (!error) return;
     const timer = window.setTimeout(() => setError(null), 5000);
     return () => window.clearTimeout(timer);
-  }, [error, setError]);
+  }, [screen, error, setError]);
+
+  if (screen === 'cv') {
+    return <CVLanding onOpenSlots={handleOpenSlots} />;
+  }
 
   if (!ready) {
     return (
