@@ -1,0 +1,8 @@
+node_modules/
+dist/
+coverage/
+*.log
+backend/dist/
+frontend/dist/
+frontend/src/generated/openapi.ts
+src/generated/openapi.ts

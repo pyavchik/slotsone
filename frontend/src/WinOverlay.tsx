@@ -17,12 +17,12 @@ export function WinOverlay() {
     mult >= ULTRA_WIN_THRESHOLD
       ? 'ULTRA WIN'
       : mult >= MEGA_WIN_THRESHOLD
-      ? 'MEGA WIN'
-      : mult >= BIG_WIN_THRESHOLD
-      ? 'BIG WIN'
-      : mult >= NICE_WIN_THRESHOLD
-      ? 'NICE WIN'
-      : null;
+        ? 'MEGA WIN'
+        : mult >= BIG_WIN_THRESHOLD
+          ? 'BIG WIN'
+          : mult >= NICE_WIN_THRESHOLD
+            ? 'NICE WIN'
+            : null;
 
   useEffect(() => {
     if (!tier || lastWinAmount <= 0) {

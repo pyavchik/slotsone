@@ -16,7 +16,10 @@ export function createSeededRNG(seed: number): () => number {
 
 export function getRandomSeed(): number {
   const buf = new Uint32Array(1);
-  if (typeof globalThis.crypto !== 'undefined' && typeof globalThis.crypto.getRandomValues === 'function') {
+  if (
+    typeof globalThis.crypto !== 'undefined' &&
+    typeof globalThis.crypto.getRandomValues === 'function'
+  ) {
     globalThis.crypto.getRandomValues(buf);
     return buf[0]!;
   }

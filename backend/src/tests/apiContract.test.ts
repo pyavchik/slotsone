@@ -31,7 +31,9 @@ function createRs256Token(sub: string): string {
   const encodedHeader = encodeBase64Url(JSON.stringify(header));
   const encodedPayload = encodeBase64Url(JSON.stringify(payload));
   const signingInput = `${encodedHeader}.${encodedPayload}`;
-  const signature = signJwt('RSA-SHA256', Buffer.from(signingInput), privateKey).toString('base64url');
+  const signature = signJwt('RSA-SHA256', Buffer.from(signingInput), privateKey).toString(
+    'base64url'
+  );
   return `${signingInput}.${signature}`;
 }
 
@@ -107,7 +109,12 @@ if (!supportsSockets) {
     const init = await request(app)
       .post('/api/v1/game/init')
       .set('Authorization', `Bearer ${token}`)
-      .send({ game_id: 'slot_mega_fortune_001', platform: 'web', locale: 'en', client_version: '1.0.0' })
+      .send({
+        game_id: 'slot_mega_fortune_001',
+        platform: 'web',
+        locale: 'en',
+        client_version: '1.0.0',
+      })
       .expect(200);
 
     const sessionId = init.body.session_id as string;
@@ -153,7 +160,12 @@ if (!supportsSockets) {
     const init = await request(app)
       .post('/api/v1/game/init')
       .set('Authorization', `Bearer ${token}`)
-      .send({ game_id: 'slot_mega_fortune_001', platform: 'web', locale: 'en', client_version: '1.0.0' })
+      .send({
+        game_id: 'slot_mega_fortune_001',
+        platform: 'web',
+        locale: 'en',
+        client_version: '1.0.0',
+      })
       .expect(200);
 
     await request(app)
@@ -191,7 +203,12 @@ if (!supportsSockets) {
     const init = await request(app)
       .post('/api/v1/game/init')
       .set('Authorization', `Bearer ${token}`)
-      .send({ game_id: 'slot_mega_fortune_001', platform: 'web', locale: 'en', client_version: '1.0.0' })
+      .send({
+        game_id: 'slot_mega_fortune_001',
+        platform: 'web',
+        locale: 'en',
+        client_version: '1.0.0',
+      })
       .expect(200);
 
     const payload = {
@@ -228,13 +245,23 @@ if (!supportsSockets) {
     const initA = await request(app)
       .post('/api/v1/game/init')
       .set('Authorization', `Bearer ${tokenA}`)
-      .send({ game_id: 'slot_mega_fortune_001', platform: 'web', locale: 'en', client_version: '1.0.0' })
+      .send({
+        game_id: 'slot_mega_fortune_001',
+        platform: 'web',
+        locale: 'en',
+        client_version: '1.0.0',
+      })
       .expect(200);
 
     const initB = await request(app)
       .post('/api/v1/game/init')
       .set('Authorization', `Bearer ${tokenB}`)
-      .send({ game_id: 'slot_mega_fortune_001', platform: 'web', locale: 'en', client_version: '1.0.0' })
+      .send({
+        game_id: 'slot_mega_fortune_001',
+        platform: 'web',
+        locale: 'en',
+        client_version: '1.0.0',
+      })
       .expect(200);
 
     const sessionA = initA.body.session_id as string;
@@ -288,7 +315,9 @@ if (!supportsSockets) {
     assert.equal(history.body.limit, 2);
     assert.equal(history.body.offset, 1);
 
-    const returnedIds = (history.body.items as Array<{ spin_id: string }>).map((item) => item.spin_id);
+    const returnedIds = (history.body.items as Array<{ spin_id: string }>).map(
+      (item) => item.spin_id
+    );
     assert.deepEqual(returnedIds, [aSpinIds[1], aSpinIds[0]]);
 
     for (const spinId of bSpinIds) {

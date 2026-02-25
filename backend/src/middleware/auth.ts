@@ -51,13 +51,21 @@ function verifyRs256(signingInput: string, signatureB64Url: string): boolean {
   }
 
   try {
-    return verifySignature('RSA-SHA256', Buffer.from(signingInput), createPublicKey(publicKeyPem), signature);
+    return verifySignature(
+      'RSA-SHA256',
+      Buffer.from(signingInput),
+      createPublicKey(publicKeyPem),
+      signature
+    );
   } catch {
     return false;
   }
 }
 
-function isAudienceValid(aud: string | string[] | undefined, expectedAudience: string | undefined): boolean {
+function isAudienceValid(
+  aud: string | string[] | undefined,
+  expectedAudience: string | undefined
+): boolean {
   if (!expectedAudience) return true;
   if (typeof aud === 'string') return aud === expectedAudience;
   if (Array.isArray(aud)) return aud.includes(expectedAudience);

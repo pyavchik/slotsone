@@ -133,7 +133,9 @@ export class ReelGrid {
 
   setLineDefs(lineDefs: number[][]) {
     this.lineDefs = this.normalizeLineDefs(lineDefs);
-    this.winningLines = this.winningLines.filter((line) => line.lineIndex >= 0 && line.lineIndex < this.lineDefs.length);
+    this.winningLines = this.winningLines.filter(
+      (line) => line.lineIndex >= 0 && line.lineIndex < this.lineDefs.length
+    );
   }
 
   private layoutContainer(width: number, height: number) {
@@ -194,7 +196,10 @@ export class ReelGrid {
 
   private drawWinningCells() {
     if (!this.paylinesContainer || this.winningLines.length === 0) return;
-    const byCell = new Map<string, { reel: number; row: number; color: number; overlaps: number }>();
+    const byCell = new Map<
+      string,
+      { reel: number; row: number; color: number; overlaps: number }
+    >();
 
     for (const line of this.winningLines) {
       const path = this.lineDefs[line.lineIndex];
@@ -217,7 +222,9 @@ export class ReelGrid {
       const y = cell.row * this.stepHeight;
       const glow = new Graphics();
       const glowColor = cell.overlaps > 1 ? 0xffffff : cell.color;
-      glow.roundRect(x + 6, y + 6, CELL_W - 12, CELL_H - 12, 14).fill({ color: glowColor, alpha: 0.17 });
+      glow
+        .roundRect(x + 6, y + 6, CELL_W - 12, CELL_H - 12, 14)
+        .fill({ color: glowColor, alpha: 0.17 });
       glow.roundRect(x + 6, y + 6, CELL_W - 12, CELL_H - 12, 14).stroke({
         width: cell.overlaps > 1 ? 4 : 3,
         color: glowColor,
@@ -256,8 +263,12 @@ export class ReelGrid {
       const maxX = REELS * (CELL_W + GAP) - labelWidth - 12;
       const labelX = Math.max(6, Math.min(lastX + 10, maxX));
       const labelY = Math.max(6, lastY - 28);
-      labelBg.roundRect(labelX - 6, labelY - 6, labelWidth, 28, 8).fill({ color: 0x09090f, alpha: 0.78 });
-      labelBg.roundRect(labelX - 6, labelY - 6, labelWidth, 28, 8).stroke({ width: 1, color, alpha: 0.9 });
+      labelBg
+        .roundRect(labelX - 6, labelY - 6, labelWidth, 28, 8)
+        .fill({ color: 0x09090f, alpha: 0.78 });
+      labelBg
+        .roundRect(labelX - 6, labelY - 6, labelWidth, 28, 8)
+        .stroke({ width: 1, color, alpha: 0.9 });
       this.paylinesContainer.addChild(labelBg);
 
       const payoutLabel = new Text({
@@ -321,9 +332,12 @@ export class ReelGrid {
 
     const baseStopTime = INITIAL_SPIN_MS;
     for (let r = 0; r < REELS; r++) {
-      this.stopTimers[r] = window.setTimeout(() => {
-        this.stopReel(r);
-      }, baseStopTime + r * REEL_STOP_DELAY_MS);
+      this.stopTimers[r] = window.setTimeout(
+        () => {
+          this.stopReel(r);
+        },
+        baseStopTime + r * REEL_STOP_DELAY_MS
+      );
     }
     // Ensure we always finish (e.g. when timers are throttled in background/headless)
     this.safetyTimeoutId = window.setTimeout(() => {
@@ -410,7 +424,13 @@ export class ReelGrid {
     state.decelerating = true;
 
     // Build strip so when reel.y is in [0, stepHeight] the visible symbols match outcome
-    const strip = [target[0] ?? '10', target[1] ?? '10', target[2] ?? '10', target[0] ?? '10', target[1] ?? '10'];
+    const strip = [
+      target[0] ?? '10',
+      target[1] ?? '10',
+      target[2] ?? '10',
+      target[0] ?? '10',
+      target[1] ?? '10',
+    ];
     reel.removeChildren();
     for (let i = 0; i < strip.length; i++) {
       const g = makeSymbolGraphic(strip[i]!, CELL_W, CELL_H);
@@ -421,7 +441,11 @@ export class ReelGrid {
   }
 
   /** Resize canvas and reposition grid without destroying (e.g. when DevTools opens). */
-  resize(width: number, height: number, safeArea?: Pick<ReelGridOptions, 'safeTop' | 'safeBottom' | 'safeLeft' | 'safeRight'>) {
+  resize(
+    width: number,
+    height: number,
+    safeArea?: Pick<ReelGridOptions, 'safeTop' | 'safeBottom' | 'safeLeft' | 'safeRight'>
+  ) {
     this.options = { ...this.options, width, height, ...safeArea };
     this.app.renderer.resize(width, height);
     this.layoutContainer(width, height);

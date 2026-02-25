@@ -20,13 +20,22 @@ test('executeSpin applies bet and win delta to user balance and history', () => 
   const session = createSession(userId, GAME_ID);
   const initialBalance = getBalance(userId, CURRENCY).amount;
 
-  const response = executeSpin(userId, session.session_id, GAME_ID, 1, CURRENCY, 20, 'spin-balance-1');
+  const response = executeSpin(
+    userId,
+    session.session_id,
+    GAME_ID,
+    1,
+    CURRENCY,
+    20,
+    'spin-balance-1'
+  );
   assert.equal(response.code, 200);
   if ('error' in response) {
     throw new Error(`unexpected error response: ${response.error}`);
   }
 
-  const expectedBalance = Math.round((initialBalance - 1 + response.result.outcome.win.amount) * 100) / 100;
+  const expectedBalance =
+    Math.round((initialBalance - 1 + response.result.outcome.win.amount) * 100) / 100;
   assert.equal(response.result.balance.amount, expectedBalance);
 
   const history = getHistory(userId, 10, 0);
@@ -94,7 +103,15 @@ test('periodic cleanup removes stale rate-limit, session, and idempotency entrie
     for (let i = 0; i < 3; i++) {
       const userId = `cleanup-user-${i}`;
       const session = createSession(userId, GAME_ID);
-      const result = executeSpin(userId, session.session_id, GAME_ID, 0.1, CURRENCY, 20, `cleanup-key-${i}`);
+      const result = executeSpin(
+        userId,
+        session.session_id,
+        GAME_ID,
+        0.1,
+        CURRENCY,
+        20,
+        `cleanup-key-${i}`
+      );
       assert.equal(result.code, 200);
       if ('error' in result) {
         throw new Error(`unexpected cleanup setup spin error: ${result.error}`);

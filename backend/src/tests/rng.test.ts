@@ -43,3 +43,23 @@ test('getRandomSeed returns uint32 values with entropy', () => {
 
   assert.ok(unique.size > 1);
 });
+
+test('createSeededRNG has roughly uniform bucket distribution', () => {
+  const rng = createSeededRNG(20260225);
+  const bucketCount = 10;
+  const buckets = Array.from({ length: bucketCount }, () => 0);
+  const samples = 100_000;
+
+  for (let i = 0; i < samples; i++) {
+    const value = rng();
+    const bucketIndex = Math.min(bucketCount - 1, Math.floor(value * bucketCount));
+    buckets[bucketIndex]!++;
+  }
+
+  const expectedPerBucket = samples / bucketCount;
+  const tolerance = expectedPerBucket * 0.08;
+
+  for (const bucket of buckets) {
+    assert.ok(Math.abs(bucket - expectedPerBucket) <= tolerance);
+  }
+});

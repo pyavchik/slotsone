@@ -11,7 +11,9 @@ function parseAllowedAlgorithms(rawValue: string | undefined): SupportedJwtAlgor
     throw new Error('JWT_ALLOWED_ALGS must include at least one algorithm');
   }
 
-  const unsupported = requested.filter((alg) => !SUPPORTED_JWT_ALGORITHMS.includes(alg as SupportedJwtAlgorithm));
+  const unsupported = requested.filter(
+    (alg) => !SUPPORTED_JWT_ALGORITHMS.includes(alg as SupportedJwtAlgorithm)
+  );
   if (unsupported.length > 0) {
     throw new Error(
       `Unsupported algorithm(s) in JWT_ALLOWED_ALGS: ${unsupported.join(', ')}. Supported: ${SUPPORTED_JWT_ALGORITHMS.join(', ')}`
