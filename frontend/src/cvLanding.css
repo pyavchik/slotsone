@@ -1,7 +1,7 @@
 .cv-page {
   width: 100%;
   min-height: 100vh;
-  padding: 28px;
+  padding: 24px;
   background:
     radial-gradient(circle at 8% 12%, rgba(251, 191, 36, 0.14), transparent 34%),
     radial-gradient(circle at 92% 18%, rgba(34, 211, 238, 0.12), transparent 38%),
@@ -9,18 +9,48 @@
   color: #f8fafc;
   display: flex;
   flex-direction: column;
-  gap: 18px;
+  gap: 14px;
+  overflow-x: hidden;
 }
 
-.cv-hero {
+.cv-header-card {
   display: flex;
+  flex-wrap: wrap;
+  align-items: center;
   justify-content: space-between;
-  align-items: flex-end;
-  gap: 18px;
-  padding: 18px 22px;
+  gap: 20px;
+  padding: 20px 22px;
   border-radius: 14px;
   border: 1px solid rgba(255, 255, 255, 0.12);
   background: rgba(17, 20, 30, 0.78);
+  backdrop-filter: blur(8px);
+}
+
+.cv-header-main {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+}
+
+.cv-avatar-wrap {
+  margin: 0;
+  width: 106px;
+  height: 106px;
+  border-radius: 999px;
+  padding: 3px;
+  background: linear-gradient(180deg, #f5d06a 0%, #22d3ee 100%);
+}
+
+.cv-avatar {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 999px;
+  display: block;
+}
+
+.cv-identity {
+  max-width: min(850px, 100%);
 }
 
 .cv-kicker {
@@ -33,7 +63,7 @@
 
 .cv-title {
   margin: 6px 0 4px;
-  font-size: clamp(28px, 4vw, 40px);
+  font-size: clamp(30px, 4vw, 44px);
   line-height: 1.05;
 }
 
@@ -47,6 +77,7 @@
   display: flex;
   align-items: center;
   gap: 10px;
+  align-self: flex-start;
 }
 
 .cv-link {
@@ -95,46 +126,131 @@
   outline-offset: 2px;
 }
 
-.cv-viewer-shell {
-  flex: 1;
-  min-height: 70vh;
-  border-radius: 14px;
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  overflow: hidden;
-  background: #0f172a;
-}
-
-.cv-viewer {
-  width: 100%;
-  height: 100%;
-  min-height: 70vh;
-  border: none;
-}
-
-.cv-fallback {
-  width: 100%;
-  height: 100%;
-  min-height: 70vh;
+.cv-contact-list {
+  margin: 12px 0 0;
+  padding: 0;
+  list-style: none;
   display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
+  flex-wrap: wrap;
   gap: 12px;
   color: #cbd5e1;
+  font-size: 14px;
 }
 
-.cv-fallback a {
-  color: #f5d06a;
-  font-weight: 700;
+.cv-contact-list li {
+  padding: 6px 10px;
+  border-radius: 999px;
+  border: 1px solid rgba(203, 213, 225, 0.22);
+  background: rgba(15, 23, 42, 0.55);
+}
+
+.cv-contact-list a {
+  color: inherit;
+  text-decoration: none;
+}
+
+.cv-section {
+  padding: 18px 22px;
+  border-radius: 14px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: rgba(16, 20, 30, 0.8);
+}
+
+.cv-section h2 {
+  margin: 0 0 10px;
+  font-size: 18px;
+  color: #f8fafc;
+}
+
+.cv-section p {
+  margin: 0;
+  line-height: 1.55;
+  color: #dbe2ec;
+}
+
+.cv-experience-list {
+  display: grid;
+  gap: 12px;
+}
+
+.cv-experience-item {
+  padding: 14px;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.09);
+  background: rgba(15, 23, 42, 0.62);
+}
+
+.cv-experience-head {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.cv-experience-head h3 {
+  margin: 0;
+  font-size: 16px;
+  color: #f8fafc;
+}
+
+.cv-experience-head p {
+  margin: 0;
+  font-size: 13px;
+  color: #94a3b8;
+}
+
+.cv-experience-item ul {
+  margin: 0;
+  padding-left: 18px;
+  display: grid;
+  gap: 4px;
+}
+
+.cv-experience-item li {
+  color: #dbe2ec;
+  line-height: 1.45;
+}
+
+.cv-skills-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.cv-skill-pill {
+  padding: 8px 11px;
+  border-radius: 999px;
+  font-size: 13px;
+  font-weight: 600;
+  color: #f8fafc;
+  border: 1px solid rgba(148, 163, 184, 0.28);
+  background: rgba(15, 23, 42, 0.55);
+}
+
+.cv-languages p {
+  font-weight: 600;
+}
+
+.cv-final-cta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
 }
 
 @media (max-width: 880px) {
   .cv-page {
-    padding: 14px;
+    padding: 12px;
     gap: 12px;
   }
 
-  .cv-hero {
+  .cv-header-card {
+    padding: 16px;
+  }
+
+  .cv-header-main {
     flex-direction: column;
     align-items: flex-start;
   }
@@ -149,8 +265,11 @@
     flex: 1 1 180px;
   }
 
-  .cv-viewer-shell,
-  .cv-viewer {
-    min-height: calc(100vh - 230px);
+  .cv-section {
+    padding: 14px 16px;
+  }
+
+  .cv-final-cta .cv-open-slots {
+    width: 100%;
   }
 }
