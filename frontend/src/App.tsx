@@ -60,6 +60,11 @@ function App() {
 
   useEffect(() => {
     if (screen !== 'slots') return;
+    if (!token) {
+      setError('Missing VITE_DEMO_JWT. Configure an RS256 token for frontend.');
+      setReady(true);
+      return;
+    }
     initGame(token, gameId)
       .then((data) => {
         setInit(data);

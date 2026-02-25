@@ -57,7 +57,6 @@ The backend accepts only valid JWT tokens in:
 `Authorization: Bearer <token>`
 
 Supported signing algorithms:
-- `HS256`
 - `RS256`
 
 Configuration is loaded automatically from:
@@ -66,14 +65,42 @@ Configuration is loaded automatically from:
 
 ### Important JWT Environment Variables
 
-- `JWT_ALLOWED_ALGS` — comma-separated allowlist (`HS256`, `RS256`)
-- `JWT_HS256_SECRET` — required if `HS256` is enabled
-- `JWT_PUBLIC_KEY` — required if `RS256` is enabled (PEM; supports `\n`)
+- `JWT_ALLOWED_ALGS` — set to `RS256`
+- `JWT_PUBLIC_KEY` — required in all environments (PEM; supports `\n`)
 - `JWT_ISSUER` — optional claim check
 - `JWT_AUDIENCE` — optional claim check
 
-Frontend uses a built-in dev token by default.  
-Override with `VITE_DEMO_JWT` if needed.
+Frontend does not ship a built-in token.  
+Set `VITE_DEMO_JWT` to a valid RS256 JWT.
+
+### Dev Token Setup (RS256)
+
+Generate a local key pair:
+
+```bash
+openssl genrsa -out backend/jwt_private.pem 2048
+openssl rsa -in backend/jwt_private.pem -pubout -out backend/jwt_public.pem
+```
+
+Create `backend/.env.development` using `backend/.env.development.example`, then set:
+
+```bash
+JWT_ALLOWED_ALGS=RS256
+JWT_PUBLIC_KEY="-----BEGIN PUBLIC KEY-----\n...\n-----END PUBLIC KEY-----"
+JWT_ISSUER=slotsone-dev
+JWT_AUDIENCE=slotsone-client
+```
+
+Generate a JWT for frontend/Postman:
+
+```bash
+cd backend
+JWT_PRIVATE_KEY_FILE=./jwt_private.pem JWT_SUB=demo-user-1 JWT_ISS=slotsone-dev JWT_AUD=slotsone-client node scripts/generate-rs256-jwt.mjs
+```
+
+Use the output token as:
+- `VITE_DEMO_JWT` (frontend)
+- `jwt_token` in `postman/dev.env.json`
 
 ## Production Deployment (GitHub Actions + Docker Compose)
 

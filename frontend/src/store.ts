@@ -1,9 +1,6 @@
 import { create } from 'zustand';
 import type { InitResponse, SpinResponse } from './api';
 
-const DEFAULT_DEV_TOKEN =
-  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJkZW1vLXVzZXItMSIsImlzcyI6InNsb3Rzb25lLWRldiIsImF1ZCI6InNsb3Rzb25lLWNsaWVudCIsImV4cCI6NDEwMjQ0NDgwMH0.Jr811gvpQFBBgZ329xoSvd6lC-drBLxcrXRs-yGX9N0';
-
 interface GameState {
   token: string;
   sessionId: string | null;
@@ -34,7 +31,7 @@ interface GameState {
 }
 
 export const useGameStore = create<GameState>((set) => ({
-  token: import.meta.env.VITE_DEMO_JWT ?? DEFAULT_DEV_TOKEN,
+  token: import.meta.env.VITE_DEMO_JWT ?? '',
   sessionId: null,
   gameId: 'slot_mega_fortune_001',
   balance: 0,
