@@ -1,7 +1,15 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 import { GAME_ID } from '../engine/gameConfig.js';
-import { createSession, executeSpin, getBalance, getHistory, resetStoreForTests } from '../store.js';
+import {
+  cleanupStoreForTests,
+  createSession,
+  executeSpin,
+  getBalance,
+  getHistory,
+  getStoreDiagnosticsForTests,
+  resetStoreForTests,
+} from '../store.js';
 
 const CURRENCY = 'USD';
 
@@ -73,4 +81,44 @@ test('executeSpin rate limit returns 429 and retry metadata after threshold', ()
   }
   assert.equal(limited.error, 'Too many requests');
   assert.ok((limited.retry_after_seconds ?? 0) >= 1);
+});
+
+test('periodic cleanup removes stale rate-limit, session, and idempotency entries', () => {
+  resetStoreForTests();
+
+  const originalDateNow = Date.now;
+  let now = 1_700_000_000_000;
+  Date.now = () => now;
+
+  try {
+    for (let i = 0; i < 3; i++) {
+      const userId = `cleanup-user-${i}`;
+      const session = createSession(userId, GAME_ID);
+      const result = executeSpin(userId, session.session_id, GAME_ID, 0.1, CURRENCY, 20, `cleanup-key-${i}`);
+      assert.equal(result.code, 200);
+      if ('error' in result) {
+        throw new Error(`unexpected cleanup setup spin error: ${result.error}`);
+      }
+    }
+
+    const before = getStoreDiagnosticsForTests();
+    assert.equal(before.sessions, 3);
+    assert.equal(before.idempotency, 3);
+    assert.equal(before.rateCounts, 3);
+
+    now += 1001;
+    cleanupStoreForTests(now);
+    const afterRateWindow = getStoreDiagnosticsForTests();
+    assert.equal(afterRateWindow.rateCounts, 0);
+    assert.equal(afterRateWindow.idempotency, 3);
+    assert.equal(afterRateWindow.sessions, 3);
+
+    now += 24 * 60 * 60 * 1000 + 1;
+    cleanupStoreForTests(now);
+    const afterLongTtl = getStoreDiagnosticsForTests();
+    assert.equal(afterLongTtl.sessions, 0);
+    assert.equal(afterLongTtl.idempotency, 0);
+  } finally {
+    Date.now = originalDateNow;
+  }
 });
