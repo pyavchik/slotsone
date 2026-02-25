@@ -101,8 +101,30 @@ function cleanupExpiredSessions(now = Date.now()) {
   });
 }
 
+function cleanupExpiredRateCounts(now = Date.now()) {
+  rateCounts.forEach((entry, key) => {
+    if (now >= entry.resetAt) rateCounts.delete(key);
+  });
+}
+
+function isIdempotencyExpired(entry: IdempotencyEntry, now = Date.now()): boolean {
+  return now - entry.created_at >= TTL_IDEMPOTENCY_MS;
+}
+
+function cleanupExpiredIdempotency(now = Date.now()) {
+  idempotency.forEach((entry, key) => {
+    if (isIdempotencyExpired(entry, now)) idempotency.delete(key);
+  });
+}
+
+function cleanupExpiredState(now = Date.now()) {
+  cleanupExpiredSessions(now);
+  cleanupExpiredRateCounts(now);
+  cleanupExpiredIdempotency(now);
+}
+
 setInterval(() => {
-  cleanupExpiredSessions();
+  cleanupExpiredState();
 }, CLEANUP_INTERVAL_MS).unref();
 
 function rateLimit(userId: string): { limited: false } | { limited: true; retryAfterSeconds: number } {
@@ -135,7 +157,7 @@ function appendHistory(userId: string, result: SpinResult) {
 }
 
 export function createSession(userId: string, gameId: string): Session {
-  cleanupExpiredSessions();
+  cleanupExpiredState();
   const session_id = `sess_${randomUUID().slice(0, 12)}`;
   const now = Date.now();
   const session: Session = {
@@ -228,10 +250,14 @@ export function executeSpin(
     const scopedKey = idempotencyKeyForUser(userId, idempotencyKey);
     const existing = idempotency.get(scopedKey);
     if (existing) {
-      if (existing.request_fingerprint !== requestFingerprint) {
-        return { error: 'Idempotency key reused with different request payload', code: 409 };
+      if (isIdempotencyExpired(existing)) {
+        idempotency.delete(scopedKey);
+      } else {
+        if (existing.request_fingerprint !== requestFingerprint) {
+          return { error: 'Idempotency key reused with different request payload', code: 409 };
+        }
+        return { result: existing.response as SpinResult, code: 200 };
       }
-      return { result: existing.response as SpinResult, code: 200 };
     }
   }
 
@@ -248,6 +274,7 @@ export function executeSpin(
   const { outcome } = runSpin(betAmount, currency, lines);
   bal.amount = Math.round((bal.amount - betAmount + outcome.win.amount) * 100) / 100;
 
+  const finishedAt = Date.now();
   const spin_id = `spin_${randomUUID().slice(0, 12)}`;
   const result: SpinResult = {
     spin_id,
@@ -257,7 +284,7 @@ export function executeSpin(
     bet: { amount: betAmount, currency, lines },
     outcome,
     next_state: outcome.bonus_triggered ? 'free_spins' : 'base_game',
-    timestamp: Date.now(),
+    timestamp: finishedAt,
   };
 
   appendHistory(userId, result);
@@ -269,9 +296,8 @@ export function executeSpin(
       user_id: userId,
       request_fingerprint: requestFingerprint,
       response: result,
-      created_at: Date.now(),
+      created_at: finishedAt,
     });
-    setTimeout(() => idempotency.delete(scopedKey), TTL_IDEMPOTENCY_MS).unref();
   }
 
   return { result, code: 200 };
@@ -290,6 +316,20 @@ export function getHistory(userId: string, limit = 50, offset = 0) {
     total: items.length,
     limit: clampedLimit,
     offset: clampedOffset,
+  };
+}
+
+export function cleanupStoreForTests(now: number) {
+  cleanupExpiredState(now);
+}
+
+export function getStoreDiagnosticsForTests() {
+  return {
+    sessions: sessions.size,
+    balances: balances.size,
+    idempotency: idempotency.size,
+    historyUsers: historyByUser.size,
+    rateCounts: rateCounts.size,
   };
 }
 
