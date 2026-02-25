@@ -133,6 +133,44 @@ if (!supportsSockets) {
     }
   });
 
+  test('spin rejects body that does not match documented schema', async () => {
+    resetStoreForTests();
+    const token = createRs256Token('contract-spin-validation-user');
+
+    const init = await request(app)
+      .post('/api/v1/game/init')
+      .set('Authorization', `Bearer ${token}`)
+      .send({ game_id: 'slot_mega_fortune_001', platform: 'web', locale: 'en', client_version: '1.0.0' })
+      .expect(200);
+
+    await request(app)
+      .post('/api/v1/spin')
+      .set('Authorization', `Bearer ${token}`)
+      .send({
+        session_id: init.body.session_id,
+        game_id: 'slot_mega_fortune_001',
+        bet: { amount: 1, currency: 'USD', lines: 20 },
+      })
+      .expect(400)
+      .expect(({ body }) => {
+        assert.equal(body.code, 'invalid_body');
+      });
+
+    await request(app)
+      .post('/api/v1/spin')
+      .set('Authorization', `Bearer ${token}`)
+      .send({
+        session_id: init.body.session_id,
+        game_id: 'slot_mega_fortune_001',
+        bet: { amount: 1, lines: 20 },
+        client_timestamp: Date.now(),
+      })
+      .expect(400)
+      .expect(({ body }) => {
+        assert.equal(body.code, 'invalid_body');
+      });
+  });
+
   test('idempotency key is taken from header and replays return the same spin', async () => {
     resetStoreForTests();
     const token = createRs256Token('contract-idempotency-user');
