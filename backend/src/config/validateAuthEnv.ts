@@ -1,0 +1,47 @@
+import { DEV_HS256_SECRET, SUPPORTED_JWT_ALGORITHMS, type SupportedJwtAlgorithm } from './authConstants.js';
+
+function parseAllowedAlgorithms(rawValue: string | undefined): SupportedJwtAlgorithm[] {
+  const value = rawValue ?? 'HS256,RS256';
+  const requested = value
+    .split(',')
+    .map((alg) => alg.trim())
+    .filter(Boolean);
+
+  if (requested.length === 0) {
+    throw new Error('JWT_ALLOWED_ALGS must include at least one algorithm');
+  }
+
+  const unsupported = requested.filter((alg) => !SUPPORTED_JWT_ALGORITHMS.includes(alg as SupportedJwtAlgorithm));
+  if (unsupported.length > 0) {
+    throw new Error(
+      `Unsupported algorithm(s) in JWT_ALLOWED_ALGS: ${unsupported.join(', ')}. Supported: ${SUPPORTED_JWT_ALGORITHMS.join(', ')}`
+    );
+  }
+
+  return Array.from(new Set(requested as SupportedJwtAlgorithm[]));
+}
+
+export function validateAuthEnvironment(): void {
+  const allowedAlgs = parseAllowedAlgorithms(process.env.JWT_ALLOWED_ALGS);
+  const isProduction = process.env.NODE_ENV === 'production';
+
+  if (!isProduction) return;
+
+  const errors: string[] = [];
+
+  if (allowedAlgs.includes('HS256') && !process.env.JWT_HS256_SECRET) {
+    errors.push('JWT_HS256_SECRET is required when JWT_ALLOWED_ALGS includes HS256');
+  }
+
+  if (allowedAlgs.includes('RS256') && !process.env.JWT_PUBLIC_KEY) {
+    errors.push('JWT_PUBLIC_KEY is required when JWT_ALLOWED_ALGS includes RS256');
+  }
+
+  if (process.env.JWT_HS256_SECRET === DEV_HS256_SECRET) {
+    errors.push('JWT_HS256_SECRET must not use the built-in dev secret in production');
+  }
+
+  if (errors.length > 0) {
+    throw new Error(`Invalid auth environment:\n- ${errors.join('\n- ')}`);
+  }
+}

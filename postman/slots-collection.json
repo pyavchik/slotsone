@@ -1,0 +1,570 @@
+{
+  "info": {
+    "name": "Slots API - Full Regression",
+    "description": "Postman collection for slot game API: Happy Path, Negative, Security. Use with dev.env.json.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "base_url", "value": "https://api.casino-dev.com" },
+    { "key": "jwt_token", "value": "" }
+  ],
+  "item": [
+    {
+      "name": "Happy Path",
+      "item": [
+        {
+          "name": "TC-01: Успешная инициализация игры",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{jwt_token}}", "type": "text" },
+              { "key": "Content-Type", "value": "application/json", "type": "text" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"game_id\": \"{{game_id}}\",\n  \"platform\": \"web\",\n  \"locale\": \"en\",\n  \"client_version\": \"1.2.0\"\n}"
+            },
+            "url": "{{base_url}}/api/v1/game/init",
+            "description": "Успешная инициализация игры. Ожидаем 200, конфиг с min/max bet, session_id, balance."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"TC-01: Status 200\", () => pm.response.to.have.status(200));",
+                  "pm.test(\"TC-01: Has session_id\", () => {",
+                  "  const json = pm.response.json();",
+                  "  pm.expect(json).to.have.property(\"session_id\");",
+                  "  if (json.session_id) pm.environment.set(\"session_id\", json.session_id);",
+                  "});",
+                  "pm.test(\"TC-01: Has config with limits\", () => {",
+                  "  const json = pm.response.json();",
+                  "  pm.expect(json).to.have.property(\"config\");",
+                  "  pm.expect(json.config).to.have.property(\"min_bet\");",
+                  "  pm.expect(json.config).to.have.property(\"max_bet\");",
+                  "});",
+                  "pm.test(\"TC-01: Has balance\", () => {",
+                  "  const json = pm.response.json();",
+                  "  pm.expect(json).to.have.property(\"balance\");",
+                  "  pm.expect(json.balance).to.have.property(\"amount\");",
+                  "  pm.expect(json.balance).to.have.property(\"currency\");",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "TC-02: Spin с валидной ставкой — 200 + outcome",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{jwt_token}}", "type": "text" },
+              { "key": "Content-Type", "value": "application/json", "type": "text" },
+              { "key": "Idempotency-Key", "value": "{{$guid}}", "type": "text" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"session_id\": \"{{session_id}}\",\n  \"game_id\": \"{{game_id}}\",\n  \"bet\": {\n    \"amount\": 1.00,\n    \"currency\": \"USD\",\n    \"lines\": 20\n  },\n  \"client_timestamp\": {{$timestamp}}\n}"
+            },
+            "url": "{{base_url}}/api/v1/spin",
+            "description": "Спин с валидной ставкой. Ожидаем 200, spin_id, outcome (reel_matrix/symbols), balance."
+          },
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "exec": [
+                  "// Save balance before spin for TC-03",
+                  "const initRes = pm.response || {};",
+                  "if (pm.environment.get('balance_before_spin') === undefined || pm.info.requestName.indexOf('TC-02') >= 0) {",
+                  "  pm.environment.set('idempotency_key', pm.variables.replaceIn('{{$guid}}'));",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"TC-02: Status 200\", () => pm.response.to.have.status(200));",
+                  "pm.test(\"TC-02: Has spin_id\", () => {",
+                  "  const json = pm.response.json();",
+                  "  pm.expect(json).to.have.property(\"spin_id\");",
+                  "  pm.environment.set(\"last_spin_id\", json.spin_id);",
+                  "});",
+                  "pm.test(\"TC-02: Has outcome\", () => {",
+                  "  const json = pm.response.json();",
+                  "  pm.expect(json).to.have.property(\"outcome\");",
+                  "  pm.expect(json.outcome).to.have.property(\"reel_matrix\");",
+                  "  pm.expect(json.outcome).to.have.property(\"win\");",
+                  "  pm.expect(json.outcome.win).to.have.property(\"amount\");",
+                  "});",
+                  "pm.test(\"TC-02: Has balance\", () => {",
+                  "  const json = pm.response.json();",
+                  "  pm.expect(json).to.have.property(\"balance\");",
+                  "  pm.expect(json.balance.amount).to.be.a(\"number\");",
+                  "  pm.environment.set(\"last_balance_amount\", String(json.balance.amount));",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "TC-03: Win — баланс увеличился на win_amount",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{jwt_token}}", "type": "text" },
+              { "key": "Content-Type", "value": "application/json", "type": "text" },
+              { "key": "Idempotency-Key", "value": "{{$guid}}", "type": "text" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"session_id\": \"{{session_id}}\",\n  \"game_id\": \"{{game_id}}\",\n  \"bet\": {\n    \"amount\": 0.50,\n    \"currency\": \"USD\",\n    \"lines\": 20\n  },\n  \"client_timestamp\": {{$timestamp}}\n}"
+            },
+            "url": "{{base_url}}/api/v1/spin",
+            "description": "Проверка: balance_after = balance_before - bet + win. Сохраняем balance до спина в prerequest (из предыдущего ответа или init), после спина проверяем формулу."
+          },
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "exec": [
+                  "// Store balance from last response if available (e.g. from TC-02); otherwise skip balance delta test",
+                  "const lastBalance = pm.environment.get('last_balance_amount');",
+                  "if (!lastBalance) pm.environment.set('last_balance_amount', '0');"
+                ],
+                "type": "text/javascript"
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"TC-03: Status 200\", () => pm.response.to.have.status(200));",
+                  "const json = pm.response.json();",
+                  "const bet = 0.50;",
+                  "const balanceAfter = json.balance && json.balance.amount;",
+                  "const winAmount = json.outcome && json.outcome.win && json.outcome.win.amount || 0;",
+                  "pm.environment.set(\"last_balance_amount\", String(balanceAfter));",
+                  "pm.test(\"TC-03: Balance is number\", () => pm.expect(balanceAfter).to.be.a(\"number\"));",
+                  "pm.test(\"TC-03: Balance delta = -bet + win\", () => {",
+                  "  const before = parseFloat(pm.environment.get('last_balance_amount') || '0');",
+                  "  if (pm.info.iteration === 0 || before > 0) {",
+                  "    const expectedDelta = -bet + winAmount;",
+                  "    pm.expect(balanceAfter - before).to.equal(expectedDelta);",
+                  "  }",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "TC-04: Триггер Free Spins бонуса",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{jwt_token}}", "type": "text" },
+              { "key": "Content-Type", "value": "application/json", "type": "text" },
+              { "key": "Idempotency-Key", "value": "{{$guid}}", "type": "text" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"session_id\": \"{{session_id}}\",\n  \"game_id\": \"{{game_id}}\",\n  \"bet\": {\n    \"amount\": 1.00,\n    \"currency\": \"USD\",\n    \"lines\": 20\n  },\n  \"client_timestamp\": {{$timestamp}}\n}"
+            },
+            "url": "{{base_url}}/api/v1/spin",
+            "description": "Спин; при срабатывании бонуса outcome содержит bonus_triggered. Тест проверяет структуру ответа; фактический триггер бонуса вероятностный (можно запускать много раз или мокать на бэке)."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"TC-04: Status 200\", () => pm.response.to.have.status(200));",
+                  "pm.test(\"TC-04: Outcome structure allows bonus\", () => {",
+                  "  const json = pm.response.json();",
+                  "  pm.expect(json).to.have.property(\"outcome\");",
+                  "  if (json.outcome.bonus_triggered) {",
+                  "    pm.expect(json.outcome.bonus_triggered).to.have.property(\"type\");",
+                  "    pm.expect(json.outcome.bonus_triggered).to.satisfy(t => t.type === \"free_spins\" || t.type === \"bonus\");",
+                  "  }",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Negative Testing",
+      "item": [
+        {
+          "name": "TC-05: Spin без авторизации — 401",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json", "type": "text" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"session_id\": \"{{session_id}}\",\n  \"game_id\": \"{{game_id}}\",\n  \"bet\": { \"amount\": 1, \"currency\": \"USD\", \"lines\": 20 },\n  \"client_timestamp\": {{$timestamp}}\n}"
+            },
+            "url": "{{base_url}}/api/v1/spin",
+            "description": "Запрос без заголовка Authorization. Ожидаем 401 Unauthorized."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"TC-05: Status 401\", () => pm.response.to.have.status(401));"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "TC-06: Spin с нулевым балансом — 422 insufficient_balance",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{jwt_token}}", "type": "text" },
+              { "key": "Content-Type", "value": "application/json", "type": "text" },
+              { "key": "Idempotency-Key", "value": "zero-balance-{{$guid}}", "type": "text" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"session_id\": \"{{session_id}}\",\n  \"game_id\": \"{{game_id}}\",\n  \"bet\": { \"amount\": 999999, \"currency\": \"USD\", \"lines\": 20 },\n  \"client_timestamp\": {{$timestamp}}\n}"
+            },
+            "url": "{{base_url}}/api/v1/spin",
+            "description": "Ставка больше баланса (или использование юзера с нулевым балансом). Ожидаем 422 и код insufficient_balance."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"TC-06: Status 422\", () => pm.response.to.have.status(422));",
+                  "pm.test(\"TC-06: Error code insufficient_balance\", () => {",
+                  "  const json = pm.response.json();",
+                  "  const code = json.code || json.error || json.message || \"\";",
+                  "  const codeStr = typeof code === 'string' ? code : (json.error_code || '');",
+                  "  pm.expect(JSON.stringify(json).toLowerCase()).to.include(\"insufficient\");",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "TC-07: Отрицательная ставка bet_amount = -100 — 400",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{jwt_token}}", "type": "text" },
+              { "key": "Content-Type", "value": "application/json", "type": "text" },
+              { "key": "Idempotency-Key", "value": "neg-bet-{{$guid}}", "type": "text" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"session_id\": \"{{session_id}}\",\n  \"game_id\": \"{{game_id}}\",\n  \"bet\": { \"amount\": -100, \"currency\": \"USD\", \"lines\": 20 },\n  \"client_timestamp\": {{$timestamp}}\n}"
+            },
+            "url": "{{base_url}}/api/v1/spin",
+            "description": "Отрицательная ставка. Ожидаем 400 Bad Request."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"TC-07: Status 400\", () => pm.response.to.have.status(400));"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "TC-08: Повторный spin с тем же idempotency_key — 200 same body или 409",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{jwt_token}}", "type": "text" },
+              { "key": "Content-Type", "value": "application/json", "type": "text" },
+              { "key": "Idempotency-Key", "value": "replay-fixed-key-12345", "type": "text" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"session_id\": \"{{session_id}}\",\n  \"game_id\": \"{{game_id}}\",\n  \"bet\": { \"amount\": 1, \"currency\": \"USD\", \"lines\": 20 },\n  \"client_timestamp\": {{$timestamp}}\n}"
+            },
+            "url": "{{base_url}}/api/v1/spin",
+            "description": "Первый запрос с фиксированным Idempotency-Key (задать в env idempotency_key). Второй запрос с тем же ключом: ожидаем 409 Conflict ИЛИ 200 с тем же spin_id (идемпотентный ответ)."
+          },
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "exec": [
+                  "// Fixed Idempotency-Key so 2nd run returns 409 or same 200 body"
+                ],
+                "type": "text/javascript"
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "// Accept either 409 (duplicate) or 200 with same spin_id (idempotent success)",
+                  "const status = pm.response.code;",
+                  "pm.test(\"TC-08: Status 409 or 200\", () => pm.expect([200, 409]).to.include(status));",
+                  "if (status === 409) {",
+                  "  pm.test(\"TC-08: 409 body indicates duplicate\", () => {",
+                  "    const body = pm.response.json();",
+                  "    pm.expect(body).to.be.an('object');",
+                  "  });",
+                  "} else if (status === 200) {",
+                  "  const spinId = pm.response.json().spin_id;",
+                  "  const firstId = pm.environment.get('idempotency_first_spin_id');",
+                  "  if (!firstId) pm.environment.set('idempotency_first_spin_id', spinId);",
+                  "  else pm.test(\"TC-08: 200 idempotent — same spin_id when key reused\", () => pm.expect(spinId).to.equal(firstId));",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "TC-09: JWT alg none — 401",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer eyJhbGciOiJub25lIiwidHlwIjoiSldUIn0.eyJzdWIiOiI5OTk5OSIsInNlc3Npb25faWQiOiJmYWtlIn0.", "type": "text" },
+              { "key": "Content-Type", "value": "application/json", "type": "text" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"session_id\": \"{{session_id}}\",\n  \"game_id\": \"{{game_id}}\",\n  \"bet\": { \"amount\": 1, \"currency\": \"USD\", \"lines\": 20 },\n  \"client_timestamp\": {{$timestamp}}\n}"
+            },
+            "url": "{{base_url}}/api/v1/spin",
+            "description": "JWT с alg: none и поддельным payload. Ожидаем 401."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"TC-09: Status 401\", () => pm.response.to.have.status(401));"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "TC-10: IDOR — история чужого user_id — 403",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{jwt_token}}", "type": "text" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/v1/history?user_id=99999&limit=10",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "history"],
+              "query": [
+                { "key": "user_id", "value": "99999" },
+                { "key": "limit", "value": "10" }
+              ]
+            },
+            "description": "Запрос истории с user_id другого пользователя. Ожидаем 403 Forbidden или пустой/только свой список (сервер игнорирует user_id и возвращает текущего юзера)."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "// Either 403 or 200 with only own data (no other user's spins)",
+                  "const status = pm.response.code;",
+                  "pm.test(\"TC-10: Status 403 or 200 with own data only\", () => pm.expect([403, 200]).to.include(status));",
+                  "if (status === 200) {",
+                  "  pm.test(\"TC-10: No foreign user_id in items\", () => {",
+                  "    const json = pm.response.json();",
+                  "    const items = json.items || [];",
+                  "    items.forEach(item => {",
+                  "      if (item.user_id) pm.expect(String(item.user_id)).to.equal(pm.environment.get('user_id'));",
+                  "    });",
+                  "  });",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Security Testing",
+      "item": [
+        {
+          "name": "TC-11: SQL Injection в bet_amount",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{jwt_token}}", "type": "text" },
+              { "key": "Content-Type", "value": "application/json", "type": "text" },
+              { "key": "Idempotency-Key", "value": "sqli-{{$guid}}", "type": "text" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"session_id\": \"{{session_id}}\",\n  \"game_id\": \"{{game_id}}\",\n  \"bet\": { \"amount\": \"1; DROP TABLE spins;--\", \"currency\": \"USD\", \"lines\": 20 },\n  \"client_timestamp\": {{$timestamp}}\n}"
+            },
+            "url": "{{base_url}}/api/v1/spin",
+            "description": "SQL Injection в поле bet.amount. Ожидаем 400/422, запрос не должен выполнить SQL; тип amount должен быть number на бэке."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"TC-11: Status 4xx (no 200)\", () => pm.expect(pm.response.code).to.be.at.least(400));",
+                  "pm.test(\"TC-11: No 500 server error\", () => pm.expect(pm.response.code).to.be.below(500));"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "TC-12: XSS в session_id",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{jwt_token}}", "type": "text" },
+              { "key": "Content-Type", "value": "application/json", "type": "text" },
+              { "key": "Idempotency-Key", "value": "xss-{{$guid}}", "type": "text" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"session_id\": \"<script>alert(1)</script>\",\n  \"game_id\": \"{{game_id}}\",\n  \"bet\": { \"amount\": 1, \"currency\": \"USD\", \"lines\": 20 },\n  \"client_timestamp\": {{$timestamp}}\n}"
+            },
+            "url": "{{base_url}}/api/v1/spin",
+            "description": "XSS payload в session_id. Ожидаем 400/422 (invalid session); ответ не должен содержать неэкранированный script в теле."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"TC-12: Status 4xx\", () => pm.expect(pm.response.code).to.be.at.least(400));",
+                  "pm.test(\"TC-12: Response body has no raw script tag\", () => {",
+                  "  const text = pm.response.text();",
+                  "  pm.expect(text).to.not.match(/<script\\s*>/i);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "TC-13: Rate limit — 50 спинов в секунду",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{jwt_token}}", "type": "text" },
+              { "key": "Content-Type", "value": "application/json", "type": "text" },
+              { "key": "Idempotency-Key", "value": "rate-{{$guid}}-{{$randomInt}}", "type": "text" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"session_id\": \"{{session_id}}\",\n  \"game_id\": \"{{game_id}}\",\n  \"bet\": { \"amount\": 0.10, \"currency\": \"USD\", \"lines\": 20 },\n  \"client_timestamp\": {{$timestamp}}\n}"
+            },
+            "url": "{{base_url}}/api/v1/spin",
+            "description": "Запуск 50+ запросов в одну секунду (через Collection Runner с итерациями или отдельный скрипт). Ожидаем 429 после N спинов. Один запрос проверяет только структуру; полный тест — через Runner с 50 итерациями и проверкой появления 429."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const code = pm.response.code;",
+                  "pm.test(\"TC-13: Status 200 or 429\", () => pm.expect([200, 429]).to.include(code));",
+                  "if (code === 429) {",
+                  "  pm.test(\"TC-13: 429 has Retry-After or rate limit message\", () => {",
+                  "    const hasRetry = pm.response.headers.has('Retry-After');",
+                  "    const body = pm.response.json();",
+                  "    const msg = (body.message || body.error || '').toLowerCase();",
+                  "    pm.expect(hasRetry || msg.includes('rate') || msg.includes('limit')).to.be.true;",
+                  "  });",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "TC-14: Replay attack — повтор перехваченного запроса",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{jwt_token}}", "type": "text" },
+              { "key": "Content-Type", "value": "application/json", "type": "text" },
+              { "key": "Idempotency-Key", "value": "replay-attack-fixed-key-12345", "type": "text" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"session_id\": \"{{session_id}}\",\n  \"game_id\": \"{{game_id}}\",\n  \"bet\": { \"amount\": 1, \"currency\": \"USD\", \"lines\": 20 },\n  \"client_timestamp\": 1708851234000\n}"
+            ],
+            "url": "{{base_url}}/api/v1/spin",
+            "description": "Первый запрос с фиксированным Idempotency-Key — 200 и spin_id. Второй запрос (повтор) с тем же ключом: должен вернуть 200 с тем же spin_id (идемпотентность) или 409. Двойного списания/двойного выигрыша быть не должно."
+          },
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "exec": [
+                  "if (!pm.environment.get('replay_first_spin_id')) {",
+                  "  pm.environment.set('replay_first_spin_id', '');",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const json = pm.response.json();",
+                  "const code = pm.response.code;",
+                  "const spinId = json.spin_id;",
+                  "const firstId = pm.environment.get('replay_first_spin_id');",
+                  "if (!firstId && spinId) pm.environment.set('replay_first_spin_id', spinId);",
+                  "pm.test(\"TC-14: Status 200 or 409\", () => pm.expect([200, 409]).to.include(code));",
+                  "if (code === 200 && firstId && spinId) {",
+                  "  pm.test(\"TC-14: Replay returns same spin_id (no double execution)\", () => pm.expect(spinId).to.equal(firstId));",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
