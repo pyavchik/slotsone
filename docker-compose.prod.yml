@@ -31,11 +31,34 @@ services:
     depends_on:
       backend:
         condition: service_healthy
+    expose:
+      - "80"
+    networks:
+      - slotsone
+
+  caddy:
+    image: caddy:2.10-alpine
+    container_name: slotsone-caddy
+    restart: unless-stopped
+    depends_on:
+      - frontend
+    environment:
+      TLS_DOMAIN: ${TLS_DOMAIN}
+      ACME_EMAIL: ${ACME_EMAIL}
     ports:
       - "80:80"
+      - "443:443"
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+      - caddy_config:/config
     networks:
       - slotsone
 
 networks:
   slotsone:
     driver: bridge
+
+volumes:
+  caddy_data:
+  caddy_config:

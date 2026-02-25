@@ -1,7 +1,7 @@
 import { Router } from 'express';
 import { authMiddleware } from '../middleware/auth.js';
-import { createSession, getConfig, executeSpin, getBalance } from '../store.js';
-import { GAME_ID } from '../engine/gameConfig.js';
+import { createSession, getConfig, executeSpin, getBalance, getHistory } from '../store.js';
+import { GAME_ID, PAYLINES } from '../engine/gameConfig.js';
 
 const router = Router();
 
@@ -21,6 +21,8 @@ function toErrorCode(error: string): string {
       return 'invalid_bet';
     case 'Invalid currency':
       return 'invalid_currency';
+    case 'Invalid lines count':
+      return 'invalid_lines';
     case 'Idempotency key reused with different request payload':
       return 'idempotency_key_reused';
     default:
@@ -60,9 +62,10 @@ router.post('/spin', authMiddleware, (req, res) => {
   const session_id = body?.session_id;
   const game_id = body?.game_id ?? GAME_ID;
   const betAmount = Number(body?.bet?.amount);
+  const lines = Number(body?.bet?.lines ?? PAYLINES);
   const currency = body?.bet?.currency ?? 'USD';
 
-  if (!session_id || typeof betAmount !== 'number' || !Number.isFinite(betAmount)) {
+  if (!session_id || typeof betAmount !== 'number' || !Number.isFinite(betAmount) || !Number.isFinite(lines)) {
     res.status(400).json({ error: 'Invalid request', code: 'invalid_body' });
     return;
   }
@@ -71,9 +74,12 @@ router.post('/spin', authMiddleware, (req, res) => {
     return;
   }
 
-  const result = executeSpin(userId, session_id, game_id, betAmount, currency, idempotencyKey);
+  const result = executeSpin(userId, session_id, game_id, betAmount, currency, lines, idempotencyKey);
 
   if ('error' in result) {
+    if (result.code === 429 && typeof result.retry_after_seconds === 'number') {
+      res.setHeader('Retry-After', String(result.retry_after_seconds));
+    }
     res.status(result.code).json({
       error: result.error,
       code: toErrorCode(result.error),
@@ -85,8 +91,9 @@ router.post('/spin', authMiddleware, (req, res) => {
 
 router.get('/history', authMiddleware, (req, res) => {
   const userId = (req as unknown as { userId: string }).userId;
-  // Demo: return empty history (could store spins and filter by userId)
-  res.json({ items: [], total: 0, limit: 50, offset: 0 });
+  const limit = Number(req.query.limit ?? 50);
+  const offset = Number(req.query.offset ?? 0);
+  res.json(getHistory(userId, limit, offset));
 });
 
 export default router;

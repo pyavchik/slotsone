@@ -1,4 +1,4 @@
-import { useRef, useEffect, useState } from 'react';
+import { useRef, useEffect, useMemo, useState } from 'react';
 import { ReelGrid } from './reel/PixiReelGrid';
 import { useGameStore } from './store';
 
@@ -14,8 +14,22 @@ export function SlotCanvas({ width, height, onAllReelsStopped }: SlotCanvasProps
   const onAllStoppedRef = useRef(onAllReelsStopped);
   onAllStoppedRef.current = onAllReelsStopped;
   const [pixiError, setPixiError] = useState<string | null>(null);
+  const [announcement, setAnnouncement] = useState('Slot game loaded.');
+  const config = useGameStore((s) => s.config);
   const lastOutcome = useGameStore((s) => s.lastOutcome);
   const spinning = useGameStore((s) => s.spinning);
+  const lineDefs = useMemo(() => config?.line_defs ?? [], [config?.line_defs]);
+  const safeArea = useMemo(() => {
+    const safeTop = Math.round(Math.min(128, Math.max(74, height * 0.14)));
+    const safeBottom = Math.round(Math.min(260, Math.max(152, height * 0.24)));
+    const safeSide = Math.round(Math.min(28, Math.max(10, width * 0.02)));
+    return {
+      safeTop,
+      safeBottom,
+      safeLeft: safeSide,
+      safeRight: safeSide,
+    };
+  }, [width, height]);
 
   // Unmount: destroy grid once
   useEffect(() => {
@@ -33,7 +47,8 @@ export function SlotCanvas({ width, height, onAllReelsStopped }: SlotCanvasProps
     const canvas = canvasRef.current;
     if (!canvas || width < 1 || height < 1) return;
     if (gridRef.current) {
-      gridRef.current.resize(width, height);
+      gridRef.current.setLineDefs(lineDefs);
+      gridRef.current.resize(width, height, safeArea);
       return;
     }
     if (hasCreatedRef.current) return;
@@ -43,6 +58,8 @@ export function SlotCanvas({ width, height, onAllReelsStopped }: SlotCanvasProps
       ReelGrid.create(canvas, {
         width,
         height,
+        lineDefs,
+        ...safeArea,
         onReelStopped: () => {},
         onAllStopped: () => onAllStoppedRef.current?.(),
       })
@@ -66,20 +83,49 @@ export function SlotCanvas({ width, height, onAllReelsStopped }: SlotCanvasProps
       // Let StrictMode second run create the grid if the first was cancelled
       if (!gridRef.current) hasCreatedRef.current = false;
     };
-  }, [width, height]);
+  }, [width, height, safeArea, lineDefs]);
 
   useEffect(() => {
     if (!lastOutcome || !spinning) return;
     const matrix = lastOutcome.reel_matrix;
-    const winningLineIndices = Array.from(
-      new Set(
-        (lastOutcome.win?.breakdown ?? [])
-          .map((b) => b.line_index)
-          .filter((lineIndex): lineIndex is number => typeof lineIndex === 'number')
+    const winningLines = (lastOutcome.win?.breakdown ?? [])
+      .filter(
+        (
+          item
+        ): item is {
+          type: 'line';
+          line_index: number;
+          symbol: string;
+          count: number;
+          payout: number;
+        } => item.type === 'line' && typeof item.line_index === 'number'
       )
-    );
-    gridRef.current?.spinThenStop(matrix, winningLineIndices);
+      .map((item) => ({
+        lineIndex: item.line_index,
+        symbol: item.symbol,
+        count: item.count,
+        payout: item.payout,
+      }));
+    gridRef.current?.spinThenStop(matrix, winningLines);
   }, [lastOutcome, spinning]);
+
+  useEffect(() => {
+    if (!lastOutcome) return;
+    const winAmount = lastOutcome.win.amount;
+    if (winAmount > 0) {
+      setAnnouncement(`Spin complete. Win ${winAmount.toFixed(2)} ${lastOutcome.win.currency}.`);
+      return;
+    }
+    setAnnouncement('Spin complete. No win.');
+  }, [lastOutcome]);
+
+  const canvasLabel = useMemo(() => {
+    if (!lastOutcome) return 'Slot reels.';
+    const columns = lastOutcome.reel_matrix
+      .map((reel, index) => `Reel ${index + 1}: ${reel.join(', ')}`)
+      .join('. ');
+    return `${columns}.`;
+  }, [lastOutcome]);
 
   if (pixiError) {
     return (
@@ -101,5 +147,19 @@ export function SlotCanvas({ width, height, onAllReelsStopped }: SlotCanvasProps
     );
   }
 
-  return <canvas ref={canvasRef} width={width} height={height} style={{ display: 'block', width: '100%', height: '100%' }} />;
+  return (
+    <>
+      <canvas
+        ref={canvasRef}
+        width={width}
+        height={height}
+        role="img"
+        aria-label={canvasLabel}
+        style={{ display: 'block', width: '100%', height: '100%' }}
+      />
+      <div className="sr-only" aria-live="polite" aria-atomic="true">
+        {announcement}
+      </div>
+    </>
+  );
 }

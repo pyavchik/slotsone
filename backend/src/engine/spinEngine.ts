@@ -99,18 +99,20 @@ const WILD_INDEX = SYMBOLS.indexOf('Wild');
 export function runSpin(
   betAmount: number,
   currency: string,
+  activeLines: number = PAYLINES,
   seed?: number
 ): { outcome: SpinOutcome; seedUsed: number } {
   const seedUsed = seed ?? getRandomSeed();
   const rng = createSeededRNG(seedUsed);
+  const normalizedLines = Math.max(1, Math.min(PAYLINES, Math.floor(activeLines)));
 
   const reel_matrix = buildReelMatrix(rng);
 
   const breakdown: WinBreakdownItem[] = [];
   let totalWin = 0;
-  const betPerLine = betAmount / PAYLINES;
+  const betPerLine = betAmount / normalizedLines;
 
-  for (let lineIndex = 0; lineIndex < LINE_DEFS.length; lineIndex++) {
+  for (let lineIndex = 0; lineIndex < Math.min(normalizedLines, LINE_DEFS.length); lineIndex++) {
     const line = LINE_DEFS[lineIndex]!;
     const result = evaluateLine(reel_matrix, line, WILD_INDEX);
     if (!result) continue;

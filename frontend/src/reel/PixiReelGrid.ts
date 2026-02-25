@@ -9,15 +9,17 @@ const CELL_W = 172;
 const CELL_H = 172;
 const GAP = 8;
 
-/** Payline definitions: 20 lines, each [row for reel0, reel1, ..., reel4]. Row 0=top, 1=mid, 2=bottom. */
-const LINE_DEFS: number[][] = [
-  [1, 1, 1, 1, 1], [0, 0, 0, 0, 0], [2, 2, 2, 2, 2],
-  [1, 0, 0, 0, 1], [1, 2, 2, 2, 1], [0, 1, 0, 1, 0], [2, 1, 2, 1, 2],
-  [0, 0, 1, 0, 0], [2, 2, 1, 2, 2], [1, 1, 0, 1, 1], [1, 1, 2, 1, 1],
-  [0, 1, 1, 1, 0], [2, 1, 1, 1, 2], [0, 2, 0, 2, 0], [2, 0, 2, 0, 2],
-  [1, 0, 1, 0, 1], [1, 2, 1, 2, 1], [0, 1, 2, 1, 0], [2, 1, 0, 1, 2], [0, 2, 1, 2, 0],
+const FALLBACK_LINE_DEFS: number[][] = [];
+const PAYLINE_COLORS = [
+  0xfbbf24, // gold
+  0x22d3ee, // cyan
+  0xe879f9, // magenta
+  0x84cc16, // lime
+  0xfb7185, // rose
+  0x60a5fa, // blue
+  0xf97316, // orange
+  0x34d399, // emerald
 ];
-const PAYLINE_COLOR = 0xfbbf24;
 const PAYLINE_WIDTH = 4;
 const PAYLINE_GLOW_WIDTH = 12;
 const PAYLINE_ALPHA = 0.95;
@@ -63,6 +65,11 @@ function makeSymbolGraphic(symbolId: string, width: number, height: number): Gra
 export interface ReelGridOptions {
   width: number;
   height: number;
+  lineDefs?: number[][];
+  safeTop?: number;
+  safeBottom?: number;
+  safeLeft?: number;
+  safeRight?: number;
   onReelStopped?: (reelIndex: number) => void;
   onAllStopped?: () => void;
 }
@@ -78,6 +85,13 @@ interface ReelState {
   bounceStartTime?: number;
 }
 
+interface WinningLineInfo {
+  lineIndex: number;
+  symbol: string;
+  count: number;
+  payout: number;
+}
+
 export class ReelGrid {
   app: Application;
   container: Container;
@@ -90,7 +104,8 @@ export class ReelGrid {
   private tickerBound: (ticker: { deltaTime: number }) => void = () => {};
   private stepHeight: number;
   private paylinesContainer: Container | null = null;
-  private winningLineIndices: number[] = [];
+  private winningLines: WinningLineInfo[] = [];
+  private lineDefs: number[][] = [];
 
   /** PixiJS v8 requires async init(). Use ReelGrid.create() instead of new ReelGrid(). */
   static async create(canvas: HTMLCanvasElement, options: ReelGridOptions): Promise<ReelGrid> {
@@ -112,21 +127,45 @@ export class ReelGrid {
     this.stepHeight = CELL_H + GAP;
     this.app = new Application();
     this.container = new Container();
+    this.lineDefs = this.normalizeLineDefs(options.lineDefs ?? FALLBACK_LINE_DEFS);
+  }
+
+  private normalizeLineDefs(lineDefs: number[][]): number[][] {
+    return lineDefs
+      .filter(
+        (line): line is number[] =>
+          Array.isArray(line) &&
+          line.length === REELS &&
+          line.every((row) => Number.isInteger(row) && row >= 0 && row < ROWS)
+      )
+      .map((line) => [...line]);
+  }
+
+  setLineDefs(lineDefs: number[][]) {
+    this.lineDefs = this.normalizeLineDefs(lineDefs);
+    this.winningLines = this.winningLines.filter((line) => line.lineIndex >= 0 && line.lineIndex < this.lineDefs.length);
+  }
+
+  private layoutContainer(width: number, height: number) {
+    const cellTotalW = REELS * CELL_W + (REELS - 1) * GAP;
+    const cellTotalH = ROWS * this.stepHeight - GAP;
+    const safeTop = Math.max(0, this.options.safeTop ?? 0);
+    const safeBottom = Math.max(0, this.options.safeBottom ?? 0);
+    const safeLeft = Math.max(0, this.options.safeLeft ?? 0);
+    const safeRight = Math.max(0, this.options.safeRight ?? 0);
+    const availableWidth = Math.max(1, width - safeLeft - safeRight);
+    const availableHeight = Math.max(1, height - safeTop - safeBottom);
+    const scale = Math.min(availableWidth / cellTotalW, availableHeight / cellTotalH, 1.5);
+    this.container.scale.set(scale);
+    this.container.x = safeLeft + (availableWidth - cellTotalW * scale) / 2;
+    this.container.y = safeTop + (availableHeight - cellTotalH * scale) / 2;
   }
 
   private setupScene() {
     const options = this.options;
     const cellTotalW = REELS * CELL_W + (REELS - 1) * GAP;
     const cellTotalH = ROWS * this.stepHeight - GAP;
-    // Scale to fit canvas so reels are always visible
-    const scale = Math.min(
-      options.width / cellTotalW,
-      options.height / cellTotalH,
-      1.5
-    );
-    this.container.scale.set(scale);
-    this.container.x = (options.width - cellTotalW * scale) / 2;
-    this.container.y = (options.height - cellTotalH * scale) / 2;
+    this.layoutContainer(options.width, options.height);
     this.app.stage.addChild(this.container);
 
     // Frame so the reel area is always visible
@@ -152,16 +191,58 @@ export class ReelGrid {
     this.setIdleSymbols([]);
   }
 
-  /** Set winning line indices (from outcome.win.breakdown line_index). Drawn when spin finishes. */
-  setWinningLines(lineIndices: number[]) {
-    this.winningLineIndices = lineIndices.filter((i) => i >= 0 && i < LINE_DEFS.length);
+  /** Set winning line data for line drawing, symbol highlight and payout labels. */
+  setWinningLines(lines: WinningLineInfo[]) {
+    this.winningLines = lines
+      .filter((line) => line.lineIndex >= 0 && line.lineIndex < this.lineDefs.length)
+      .sort((a, b) => b.payout - a.payout);
+  }
+
+  private getLineColor(lineIndex: number): number {
+    return PAYLINE_COLORS[lineIndex % PAYLINE_COLORS.length]!;
+  }
+
+  private drawWinningCells() {
+    if (!this.paylinesContainer || this.winningLines.length === 0) return;
+    const byCell = new Map<string, { reel: number; row: number; color: number; overlaps: number }>();
+
+    for (const line of this.winningLines) {
+      const path = this.lineDefs[line.lineIndex];
+      if (!path) continue;
+      for (let reel = 0; reel < Math.min(line.count, REELS); reel++) {
+        const row = path[reel];
+        if (row == null) continue;
+        const key = `${reel}-${row}`;
+        const existing = byCell.get(key);
+        if (existing) {
+          existing.overlaps += 1;
+          continue;
+        }
+        byCell.set(key, { reel, row, color: this.getLineColor(line.lineIndex), overlaps: 1 });
+      }
+    }
+
+    byCell.forEach((cell) => {
+      const x = cell.reel * (CELL_W + GAP);
+      const y = cell.row * this.stepHeight;
+      const glow = new Graphics();
+      const glowColor = cell.overlaps > 1 ? 0xffffff : cell.color;
+      glow.roundRect(x + 6, y + 6, CELL_W - 12, CELL_H - 12, 14).fill({ color: glowColor, alpha: 0.17 });
+      glow.roundRect(x + 6, y + 6, CELL_W - 12, CELL_H - 12, 14).stroke({
+        width: cell.overlaps > 1 ? 4 : 3,
+        color: glowColor,
+        alpha: cell.overlaps > 1 ? 0.95 : 0.8,
+      });
+      this.paylinesContainer?.addChild(glow);
+    });
   }
 
   private drawWinningLines() {
-    if (!this.paylinesContainer || this.winningLineIndices.length === 0) return;
+    if (!this.paylinesContainer || this.winningLines.length === 0) return;
     this.paylinesContainer.removeChildren();
-    for (const lineIdx of this.winningLineIndices) {
-      const path = LINE_DEFS[lineIdx];
+    this.drawWinningCells();
+    for (const winningLine of this.winningLines) {
+      const path = this.lineDefs[winningLine.lineIndex];
       if (!path || path.length !== REELS) continue;
       const points: number[] = [];
       for (let r = 0; r < REELS; r++) {
@@ -170,12 +251,36 @@ export class ReelGrid {
         const y = row * this.stepHeight + CELL_H / 2;
         points.push(x, y);
       }
-      const line = new Graphics();
-      line.moveTo(points[0]!, points[1]!);
-      for (let i = 2; i < points.length; i += 2) line.lineTo(points[i]!, points[i + 1]!);
-      line.stroke({ width: PAYLINE_GLOW_WIDTH, color: PAYLINE_COLOR, alpha: PAYLINE_ALPHA * 0.4 });
-      line.stroke({ width: PAYLINE_WIDTH, color: PAYLINE_COLOR, alpha: PAYLINE_ALPHA });
-      this.paylinesContainer.addChild(line);
+      const lineGraphic = new Graphics();
+      lineGraphic.moveTo(points[0]!, points[1]!);
+      for (let i = 2; i < points.length; i += 2) lineGraphic.lineTo(points[i]!, points[i + 1]!);
+      const color = this.getLineColor(winningLine.lineIndex);
+      lineGraphic.stroke({ width: PAYLINE_GLOW_WIDTH, color, alpha: PAYLINE_ALPHA * 0.35 });
+      lineGraphic.stroke({ width: PAYLINE_WIDTH, color, alpha: PAYLINE_ALPHA });
+      this.paylinesContainer.addChild(lineGraphic);
+
+      const lastX = points[points.length - 2]!;
+      const lastY = points[points.length - 1]!;
+      const labelBg = new Graphics();
+      const labelWidth = 176;
+      const maxX = REELS * (CELL_W + GAP) - labelWidth - 12;
+      const labelX = Math.max(6, Math.min(lastX + 10, maxX));
+      const labelY = Math.max(6, lastY - 28);
+      labelBg.roundRect(labelX - 6, labelY - 6, labelWidth, 28, 8).fill({ color: 0x09090f, alpha: 0.78 });
+      labelBg.roundRect(labelX - 6, labelY - 6, labelWidth, 28, 8).stroke({ width: 1, color, alpha: 0.9 });
+      this.paylinesContainer.addChild(labelBg);
+
+      const payoutLabel = new Text({
+        text: `L${winningLine.lineIndex + 1} ${winningLine.symbol}x${winningLine.count}  +${winningLine.payout.toFixed(2)}`,
+        style: {
+          fontSize: 12,
+          fill: 0xffffff,
+          fontWeight: 'bold',
+        },
+      });
+      payoutLabel.x = labelX;
+      payoutLabel.y = labelY;
+      this.paylinesContainer.addChild(payoutLabel);
     }
   }
 
@@ -200,10 +305,10 @@ export class ReelGrid {
     }
   }
 
-  spinThenStop(outcomeMatrix: string[][], winningLineIndices: number[] = []) {
+  spinThenStop(outcomeMatrix: string[][], winningLines: WinningLineInfo[] = []) {
     if (this.reels.some((r) => r.spinning || r.decelerating || r.bouncing)) return;
     this.spinFinished = false;
-    this.winningLineIndices = winningLineIndices.filter((i) => i >= 0 && i < LINE_DEFS.length);
+    this.setWinningLines(winningLines);
     if (this.paylinesContainer) this.paylinesContainer.removeChildren();
     this.targetMatrix = outcomeMatrix.map((col) => [...col]);
 
@@ -326,15 +431,10 @@ export class ReelGrid {
   }
 
   /** Resize canvas and reposition grid without destroying (e.g. when DevTools opens). */
-  resize(width: number, height: number) {
-    this.options = { ...this.options, width, height };
+  resize(width: number, height: number, safeArea?: Pick<ReelGridOptions, 'safeTop' | 'safeBottom' | 'safeLeft' | 'safeRight'>) {
+    this.options = { ...this.options, width, height, ...safeArea };
     this.app.renderer.resize(width, height);
-    const cellTotalW = REELS * CELL_W + (REELS - 1) * GAP;
-    const cellTotalH = ROWS * this.stepHeight - GAP;
-    const scale = Math.min(width / cellTotalW, height / cellTotalH, 1.5);
-    this.container.scale.set(scale);
-    this.container.x = (width - cellTotalW * scale) / 2;
-    this.container.y = (height - cellTotalH * scale) / 2;
+    this.layoutContainer(width, height);
   }
 
   destroy() {
