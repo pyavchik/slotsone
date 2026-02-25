@@ -17,6 +17,32 @@ Reference implementation of a slot game:
 - Node.js 20+
 - npm 10+
 
+## Safe PR Workflow
+
+Use the guard script before creating PRs:
+
+```bash
+scripts/safe-pr.sh
+```
+
+What it checks:
+- not on `main`/`master`
+- no merge/rebase/cherry-pick in progress
+- clean tracked working tree
+- optional untracked-file guard
+- commits exist ahead of `origin/main`
+- prints exact commits/files that will be in PR
+
+Common usage:
+
+```bash
+# local checks only
+scripts/safe-pr.sh --allow-untracked
+
+# check + push + open PR
+scripts/safe-pr.sh --allow-untracked --push --create-pr --title "Your PR title"
+```
+
 ## Quick Start (Development)
 
 1. Start backend:
