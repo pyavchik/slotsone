@@ -132,15 +132,12 @@
 @keyframes spin-ready-pulse {
   0% {
     box-shadow: 0 0 18px rgba(245, 208, 106, 0.28);
-    transform: translateY(0);
   }
   50% {
     box-shadow: 0 0 32px rgba(245, 208, 106, 0.5);
-    transform: translateY(-1px);
   }
   100% {
     box-shadow: 0 0 18px rgba(245, 208, 106, 0.28);
-    transform: translateY(0);
   }
 }
 
