@@ -135,10 +135,8 @@ function App() {
   }, [setSpinning]);
 
   const handleOpenSlots = useCallback(() => {
-    setScreen('slots');
-    setReady(false);
-    setError(null);
-  }, [setError]);
+    window.open('https://pyavchik.space/slots', '_blank', 'noopener,noreferrer');
+  }, []);
 
   useEffect(() => {
     return () => {
