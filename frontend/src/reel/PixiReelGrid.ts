@@ -2,14 +2,6 @@
  * PixiJS ReelGrid: 5x3, spin/stop animation per design spec.
  */
 import { Application, Container, Graphics, Sprite, Text, type Texture } from 'pixi.js';
-import {
-  Spine,
-  SpineTexture,
-  TextureAtlas,
-  AtlasAttachmentLoader,
-  SkeletonJson,
-  type SkeletonData,
-} from '@esotericsoftware/spine-pixi-v8';
 import { SYMBOL_IDS, normalizeSymbolId, symbolColorNumber, symbolShortLabel } from '../symbols';
 
 const REELS = 5;
@@ -302,87 +294,167 @@ class SymbolTextureCache {
 }
 
 // ---------------------------------------------------------------------------
-// Spine-driven symbol animations (idle pulse, win bounce)
+// Win celebration — multi-layer animated effects for winning cells
 // ---------------------------------------------------------------------------
 
-const SPINE_ATLAS_TEXT = [
-  'symbol.png',
-  `size: ${CELL_W}, ${CELL_H}`,
-  'filter: Linear, Linear',
-  'symbol',
-  `  bounds: 0, 0, ${CELL_W}, ${CELL_H}`,
-].join('\n');
+const NUM_SPARKLES = 10;
+const NUM_RAYS = 6;
+const GLOW_PULSE_SPEED = 3.5;
+const SPARKLE_ORBIT_SPEED = 1.8;
+const RAY_ROTATE_SPEED = 0.4;
+const BREATHE_SPEED = 2.5;
+const BREATHE_SCALE = 0.06;
+const FLASH_DURATION = 0.3;
 
-const SPINE_SKELETON_JSON = {
-  skeleton: { spine: '4.2.0', width: CELL_W, height: CELL_H },
-  bones: [{ name: 'root' }],
-  slots: [{ name: 'symbol', bone: 'root', attachment: 'symbol' }],
-  skins: [
-    {
-      name: 'default',
-      attachments: {
-        symbol: { symbol: { width: CELL_W, height: CELL_H } },
-      },
-    },
-  ],
-  animations: {
-    idle: {
-      bones: {
-        root: {
-          scale: [
-            { time: 0, x: 1, y: 1 },
-            { time: 0.8, x: 1.025, y: 1.025 },
-            { time: 1.6, x: 1, y: 1 },
-          ],
-        },
-      },
-    },
-    win: {
-      bones: {
-        root: {
-          scale: [
-            { time: 0, x: 1, y: 1 },
-            { time: 0.08, x: 1.22, y: 1.22 },
-            { time: 0.2, x: 0.92, y: 0.92 },
-            { time: 0.32, x: 1.1, y: 1.1 },
-            { time: 0.45, x: 0.97, y: 0.97 },
-            { time: 0.55, x: 1, y: 1 },
-          ],
-        },
-      },
-    },
-  },
-};
+interface CellAnimState {
+  container: Container;
+  glowRing: Graphics;
+  sparkles: Graphics[];
+  rays: Graphics;
+  symbolSprite: Sprite;
+  color: number;
+  cx: number;
+  cy: number;
+}
 
-/**
- * Creates Spine instances that use our programmatic symbol textures as
- * region attachments. No external Spine/atlas files required — skeleton
- * data and atlas are generated at runtime from the texture cache.
- *
- * When an artist provides real `.skel` + `.atlas` assets, swap this
- * factory to load from files via `Spine.from()` instead.
- */
-class SpineSymbolFactory {
-  private cache = new Map<string, SkeletonData>();
+class WinCelebration {
+  private cells: CellAnimState[] = [];
+  private tickerFn: ((ticker: { deltaTime: number }) => void) | null = null;
+  private startTime = 0;
 
-  constructor(private textures: SymbolTextureCache) {}
+  constructor(private app: Application) {}
 
-  create(symbolId: string): Spine {
-    const key = normalizeSymbolId(symbolId);
-    let data = this.cache.get(key);
-    if (!data) {
-      const pixiTex = this.textures.getTexture(key);
-      const atlas = new TextureAtlas(SPINE_ATLAS_TEXT);
-      atlas.pages[0]!.setTexture(SpineTexture.from(pixiTex.source));
-      const json = new SkeletonJson(new AtlasAttachmentLoader(atlas));
-      data = json.readSkeletonData(SPINE_SKELETON_JSON);
-      this.cache.set(key, data);
+  add(parent: Container, sprite: Sprite, x: number, y: number, color: number): void {
+    const cx = x + CELL_W / 2;
+    const cy = y + CELL_H / 2;
+    const root = new Container();
+    parent.addChild(root);
+
+    const rays = this.buildRays(cx, cy, color);
+    root.addChild(rays);
+
+    const glowRing = this.buildGlowRing(x, y, color);
+    root.addChild(glowRing);
+
+    const sparkles: Graphics[] = [];
+    for (let i = 0; i < NUM_SPARKLES; i++) {
+      const s = new Graphics();
+      const size = 1.5 + Math.random() * 2;
+      s.circle(0, 0, size).fill({ color: 0xffffff, alpha: 0.9 });
+      s.circle(0, 0, size * 2.5).fill({ color, alpha: 0.2 });
+      root.addChild(s);
+      sparkles.push(s);
     }
-    return new Spine({ skeletonData: data, autoUpdate: true });
+
+    sprite.visible = false;
+
+    this.cells.push({
+      container: root,
+      glowRing,
+      sparkles,
+      rays,
+      symbolSprite: sprite,
+      color,
+      cx,
+      cy,
+    });
   }
 
-  destroy(): void {
-    this.cache.clear();
+  start(): void {
+    if (this.cells.length === 0) return;
+    this.startTime = performance.now();
+    this.tickerFn = () => {
+      const t = (performance.now() - this.startTime) / 1000;
+      for (const cell of this.cells) this.updateCell(cell, t);
+    };
+    this.app.ticker.add(this.tickerFn);
+  }
+
+  private updateCell(cell: CellAnimState, t: number): void {
+    const flash = Math.max(0, 1 - t / FLASH_DURATION);
+    const glowAlpha = 0.5 + 0.4 * Math.sin(t * GLOW_PULSE_SPEED);
+    cell.glowRing.alpha = glowAlpha + flash * 0.5;
+
+    const breathe = 1 + BREATHE_SCALE * Math.sin(t * BREATHE_SPEED);
+    cell.glowRing.scale.set(breathe);
+    cell.glowRing.pivot.set(cell.cx, cell.cy);
+    cell.glowRing.position.set(cell.cx, cell.cy);
+
+    cell.rays.rotation = t * RAY_ROTATE_SPEED;
+    cell.rays.alpha = 0.15 + 0.1 * Math.sin(t * 2);
+
+    for (let i = 0; i < cell.sparkles.length; i++) {
+      const s = cell.sparkles[i]!;
+      const phase = (i / cell.sparkles.length) * Math.PI * 2;
+      const orbitX = 52 + 8 * Math.sin(t * 1.3 + i);
+      const orbitY = 52 + 8 * Math.cos(t * 1.7 + i);
+      const angle = phase + t * SPARKLE_ORBIT_SPEED;
+      s.x = cell.cx + Math.cos(angle) * orbitX;
+      s.y = cell.cy + Math.sin(angle) * orbitY;
+      s.alpha = 0.4 + 0.6 * Math.abs(Math.sin(angle + t * 3));
+      s.scale.set(0.6 + 0.4 * Math.sin(t * 4 + i * 0.7));
+    }
+  }
+
+  private buildGlowRing(x: number, y: number, color: number): Graphics {
+    const g = new Graphics();
+    const inset = 4;
+    const r = CARD_RADIUS - 2;
+    g.roundRect(x + inset, y + inset, CELL_W - inset * 2, CELL_H - inset * 2, r).stroke({
+      width: 6,
+      color,
+      alpha: 0.15,
+    });
+    g.roundRect(x + inset, y + inset, CELL_W - inset * 2, CELL_H - inset * 2, r).stroke({
+      width: 3,
+      color,
+      alpha: 0.6,
+    });
+    g.roundRect(x + inset, y + inset, CELL_W - inset * 2, CELL_H - inset * 2, r).stroke({
+      width: 1.5,
+      color: 0xffffff,
+      alpha: 0.7,
+    });
+    g.roundRect(
+      x + inset + 2,
+      y + inset + 2,
+      CELL_W - inset * 2 - 4,
+      CELL_H - inset * 2 - 4,
+      r - 1
+    ).fill({ color, alpha: 0.08 });
+    return g;
+  }
+
+  private buildRays(cx: number, cy: number, color: number): Graphics {
+    const g = new Graphics();
+    g.position.set(cx, cy);
+    for (let i = 0; i < NUM_RAYS; i++) {
+      const angle = (i / NUM_RAYS) * Math.PI * 2;
+      const cos = Math.cos(angle);
+      const sin = Math.sin(angle);
+      const spreadHalf = (Math.PI / NUM_RAYS) * 0.3;
+      const far = 110;
+      g.moveTo(0, 0);
+      g.lineTo(Math.cos(angle - spreadHalf) * far, Math.sin(angle - spreadHalf) * far);
+      g.lineTo(cos * (far + 20), sin * (far + 20));
+      g.lineTo(Math.cos(angle + spreadHalf) * far, Math.sin(angle + spreadHalf) * far);
+      g.closePath();
+      g.fill({ color, alpha: 0.12 });
+    }
+    g.alpha = 0.2;
+    return g;
+  }
+
+  clear(): void {
+    if (this.tickerFn) {
+      this.app.ticker.remove(this.tickerFn);
+      this.tickerFn = null;
+    }
+    for (const cell of this.cells) {
+      if (cell.symbolSprite && !cell.symbolSprite.destroyed) cell.symbolSprite.visible = true;
+      cell.container.destroy({ children: true });
+    }
+    this.cells = [];
   }
 }
 
@@ -422,8 +494,7 @@ export class ReelGrid {
   reels: ReelState[] = [];
   options: ReelGridOptions;
   private symbolTextures!: SymbolTextureCache;
-  private spineFactory!: SpineSymbolFactory;
-  private activeSpines: Spine[] = [];
+  private winCelebration!: WinCelebration;
   private targetMatrix: string[][] | null = null;
   private stopTimers: number[] = [];
   private safetyTimeoutId: number = 0;
@@ -447,7 +518,7 @@ export class ReelGrid {
     });
     grid.symbolTextures = new SymbolTextureCache(grid.app.renderer, CELL_W, CELL_H);
     grid.symbolTextures.warm();
-    grid.spineFactory = new SpineSymbolFactory(grid.symbolTextures);
+    grid.winCelebration = new WinCelebration(grid.app);
     grid.setupScene();
     return grid;
   }
@@ -627,13 +698,14 @@ export class ReelGrid {
   }
 
   private animateWinningCells() {
-    this.clearWinAnimations();
+    this.winCelebration.clear();
     if (this.winningLines.length === 0 || !this.targetMatrix) return;
 
     const visited = new Set<string>();
     for (const line of this.winningLines) {
       const path = this.lineDefs[line.lineIndex];
       if (!path) continue;
+      const color = this.getLineColor(line.lineIndex);
       for (let reel = 0; reel < Math.min(line.count, REELS); reel++) {
         const row = path[reel];
         if (row == null) continue;
@@ -644,27 +716,16 @@ export class ReelGrid {
         const sym = this.targetMatrix[reel]?.[row];
         if (!sym) continue;
 
-        const spine = this.spineFactory.create(sym);
-        spine.x = reel * (CELL_W + GAP) + CELL_W / 2;
-        spine.y = row * this.stepHeight + CELL_H / 2;
-
         const reelState = this.reels[reel]!;
-        const staticSprite = reelState.container.children[row];
-        if (staticSprite) staticSprite.visible = false;
+        const staticSprite = reelState.container.children[row] as Sprite | undefined;
+        if (!staticSprite) continue;
 
-        this.container.addChild(spine);
-        spine.state.setAnimation(0, 'win', false);
-        spine.state.addAnimation(0, 'idle', true, 0);
-        this.activeSpines.push(spine);
+        const x = reel * (CELL_W + GAP);
+        const y = row * this.stepHeight;
+        this.winCelebration.add(this.container, staticSprite, x, y, color);
       }
     }
-  }
-
-  private clearWinAnimations() {
-    for (const spine of this.activeSpines) {
-      spine.destroy();
-    }
-    this.activeSpines = [];
+    this.winCelebration.start();
   }
 
   private getIdleSymbols(): string[][] {
@@ -691,7 +752,7 @@ export class ReelGrid {
   spinThenStop(outcomeMatrix: string[][], winningLines: WinningLineInfo[] = []) {
     if (this.reels.some((r) => r.spinning || r.decelerating || r.bouncing)) return;
     this.spinFinished = false;
-    this.clearWinAnimations();
+    this.winCelebration.clear();
     this.setWinningLines(winningLines);
     if (this.paylinesContainer) this.paylinesContainer.removeChildren();
     this.targetMatrix = outcomeMatrix.map((col) => [...col]);
@@ -837,8 +898,7 @@ export class ReelGrid {
     this.stopTimers.forEach(clearTimeout);
     if (this.safetyTimeoutId) window.clearTimeout(this.safetyTimeoutId);
     this.app.ticker.remove(this.tickerBound);
-    this.clearWinAnimations();
-    this.spineFactory.destroy();
+    this.winCelebration.clear();
     this.symbolTextures.destroy();
     this.app.destroy(true, { children: true });
   }
