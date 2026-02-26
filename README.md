@@ -265,6 +265,19 @@ cd backend && npm run lint && npm run format:check
 cd ../frontend && npm run lint && npm run format:check
 ```
 
+### Pre-commit Hook (lint-staged)
+
+Running `npm install` in either `frontend/` or `backend/` automatically
+configures Git to use `.githooks/` as the hooks directory. A `pre-commit`
+hook runs `lint-staged`, which auto-fixes ESLint and Prettier issues on
+staged files before every commit.
+
+To set up hooks manually:
+
+```bash
+git config core.hooksPath .githooks
+```
+
 ## Testing (Postman/Newman)
 
 ```bash

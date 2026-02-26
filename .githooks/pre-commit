@@ -1,0 +1,21 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+root="$(git rev-parse --show-toplevel)"
+failed=0
+
+for dir in frontend backend; do
+  pkg="$root/$dir"
+  if [ ! -f "$pkg/package.json" ]; then
+    continue
+  fi
+  if ! grep -q '"lint-staged"' "$pkg/package.json"; then
+    continue
+  fi
+  echo "▸ lint-staged ($dir)"
+  if ! (cd "$pkg" && npx lint-staged); then
+    failed=1
+  fi
+done
+
+exit $failed
