@@ -1,0 +1,24 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+msg_file="${1:-}"
+if [[ -z "$msg_file" || ! -f "$msg_file" ]]; then
+  exit 0
+fi
+
+# Remove common AI attribution trailers added by editors/tools.
+sed -i -E \
+  -e '/^[[:space:]]*(Made[- ]with|Created[- ]with|Generated[- ]by|Authored[- ]by):[[:space:]].*(Cursor|AI|Copilot|ChatGPT|Claude).*/Id' \
+  -e '/^[[:space:]]*(Co-authored-by):[[:space:]].*(Cursor|Copilot|ChatGPT|Claude|AI).*/Id' \
+  "$msg_file"
+
+# Trim trailing blank lines after sanitization.
+awk '
+  { lines[NR] = $0 }
+  END {
+    last = NR
+    while (last > 0 && lines[last] ~ /^[[:space:]]*$/) last--
+    for (i = 1; i <= last; i++) print lines[i]
+  }
+' "$msg_file" > "$msg_file.tmp"
+mv "$msg_file.tmp" "$msg_file"
