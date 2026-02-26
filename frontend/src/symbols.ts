@@ -1,4 +1,7 @@
-const CANONICAL_SYMBOL_COLORS: Record<string, number> = {
+export const SYMBOL_IDS = ['10', 'J', 'Q', 'K', 'A', 'Star', 'Scatter', 'Wild'] as const;
+export type SymbolId = (typeof SYMBOL_IDS)[number];
+
+const CANONICAL_SYMBOL_COLORS: Record<SymbolId, number> = {
   '10': 0x4ade80,
   J: 0x60a5fa,
   Q: 0xa78bfa,
@@ -9,7 +12,7 @@ const CANONICAL_SYMBOL_COLORS: Record<string, number> = {
   Wild: 0xe879f9,
 };
 
-const THEMED_ALIASES: Record<string, string> = {
+const THEMED_ALIASES: Record<string, SymbolId> = {
   pharaoh: 'A',
   scarab: 'K',
   ankh: 'Q',
@@ -97,8 +100,9 @@ export function symbolColorNumber(symbolId: string): number {
   if (themedColor != null) return themedColor;
 
   const normalized = normalizeSymbolId(symbolId);
-  const canonical = CANONICAL_SYMBOL_COLORS[normalized];
-  if (canonical != null) return canonical;
+  if (normalized in CANONICAL_SYMBOL_COLORS) {
+    return CANONICAL_SYMBOL_COLORS[normalized as SymbolId];
+  }
 
   return fallbackColor(symbolId);
 }
