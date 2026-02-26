@@ -14,7 +14,8 @@
     "test:e2e:headed": "playwright test --headed",
     "api:types:generate": "openapi-typescript ../backend/openapi.json -o src/generated/openapi.ts",
     "api:types:check": "npm run api:types:generate && git diff --exit-code -- src/generated/openapi.ts",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "prepare": "cd .. && git config core.hooksPath .githooks"
   },
   "dependencies": {
     "pixi.js": "^8.3.0",
@@ -24,14 +25,15 @@
   },
   "devDependencies": {
     "@playwright/test": "^1.54.2",
-    "@typescript-eslint/eslint-plugin": "^7.18.0",
-    "@typescript-eslint/parser": "^7.18.0",
     "@types/react": "^18.2.0",
     "@types/react-dom": "^18.2.0",
+    "@typescript-eslint/eslint-plugin": "^7.18.0",
+    "@typescript-eslint/parser": "^7.18.0",
     "@vitejs/plugin-react": "^4.2.0",
     "eslint": "^8.57.1",
     "eslint-config-prettier": "^9.1.2",
     "eslint-plugin-react-hooks": "^4.6.2",
+    "lint-staged": "^16.2.7",
     "openapi-typescript": "^7.13.0",
     "prettier": "^3.6.2",
     "typescript": "^5.3.0",
