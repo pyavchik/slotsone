@@ -10,6 +10,12 @@ import { CVLanding } from './CVLanding';
 import { playSpinSound, playWinSound } from './audio';
 import './app.css';
 
+type Screen = 'cv' | 'slots';
+
+function getScreenFromPath(pathname: string): Screen {
+  return pathname === '/slots' || pathname.startsWith('/slots/') ? 'slots' : 'cv';
+}
+
 function App() {
   const token = useGameStore((s) => s.token);
   const sessionId = useGameStore((s) => s.sessionId);
@@ -29,10 +35,20 @@ function App() {
     w: typeof window !== 'undefined' ? window.innerWidth : 800,
     h: typeof window !== 'undefined' ? window.innerHeight : 600,
   }));
-  const [screen, setScreen] = useState<'cv' | 'slots'>('cv');
+  const [screen, setScreen] = useState<Screen>(() =>
+    typeof window === 'undefined' ? 'cv' : getScreenFromPath(window.location.pathname)
+  );
   const [ready, setReady] = useState(false);
   const [spinCooldown, setSpinCooldown] = useState(false);
   const spinCooldownRef = useRef<number | null>(null);
+
+  useEffect(() => {
+    const onPopState = () => {
+      setScreen(getScreenFromPath(window.location.pathname));
+    };
+    window.addEventListener('popstate', onPopState);
+    return () => window.removeEventListener('popstate', onPopState);
+  }, []);
 
   useEffect(() => {
     const root = document.getElementById('root');
@@ -135,10 +151,12 @@ function App() {
   }, [setSpinning]);
 
   const handleOpenSlots = useCallback(() => {
-    setScreen('slots');
-    setReady(false);
-    setError(null);
-  }, [setError]);
+    const slotsUrl = new URL('/slots', window.location.origin).toString();
+    const newTab = window.open(slotsUrl, '_blank', 'noopener,noreferrer');
+    if (!newTab) {
+      window.location.assign(slotsUrl);
+    }
+  }, []);
 
   useEffect(() => {
     return () => {
