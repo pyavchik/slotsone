@@ -36,25 +36,209 @@ function easeOutCubic(t: number): number {
   return 1 - (1 - t) ** 3;
 }
 
-/**
- * Build a throwaway container used only for rendering into the texture cache.
- * Swap this function to load a sprite atlas for production artwork.
- */
-function buildSymbolContainer(symbolId: string, width: number, height: number): Container {
-  const root = new Container();
+// ---------------------------------------------------------------------------
+// Symbol rendering — card-style visuals with icons for special symbols
+// ---------------------------------------------------------------------------
+
+const CARD_RADIUS = 16;
+const BOLD_FONT = 'Arial Black, Arial, Helvetica, sans-serif';
+const LABEL_FONT = 'Arial, Helvetica, sans-serif';
+
+function drawCardBase(
+  root: Container,
+  w: number,
+  h: number,
+  baseColor: number,
+  accentColor: number,
+  borderAlpha = 0.35
+): void {
+  const r = CARD_RADIUS;
   const bg = new Graphics();
-  bg.rect(0, 0, width, height).fill(symbolColorNumber(symbolId));
-  bg.rect(2, 2, width - 4, height - 4).stroke({ width: 2, color: 0x1f2937 });
+  bg.roundRect(0, 0, w, h, r).fill(0x08080e);
+  bg.roundRect(2, 2, w - 4, h - 4, r - 1).fill(baseColor);
+  bg.roundRect(6, 6, w - 12, (h - 12) * 0.4, r - 3).fill({ color: 0xffffff, alpha: 0.04 });
+  bg.roundRect(2, 2, w - 4, h - 4, r - 1).stroke({
+    width: 1.5,
+    color: accentColor,
+    alpha: borderAlpha,
+  });
   root.addChild(bg);
+}
+
+function addGlow(root: Container, cx: number, cy: number, radius: number, color: number): void {
+  const g = new Graphics();
+  g.circle(cx, cy, radius).fill({ color, alpha: 0.12 });
+  g.circle(cx, cy, radius * 0.65).fill({ color, alpha: 0.1 });
+  g.circle(cx, cy, radius * 0.35).fill({ color, alpha: 0.08 });
+  root.addChild(g);
+}
+
+function buildCardSymbol(symbolId: string, w: number, h: number): Container {
+  const root = new Container();
+  const color = symbolColorNumber(symbolId);
+  drawCardBase(root, w, h, 0x14141f, color);
+  addGlow(root, w / 2, h / 2, 50, color);
+
   const label = new Text({
-    text: symbolShortLabel(symbolId),
-    style: { fontSize: 32, fill: 0xffffff, fontWeight: 'bold' },
+    text: symbolId,
+    style: {
+      fontFamily: BOLD_FONT,
+      fontSize: symbolId.length > 1 ? 56 : 64,
+      fontWeight: '900',
+      fill: color,
+      dropShadow: { color: 0x000000, alpha: 0.6, blur: 6, distance: 2, angle: Math.PI / 3 },
+    },
   });
   label.anchor.set(0.5);
-  label.x = width / 2;
-  label.y = height / 2;
+  label.x = w / 2;
+  label.y = h / 2;
   root.addChild(label);
   return root;
+}
+
+function buildStarSymbol(w: number, h: number): Container {
+  const root = new Container();
+  const color = 0xf59e0b;
+  const highlight = 0xfbbf24;
+  drawCardBase(root, w, h, 0x1a1610, color, 0.45);
+
+  const cx = w / 2;
+  const cy = h / 2 - 8;
+  addGlow(root, cx, cy, 55, highlight);
+
+  const star = new Graphics();
+  const outerR = 36;
+  const innerR = 16;
+  const pts = 5;
+  const step = Math.PI / pts;
+  const start = -Math.PI / 2;
+  star.moveTo(cx + outerR * Math.cos(start), cy + outerR * Math.sin(start));
+  for (let i = 1; i <= 2 * pts; i++) {
+    const r = i % 2 === 0 ? outerR : innerR;
+    const a = start + i * step;
+    star.lineTo(cx + r * Math.cos(a), cy + r * Math.sin(a));
+  }
+  star.closePath();
+  star.fill(highlight);
+  star.stroke({ width: 2, color: 0xfef3c7, alpha: 0.7 });
+  root.addChild(star);
+
+  const label = new Text({
+    text: 'STAR',
+    style: {
+      fontFamily: LABEL_FONT,
+      fontSize: 14,
+      fontWeight: 'bold',
+      fill: 0xfef3c7,
+      letterSpacing: 3,
+    },
+  });
+  label.anchor.set(0.5);
+  label.x = w / 2;
+  label.y = h - 24;
+  root.addChild(label);
+  return root;
+}
+
+function buildScatterSymbol(w: number, h: number): Container {
+  const root = new Container();
+  const color = 0x22d3ee;
+  const highlight = 0x67e8f9;
+  drawCardBase(root, w, h, 0x0f1a1e, color, 0.5);
+
+  const cx = w / 2;
+  const cy = h / 2 - 10;
+  addGlow(root, cx, cy, 55, color);
+
+  const gw = 52;
+  const gh = 58;
+  const gem = new Graphics();
+  gem.moveTo(cx, cy - gh / 2);
+  gem.lineTo(cx + gw / 2, cy);
+  gem.lineTo(cx, cy + gh / 2);
+  gem.lineTo(cx - gw / 2, cy);
+  gem.closePath();
+  gem.fill(color);
+  gem.stroke({ width: 2, color: highlight, alpha: 0.8 });
+  gem.moveTo(cx - gw / 4, cy - gh / 5);
+  gem.lineTo(cx + gw / 4, cy - gh / 5);
+  gem.lineTo(cx + gw / 2 - 4, cy);
+  gem.stroke({ width: 1, color: 0xffffff, alpha: 0.25 });
+  root.addChild(gem);
+
+  const sparkles = new Graphics();
+  const dots: [number, number][] = [
+    [cx - 28, cy - 22],
+    [cx + 30, cy - 18],
+    [cx - 24, cy + 20],
+    [cx + 26, cy + 24],
+  ];
+  for (const [sx, sy] of dots) {
+    sparkles.circle(sx, sy, 2).fill({ color: highlight, alpha: 0.6 });
+  }
+  root.addChild(sparkles);
+
+  const label = new Text({
+    text: 'SCATTER',
+    style: {
+      fontFamily: LABEL_FONT,
+      fontSize: 13,
+      fontWeight: 'bold',
+      fill: highlight,
+      letterSpacing: 2,
+    },
+  });
+  label.anchor.set(0.5);
+  label.x = w / 2;
+  label.y = h - 22;
+  root.addChild(label);
+  return root;
+}
+
+function buildWildSymbol(w: number, h: number): Container {
+  const root = new Container();
+  const color = 0xe879f9;
+  const r = CARD_RADIUS;
+
+  const bg = new Graphics();
+  bg.roundRect(0, 0, w, h, r).fill(0x08080e);
+  bg.roundRect(2, 2, w - 4, h - 4, r - 1).fill(0x2d1b4e);
+  bg.roundRect(6, 6, w - 12, (h - 12) * 0.5, r - 3).fill({ color: 0x7c3aed, alpha: 0.25 });
+  bg.roundRect(2, 2, w - 4, h - 4, r - 1).stroke({ width: 2, color, alpha: 0.6 });
+  root.addChild(bg);
+
+  addGlow(root, w / 2, h / 2, 60, color);
+
+  const label = new Text({
+    text: 'WILD',
+    style: {
+      fontFamily: BOLD_FONT,
+      fontSize: 44,
+      fontWeight: '900',
+      fill: 0xffffff,
+      dropShadow: { color: 0x7c3aed, alpha: 0.8, blur: 8, distance: 0, angle: 0 },
+      stroke: { color, width: 3 },
+    },
+  });
+  label.anchor.set(0.5);
+  label.x = w / 2;
+  label.y = h / 2;
+  root.addChild(label);
+  return root;
+}
+
+function buildSymbolContainer(symbolId: string, width: number, height: number): Container {
+  const id = normalizeSymbolId(symbolId);
+  switch (id) {
+    case 'Wild':
+      return buildWildSymbol(width, height);
+    case 'Scatter':
+      return buildScatterSymbol(width, height);
+    case 'Star':
+      return buildStarSymbol(width, height);
+    default:
+      return buildCardSymbol(id, width, height);
+  }
 }
 
 /**
