@@ -15,7 +15,7 @@
     "api:types:generate": "openapi-typescript ../backend/openapi.json -o src/generated/openapi.ts",
     "api:types:check": "npm run api:types:generate && git diff --exit-code -- src/generated/openapi.ts",
     "preview": "vite preview",
-    "prepare": "cd .. && git config core.hooksPath .githooks"
+    "prepare": "git rev-parse --is-inside-work-tree > /dev/null 2>&1 && cd .. && git config core.hooksPath .githooks || true"
   },
   "dependencies": {
     "@esotericsoftware/spine-pixi-v8": "^4.2.106",
