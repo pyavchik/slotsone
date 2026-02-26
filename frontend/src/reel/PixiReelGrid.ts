@@ -2,6 +2,14 @@
  * PixiJS ReelGrid: 5x3, spin/stop animation per design spec.
  */
 import { Application, Container, Graphics, Sprite, Text, type Texture } from 'pixi.js';
+import {
+  Spine,
+  SpineTexture,
+  TextureAtlas,
+  AtlasAttachmentLoader,
+  SkeletonJson,
+  type SkeletonData,
+} from '@esotericsoftware/spine-pixi-v8';
 import { SYMBOL_IDS, normalizeSymbolId, symbolColorNumber, symbolShortLabel } from '../symbols';
 
 const REELS = 5;
@@ -283,9 +291,98 @@ class SymbolTextureCache {
     return new Sprite(this.resolve(symbolId));
   }
 
+  getTexture(symbolId: string): Texture {
+    return this.resolve(symbolId);
+  }
+
   destroy(): void {
     this.textures.forEach((t) => t.destroy(true));
     this.textures.clear();
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Spine-driven symbol animations (idle pulse, win bounce)
+// ---------------------------------------------------------------------------
+
+const SPINE_ATLAS_TEXT = [
+  'symbol.png',
+  `size: ${CELL_W}, ${CELL_H}`,
+  'filter: Linear, Linear',
+  'symbol',
+  `  bounds: 0, 0, ${CELL_W}, ${CELL_H}`,
+].join('\n');
+
+const SPINE_SKELETON_JSON = {
+  skeleton: { spine: '4.2.0', width: CELL_W, height: CELL_H },
+  bones: [{ name: 'root' }],
+  slots: [{ name: 'symbol', bone: 'root', attachment: 'symbol' }],
+  skins: [
+    {
+      name: 'default',
+      attachments: {
+        symbol: { symbol: { width: CELL_W, height: CELL_H } },
+      },
+    },
+  ],
+  animations: {
+    idle: {
+      bones: {
+        root: {
+          scale: [
+            { time: 0, x: 1, y: 1 },
+            { time: 0.8, x: 1.025, y: 1.025 },
+            { time: 1.6, x: 1, y: 1 },
+          ],
+        },
+      },
+    },
+    win: {
+      bones: {
+        root: {
+          scale: [
+            { time: 0, x: 1, y: 1 },
+            { time: 0.08, x: 1.22, y: 1.22 },
+            { time: 0.2, x: 0.92, y: 0.92 },
+            { time: 0.32, x: 1.1, y: 1.1 },
+            { time: 0.45, x: 0.97, y: 0.97 },
+            { time: 0.55, x: 1, y: 1 },
+          ],
+        },
+      },
+    },
+  },
+};
+
+/**
+ * Creates Spine instances that use our programmatic symbol textures as
+ * region attachments. No external Spine/atlas files required — skeleton
+ * data and atlas are generated at runtime from the texture cache.
+ *
+ * When an artist provides real `.skel` + `.atlas` assets, swap this
+ * factory to load from files via `Spine.from()` instead.
+ */
+class SpineSymbolFactory {
+  private cache = new Map<string, SkeletonData>();
+
+  constructor(private textures: SymbolTextureCache) {}
+
+  create(symbolId: string): Spine {
+    const key = normalizeSymbolId(symbolId);
+    let data = this.cache.get(key);
+    if (!data) {
+      const pixiTex = this.textures.getTexture(key);
+      const atlas = new TextureAtlas(SPINE_ATLAS_TEXT);
+      atlas.pages[0]!.setTexture(SpineTexture.from(pixiTex.source));
+      const json = new SkeletonJson(new AtlasAttachmentLoader(atlas));
+      data = json.readSkeletonData(SPINE_SKELETON_JSON);
+      this.cache.set(key, data);
+    }
+    return new Spine({ skeletonData: data, autoUpdate: true });
+  }
+
+  destroy(): void {
+    this.cache.clear();
   }
 }
 
@@ -325,6 +422,8 @@ export class ReelGrid {
   reels: ReelState[] = [];
   options: ReelGridOptions;
   private symbolTextures!: SymbolTextureCache;
+  private spineFactory!: SpineSymbolFactory;
+  private activeSpines: Spine[] = [];
   private targetMatrix: string[][] | null = null;
   private stopTimers: number[] = [];
   private safetyTimeoutId: number = 0;
@@ -348,6 +447,7 @@ export class ReelGrid {
     });
     grid.symbolTextures = new SymbolTextureCache(grid.app.renderer, CELL_W, CELL_H);
     grid.symbolTextures.warm();
+    grid.spineFactory = new SpineSymbolFactory(grid.symbolTextures);
     grid.setupScene();
     return grid;
   }
@@ -523,6 +623,48 @@ export class ReelGrid {
       payoutLabel.y = labelY;
       this.paylinesContainer.addChild(payoutLabel);
     }
+    this.animateWinningCells();
+  }
+
+  private animateWinningCells() {
+    this.clearWinAnimations();
+    if (this.winningLines.length === 0 || !this.targetMatrix) return;
+
+    const visited = new Set<string>();
+    for (const line of this.winningLines) {
+      const path = this.lineDefs[line.lineIndex];
+      if (!path) continue;
+      for (let reel = 0; reel < Math.min(line.count, REELS); reel++) {
+        const row = path[reel];
+        if (row == null) continue;
+        const cellKey = `${reel}-${row}`;
+        if (visited.has(cellKey)) continue;
+        visited.add(cellKey);
+
+        const sym = this.targetMatrix[reel]?.[row];
+        if (!sym) continue;
+
+        const spine = this.spineFactory.create(sym);
+        spine.x = reel * (CELL_W + GAP) + CELL_W / 2;
+        spine.y = row * this.stepHeight + CELL_H / 2;
+
+        const reelState = this.reels[reel]!;
+        const staticSprite = reelState.container.children[row];
+        if (staticSprite) staticSprite.visible = false;
+
+        this.container.addChild(spine);
+        spine.state.setAnimation(0, 'win', false);
+        spine.state.addAnimation(0, 'idle', true, 0);
+        this.activeSpines.push(spine);
+      }
+    }
+  }
+
+  private clearWinAnimations() {
+    for (const spine of this.activeSpines) {
+      spine.destroy();
+    }
+    this.activeSpines = [];
   }
 
   private getIdleSymbols(): string[][] {
@@ -549,6 +691,7 @@ export class ReelGrid {
   spinThenStop(outcomeMatrix: string[][], winningLines: WinningLineInfo[] = []) {
     if (this.reels.some((r) => r.spinning || r.decelerating || r.bouncing)) return;
     this.spinFinished = false;
+    this.clearWinAnimations();
     this.setWinningLines(winningLines);
     if (this.paylinesContainer) this.paylinesContainer.removeChildren();
     this.targetMatrix = outcomeMatrix.map((col) => [...col]);
@@ -694,6 +837,8 @@ export class ReelGrid {
     this.stopTimers.forEach(clearTimeout);
     if (this.safetyTimeoutId) window.clearTimeout(this.safetyTimeoutId);
     this.app.ticker.remove(this.tickerBound);
+    this.clearWinAnimations();
+    this.spineFactory.destroy();
     this.symbolTextures.destroy();
     this.app.destroy(true, { children: true });
   }

@@ -18,6 +18,7 @@
     "prepare": "cd .. && git config core.hooksPath .githooks"
   },
   "dependencies": {
+    "@esotericsoftware/spine-pixi-v8": "^4.2.106",
     "pixi.js": "^8.3.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
