@@ -1,0 +1,173 @@
+.win-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 110;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  isolation: isolate;
+  background: radial-gradient(circle at center, rgba(3, 8, 18, 0.58), rgba(2, 6, 14, 0.74));
+  transition: opacity 260ms ease;
+  pointer-events: none;
+}
+
+.win-overlay-media {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  overflow: hidden;
+}
+
+.win-overlay-video {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  opacity: 0.52;
+  mix-blend-mode: screen;
+  filter: saturate(1.24) contrast(1.08) brightness(1.06);
+}
+
+.win-overlay-vignette {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  background:
+    radial-gradient(circle at center, rgba(8, 20, 42, 0.12), rgba(2, 8, 20, 0.78) 72%),
+    linear-gradient(180deg, rgba(0, 0, 0, 0.08), rgba(0, 0, 0, 0.28));
+}
+
+.win-overlay-entry {
+  opacity: 1;
+}
+
+.win-overlay-hold {
+  opacity: 1;
+}
+
+.win-overlay-exit {
+  opacity: 0;
+}
+
+.win-overlay-card {
+  position: relative;
+  z-index: 2;
+  min-width: min(78vw, 430px);
+  padding: 22px 28px 20px;
+  border-radius: 20px;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  background:
+    radial-gradient(circle at 50% -10%, rgba(255, 255, 255, 0.36), rgba(255, 255, 255, 0.03) 42%),
+    linear-gradient(160deg, rgba(16, 34, 61, 0.92), rgba(8, 20, 37, 0.95));
+  box-shadow:
+    0 26px 55px rgba(2, 8, 24, 0.6),
+    0 0 40px color-mix(in srgb, var(--tier-accent) 48%, transparent);
+  overflow: hidden;
+  text-align: center;
+  transform: scale(1);
+  animation: win-overlay-pop 280ms cubic-bezier(0.21, 0.87, 0.29, 1.2);
+}
+
+.win-overlay-beam {
+  position: absolute;
+  top: -52%;
+  left: -24%;
+  width: 50%;
+  height: 200%;
+  transform: rotate(20deg);
+  background: linear-gradient(
+    90deg,
+    rgba(255, 255, 255, 0),
+    color-mix(in srgb, var(--tier-accent) 72%, #ffffff) 50%,
+    rgba(255, 255, 255, 0)
+  );
+  opacity: 0.46;
+  animation: win-overlay-beam-sweep 760ms ease-in-out both;
+}
+
+.win-overlay-title {
+  margin: 0;
+  font-family: 'Bebas Neue', 'Rajdhani', sans-serif;
+  font-size: clamp(44px, 7vw, 76px);
+  letter-spacing: 0.06em;
+  line-height: 0.9;
+  color: #f8fafc;
+  text-shadow:
+    0 2px 0 rgba(1, 5, 10, 0.54),
+    0 0 28px color-mix(in srgb, var(--tier-accent) 72%, transparent);
+}
+
+.win-overlay-amount {
+  margin: 8px 0 0;
+  font-family: 'Bebas Neue', 'Rajdhani', sans-serif;
+  font-size: clamp(52px, 8vw, 86px);
+  line-height: 0.9;
+  letter-spacing: 0.04em;
+  color: color-mix(in srgb, var(--tier-accent) 76%, #f8fafc);
+}
+
+.win-overlay-multiplier {
+  margin: 4px 0 0;
+  font-family: 'Rajdhani', sans-serif;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  font-size: 14px;
+  color: rgba(233, 243, 255, 0.86);
+}
+
+.win-overlay-nice {
+  border-color: rgba(87, 227, 137, 0.46);
+}
+
+.win-overlay-big {
+  border-color: rgba(247, 209, 84, 0.52);
+}
+
+.win-overlay-mega {
+  border-color: rgba(78, 205, 196, 0.52);
+}
+
+.win-overlay-ultra {
+  border-color: rgba(255, 107, 107, 0.6);
+}
+
+@media (max-width: 680px) {
+  .win-overlay-card {
+    min-width: min(92vw, 420px);
+    padding: 18px 16px 17px;
+    border-radius: 16px;
+  }
+
+  .win-overlay-multiplier {
+    font-size: 12px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .win-overlay,
+  .win-overlay-card,
+  .win-overlay-beam,
+  .win-overlay-video {
+    transition: none;
+    animation: none;
+  }
+}
+
+@keyframes win-overlay-pop {
+  from {
+    transform: scale(0.86);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+@keyframes win-overlay-beam-sweep {
+  from {
+    transform: translateX(-65%) rotate(20deg);
+  }
+  to {
+    transform: translateX(245%) rotate(20deg);
+  }
+}

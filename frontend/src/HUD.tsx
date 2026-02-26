@@ -9,29 +9,37 @@ export function HUD() {
   const currency = useGameStore((s) => s.currency);
   const lastWinAmount = useGameStore((s) => s.lastWinAmount);
   const spinning = useGameStore((s) => s.spinning);
-  const lineBet = lines > 0 ? bet / lines : 0;
-  const [displayWin, setDisplayWin] = useState(0);
+
   const [displayBalance, setDisplayBalance] = useState(balance);
+  const [displayWin, setDisplayWin] = useState(0);
   const [showNoWin, setShowNoWin] = useState(false);
-  const previousSpinningRef = useRef(spinning);
-  const previousBalanceRef = useRef(balance);
+
+  const prevBalanceRef = useRef(balance);
+  const prevSpinningRef = useRef(spinning);
+
+  const lineBet = lines > 0 ? bet / lines : 0;
 
   useEffect(() => {
-    const startValue = previousBalanceRef.current;
-    const endValue = balance;
-    if (Math.abs(endValue - startValue) < 0.001) return;
+    const from = prevBalanceRef.current;
+    const to = balance;
+    if (Math.abs(to - from) < 0.0001) return;
 
+    prevBalanceRef.current = to;
     let frameId = 0;
-    const duration = 300;
-    const startedAt = performance.now();
+    const start = performance.now();
+    const duration = 420;
+
     const tick = (now: number) => {
-      const progress = Math.min(1, (now - startedAt) / duration);
-      const eased = 1 - (1 - progress) ** 3;
-      setDisplayBalance(startValue + (endValue - startValue) * eased);
-      if (progress < 1) frameId = requestAnimationFrame(tick);
-      else setDisplayBalance(endValue);
+      const t = Math.min(1, (now - start) / duration);
+      const eased = 1 - (1 - t) ** 3;
+      setDisplayBalance(from + (to - from) * eased);
+      if (t < 1) {
+        frameId = requestAnimationFrame(tick);
+      } else {
+        setDisplayBalance(to);
+      }
     };
-    previousBalanceRef.current = endValue;
+
     frameId = requestAnimationFrame(tick);
     return () => cancelAnimationFrame(frameId);
   }, [balance]);
@@ -43,82 +51,73 @@ export function HUD() {
     }
 
     let frameId = 0;
-    const duration = 420;
-    const startedAt = performance.now();
+    const start = performance.now();
+    const duration = 520;
+
     const tick = (now: number) => {
-      const progress = Math.min(1, (now - startedAt) / duration);
-      const eased = 1 - (1 - progress) ** 3;
+      const t = Math.min(1, (now - start) / duration);
+      const eased = 1 - (1 - t) ** 3;
       setDisplayWin(lastWinAmount * eased);
-      if (progress < 1) frameId = requestAnimationFrame(tick);
-      else setDisplayWin(lastWinAmount);
+      if (t < 1) {
+        frameId = requestAnimationFrame(tick);
+      } else {
+        setDisplayWin(lastWinAmount);
+      }
     };
+
     setDisplayWin(0);
     frameId = requestAnimationFrame(tick);
     return () => cancelAnimationFrame(frameId);
   }, [lastWinAmount]);
 
   useEffect(() => {
-    const wasSpinning = previousSpinningRef.current;
-    previousSpinningRef.current = spinning;
+    const wasSpinning = prevSpinningRef.current;
+    prevSpinningRef.current = spinning;
+
     if (spinning) {
       setShowNoWin(false);
       return;
     }
+
     if (wasSpinning && lastWinAmount <= 0) {
       setShowNoWin(true);
-      const timer = window.setTimeout(() => setShowNoWin(false), 1200);
-      return () => window.clearTimeout(timer);
+      const timerId = window.setTimeout(() => setShowNoWin(false), 1300);
+      return () => window.clearTimeout(timerId);
     }
   }, [spinning, lastWinAmount]);
 
   return (
-    <div
-      style={{
-        position: 'absolute',
-        top: 0,
-        left: 0,
-        right: 0,
-        display: 'flex',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        padding: '16px 24px',
-        background: 'linear-gradient(180deg, rgba(13,13,18,0.9) 0%, transparent 100%)',
-        pointerEvents: 'none',
-      }}
-    >
-      <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
-        <span style={{ color: '#A1A1AA', fontSize: 12 }}>BALANCE</span>
-        <span style={{ color: '#FFF', fontSize: 24, fontWeight: 700 }}>
+    <div className="hud-root" aria-label="Slot machine status bar">
+      <section className="hud-card hud-card-left" aria-label="Balance panel">
+        <span className="hud-micro-label">Balance</span>
+        <strong className="hud-value-main">
           {displayBalance.toFixed(2)} {currency}
-        </span>
-      </div>
-      <div className="hud-center-feedback">
+        </strong>
+        <span className="hud-subtext">Available now</span>
+      </section>
+
+      <section className="hud-center" aria-live="polite" aria-atomic="true">
         {lastWinAmount > 0 && (
-          <div className="hud-win-badge" aria-live="polite" aria-atomic="true">
+          <div className="hud-win-badge">
             <span className="hud-win-label">WIN</span>
-            <span className="hud-win-value">+{displayWin.toFixed(2)}</span>
+            <strong className="hud-win-value">+{displayWin.toFixed(2)}</strong>
           </div>
         )}
-        {showNoWin && (
-          <div className="hud-nowin-badge" aria-live="polite" aria-atomic="true">
-            NO WIN
-          </div>
-        )}
-        {!spinning && (
-          <div className="hud-hint" aria-hidden="true">
-            Press Space to spin
-          </div>
-        )}
-      </div>
-      <div style={{ display: 'flex', flexDirection: 'column', gap: 4, alignItems: 'flex-end' }}>
-        <span style={{ color: '#A1A1AA', fontSize: 12 }}>BET</span>
-        <span style={{ color: '#FFF', fontSize: 24, fontWeight: 700 }}>
-          {bet.toFixed(2)} {currency}
+        {showNoWin && <div className="hud-nowin-badge">NO WIN</div>}
+        <span className="hud-tip" aria-hidden="true">
+          Space = Spin
         </span>
-        <span style={{ color: '#A1A1AA', fontSize: 12 }}>
+      </section>
+
+      <section className="hud-card hud-card-right" aria-label="Bet panel summary">
+        <span className="hud-micro-label">Bet</span>
+        <strong className="hud-value-main">
+          {bet.toFixed(2)} {currency}
+        </strong>
+        <span className="hud-subtext">
           {lines} lines • {lineBet.toFixed(2)} / line
         </span>
-      </div>
+      </section>
     </div>
   );
 }

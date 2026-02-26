@@ -1,0 +1,12 @@
+Use case: slot machine big win overlay loop
+Primary request: short celebratory loop with bright gold and cyan particles and radial light burst
+Scene/background: transparent-background style visual element for compositing over game UI
+Subject: spark and confetti burst in center with gentle outward drift
+Action: pulse burst, then floating particles, then settle, loop-friendly ending
+Camera: static framing, centered composition
+Lighting/mood: energetic and premium casino feel
+Color palette: gold, cyan, white, deep navy accents
+Style/format: stylized 2D/3D hybrid VFX, clean edges, high contrast
+Timing/beats: burst in first second, sustain shimmer, settle by final second
+Constraints: no text, no logos, no people, no copyrighted characters
+Avoid: muddy colors, noisy grain, camera shake, heavy blur

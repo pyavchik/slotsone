@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import type { GamePaytable } from './api';
 import { useGameStore } from './store';
-import { normalizeSymbolId, symbolColorCss, symbolLabel } from './symbols';
+import { normalizeSymbolId, symbolColorCss, symbolImagePath, symbolLabel } from './symbols';
 import './payTable.css';
 
 const FALLBACK_PAYTABLE: GamePaytable = {
@@ -36,13 +36,14 @@ function formatMultiplier(value: number): string {
 
 export function PayTable() {
   const [open, setOpen] = useState(false);
-  const closeButtonRef = useRef<HTMLButtonElement | null>(null);
+  const closeRef = useRef<HTMLButtonElement | null>(null);
+
   const config = useGameStore((s) => s.config);
   const bet = useGameStore((s) => s.bet);
   const lines = useGameStore((s) => s.lines);
-  const maxLines = useGameStore((s) => s.maxLines);
   const currency = useGameStore((s) => s.currency);
   const lastOutcome = useGameStore((s) => s.lastOutcome);
+
   const paytable = config?.paytable ?? FALLBACK_PAYTABLE;
   const lineBet = lines > 0 ? bet / lines : 0;
 
@@ -50,17 +51,17 @@ export function PayTable() {
     try {
       const formatter = new Intl.NumberFormat('en-US', {
         style: 'currency',
-        currency: currency || 'USD',
+        currency,
         minimumFractionDigits: 2,
         maximumFractionDigits: 2,
       });
       return (amount: number) => formatter.format(amount);
     } catch {
-      return (amount: number) => `${amount.toFixed(2)} ${currency || 'USD'}`;
+      return (amount: number) => `${amount.toFixed(2)} ${currency}`;
     }
   }, [currency]);
 
-  const winningLineSymbols = useMemo(() => {
+  const winningSymbols = useMemo(() => {
     return new Set(
       (lastOutcome?.win.breakdown ?? [])
         .filter((item) => item.type === 'line')
@@ -71,14 +72,15 @@ export function PayTable() {
   useEffect(() => {
     if (!open) return;
 
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+
     const onKeyDown = (event: KeyboardEvent) => {
       if (event.key === 'Escape') setOpen(false);
     };
 
-    const previousOverflow = document.body.style.overflow;
-    document.body.style.overflow = 'hidden';
     window.addEventListener('keydown', onKeyDown);
-    closeButtonRef.current?.focus();
+    closeRef.current?.focus();
 
     return () => {
       document.body.style.overflow = previousOverflow;
@@ -106,35 +108,35 @@ export function PayTable() {
             role="dialog"
             aria-modal="true"
             aria-labelledby="paytable-title"
-            aria-describedby="paytable-description"
             className="paytable-dialog"
             onClick={(event) => event.stopPropagation()}
           >
             <header className="paytable-header">
               <div>
-                <h2 id="paytable-title">Pay Table</h2>
-                <p id="paytable-description">
-                  Line payouts are multipliers of the current line bet.
-                </p>
+                <h2 id="paytable-title">Payout Matrix</h2>
+                <p>Multipliers are applied to your current line bet.</p>
               </div>
               <button
-                ref={closeButtonRef}
+                ref={closeRef}
                 type="button"
                 className="paytable-close"
                 onClick={() => setOpen(false)}
                 aria-label="Close pay table"
               >
-                ×
+                x
               </button>
             </header>
 
-            <div className="paytable-meta">
-              <p>
-                Total bet: <strong>{formatAmount(bet)}</strong>
-              </p>
-              <p>
-                Line bet ({lines}/{maxLines} lines): <strong>{formatAmount(lineBet)}</strong>
-              </p>
+            <div className="paytable-chip-row">
+              <span>
+                Total bet <strong>{formatAmount(bet)}</strong>
+              </span>
+              <span>
+                Line bet <strong>{formatAmount(lineBet)}</strong>
+              </span>
+              <span>
+                Active lines <strong>{lines}</strong>
+              </span>
             </div>
 
             <div className="paytable-scroll">
@@ -149,24 +151,30 @@ export function PayTable() {
                 </thead>
                 <tbody>
                   {paytable.line_wins.map((line) => {
-                    const symbol = {
-                      label: symbolLabel(line.symbol),
-                      color: symbolColorCss(line.symbol),
-                    };
-                    const hasWon = winningLineSymbols.has(normalizeSymbolId(line.symbol));
+                    const symbol = normalizeSymbolId(line.symbol);
+                    const highlighted = winningSymbols.has(symbol);
+
                     return (
                       <tr
                         key={line.symbol}
-                        className={hasWon ? 'paytable-row paytable-row-hit' : 'paytable-row'}
+                        className={highlighted ? 'paytable-row-hit' : undefined}
                       >
                         <th scope="row">
                           <span className="paytable-symbol">
+                            <img
+                              src={symbolImagePath(symbol)}
+                              alt=""
+                              className="paytable-symbol-image"
+                              onError={(event) => {
+                                event.currentTarget.style.display = 'none';
+                              }}
+                            />
                             <span
                               className="paytable-symbol-swatch"
-                              style={{ backgroundColor: symbol.color }}
+                              style={{ backgroundColor: symbolColorCss(symbol) }}
                               aria-hidden="true"
                             />
-                            {symbol.label}
+                            {symbolLabel(line.symbol)}
                           </span>
                         </th>
                         <td>
@@ -189,12 +197,12 @@ export function PayTable() {
             </div>
 
             <section className="paytable-note">
-              <h3>Special Symbols</h3>
+              <h3>Feature Symbols</h3>
               <p>
                 <strong>{paytable.scatter.symbol}:</strong>{' '}
                 {paytable.scatter.awards
-                  .map((award) => `${award.count} = ${award.free_spins} free spins`)
-                  .join(' • ')}
+                  .map((award) => `${award.count} gives ${award.free_spins} free spins`)
+                  .join(' | ')}
               </p>
               <p>
                 <strong>{paytable.wild.symbol}:</strong> substitutes for{' '}

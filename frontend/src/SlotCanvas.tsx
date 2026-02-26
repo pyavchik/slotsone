@@ -8,30 +8,87 @@ interface SlotCanvasProps {
   onAllReelsStopped?: () => void;
 }
 
+declare global {
+  interface Window {
+    render_game_to_text?: () => string;
+    advanceTime?: (ms: number) => Promise<void>;
+  }
+}
+
 export function SlotCanvas({ width, height, onAllReelsStopped }: SlotCanvasProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const gridRef = useRef<ReelGrid | null>(null);
-  const onAllStoppedRef = useRef(onAllReelsStopped);
-  onAllStoppedRef.current = onAllReelsStopped;
   const [pixiError, setPixiError] = useState<string | null>(null);
-  const [announcement, setAnnouncement] = useState('Slot game loaded.');
+  const [announcement, setAnnouncement] = useState('Slot machine ready.');
+
   const config = useGameStore((s) => s.config);
   const lastOutcome = useGameStore((s) => s.lastOutcome);
   const spinning = useGameStore((s) => s.spinning);
+  const balance = useGameStore((s) => s.balance);
+  const bet = useGameStore((s) => s.bet);
+  const lines = useGameStore((s) => s.lines);
+  const currency = useGameStore((s) => s.currency);
   const lineDefs = useMemo(() => config?.line_defs ?? [], [config?.line_defs]);
+
   const safeArea = useMemo(() => {
-    const safeTop = Math.round(Math.min(128, Math.max(74, height * 0.14)));
-    const safeBottom = Math.round(Math.min(260, Math.max(152, height * 0.24)));
-    const safeSide = Math.round(Math.min(28, Math.max(10, width * 0.02)));
+    const safeTop = Math.round(Math.min(120, Math.max(72, height * 0.13)));
+    const safeBottom = Math.round(Math.min(210, Math.max(130, height * 0.22)));
+    const side = Math.round(Math.min(36, Math.max(14, width * 0.03)));
     return {
       safeTop,
       safeBottom,
-      safeLeft: safeSide,
-      safeRight: safeSide,
+      safeLeft: side,
+      safeRight: side,
     };
   }, [width, height]);
 
-  // Unmount: destroy grid once
+  const hasCreatedRef = useRef(false);
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas || width < 1 || height < 1) return;
+
+    if (gridRef.current) {
+      gridRef.current.setLineDefs(lineDefs);
+      gridRef.current.resize(width, height, safeArea);
+      return;
+    }
+
+    if (hasCreatedRef.current) return;
+    hasCreatedRef.current = true;
+
+    let cancelled = false;
+    ReelGrid.create(canvas, {
+      width,
+      height,
+      lineDefs,
+      ...safeArea,
+      onAllStopped: () => onAllReelsStopped?.(),
+    })
+      .then((grid) => {
+        if (cancelled) {
+          grid.destroy();
+          hasCreatedRef.current = false;
+          return;
+        }
+
+        gridRef.current = grid;
+        setPixiError(null);
+      })
+      .catch((error) => {
+        if (!cancelled) {
+          setPixiError(error?.message ?? 'Failed to initialize reel renderer.');
+          hasCreatedRef.current = false;
+        }
+      });
+
+    return () => {
+      cancelled = true;
+      if (!gridRef.current) {
+        hasCreatedRef.current = false;
+      }
+    };
+  }, [width, height, lineDefs, safeArea, onAllReelsStopped]);
+
   useEffect(() => {
     return () => {
       if (gridRef.current) {
@@ -41,53 +98,9 @@ export function SlotCanvas({ width, height, onAllReelsStopped }: SlotCanvasProps
     };
   }, []);
 
-  // Create grid once; on resize only call grid.resize() so DevTools opening doesn't destroy the game
-  const hasCreatedRef = useRef(false);
-  useEffect(() => {
-    const canvas = canvasRef.current;
-    if (!canvas || width < 1 || height < 1) return;
-    if (gridRef.current) {
-      gridRef.current.setLineDefs(lineDefs);
-      gridRef.current.resize(width, height, safeArea);
-      return;
-    }
-    if (hasCreatedRef.current) return;
-    hasCreatedRef.current = true;
-    let cancelled = false;
-    const t = setTimeout(() => {
-      ReelGrid.create(canvas, {
-        width,
-        height,
-        lineDefs,
-        ...safeArea,
-        onReelStopped: () => {},
-        onAllStopped: () => onAllStoppedRef.current?.(),
-      })
-        .then((grid) => {
-          if (cancelled) {
-            grid.destroy();
-            hasCreatedRef.current = false;
-            return;
-          }
-          gridRef.current = grid;
-          setPixiError(null);
-        })
-        .catch((e) => {
-          if (!cancelled) setPixiError(e?.message ?? 'Pixi failed to init');
-          hasCreatedRef.current = false;
-        });
-    }, 0);
-    return () => {
-      cancelled = true;
-      clearTimeout(t);
-      // Let StrictMode second run create the grid if the first was cancelled
-      if (!gridRef.current) hasCreatedRef.current = false;
-    };
-  }, [width, height, safeArea, lineDefs]);
-
   useEffect(() => {
     if (!lastOutcome || !spinning) return;
-    const matrix = lastOutcome.reel_matrix;
+
     const winningLines = (lastOutcome.win?.breakdown ?? [])
       .filter(
         (
@@ -106,26 +119,78 @@ export function SlotCanvas({ width, height, onAllReelsStopped }: SlotCanvasProps
         count: item.count,
         payout: item.payout,
       }));
-    gridRef.current?.spinThenStop(matrix, winningLines);
+
+    gridRef.current?.spinThenStop(lastOutcome.reel_matrix, winningLines);
   }, [lastOutcome, spinning]);
 
   useEffect(() => {
     if (!lastOutcome) return;
-    const winAmount = lastOutcome.win.amount;
-    if (winAmount > 0) {
-      setAnnouncement(`Spin complete. Win ${winAmount.toFixed(2)} ${lastOutcome.win.currency}.`);
+    if (lastOutcome.win.amount > 0) {
+      setAnnouncement(
+        `Spin complete. Payout ${lastOutcome.win.amount.toFixed(2)} ${lastOutcome.win.currency}.`
+      );
       return;
     }
     setAnnouncement('Spin complete. No win.');
   }, [lastOutcome]);
 
-  const canvasLabel = useMemo(() => {
-    if (!lastOutcome) return 'Slot reels.';
-    const columns = lastOutcome.reel_matrix
-      .map((reel, index) => `Reel ${index + 1}: ${reel.join(', ')}`)
+  const ariaLabel = useMemo(() => {
+    if (!lastOutcome) return 'Slot reels animation area.';
+    const cols = lastOutcome.reel_matrix
+      .map((reel, idx) => `Reel ${idx + 1}: ${reel.join(', ')}`)
       .join('. ');
-    return `${columns}.`;
+    return `${cols}.`;
   }, [lastOutcome]);
+
+  useEffect(() => {
+    const previousRenderer = window.render_game_to_text;
+    const previousAdvance = window.advanceTime;
+
+    window.render_game_to_text = () => {
+      const payload = {
+        coordinate_system: 'origin top-left; x right; y down',
+        machine: { reels: 5, rows: 3 },
+        spin: {
+          spinning,
+          balance,
+          bet,
+          lines,
+          currency,
+          last_win_amount: lastOutcome?.win.amount ?? 0,
+        },
+        outcome: lastOutcome
+          ? {
+              reel_matrix: lastOutcome.reel_matrix,
+              win: lastOutcome.win,
+            }
+          : null,
+        reel_debug: gridRef.current?.debugState() ?? null,
+      };
+      return JSON.stringify(payload);
+    };
+
+    if (typeof window.advanceTime !== 'function') {
+      window.advanceTime = async (ms: number) => {
+        await new Promise<void>((resolve) => {
+          window.setTimeout(resolve, Math.max(0, ms));
+        });
+      };
+    }
+
+    return () => {
+      if (previousRenderer) {
+        window.render_game_to_text = previousRenderer;
+      } else {
+        delete window.render_game_to_text;
+      }
+
+      if (previousAdvance) {
+        window.advanceTime = previousAdvance;
+      } else {
+        delete window.advanceTime;
+      }
+    };
+  }, [spinning, balance, bet, lines, currency, lastOutcome]);
 
   if (pixiError) {
     return (
@@ -136,10 +201,11 @@ export function SlotCanvas({ width, height, onAllReelsStopped }: SlotCanvasProps
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
-          background: '#0D0D12',
-          color: '#F87171',
-          padding: 24,
           textAlign: 'center',
+          padding: 24,
+          color: '#fee2e2',
+          background: '#130b0f',
+          borderRadius: 16,
         }}
       >
         {pixiError}
@@ -154,7 +220,7 @@ export function SlotCanvas({ width, height, onAllReelsStopped }: SlotCanvasProps
         width={width}
         height={height}
         role="img"
-        aria-label={canvasLabel}
+        aria-label={ariaLabel}
         style={{ display: 'block', width: '100%', height: '100%' }}
       />
       <div className="sr-only" aria-live="polite" aria-atomic="true">

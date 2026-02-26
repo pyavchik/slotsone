@@ -1,0 +1,12 @@
+Use case: game UI celebratory overlay loop
+Primary request: abstract celebratory particles and radial light burst for a victory moment
+Scene/background: dark neutral backdrop, center-focused composition
+Subject: glowing confetti-like particles, spark streaks, and a soft circular burst
+Action: quick burst, drifting particles, gentle settle, loop-friendly ending
+Camera: static camera, no movement
+Lighting/mood: energetic, bright, polished
+Color palette: gold, cyan, white, deep navy
+Style/format: stylized VFX, clean edges, high contrast
+Timing/beats: strong burst in first second, sustained sparkle, smooth settle by last second
+Constraints: no text, no logos, no people, no characters, no real-world brands
+Avoid: noisy grain, rapid flicker, heavy blur, camera shake

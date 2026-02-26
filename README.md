@@ -258,6 +258,34 @@ cd frontend
 npm run build
 ```
 
+## Custom Slot Symbols (Images)
+
+The frontend now supports symbol images from `frontend/public/symbols`.
+
+Expected file names:
+- `10.png`
+- `j.png`
+- `q.png`
+- `k.png`
+- `a.png`
+- `star.png`
+- `scatter.png`
+- `wild.png`
+
+If any file is missing, the reel renderer automatically falls back to the built-in vector symbol.
+
+Generate a full symbol set with OpenAI Images API:
+
+```bash
+OPENAI_API_KEY=<your_key> node scripts/generate-slot-symbols.mjs
+```
+
+Optional model override:
+
+```bash
+OPENAI_API_KEY=<your_key> OPENAI_IMAGE_MODEL=gpt-image-1 node scripts/generate-slot-symbols.mjs
+```
+
 ## Lint & Format
 
 ```bash

@@ -1,86 +1,94 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState, type CSSProperties } from 'react';
 import { useGameStore } from './store';
+import './winOverlay.css';
 
-const NICE_WIN_THRESHOLD = 3; // x bet
-const BIG_WIN_THRESHOLD = 5;
-const MEGA_WIN_THRESHOLD = 15;
-const ULTRA_WIN_THRESHOLD = 40;
+interface Tier {
+  key: 'nice' | 'big' | 'mega' | 'ultra';
+  label: string;
+  minMultiplier: number;
+  accent: string;
+}
+
+const TIERS: Tier[] = [
+  { key: 'ultra', label: 'ULTRA WIN', minMultiplier: 40, accent: '#ff6b6b' },
+  { key: 'mega', label: 'MEGA WIN', minMultiplier: 18, accent: '#4ecdc4' },
+  { key: 'big', label: 'BIG WIN', minMultiplier: 8, accent: '#f7d154' },
+  { key: 'nice', label: 'NICE WIN', minMultiplier: 3, accent: '#57e389' },
+];
+const WIN_LOOP_VIDEO = '/effects/win-overlay-loop.mp4';
+const WIN_LOOP_POSTER = '/effects/win-overlay-loop-thumb.webp';
 
 export function WinOverlay() {
   const lastWinAmount = useGameStore((s) => s.lastWinAmount);
   const bet = useGameStore((s) => s.bet);
   const [show, setShow] = useState(false);
   const [phase, setPhase] = useState<'entry' | 'hold' | 'exit'>('entry');
+  const [prefersReducedMotion, setPrefersReducedMotion] = useState(false);
 
-  const mult = bet > 0 ? lastWinAmount / bet : 0;
-  const tier =
-    mult >= ULTRA_WIN_THRESHOLD
-      ? 'ULTRA WIN'
-      : mult >= MEGA_WIN_THRESHOLD
-        ? 'MEGA WIN'
-        : mult >= BIG_WIN_THRESHOLD
-          ? 'BIG WIN'
-          : mult >= NICE_WIN_THRESHOLD
-            ? 'NICE WIN'
-            : null;
+  const multiplier = bet > 0 ? lastWinAmount / bet : 0;
+  const tier = useMemo(
+    () => TIERS.find((candidate) => multiplier >= candidate.minMultiplier) ?? null,
+    [multiplier]
+  );
+
+  useEffect(() => {
+    const mediaQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
+    const handleChange = () => setPrefersReducedMotion(mediaQuery.matches);
+    handleChange();
+    mediaQuery.addEventListener('change', handleChange);
+    return () => mediaQuery.removeEventListener('change', handleChange);
+  }, []);
 
   useEffect(() => {
     if (!tier || lastWinAmount <= 0) {
       setShow(false);
       return;
     }
+
     setShow(true);
     setPhase('entry');
-    const t1 = setTimeout(() => setPhase('hold'), 400);
-    const t2 = setTimeout(() => setPhase('exit'), 2500);
-    const t3 = setTimeout(() => setShow(false), 3000);
+
+    const entryTimer = window.setTimeout(() => setPhase('hold'), 360);
+    const exitTimer = window.setTimeout(() => setPhase('exit'), 2350);
+    const hideTimer = window.setTimeout(() => setShow(false), 2900);
+
     return () => {
-      clearTimeout(t1);
-      clearTimeout(t2);
-      clearTimeout(t3);
+      window.clearTimeout(entryTimer);
+      window.clearTimeout(exitTimer);
+      window.clearTimeout(hideTimer);
     };
   }, [tier, lastWinAmount]);
 
   if (!show || !tier) return null;
 
-  const opacity = phase === 'exit' ? 0 : 1;
-  const scale = phase === 'entry' ? 1.2 : phase === 'hold' ? 1 : 1;
-
   return (
     <div
-      style={{
-        position: 'absolute',
-        inset: 0,
-        display: 'flex',
-        flexDirection: 'column',
-        alignItems: 'center',
-        justifyContent: 'center',
-        background: `rgba(0,0,0,${phase === 'exit' ? 0 : 0.6})`,
-        transition: 'opacity 0.3s, background 0.3s',
-        opacity,
-        zIndex: 100,
-      }}
+      className={`win-overlay win-overlay-${phase}`}
+      role="status"
+      aria-live="polite"
+      aria-atomic="true"
+      style={{ '--tier-accent': tier.accent } as CSSProperties}
     >
-      <div
-        style={{
-          transform: `scale(${scale})`,
-          transition: 'transform 0.2s ease-out',
-          textAlign: 'center',
-        }}
-      >
-        <div
-          style={{
-            fontSize: 48,
-            fontWeight: 800,
-            color: '#E8B84A',
-            textShadow: '0 0 24px rgba(232,184,74,0.8)',
-          }}
-        >
-          {tier}
+      {!prefersReducedMotion && (
+        <div className="win-overlay-media" aria-hidden="true">
+          <video
+            className="win-overlay-video"
+            src={WIN_LOOP_VIDEO}
+            poster={WIN_LOOP_POSTER}
+            autoPlay
+            loop
+            muted
+            playsInline
+            preload="auto"
+          />
         </div>
-        <div style={{ fontSize: 32, fontWeight: 700, color: '#FFF', marginTop: 8 }}>
-          {lastWinAmount.toFixed(2)}
-        </div>
+      )}
+      <div className="win-overlay-vignette" aria-hidden="true" />
+      <div className={`win-overlay-card win-overlay-${tier.key}`}>
+        <div className="win-overlay-beam" aria-hidden="true" />
+        <h2 className="win-overlay-title">{tier.label}</h2>
+        <p className="win-overlay-amount">{lastWinAmount.toFixed(2)}</p>
+        <p className="win-overlay-multiplier">{multiplier.toFixed(1)}x bet</p>
       </div>
     </div>
   );
