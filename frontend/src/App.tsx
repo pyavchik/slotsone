@@ -29,7 +29,7 @@ function App() {
     w: typeof window !== 'undefined' ? window.innerWidth : 800,
     h: typeof window !== 'undefined' ? window.innerHeight : 600,
   }));
-  const [screen, setScreen] = useState<'cv' | 'slots'>('cv');
+  const [screen] = useState<'cv' | 'slots'>('cv');
   const [ready, setReady] = useState(false);
   const [spinCooldown, setSpinCooldown] = useState(false);
   const spinCooldownRef = useRef<number | null>(null);
