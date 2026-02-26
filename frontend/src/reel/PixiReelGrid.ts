@@ -1,7 +1,7 @@
 /**
  * PixiJS ReelGrid: 5x3, spin/stop animation per design spec.
  */
-import { Application, Container, Graphics, Sprite, Text, Texture } from 'pixi.js';
+import { Application, Container, Graphics, Sprite, Text, type Texture } from 'pixi.js';
 import { SYMBOL_IDS, normalizeSymbolId, symbolColorNumber, symbolShortLabel } from '../symbols';
 
 const REELS = 5;
