@@ -1,8 +1,8 @@
 /**
  * PixiJS ReelGrid: 5x3, spin/stop animation per design spec.
  */
-import { Application, Container, Graphics, Text } from 'pixi.js';
-import { symbolColorNumber, symbolShortLabel } from '../symbols';
+import { Application, Container, Graphics, Sprite, Text, Texture } from 'pixi.js';
+import { SYMBOL_IDS, normalizeSymbolId, symbolColorNumber, symbolShortLabel } from '../symbols';
 
 const REELS = 5;
 const ROWS = 3;
@@ -36,20 +36,73 @@ function easeOutCubic(t: number): number {
   return 1 - (1 - t) ** 3;
 }
 
-function makeSymbolGraphic(symbolId: string, width: number, height: number): Graphics {
-  const g = new Graphics();
-  const color = symbolColorNumber(symbolId);
-  g.rect(0, 0, width, height).fill(color);
-  g.rect(2, 2, width - 4, height - 4).stroke({ width: 2, color: 0x1f2937 });
-  const text = new Text({
+/**
+ * Build a throwaway container used only for rendering into the texture cache.
+ * Swap this function to load a sprite atlas for production artwork.
+ */
+function buildSymbolContainer(symbolId: string, width: number, height: number): Container {
+  const root = new Container();
+  const bg = new Graphics();
+  bg.rect(0, 0, width, height).fill(symbolColorNumber(symbolId));
+  bg.rect(2, 2, width - 4, height - 4).stroke({ width: 2, color: 0x1f2937 });
+  root.addChild(bg);
+  const label = new Text({
     text: symbolShortLabel(symbolId),
     style: { fontSize: 32, fill: 0xffffff, fontWeight: 'bold' },
   });
-  text.anchor.set(0.5);
-  text.x = width / 2;
-  text.y = height / 2;
-  g.addChild(text);
-  return g;
+  label.anchor.set(0.5);
+  label.x = width / 2;
+  label.y = height / 2;
+  root.addChild(label);
+  return root;
+}
+
+/**
+ * Pre-renders every symbol into a GPU texture once. During spins the grid
+ * stamps out lightweight Sprite clones instead of rebuilding Graphics+Text
+ * objects each frame — eliminates GC pressure and reduces draw calls.
+ *
+ * To swap in real artwork, replace `buildSymbolContainer` above with atlas
+ * lookups; the rest of the pipeline stays unchanged.
+ */
+class SymbolTextureCache {
+  private textures = new Map<string, Texture>();
+
+  constructor(
+    private renderer: Application['renderer'],
+    private cellWidth: number,
+    private cellHeight: number
+  ) {}
+
+  warm(): void {
+    for (const id of SYMBOL_IDS) {
+      this.resolve(id);
+    }
+  }
+
+  private resolve(symbolId: string): Texture {
+    const key = normalizeSymbolId(symbolId);
+    const existing = this.textures.get(key);
+    if (existing) return existing;
+
+    const gfx = buildSymbolContainer(key, this.cellWidth, this.cellHeight);
+    const texture = this.renderer.generateTexture({
+      target: gfx,
+      resolution: Math.min(2, window.devicePixelRatio || 1),
+    });
+    gfx.destroy(true);
+    this.textures.set(key, texture);
+    return texture;
+  }
+
+  sprite(symbolId: string): Sprite {
+    return new Sprite(this.resolve(symbolId));
+  }
+
+  destroy(): void {
+    this.textures.forEach((t) => t.destroy(true));
+    this.textures.clear();
+  }
 }
 
 export interface ReelGridOptions {
@@ -87,6 +140,7 @@ export class ReelGrid {
   container: Container;
   reels: ReelState[] = [];
   options: ReelGridOptions;
+  private symbolTextures!: SymbolTextureCache;
   private targetMatrix: string[][] | null = null;
   private stopTimers: number[] = [];
   private safetyTimeoutId: number = 0;
@@ -108,6 +162,8 @@ export class ReelGrid {
       resolution: Math.min(2, window.devicePixelRatio || 1),
       autoDensity: true,
     });
+    grid.symbolTextures = new SymbolTextureCache(grid.app.renderer, CELL_W, CELL_H);
+    grid.symbolTextures.warm();
     grid.setupScene();
     return grid;
   }
@@ -299,9 +355,9 @@ export class ReelGrid {
       container.y = 0;
       for (let row = 0; row < ROWS; row++) {
         const sym = m[r]?.[row] ?? '10';
-        const g = makeSymbolGraphic(sym, CELL_W, CELL_H);
-        g.y = row * this.stepHeight;
-        container.addChild(g);
+        const s = this.symbolTextures.sprite(sym);
+        s.y = row * this.stepHeight;
+        container.addChild(s);
       }
     }
   }
@@ -313,17 +369,16 @@ export class ReelGrid {
     if (this.paylinesContainer) this.paylinesContainer.removeChildren();
     this.targetMatrix = outcomeMatrix.map((col) => [...col]);
 
-    const symbols = ['10', 'J', 'Q', 'K', 'A', 'Star', 'Scatter', 'Wild'];
     for (let r = 0; r < REELS; r++) {
       const { container } = this.reels[r]!;
       this.reels[r]!.spinning = true;
       container.removeChildren();
       container.y = 0;
       for (let i = 0; i < 5; i++) {
-        const sym = symbols[Math.floor(Math.random() * symbols.length)]!;
-        const g = makeSymbolGraphic(sym, CELL_W, CELL_H);
-        g.y = i * this.stepHeight;
-        container.addChild(g);
+        const sym = SYMBOL_IDS[Math.floor(Math.random() * SYMBOL_IDS.length)]!;
+        const s = this.symbolTextures.sprite(sym);
+        s.y = i * this.stepHeight;
+        container.addChild(s);
       }
     }
 
@@ -433,9 +488,9 @@ export class ReelGrid {
     ];
     reel.removeChildren();
     for (let i = 0; i < strip.length; i++) {
-      const g = makeSymbolGraphic(strip[i]!, CELL_W, CELL_H);
-      g.y = i * this.stepHeight;
-      reel.addChild(g);
+      const s = this.symbolTextures.sprite(strip[i]!);
+      s.y = i * this.stepHeight;
+      reel.addChild(s);
     }
     reel.y = wrapY;
   }
@@ -455,6 +510,7 @@ export class ReelGrid {
     this.stopTimers.forEach(clearTimeout);
     if (this.safetyTimeoutId) window.clearTimeout(this.safetyTimeoutId);
     this.app.ticker.remove(this.tickerBound);
+    this.symbolTextures.destroy();
     this.app.destroy(true, { children: true });
   }
 }
