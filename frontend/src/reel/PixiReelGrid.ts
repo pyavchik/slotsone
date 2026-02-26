@@ -1,412 +1,81 @@
-/**
- * PixiJS ReelGrid: 5x3, spin/stop animation per design spec.
- */
-import { Application, Container, Graphics, Sprite, Text, type Texture } from 'pixi.js';
+import { Application, Assets, Container, Graphics, Sprite, Text, Texture } from 'pixi.js';
 import {
-  Spine,
-  SpineTexture,
-  TextureAtlas,
-  AtlasAttachmentLoader,
-  SkeletonJson,
-  type SkeletonData,
-} from '@esotericsoftware/spine-pixi-v8';
-import { SYMBOL_IDS, normalizeSymbolId, symbolColorNumber, symbolShortLabel } from '../symbols';
+  SYMBOL_IDS,
+  normalizeSymbolId,
+  symbolColorNumber,
+  symbolImagePath,
+  symbolShortLabel,
+} from '../symbols';
 
 const REELS = 5;
 const ROWS = 3;
-const CELL_W = 172;
-const CELL_H = 172;
-const GAP = 8;
+const CELL_W = 168;
+const CELL_H = 168;
+const CELL_GAP = 6;
+const STEP_H = CELL_H + CELL_GAP;
+const ROLLING_SYMBOLS = ROWS + 5;
 
-const FALLBACK_LINE_DEFS: number[][] = [];
-const PAYLINE_COLORS = [
-  0xfbbf24, // gold
-  0x22d3ee, // cyan
-  0xe879f9, // magenta
-  0x84cc16, // lime
-  0xfb7185, // rose
-  0x60a5fa, // blue
-  0xf97316, // orange
-  0x34d399, // emerald
-];
-const PAYLINE_WIDTH = 4;
-const PAYLINE_GLOW_WIDTH = 12;
-const PAYLINE_ALPHA = 0.95;
-const REEL_STOP_DELAY_MS = 120;
-const SPIN_SPEED_PX_S = 3200;
-const DECEL_DURATION_MS = 380;
-const BOUNCE_OFFSET_PX = 8;
+const SPIN_SPEED_PX_S = 2520;
+const INITIAL_SPIN_MS = 640;
+const REEL_STOP_STAGGER_MS = 125;
+const DECEL_DURATION_MS = 420;
+const BOUNCE_PX = 6;
 const BOUNCE_DURATION_MS = 120;
-const INITIAL_SPIN_MS = 600;
+const SAFETY_FINISH_MS = 3600;
 
-/** Ease-out cubic: fast start, smooth stop (natural deceleration) */
+const WIN_LINE_SHOW_MIN_MS = 360;
+const WIN_LINE_SHOW_MAX_MS = 640;
+const WIN_LINE_PAYOUT_SCALE = 220;
+const MAX_WIN_LINES_TO_PRESENT = 4;
+const WIN_CLEAR_EXTRA_MS = 160;
+
+const PAYLINE_COLORS = [
+  0xf8b84e, // amber
+  0x3de2ff, // cyan
+  0xff6f91, // rose
+  0x57e389, // mint
+  0xf6d743, // warm gold
+  0x9a7dff, // violet accent
+  0xff914d, // orange
+  0x66e6c4, // seafoam
+];
+
+const FALLBACK_LINE_DEFS: number[][] = [[1, 1, 1, 1, 1]];
+
+const CARD_RADIUS = 18;
+const LABEL_FONT = '"Bebas Neue", "Rajdhani", sans-serif';
+const VALUE_FONT = '"Manrope", "Rajdhani", sans-serif';
+
 function easeOutCubic(t: number): number {
   return 1 - (1 - t) ** 3;
 }
 
-// ---------------------------------------------------------------------------
-// Symbol rendering — card-style visuals with icons for special symbols
-// ---------------------------------------------------------------------------
-
-const CARD_RADIUS = 16;
-const BOLD_FONT = 'Arial Black, Arial, Helvetica, sans-serif';
-const LABEL_FONT = 'Arial, Helvetica, sans-serif';
-
-function drawCardBase(
-  root: Container,
-  w: number,
-  h: number,
-  baseColor: number,
-  accentColor: number,
-  borderAlpha = 0.35
-): void {
-  const r = CARD_RADIUS;
-  const bg = new Graphics();
-  bg.roundRect(0, 0, w, h, r).fill(0x08080e);
-  bg.roundRect(2, 2, w - 4, h - 4, r - 1).fill(baseColor);
-  bg.roundRect(6, 6, w - 12, (h - 12) * 0.4, r - 3).fill({ color: 0xffffff, alpha: 0.04 });
-  bg.roundRect(2, 2, w - 4, h - 4, r - 1).stroke({
-    width: 1.5,
-    color: accentColor,
-    alpha: borderAlpha,
-  });
-  root.addChild(bg);
+function easeInOutSine(t: number): number {
+  return -(Math.cos(Math.PI * t) - 1) / 2;
 }
 
-function addGlow(root: Container, cx: number, cy: number, radius: number, color: number): void {
-  const g = new Graphics();
-  g.circle(cx, cy, radius).fill({ color, alpha: 0.12 });
-  g.circle(cx, cy, radius * 0.65).fill({ color, alpha: 0.1 });
-  g.circle(cx, cy, radius * 0.35).fill({ color, alpha: 0.08 });
-  root.addChild(g);
+function clamp(value: number, min: number, max: number): number {
+  return Math.max(min, Math.min(max, value));
 }
 
-function buildCardSymbol(symbolId: string, w: number, h: number): Container {
-  const root = new Container();
-  const color = symbolColorNumber(symbolId);
-  drawCardBase(root, w, h, 0x14141f, color);
-  addGlow(root, w / 2, h / 2, 50, color);
-
-  const label = new Text({
-    text: symbolId,
-    style: {
-      fontFamily: BOLD_FONT,
-      fontSize: symbolId.length > 1 ? 56 : 64,
-      fontWeight: '900',
-      fill: color,
-      dropShadow: { color: 0x000000, alpha: 0.6, blur: 6, distance: 2, angle: Math.PI / 3 },
-    },
-  });
-  label.anchor.set(0.5);
-  label.x = w / 2;
-  label.y = h / 2;
-  root.addChild(label);
-  return root;
+function randomSymbolId(): string {
+  return SYMBOL_IDS[Math.floor(Math.random() * SYMBOL_IDS.length)]!;
 }
 
-function buildStarSymbol(w: number, h: number): Container {
-  const root = new Container();
-  const color = 0xf59e0b;
-  const highlight = 0xfbbf24;
-  drawCardBase(root, w, h, 0x1a1610, color, 0.45);
-
-  const cx = w / 2;
-  const cy = h / 2 - 8;
-  addGlow(root, cx, cy, 55, highlight);
-
-  const star = new Graphics();
-  const outerR = 36;
-  const innerR = 16;
-  const pts = 5;
-  const step = Math.PI / pts;
-  const start = -Math.PI / 2;
-  star.moveTo(cx + outerR * Math.cos(start), cy + outerR * Math.sin(start));
-  for (let i = 1; i <= 2 * pts; i++) {
-    const r = i % 2 === 0 ? outerR : innerR;
-    const a = start + i * step;
-    star.lineTo(cx + r * Math.cos(a), cy + r * Math.sin(a));
-  }
-  star.closePath();
-  star.fill(highlight);
-  star.stroke({ width: 2, color: 0xfef3c7, alpha: 0.7 });
-  root.addChild(star);
-
-  const label = new Text({
-    text: 'STAR',
-    style: {
-      fontFamily: LABEL_FONT,
-      fontSize: 14,
-      fontWeight: 'bold',
-      fill: 0xfef3c7,
-      letterSpacing: 3,
-    },
-  });
-  label.anchor.set(0.5);
-  label.x = w / 2;
-  label.y = h - 24;
-  root.addChild(label);
-  return root;
-}
-
-function buildScatterSymbol(w: number, h: number): Container {
-  const root = new Container();
-  const color = 0x22d3ee;
-  const highlight = 0x67e8f9;
-  drawCardBase(root, w, h, 0x0f1a1e, color, 0.5);
-
-  const cx = w / 2;
-  const cy = h / 2 - 10;
-  addGlow(root, cx, cy, 55, color);
-
-  const gw = 52;
-  const gh = 58;
-  const gem = new Graphics();
-  gem.moveTo(cx, cy - gh / 2);
-  gem.lineTo(cx + gw / 2, cy);
-  gem.lineTo(cx, cy + gh / 2);
-  gem.lineTo(cx - gw / 2, cy);
-  gem.closePath();
-  gem.fill(color);
-  gem.stroke({ width: 2, color: highlight, alpha: 0.8 });
-  gem.moveTo(cx - gw / 4, cy - gh / 5);
-  gem.lineTo(cx + gw / 4, cy - gh / 5);
-  gem.lineTo(cx + gw / 2 - 4, cy);
-  gem.stroke({ width: 1, color: 0xffffff, alpha: 0.25 });
-  root.addChild(gem);
-
-  const sparkles = new Graphics();
-  const dots: [number, number][] = [
-    [cx - 28, cy - 22],
-    [cx + 30, cy - 18],
-    [cx - 24, cy + 20],
-    [cx + 26, cy + 24],
-  ];
-  for (const [sx, sy] of dots) {
-    sparkles.circle(sx, sy, 2).fill({ color: highlight, alpha: 0.6 });
-  }
-  root.addChild(sparkles);
-
-  const label = new Text({
-    text: 'SCATTER',
-    style: {
-      fontFamily: LABEL_FONT,
-      fontSize: 13,
-      fontWeight: 'bold',
-      fill: highlight,
-      letterSpacing: 2,
-    },
-  });
-  label.anchor.set(0.5);
-  label.x = w / 2;
-  label.y = h - 22;
-  root.addChild(label);
-  return root;
-}
-
-function buildWildSymbol(w: number, h: number): Container {
-  const root = new Container();
-  const color = 0xe879f9;
-  const r = CARD_RADIUS;
-
-  const bg = new Graphics();
-  bg.roundRect(0, 0, w, h, r).fill(0x08080e);
-  bg.roundRect(2, 2, w - 4, h - 4, r - 1).fill(0x2d1b4e);
-  bg.roundRect(6, 6, w - 12, (h - 12) * 0.5, r - 3).fill({ color: 0x7c3aed, alpha: 0.25 });
-  bg.roundRect(2, 2, w - 4, h - 4, r - 1).stroke({ width: 2, color, alpha: 0.6 });
-  root.addChild(bg);
-
-  addGlow(root, w / 2, h / 2, 60, color);
-
-  const label = new Text({
-    text: 'WILD',
-    style: {
-      fontFamily: BOLD_FONT,
-      fontSize: 44,
-      fontWeight: '900',
-      fill: 0xffffff,
-      dropShadow: { color: 0x7c3aed, alpha: 0.8, blur: 8, distance: 0, angle: 0 },
-      stroke: { color, width: 3 },
-    },
-  });
-  label.anchor.set(0.5);
-  label.x = w / 2;
-  label.y = h / 2;
-  root.addChild(label);
-  return root;
-}
-
-function buildSymbolContainer(symbolId: string, width: number, height: number): Container {
-  const id = normalizeSymbolId(symbolId);
-  switch (id) {
-    case 'Wild':
-      return buildWildSymbol(width, height);
-    case 'Scatter':
-      return buildScatterSymbol(width, height);
-    case 'Star':
-      return buildStarSymbol(width, height);
-    default:
-      return buildCardSymbol(id, width, height);
-  }
-}
-
-/**
- * Pre-renders every symbol into a GPU texture once. During spins the grid
- * stamps out lightweight Sprite clones instead of rebuilding Graphics+Text
- * objects each frame — eliminates GC pressure and reduces draw calls.
- *
- * To swap in real artwork, replace `buildSymbolContainer` above with atlas
- * lookups; the rest of the pipeline stays unchanged.
- */
-class SymbolTextureCache {
-  private textures = new Map<string, Texture>();
-
-  constructor(
-    private renderer: Application['renderer'],
-    private cellWidth: number,
-    private cellHeight: number
-  ) {}
-
-  warm(): void {
-    for (const id of SYMBOL_IDS) {
-      this.resolve(id);
-    }
-  }
-
-  private resolve(symbolId: string): Texture {
-    const key = normalizeSymbolId(symbolId);
-    const existing = this.textures.get(key);
-    if (existing) return existing;
-
-    const gfx = buildSymbolContainer(key, this.cellWidth, this.cellHeight);
-    const texture = this.renderer.generateTexture({
-      target: gfx,
-      resolution: Math.min(2, window.devicePixelRatio || 1),
-    });
-    gfx.destroy(true);
-    this.textures.set(key, texture);
-    return texture;
-  }
-
-  sprite(symbolId: string): Sprite {
-    return new Sprite(this.resolve(symbolId));
-  }
-
-  getTexture(symbolId: string): Texture {
-    return this.resolve(symbolId);
-  }
-
-  destroy(): void {
-    this.textures.forEach((t) => t.destroy(true));
-    this.textures.clear();
-  }
-}
-
-// ---------------------------------------------------------------------------
-// Spine-driven symbol animations (idle pulse, win bounce)
-// ---------------------------------------------------------------------------
-
-const SPINE_ATLAS_TEXT = [
-  'symbol.png',
-  `size: ${CELL_W}, ${CELL_H}`,
-  'filter: Linear, Linear',
-  'symbol',
-  `  bounds: 0, 0, ${CELL_W}, ${CELL_H}`,
-].join('\n');
-
-const SPINE_SKELETON_JSON = {
-  skeleton: { spine: '4.2.0', width: CELL_W, height: CELL_H },
-  bones: [{ name: 'root' }],
-  slots: [{ name: 'symbol', bone: 'root', attachment: 'symbol' }],
-  skins: [
-    {
-      name: 'default',
-      attachments: {
-        symbol: { symbol: { width: CELL_W, height: CELL_H } },
-      },
-    },
-  ],
-  animations: {
-    idle: {
-      bones: {
-        root: {
-          scale: [
-            { time: 0, x: 1, y: 1 },
-            { time: 0.8, x: 1.025, y: 1.025 },
-            { time: 1.6, x: 1, y: 1 },
-          ],
-        },
-      },
-    },
-    win: {
-      bones: {
-        root: {
-          scale: [
-            { time: 0, x: 1, y: 1 },
-            { time: 0.08, x: 1.22, y: 1.22 },
-            { time: 0.2, x: 0.92, y: 0.92 },
-            { time: 0.32, x: 1.1, y: 1.1 },
-            { time: 0.45, x: 0.97, y: 0.97 },
-            { time: 0.55, x: 1, y: 1 },
-          ],
-        },
-      },
-    },
-  },
-};
-
-/**
- * Creates Spine instances that use our programmatic symbol textures as
- * region attachments. No external Spine/atlas files required — skeleton
- * data and atlas are generated at runtime from the texture cache.
- *
- * When an artist provides real `.skel` + `.atlas` assets, swap this
- * factory to load from files via `Spine.from()` instead.
- */
-class SpineSymbolFactory {
-  private cache = new Map<string, SkeletonData>();
-
-  constructor(private textures: SymbolTextureCache) {}
-
-  create(symbolId: string): Spine {
-    const key = normalizeSymbolId(symbolId);
-    let data = this.cache.get(key);
-    if (!data) {
-      const pixiTex = this.textures.getTexture(key);
-      const atlas = new TextureAtlas(SPINE_ATLAS_TEXT);
-      atlas.pages[0]!.setTexture(SpineTexture.from(pixiTex.source));
-      const json = new SkeletonJson(new AtlasAttachmentLoader(atlas));
-      data = json.readSkeletonData(SPINE_SKELETON_JSON);
-      this.cache.set(key, data);
-    }
-    return new Spine({ skeletonData: data, autoUpdate: true });
-  }
-
-  destroy(): void {
-    this.cache.clear();
-  }
-}
-
-export interface ReelGridOptions {
-  width: number;
-  height: number;
-  lineDefs?: number[][];
-  safeTop?: number;
-  safeBottom?: number;
-  safeLeft?: number;
-  safeRight?: number;
-  onReelStopped?: (reelIndex: number) => void;
-  onAllStopped?: () => void;
+function prefersReducedMotion(): boolean {
+  if (typeof window === 'undefined' || typeof window.matchMedia !== 'function') return false;
+  return window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 }
 
 interface ReelState {
   container: Container;
+  symbols: Sprite[];
   spinning: boolean;
-  decelerating?: boolean;
-  decelStartY?: number;
-  decelStartTime?: number;
-  bouncing?: boolean;
-  bounceStartY?: number;
-  bounceStartTime?: number;
+  decelerating: boolean;
+  bouncing: boolean;
+  decelStartMs: number;
+  decelStartY: number;
+  bounceStartMs: number;
 }
 
 interface WinningLineInfo {
@@ -416,48 +85,700 @@ interface WinningLineInfo {
   payout: number;
 }
 
+interface CloneState {
+  sprite: Sprite;
+  baseX: number;
+  baseY: number;
+  phase: number;
+  strength: number;
+}
+
+interface RingState {
+  graphic: Graphics;
+  phase: number;
+  baseAlpha: number;
+}
+
+interface ReelGridSafeArea {
+  safeTop?: number;
+  safeBottom?: number;
+  safeLeft?: number;
+  safeRight?: number;
+}
+
+export interface ReelGridOptions extends ReelGridSafeArea {
+  width: number;
+  height: number;
+  lineDefs?: number[][];
+  onReelStopped?: (reelIndex: number) => void;
+  onAllStopped?: () => void;
+}
+
+export interface ReelGridDebugState {
+  mode: 'idle' | 'spinning' | 'presenting_win';
+  reduced_motion: boolean;
+  reels: Array<{
+    index: number;
+    spinning: boolean;
+    decelerating: boolean;
+    bouncing: boolean;
+    y: number;
+  }>;
+  winning_lines: number[];
+  has_target_matrix: boolean;
+}
+
+function drawCardBase(
+  root: Container,
+  w: number,
+  h: number,
+  baseColor: number,
+  accent: number
+): void {
+  const card = new Graphics();
+  card.roundRect(0, 0, w, h, CARD_RADIUS).fill(0x0e1220);
+  card.roundRect(2, 2, w - 4, h - 4, CARD_RADIUS - 1).fill(baseColor);
+  card.roundRect(5, 5, w - 10, h * 0.42, CARD_RADIUS - 4).fill({
+    color: 0xffffff,
+    alpha: 0.08,
+  });
+  card.roundRect(2, 2, w - 4, h - 4, CARD_RADIUS - 1).stroke({
+    width: 2,
+    color: accent,
+    alpha: 0.62,
+  });
+  root.addChild(card);
+}
+
+function drawSymbolFallback(symbolId: string, w: number, h: number): Container {
+  const id = normalizeSymbolId(symbolId);
+  const color = symbolColorNumber(id);
+  const root = new Container();
+  drawCardBase(root, w, h, 0x1a2238, color);
+
+  const glow = new Graphics();
+  glow.circle(w / 2, h / 2, 52).fill({ color, alpha: 0.13 });
+  glow.circle(w / 2, h / 2, 30).fill({ color, alpha: 0.09 });
+  root.addChild(glow);
+
+  const label = new Text({
+    text: symbolShortLabel(id),
+    style: {
+      fontFamily: LABEL_FONT,
+      fontSize: 80,
+      fontWeight: '800',
+      fill: color,
+      stroke: { color: 0x090d18, width: 4 },
+      dropShadow: {
+        color: 0x000000,
+        alpha: 0.46,
+        blur: 6,
+        distance: 2,
+        angle: Math.PI / 3,
+      },
+    },
+  });
+  label.anchor.set(0.5);
+  label.x = w / 2;
+  label.y = h / 2;
+  root.addChild(label);
+
+  return root;
+}
+
+class SymbolTextureBank {
+  private textures = new Map<string, Texture>();
+  private loading = new Map<string, Promise<Texture>>();
+  private provisional = new Set<string>();
+
+  constructor(
+    private readonly renderer: Application['renderer'],
+    private readonly symbolWidth: number,
+    private readonly symbolHeight: number
+  ) {}
+
+  async warm(): Promise<void> {
+    for (const id of SYMBOL_IDS) {
+      await this.resolveAsync(id);
+    }
+  }
+
+  sprite(symbolId: string): Sprite {
+    const sprite = new Sprite(this.resolve(symbolId));
+    sprite.width = this.symbolWidth;
+    sprite.height = this.symbolHeight;
+    return sprite;
+  }
+
+  texture(symbolId: string): Texture {
+    return this.resolve(symbolId);
+  }
+
+  destroy(): void {
+    this.textures.forEach((texture) => texture.destroy(true));
+    this.textures.clear();
+    this.loading.clear();
+    this.provisional.clear();
+  }
+
+  private resolve(symbolId: string): Texture {
+    const key = normalizeSymbolId(symbolId);
+    const cached = this.textures.get(key);
+    if (cached) return cached;
+
+    const fallback = this.buildFallbackTexture(key);
+    this.textures.set(key, fallback);
+    this.provisional.add(key);
+    void this.resolveAsync(key);
+    return fallback;
+  }
+
+  private async resolveAsync(symbolId: string): Promise<Texture> {
+    const key = normalizeSymbolId(symbolId);
+    const cached = this.textures.get(key);
+    if (cached && !this.provisional.has(key)) return cached;
+
+    const existing = this.loading.get(key);
+    if (existing) return existing;
+
+    const request = this.loadFromImage(key)
+      .then((texture) => {
+        const previous = this.textures.get(key);
+        if (
+          previous &&
+          this.provisional.has(key) &&
+          previous !== texture &&
+          !previous.destroyed &&
+          previous !== Texture.EMPTY &&
+          previous !== Texture.WHITE
+        ) {
+          previous.destroy(true);
+        }
+        this.textures.set(key, texture);
+        this.provisional.delete(key);
+        this.loading.delete(key);
+        return texture;
+      })
+      .catch(() => {
+        if (!this.textures.has(key)) {
+          this.textures.set(key, this.buildFallbackTexture(key));
+        }
+        this.provisional.delete(key);
+        this.loading.delete(key);
+        return this.textures.get(key)!;
+      });
+
+    this.loading.set(key, request);
+    return request;
+  }
+
+  private async loadFromImage(symbolId: string): Promise<Texture> {
+    const imagePath = symbolImagePath(symbolId);
+    const source = (await Assets.load(imagePath)) as Texture;
+    if (!source || source.destroyed) {
+      throw new Error(`Failed to load symbol image: ${imagePath}`);
+    }
+    return this.buildComposedTexture(symbolId, source);
+  }
+
+  private buildFallbackTexture(symbolId: string): Texture {
+    const fallback = drawSymbolFallback(symbolId, this.symbolWidth, this.symbolHeight);
+    const texture = this.renderer.generateTexture({
+      target: fallback,
+      resolution: Math.min(2, window.devicePixelRatio || 1),
+    });
+    fallback.destroy({ children: true });
+    return texture;
+  }
+
+  private buildComposedTexture(symbolId: string, source: Texture): Texture {
+    const root = new Container();
+    const accent = symbolColorNumber(symbolId);
+    drawCardBase(root, this.symbolWidth, this.symbolHeight, 0x18233d, accent);
+
+    const innerShadow = new Graphics();
+    innerShadow
+      .roundRect(9, 9, this.symbolWidth - 18, this.symbolHeight - 18, 13)
+      .fill({ color: 0x0a1221, alpha: 0.52 });
+    root.addChild(innerShadow);
+
+    const icon = new Sprite(source);
+    icon.anchor.set(0.5);
+    const sourceW = source.orig.width || source.frame.width || source.width || this.symbolWidth;
+    const sourceH = source.orig.height || source.frame.height || source.height || this.symbolHeight;
+    const maxW = this.symbolWidth * 0.78;
+    const maxH = this.symbolHeight * 0.78;
+    const iconScale = Math.min(maxW / sourceW, maxH / sourceH);
+    icon.scale.set(iconScale);
+    icon.x = this.symbolWidth / 2;
+    icon.y = this.symbolHeight / 2 + 2;
+    root.addChild(icon);
+
+    const gloss = new Graphics();
+    gloss
+      .roundRect(11, 11, this.symbolWidth - 22, this.symbolHeight * 0.34, 12)
+      .fill({ color: 0xffffff, alpha: 0.08 });
+    root.addChild(gloss);
+
+    const texture = this.renderer.generateTexture({
+      target: root,
+      resolution: Math.min(2, window.devicePixelRatio || 1),
+    });
+    root.destroy({ children: true });
+    return texture;
+  }
+}
+
+class WinPresenter {
+  private readonly root = new Container();
+  private clones: CloneState[] = [];
+  private rings: RingState[] = [];
+  private hiddenOriginals: Sprite[] = [];
+  private tickerFn: (() => void) | null = null;
+  private startedAt = 0;
+
+  constructor(
+    private readonly app: Application,
+    parent: Container
+  ) {
+    parent.addChild(this.root);
+  }
+
+  present(
+    lines: WinningLineInfo[],
+    lineDefs: number[][],
+    reels: ReelState[],
+    reducedMotion: boolean
+  ): void {
+    this.clear();
+    if (lines.length === 0) return;
+
+    this.drawLines(lines, lineDefs);
+    this.drawWinningCells(lines, lineDefs, reels, reducedMotion);
+    this.start(reducedMotion);
+  }
+
+  clear(): void {
+    if (this.tickerFn) {
+      this.app.ticker.remove(this.tickerFn);
+      this.tickerFn = null;
+    }
+
+    for (const original of this.hiddenOriginals) {
+      if (!original.destroyed) original.visible = true;
+    }
+
+    this.clones.forEach((entry) => {
+      if (!entry.sprite.destroyed) entry.sprite.destroy();
+    });
+    this.rings.forEach((entry) => {
+      if (!entry.graphic.destroyed) entry.graphic.destroy();
+    });
+
+    this.clones = [];
+    this.rings = [];
+    this.hiddenOriginals = [];
+    this.root.removeChildren();
+  }
+
+  private drawLines(lines: WinningLineInfo[], lineDefs: number[][]): void {
+    for (const line of lines) {
+      const path = lineDefs[line.lineIndex];
+      if (!path || path.length !== REELS) continue;
+
+      const color = PAYLINE_COLORS[line.lineIndex % PAYLINE_COLORS.length]!;
+      const points: number[] = [];
+      for (let reel = 0; reel < REELS; reel++) {
+        const row = path[reel] ?? 1;
+        const x = reel * (CELL_W + CELL_GAP) + CELL_W / 2;
+        const y = row * STEP_H + CELL_H / 2;
+        points.push(x, y);
+      }
+
+      const lineGlow = new Graphics();
+      lineGlow.moveTo(points[0]!, points[1]!);
+      for (let i = 2; i < points.length; i += 2) {
+        lineGlow.lineTo(points[i]!, points[i + 1]!);
+      }
+      lineGlow.stroke({ width: 10, color, alpha: 0.2 });
+      lineGlow.stroke({ width: 4, color, alpha: 0.95 });
+      this.root.addChild(lineGlow);
+
+      const finalX = points[points.length - 2]!;
+      const finalY = points[points.length - 1]!;
+      const labelBg = new Graphics();
+      labelBg.roundRect(finalX + 8, finalY - 24, 162, 26, 8).fill({ color: 0x0b1120, alpha: 0.84 });
+      labelBg
+        .roundRect(finalX + 8, finalY - 24, 162, 26, 8)
+        .stroke({ width: 1, color, alpha: 0.9 });
+      this.root.addChild(labelBg);
+
+      const payoutLabel = new Text({
+        text: `L${line.lineIndex + 1} +${line.payout.toFixed(2)}`,
+        style: {
+          fontFamily: VALUE_FONT,
+          fontSize: 12,
+          fontWeight: '700',
+          fill: 0xf8fafc,
+          letterSpacing: 0.4,
+        },
+      });
+      payoutLabel.x = finalX + 16;
+      payoutLabel.y = finalY - 18;
+      this.root.addChild(payoutLabel);
+    }
+  }
+
+  private drawWinningCells(
+    lines: WinningLineInfo[],
+    lineDefs: number[][],
+    reels: ReelState[],
+    reducedMotion: boolean
+  ): void {
+    const seen = new Set<string>();
+
+    for (const line of lines) {
+      const path = lineDefs[line.lineIndex];
+      if (!path) continue;
+      const color = PAYLINE_COLORS[line.lineIndex % PAYLINE_COLORS.length]!;
+      const strength = clamp(0.48 + line.payout * 0.5, 0.5, 1);
+
+      for (let reel = 0; reel < Math.min(line.count, REELS); reel++) {
+        const row = path[reel];
+        if (row == null) continue;
+
+        const key = `${reel}-${row}`;
+        if (seen.has(key)) continue;
+        seen.add(key);
+
+        const x = reel * (CELL_W + CELL_GAP);
+        const y = row * STEP_H;
+
+        const ring = new Graphics();
+        ring.roundRect(x + 4, y + 4, CELL_W - 8, CELL_H - 8, 16).stroke({
+          width: 3,
+          color,
+          alpha: 0.85,
+        });
+        ring.roundRect(x + 8, y + 8, CELL_W - 16, CELL_H - 16, 13).stroke({
+          width: 1.5,
+          color: 0xffffff,
+          alpha: 0.4,
+        });
+        this.root.addChild(ring);
+        this.rings.push({
+          graphic: ring,
+          phase: Math.random() * Math.PI * 2,
+          baseAlpha: 0.54 + 0.2 * strength,
+        });
+
+        const staticSprite = reels[reel]?.symbols[row + 1];
+        if (!staticSprite) continue;
+
+        const clone = new Sprite(staticSprite.texture);
+        clone.anchor.set(0.5);
+        clone.width = CELL_W;
+        clone.height = CELL_H;
+        clone.x = x + CELL_W / 2;
+        clone.y = y + CELL_H / 2;
+        this.root.addChild(clone);
+
+        staticSprite.visible = false;
+        this.hiddenOriginals.push(staticSprite);
+        this.clones.push({
+          sprite: clone,
+          baseX: clone.x,
+          baseY: clone.y,
+          phase: Math.random() * Math.PI * 2,
+          strength: reducedMotion ? Math.min(0.35, strength) : strength,
+        });
+      }
+    }
+  }
+
+  private start(reducedMotion: boolean): void {
+    this.startedAt = performance.now();
+    this.tickerFn = () => {
+      const t = (performance.now() - this.startedAt) / 1000;
+
+      for (const ring of this.rings) {
+        const pulse = 0.22 * Math.sin(t * 4 + ring.phase);
+        ring.graphic.alpha = clamp(ring.baseAlpha + pulse, 0.2, 1);
+      }
+
+      for (const clone of this.clones) {
+        const wave = Math.sin(t * 6 + clone.phase);
+        const sway = Math.sin(t * 5 + clone.phase * 0.8);
+        const scaleWave = reducedMotion ? 0.024 : 0.086;
+        const offsetWave = reducedMotion ? 2.2 : 7;
+        const amount = clone.strength;
+
+        clone.sprite.x = clone.baseX + sway * offsetWave * amount * 0.45;
+        clone.sprite.y = clone.baseY + wave * offsetWave * amount;
+        clone.sprite.rotation = wave * amount * (reducedMotion ? 0.04 : 0.12);
+        clone.sprite.scale.set(
+          1 + scaleWave * wave * amount,
+          1 + scaleWave * Math.cos(t * 5.2) * amount
+        );
+      }
+    };
+    this.app.ticker.add(this.tickerFn);
+  }
+}
+
 export class ReelGrid {
   app: Application;
   container: Container;
-  reels: ReelState[] = [];
-  options: ReelGridOptions;
-  private symbolTextures!: SymbolTextureCache;
-  private spineFactory!: SpineSymbolFactory;
-  private activeSpines: Spine[] = [];
-  private targetMatrix: string[][] | null = null;
-  private stopTimers: number[] = [];
-  private safetyTimeoutId: number = 0;
-  private spinFinished = false;
-  private tickerBound: (ticker: { deltaTime: number }) => void = () => {};
-  private stepHeight: number;
-  private paylinesContainer: Container | null = null;
-  private winningLines: WinningLineInfo[] = [];
-  private lineDefs: number[][] = [];
 
-  /** PixiJS v8 requires async init(). Use ReelGrid.create() instead of new ReelGrid(). */
+  private options: ReelGridOptions;
+  private readonly reducedMotion: boolean;
+  private readonly stepHeight = STEP_H;
+  private readonly reels: ReelState[] = [];
+
+  private symbolTextures!: SymbolTextureBank;
+  private winPresenter!: WinPresenter;
+  private boardContainer!: Container;
+  private frameContainer!: Container;
+  private lineDefs: number[][] = [];
+  private winningLines: WinningLineInfo[] = [];
+  private targetMatrix: string[][] | null = null;
+
+  private stopTimers: number[] = [];
+  private winTimers: number[] = [];
+  private safetyTimer = 0;
+
+  private tickerBound: (ticker: { deltaTime: number }) => void = () => {};
+  private tickerAttached = false;
+  private spinFinished = false;
+
   static async create(canvas: HTMLCanvasElement, options: ReelGridOptions): Promise<ReelGrid> {
     const grid = new ReelGrid(options);
     await grid.app.init({
       canvas,
       width: options.width,
       height: options.height,
-      backgroundColor: 0x0d0d12,
+      background: 0x0a1020,
       resolution: Math.min(2, window.devicePixelRatio || 1),
       autoDensity: true,
+      antialias: true,
+      preserveDrawingBuffer: true,
     });
-    grid.symbolTextures = new SymbolTextureCache(grid.app.renderer, CELL_W, CELL_H);
-    grid.symbolTextures.warm();
-    grid.spineFactory = new SpineSymbolFactory(grid.symbolTextures);
+
+    grid.symbolTextures = new SymbolTextureBank(grid.app.renderer, CELL_W, CELL_H);
+    await grid.symbolTextures.warm();
     grid.setupScene();
     return grid;
   }
 
   private constructor(options: ReelGridOptions) {
     this.options = options;
-    this.stepHeight = CELL_H + GAP;
+    this.reducedMotion = prefersReducedMotion();
     this.app = new Application();
     this.container = new Container();
     this.lineDefs = this.normalizeLineDefs(options.lineDefs ?? FALLBACK_LINE_DEFS);
+  }
+
+  setLineDefs(lineDefs: number[][]): void {
+    this.lineDefs = this.normalizeLineDefs(lineDefs);
+    this.winningLines = this.winningLines.filter(
+      (line) => line.lineIndex >= 0 && line.lineIndex < this.lineDefs.length
+    );
+  }
+
+  setIdleSymbols(matrix: string[][]): void {
+    const source = matrix.length > 0 ? matrix : this.defaultIdleMatrix();
+
+    for (let reel = 0; reel < REELS; reel++) {
+      const state = this.reels[reel];
+      if (!state) continue;
+      state.container.y = 0;
+
+      for (let i = 0; i < ROLLING_SYMBOLS; i++) {
+        const row = (i - 1 + ROWS) % ROWS;
+        const symbol = source[reel]?.[row] ?? randomSymbolId();
+        const sprite = state.symbols[i];
+        if (!sprite) continue;
+        sprite.texture = this.symbolTextures.texture(symbol);
+        sprite.width = CELL_W;
+        sprite.height = CELL_H;
+        sprite.y = (i - 1) * this.stepHeight;
+        sprite.visible = true;
+        sprite.rotation = 0;
+      }
+    }
+  }
+
+  spinThenStop(outcomeMatrix: string[][], winningLines: WinningLineInfo[] = []): void {
+    if (this.reels.some((reel) => reel.spinning || reel.decelerating || reel.bouncing)) return;
+
+    this.spinFinished = false;
+    this.clearTimers();
+    this.winPresenter.clear();
+
+    this.targetMatrix = outcomeMatrix.map((column) => [...column]);
+    this.winningLines = winningLines
+      .filter((line) => line.lineIndex >= 0 && line.lineIndex < this.lineDefs.length)
+      .sort((a, b) => b.payout - a.payout);
+
+    for (const state of this.reels) {
+      this.fillReelWithRandomSymbols(state);
+      state.container.y = 0;
+      state.spinning = true;
+      state.decelerating = false;
+      state.bouncing = false;
+      state.decelStartMs = 0;
+      state.bounceStartMs = 0;
+      state.decelStartY = 0;
+    }
+
+    this.ensureTickerAttached();
+
+    for (let reelIndex = 0; reelIndex < REELS; reelIndex++) {
+      const timerId = window.setTimeout(
+        () => this.stopReel(reelIndex),
+        INITIAL_SPIN_MS + reelIndex * REEL_STOP_STAGGER_MS
+      );
+      this.stopTimers.push(timerId);
+    }
+
+    this.safetyTimer = window.setTimeout(() => {
+      if (!this.spinFinished) {
+        this.finishSpinCycle();
+      }
+    }, SAFETY_FINISH_MS);
+  }
+
+  resize(width: number, height: number, safeArea?: ReelGridSafeArea): void {
+    this.options = { ...this.options, width, height, ...safeArea };
+    this.app.renderer.resize(width, height);
+    this.layoutContainer(width, height);
+  }
+
+  debugState(): ReelGridDebugState {
+    const hasActiveWinPresentation = this.winTimers.length > 0;
+    const mode = this.reels.some((reel) => reel.spinning || reel.decelerating || reel.bouncing)
+      ? 'spinning'
+      : hasActiveWinPresentation
+        ? 'presenting_win'
+        : 'idle';
+
+    return {
+      mode,
+      reduced_motion: this.reducedMotion,
+      reels: this.reels.map((reel, index) => ({
+        index,
+        spinning: reel.spinning,
+        decelerating: reel.decelerating,
+        bouncing: reel.bouncing,
+        y: Math.round(reel.container.y * 100) / 100,
+      })),
+      winning_lines: this.winningLines.map((line) => line.lineIndex),
+      has_target_matrix: this.targetMatrix !== null,
+    };
+  }
+
+  destroy(): void {
+    this.clearTimers();
+    this.winPresenter.clear();
+    if (this.tickerAttached) {
+      this.app.ticker.remove(this.tickerBound);
+      this.tickerAttached = false;
+    }
+    this.symbolTextures.destroy();
+    this.app.destroy(true, { children: true });
+  }
+
+  private setupScene(): void {
+    this.app.stage.addChild(this.container);
+
+    this.boardContainer = new Container();
+    this.frameContainer = new Container();
+    this.container.addChild(this.boardContainer);
+    this.container.addChild(this.frameContainer);
+
+    this.createReels();
+    this.winPresenter = new WinPresenter(this.app, this.frameContainer);
+
+    this.layoutContainer(this.options.width, this.options.height);
+    this.ensureTickerAttached();
+    this.setIdleSymbols([]);
+  }
+
+  private createReels(): void {
+    const machineW = this.machineWidth();
+    const machineH = this.machineHeight();
+
+    const frameShadow = new Graphics();
+    frameShadow.roundRect(-22, -22, machineW + 44, machineH + 44, 32).fill({
+      color: 0x0b1020,
+      alpha: 0.7,
+    });
+    this.boardContainer.addChild(frameShadow);
+
+    const frame = new Graphics();
+    frame.roundRect(-8, -8, machineW + 16, machineH + 16, 22).fill(0x121a2f);
+    frame.roundRect(-8, -8, machineW + 16, machineH + 16, 22).stroke({
+      width: 3,
+      color: 0x66d7ff,
+      alpha: 0.36,
+    });
+    frame.roundRect(-4, -4, machineW + 8, machineH + 8, 20).stroke({
+      width: 1.5,
+      color: 0xf8b84e,
+      alpha: 0.52,
+    });
+    this.boardContainer.addChild(frame);
+
+    const reelMask = new Graphics();
+    reelMask.roundRect(0, 0, machineW, machineH, 16).fill(0x000000);
+    this.boardContainer.addChild(reelMask);
+    this.boardContainer.mask = reelMask;
+
+    for (let reelIndex = 0; reelIndex < REELS; reelIndex++) {
+      const laneX = reelIndex * (CELL_W + CELL_GAP);
+
+      const laneBg = new Graphics();
+      laneBg.roundRect(laneX, 0, CELL_W, machineH, 14).fill({ color: 0x0f172d, alpha: 0.95 });
+      laneBg.roundRect(laneX + 1, 1, CELL_W - 2, machineH - 2, 13).stroke({
+        width: 1,
+        color: 0xffffff,
+        alpha: 0.1,
+      });
+      this.boardContainer.addChild(laneBg);
+
+      const reelContainer = new Container();
+      reelContainer.x = laneX;
+      this.boardContainer.addChild(reelContainer);
+
+      const symbols: Sprite[] = [];
+      for (let i = 0; i < ROLLING_SYMBOLS; i++) {
+        const sprite = this.symbolTextures.sprite(randomSymbolId());
+        sprite.y = (i - 1) * this.stepHeight;
+        reelContainer.addChild(sprite);
+        symbols.push(sprite);
+      }
+
+      this.reels.push({
+        container: reelContainer,
+        symbols,
+        spinning: false,
+        decelerating: false,
+        bouncing: false,
+        decelStartMs: 0,
+        decelStartY: 0,
+        bounceStartMs: 0,
+      });
+    }
+
+    const topShade = new Graphics();
+    topShade.roundRect(0, 0, machineW, 62, 16).fill({ color: 0x050913, alpha: 0.46 });
+    this.frameContainer.addChild(topShade);
+
+    const bottomShade = new Graphics();
+    bottomShade
+      .roundRect(0, machineH - 68, machineW, 68, 16)
+      .fill({ color: 0x050913, alpha: 0.52 });
+    this.frameContainer.addChild(bottomShade);
   }
 
   private normalizeLineDefs(lineDefs: number[][]): number[][] {
@@ -471,375 +792,255 @@ export class ReelGrid {
       .map((line) => [...line]);
   }
 
-  setLineDefs(lineDefs: number[][]) {
-    this.lineDefs = this.normalizeLineDefs(lineDefs);
-    this.winningLines = this.winningLines.filter(
-      (line) => line.lineIndex >= 0 && line.lineIndex < this.lineDefs.length
-    );
-  }
-
-  private layoutContainer(width: number, height: number) {
-    const cellTotalW = REELS * CELL_W + (REELS - 1) * GAP;
-    const cellTotalH = ROWS * this.stepHeight - GAP;
+  private layoutContainer(width: number, height: number): void {
     const safeTop = Math.max(0, this.options.safeTop ?? 0);
     const safeBottom = Math.max(0, this.options.safeBottom ?? 0);
     const safeLeft = Math.max(0, this.options.safeLeft ?? 0);
     const safeRight = Math.max(0, this.options.safeRight ?? 0);
+
     const availableWidth = Math.max(1, width - safeLeft - safeRight);
     const availableHeight = Math.max(1, height - safeTop - safeBottom);
-    const scale = Math.min(availableWidth / cellTotalW, availableHeight / cellTotalH, 1.5);
+    const maxScale = this.reducedMotion ? 1.32 : 1.4;
+
+    const scale = Math.min(
+      availableWidth / this.machineWidth(),
+      availableHeight / this.machineHeight(),
+      maxScale
+    );
+
     this.container.scale.set(scale);
-    this.container.x = safeLeft + (availableWidth - cellTotalW * scale) / 2;
-    this.container.y = safeTop + (availableHeight - cellTotalH * scale) / 2;
+    this.container.x = safeLeft + (availableWidth - this.machineWidth() * scale) / 2;
+    this.container.y = safeTop + (availableHeight - this.machineHeight() * scale) / 2;
   }
 
-  private setupScene() {
-    const options = this.options;
-    const cellTotalW = REELS * CELL_W + (REELS - 1) * GAP;
-    const cellTotalH = ROWS * this.stepHeight - GAP;
-    this.layoutContainer(options.width, options.height);
-    this.app.stage.addChild(this.container);
-
-    // Frame so the reel area is always visible
-    const frame = new Graphics();
-    frame.rect(0, 0, cellTotalW, cellTotalH).fill(0x1a1a24);
-    frame.rect(0, 0, cellTotalW, cellTotalH).stroke({ width: 2, color: 0x3f3f46 });
-    this.container.addChild(frame);
-
-    const mask = new Graphics();
-    mask.rect(0, 0, cellTotalW, cellTotalH).fill(0x000000);
-    this.container.addChild(mask);
-    this.container.mask = mask;
-
-    for (let r = 0; r < REELS; r++) {
-      const reelContainer = new Container();
-      reelContainer.x = r * (CELL_W + GAP);
-      this.container.addChild(reelContainer);
-      this.reels.push({ container: reelContainer, spinning: false } as ReelState);
-    }
-    this.paylinesContainer = new Container();
-    this.paylinesContainer.eventMode = 'none';
-    this.container.addChild(this.paylinesContainer);
-    this.setIdleSymbols([]);
+  private machineWidth(): number {
+    return REELS * CELL_W + (REELS - 1) * CELL_GAP;
   }
 
-  /** Set winning line data for line drawing, symbol highlight and payout labels. */
-  setWinningLines(lines: WinningLineInfo[]) {
-    this.winningLines = lines
-      .filter((line) => line.lineIndex >= 0 && line.lineIndex < this.lineDefs.length)
-      .sort((a, b) => b.payout - a.payout);
+  private machineHeight(): number {
+    return ROWS * STEP_H - CELL_GAP;
   }
 
-  private getLineColor(lineIndex: number): number {
-    return PAYLINE_COLORS[lineIndex % PAYLINE_COLORS.length]!;
-  }
+  private ensureTickerAttached(): void {
+    if (this.tickerAttached) return;
 
-  private drawWinningCells() {
-    if (!this.paylinesContainer || this.winningLines.length === 0) return;
-    const byCell = new Map<
-      string,
-      { reel: number; row: number; color: number; overlaps: number }
-    >();
+    this.tickerBound = (ticker) => {
+      const deltaMs = (ticker.deltaTime * 1000) / 60;
+      this.tick(deltaMs);
+    };
 
-    for (const line of this.winningLines) {
-      const path = this.lineDefs[line.lineIndex];
-      if (!path) continue;
-      for (let reel = 0; reel < Math.min(line.count, REELS); reel++) {
-        const row = path[reel];
-        if (row == null) continue;
-        const key = `${reel}-${row}`;
-        const existing = byCell.get(key);
-        if (existing) {
-          existing.overlaps += 1;
-          continue;
-        }
-        byCell.set(key, { reel, row, color: this.getLineColor(line.lineIndex), overlaps: 1 });
-      }
-    }
-
-    byCell.forEach((cell) => {
-      const x = cell.reel * (CELL_W + GAP);
-      const y = cell.row * this.stepHeight;
-      const glow = new Graphics();
-      const glowColor = cell.overlaps > 1 ? 0xffffff : cell.color;
-      glow
-        .roundRect(x + 6, y + 6, CELL_W - 12, CELL_H - 12, 14)
-        .fill({ color: glowColor, alpha: 0.17 });
-      glow.roundRect(x + 6, y + 6, CELL_W - 12, CELL_H - 12, 14).stroke({
-        width: cell.overlaps > 1 ? 4 : 3,
-        color: glowColor,
-        alpha: cell.overlaps > 1 ? 0.95 : 0.8,
-      });
-      this.paylinesContainer?.addChild(glow);
-    });
-  }
-
-  private drawWinningLines() {
-    if (!this.paylinesContainer || this.winningLines.length === 0) return;
-    this.paylinesContainer.removeChildren();
-    this.drawWinningCells();
-    for (const winningLine of this.winningLines) {
-      const path = this.lineDefs[winningLine.lineIndex];
-      if (!path || path.length !== REELS) continue;
-      const points: number[] = [];
-      for (let r = 0; r < REELS; r++) {
-        const row = path[r] ?? 1;
-        const x = r * (CELL_W + GAP) + CELL_W / 2;
-        const y = row * this.stepHeight + CELL_H / 2;
-        points.push(x, y);
-      }
-      const lineGraphic = new Graphics();
-      lineGraphic.moveTo(points[0]!, points[1]!);
-      for (let i = 2; i < points.length; i += 2) lineGraphic.lineTo(points[i]!, points[i + 1]!);
-      const color = this.getLineColor(winningLine.lineIndex);
-      lineGraphic.stroke({ width: PAYLINE_GLOW_WIDTH, color, alpha: PAYLINE_ALPHA * 0.35 });
-      lineGraphic.stroke({ width: PAYLINE_WIDTH, color, alpha: PAYLINE_ALPHA });
-      this.paylinesContainer.addChild(lineGraphic);
-
-      const lastX = points[points.length - 2]!;
-      const lastY = points[points.length - 1]!;
-      const labelBg = new Graphics();
-      const labelWidth = 176;
-      const maxX = REELS * (CELL_W + GAP) - labelWidth - 12;
-      const labelX = Math.max(6, Math.min(lastX + 10, maxX));
-      const labelY = Math.max(6, lastY - 28);
-      labelBg
-        .roundRect(labelX - 6, labelY - 6, labelWidth, 28, 8)
-        .fill({ color: 0x09090f, alpha: 0.78 });
-      labelBg
-        .roundRect(labelX - 6, labelY - 6, labelWidth, 28, 8)
-        .stroke({ width: 1, color, alpha: 0.9 });
-      this.paylinesContainer.addChild(labelBg);
-
-      const payoutLabel = new Text({
-        text: `L${winningLine.lineIndex + 1} ${symbolShortLabel(winningLine.symbol)}x${winningLine.count}  +${winningLine.payout.toFixed(2)}`,
-        style: {
-          fontSize: 12,
-          fill: 0xffffff,
-          fontWeight: 'bold',
-        },
-      });
-      payoutLabel.x = labelX;
-      payoutLabel.y = labelY;
-      this.paylinesContainer.addChild(payoutLabel);
-    }
-    this.animateWinningCells();
-  }
-
-  private animateWinningCells() {
-    this.clearWinAnimations();
-    if (this.winningLines.length === 0 || !this.targetMatrix) return;
-
-    const visited = new Set<string>();
-    for (const line of this.winningLines) {
-      const path = this.lineDefs[line.lineIndex];
-      if (!path) continue;
-      for (let reel = 0; reel < Math.min(line.count, REELS); reel++) {
-        const row = path[reel];
-        if (row == null) continue;
-        const cellKey = `${reel}-${row}`;
-        if (visited.has(cellKey)) continue;
-        visited.add(cellKey);
-
-        const sym = this.targetMatrix[reel]?.[row];
-        if (!sym) continue;
-
-        const spine = this.spineFactory.create(sym);
-        spine.x = reel * (CELL_W + GAP) + CELL_W / 2;
-        spine.y = row * this.stepHeight + CELL_H / 2;
-
-        const reelState = this.reels[reel]!;
-        const staticSprite = reelState.container.children[row];
-        if (staticSprite) staticSprite.visible = false;
-
-        this.container.addChild(spine);
-        spine.state.setAnimation(0, 'win', false);
-        spine.state.addAnimation(0, 'idle', true, 0);
-        this.activeSpines.push(spine);
-      }
-    }
-  }
-
-  private clearWinAnimations() {
-    for (const spine of this.activeSpines) {
-      spine.destroy();
-    }
-    this.activeSpines = [];
-  }
-
-  private getIdleSymbols(): string[][] {
-    const matrix: string[][] = [];
-    for (let r = 0; r < REELS; r++) matrix.push(['10', 'J', 'Q']);
-    return matrix;
-  }
-
-  setIdleSymbols(matrix: string[][]) {
-    const m = matrix.length ? matrix : this.getIdleSymbols();
-    for (let r = 0; r < REELS; r++) {
-      const { container } = this.reels[r]!;
-      container.removeChildren();
-      container.y = 0;
-      for (let row = 0; row < ROWS; row++) {
-        const sym = m[r]?.[row] ?? '10';
-        const s = this.symbolTextures.sprite(sym);
-        s.y = row * this.stepHeight;
-        container.addChild(s);
-      }
-    }
-  }
-
-  spinThenStop(outcomeMatrix: string[][], winningLines: WinningLineInfo[] = []) {
-    if (this.reels.some((r) => r.spinning || r.decelerating || r.bouncing)) return;
-    this.spinFinished = false;
-    this.clearWinAnimations();
-    this.setWinningLines(winningLines);
-    if (this.paylinesContainer) this.paylinesContainer.removeChildren();
-    this.targetMatrix = outcomeMatrix.map((col) => [...col]);
-
-    for (let r = 0; r < REELS; r++) {
-      const { container } = this.reels[r]!;
-      this.reels[r]!.spinning = true;
-      container.removeChildren();
-      container.y = 0;
-      for (let i = 0; i < 5; i++) {
-        const sym = SYMBOL_IDS[Math.floor(Math.random() * SYMBOL_IDS.length)]!;
-        const s = this.symbolTextures.sprite(sym);
-        s.y = i * this.stepHeight;
-        container.addChild(s);
-      }
-    }
-
-    this.tickerBound = (ticker: { deltaTime: number }) => this.updateSpin(ticker.deltaTime);
     this.app.ticker.add(this.tickerBound);
-
-    const baseStopTime = INITIAL_SPIN_MS;
-    for (let r = 0; r < REELS; r++) {
-      this.stopTimers[r] = window.setTimeout(
-        () => {
-          this.stopReel(r);
-        },
-        baseStopTime + r * REEL_STOP_DELAY_MS
-      );
-    }
-    // Ensure we always finish (e.g. when timers are throttled in background/headless)
-    this.safetyTimeoutId = window.setTimeout(() => {
-      this.safetyTimeoutId = 0;
-      if (this.spinFinished) return;
-      this.spinFinished = true;
-      this.drawWinningLines();
-      this.app.ticker.remove(this.tickerBound);
-      this.options.onAllStopped?.();
-    }, 3500);
+    this.tickerAttached = true;
   }
 
-  private updateSpin(deltaTime: number) {
+  private tick(deltaMs: number): void {
     const now = performance.now();
-    const speed = (SPIN_SPEED_PX_S * deltaTime) / 60;
 
-    for (let r = 0; r < REELS; r++) {
-      const state = this.reels[r]!;
-      const reel = state.container;
+    for (let reelIndex = 0; reelIndex < this.reels.length; reelIndex++) {
+      const state = this.reels[reelIndex]!;
 
       if (state.spinning) {
-        reel.y += speed;
-        if (reel.y >= this.stepHeight) reel.y -= this.stepHeight;
+        this.stepSpinningReel(state, deltaMs);
         continue;
       }
 
-      if (state.decelerating && state.decelStartTime != null) {
-        const elapsed = now - state.decelStartTime;
-        const t = Math.min(1, elapsed / DECEL_DURATION_MS);
-        const ease = easeOutCubic(t);
-        reel.y = (state.decelStartY ?? 0) * (1 - ease);
-        if (t >= 1) {
-          reel.y = 0;
-          state.decelerating = false;
-          state.decelStartTime = undefined;
-          state.decelStartY = undefined;
-          state.bouncing = true;
-          state.bounceStartY = BOUNCE_OFFSET_PX;
-          state.bounceStartTime = now;
-          reel.y = BOUNCE_OFFSET_PX;
-        }
+      if (state.decelerating) {
+        this.stepDeceleratingReel(state, now);
         continue;
       }
 
-      if (state.bouncing && state.bounceStartTime != null) {
-        const elapsed = now - state.bounceStartTime;
-        const t = Math.min(1, elapsed / BOUNCE_DURATION_MS);
-        const ease = easeOutCubic(t);
-        reel.y = (state.bounceStartY ?? 0) * (1 - ease);
-        if (t >= 1) {
-          reel.y = 0;
-          state.bouncing = false;
-          state.bounceStartTime = undefined;
-          state.bounceStartY = undefined;
-          this.options.onReelStopped?.(r);
-          if (r === REELS - 1) {
-            if (this.safetyTimeoutId) {
-              window.clearTimeout(this.safetyTimeoutId);
-              this.safetyTimeoutId = 0;
-            }
-            if (!this.spinFinished) {
-              this.spinFinished = true;
-              this.drawWinningLines();
-              this.app.ticker.remove(this.tickerBound);
-              this.options.onAllStopped?.();
-            }
-          }
+      if (state.bouncing) {
+        const settled = this.stepBounceReel(state, now);
+        if (settled) {
+          this.options.onReelStopped?.(reelIndex);
         }
+      }
+    }
+
+    if (
+      !this.spinFinished &&
+      this.reels.every((reel) => !reel.spinning && !reel.decelerating && !reel.bouncing)
+    ) {
+      this.finishSpinCycle();
+    }
+  }
+
+  private stepSpinningReel(state: ReelState, deltaMs: number): void {
+    state.container.y += (SPIN_SPEED_PX_S * deltaMs) / 1000;
+
+    while (state.container.y >= this.stepHeight) {
+      state.container.y -= this.stepHeight;
+
+      const shifted = state.symbols.shift();
+      if (!shifted) break;
+
+      shifted.texture = this.symbolTextures.texture(randomSymbolId());
+      shifted.width = CELL_W;
+      shifted.height = CELL_H;
+      shifted.visible = true;
+      shifted.rotation = 0;
+      state.symbols.push(shifted);
+
+      // Keep symbol strip positions bounded to avoid all items drifting outside the mask.
+      for (let i = 0; i < state.symbols.length; i++) {
+        state.symbols[i]!.y = (i - 1) * this.stepHeight;
       }
     }
   }
 
-  private stopReel(reelIndex: number) {
-    const state = this.reels[reelIndex]!;
-    const reel = state.container;
+  private stepDeceleratingReel(state: ReelState, now: number): void {
+    const duration = this.reducedMotion ? DECEL_DURATION_MS * 0.7 : DECEL_DURATION_MS;
+    const elapsed = now - state.decelStartMs;
+    const t = clamp(elapsed / duration, 0, 1);
+    const eased = easeOutCubic(t);
+
+    state.container.y = state.decelStartY * (1 - eased);
+
+    if (t >= 1) {
+      state.container.y = BOUNCE_PX;
+      state.decelerating = false;
+      state.bouncing = true;
+      state.bounceStartMs = now;
+    }
+  }
+
+  private stepBounceReel(state: ReelState, now: number): boolean {
+    const duration = this.reducedMotion ? BOUNCE_DURATION_MS * 0.55 : BOUNCE_DURATION_MS;
+    const elapsed = now - state.bounceStartMs;
+    const t = clamp(elapsed / duration, 0, 1);
+    const eased = easeInOutSine(t);
+
+    state.container.y = BOUNCE_PX * (1 - eased);
+
+    if (t < 1) return false;
+
+    state.container.y = 0;
+    state.bouncing = false;
+    return true;
+  }
+
+  private stopReel(reelIndex: number): void {
+    const state = this.reels[reelIndex];
     const target = this.targetMatrix?.[reelIndex];
-    if (!target) return;
+    if (!state || !target) return;
 
     state.spinning = false;
-    // Start ease-out deceleration (handled in updateSpin); keep current Y for smooth decel
-    const wrapY = ((reel.y % this.stepHeight) + this.stepHeight) % this.stepHeight;
-    state.decelStartY = wrapY;
-    state.decelStartTime = performance.now();
     state.decelerating = true;
+    state.bouncing = false;
 
-    // Build strip so when reel.y is in [0, stepHeight] the visible symbols match outcome
-    const strip = [
-      target[0] ?? '10',
-      target[1] ?? '10',
-      target[2] ?? '10',
-      target[0] ?? '10',
-      target[1] ?? '10',
-    ];
-    reel.removeChildren();
-    for (let i = 0; i < strip.length; i++) {
-      const s = this.symbolTextures.sprite(strip[i]!);
-      s.y = i * this.stepHeight;
-      reel.addChild(s);
+    const wrappedY = ((state.container.y % this.stepHeight) + this.stepHeight) % this.stepHeight;
+    state.decelStartY = wrappedY;
+    state.decelStartMs = performance.now();
+
+    const strip = this.buildStopStrip(target);
+    for (let i = 0; i < state.symbols.length; i++) {
+      const sprite = state.symbols[i]!;
+      sprite.texture = this.symbolTextures.texture(strip[i] ?? randomSymbolId());
+      sprite.width = CELL_W;
+      sprite.height = CELL_H;
+      sprite.y = (i - 1) * this.stepHeight;
+      sprite.visible = true;
+      sprite.rotation = 0;
     }
-    reel.y = wrapY;
+
+    state.container.y = wrappedY;
   }
 
-  /** Resize canvas and reposition grid without destroying (e.g. when DevTools opens). */
-  resize(
-    width: number,
-    height: number,
-    safeArea?: Pick<ReelGridOptions, 'safeTop' | 'safeBottom' | 'safeLeft' | 'safeRight'>
-  ) {
-    this.options = { ...this.options, width, height, ...safeArea };
-    this.app.renderer.resize(width, height);
-    this.layoutContainer(width, height);
+  private finishSpinCycle(): void {
+    this.spinFinished = true;
+    this.clearStopTimers();
+
+    if (this.safetyTimer) {
+      window.clearTimeout(this.safetyTimer);
+      this.safetyTimer = 0;
+    }
+
+    this.presentWinningLines();
+    this.options.onAllStopped?.();
   }
 
-  destroy() {
-    this.stopTimers.forEach(clearTimeout);
-    if (this.safetyTimeoutId) window.clearTimeout(this.safetyTimeoutId);
-    this.app.ticker.remove(this.tickerBound);
-    this.clearWinAnimations();
-    this.spineFactory.destroy();
-    this.symbolTextures.destroy();
-    this.app.destroy(true, { children: true });
+  private presentWinningLines(): void {
+    this.clearWinTimers();
+    this.winPresenter.clear();
+
+    if (this.winningLines.length === 0 || this.lineDefs.length === 0) return;
+
+    const lines = this.winningLines.slice(0, MAX_WIN_LINES_TO_PRESENT);
+
+    if (this.reducedMotion) {
+      this.winPresenter.present(lines, this.lineDefs, this.reels, true);
+      const timerId = window.setTimeout(() => this.winPresenter.clear(), 520);
+      this.winTimers.push(timerId);
+      return;
+    }
+
+    let delay = 0;
+    for (const line of lines) {
+      const showTimer = window.setTimeout(() => {
+        this.winPresenter.present([line], this.lineDefs, this.reels, false);
+      }, delay);
+      this.winTimers.push(showTimer);
+
+      const weighted = WIN_LINE_SHOW_MIN_MS + line.payout * WIN_LINE_PAYOUT_SCALE;
+      delay += clamp(weighted, WIN_LINE_SHOW_MIN_MS, WIN_LINE_SHOW_MAX_MS);
+    }
+
+    const clearTimer = window.setTimeout(() => {
+      this.winPresenter.clear();
+      this.clearWinTimers();
+    }, delay + WIN_CLEAR_EXTRA_MS);
+    this.winTimers.push(clearTimer);
+  }
+
+  private buildStopStrip(target: string[]): string[] {
+    const row0 = target[0] ?? randomSymbolId();
+    const row1 = target[1] ?? randomSymbolId();
+    const row2 = target[2] ?? randomSymbolId();
+    const strip = Array.from({ length: ROLLING_SYMBOLS }, () => randomSymbolId());
+
+    // Keep the visible rows deterministic while preserving random symbols above/below.
+    strip[1] = row0;
+    strip[2] = row1;
+    strip[3] = row2;
+
+    return strip;
+  }
+
+  private fillReelWithRandomSymbols(state: ReelState): void {
+    for (let i = 0; i < state.symbols.length; i++) {
+      const sprite = state.symbols[i]!;
+      sprite.texture = this.symbolTextures.texture(randomSymbolId());
+      sprite.width = CELL_W;
+      sprite.height = CELL_H;
+      sprite.y = (i - 1) * this.stepHeight;
+      sprite.visible = true;
+      sprite.rotation = 0;
+    }
+  }
+
+  private defaultIdleMatrix(): string[][] {
+    return Array.from({ length: REELS }, () => ['A', 'K', 'Q']);
+  }
+
+  private clearStopTimers(): void {
+    if (this.stopTimers.length === 0) return;
+    this.stopTimers.forEach((timer) => window.clearTimeout(timer));
+    this.stopTimers = [];
+  }
+
+  private clearWinTimers(): void {
+    if (this.winTimers.length === 0) return;
+    this.winTimers.forEach((timer) => window.clearTimeout(timer));
+    this.winTimers = [];
+  }
+
+  private clearTimers(): void {
+    this.clearStopTimers();
+    this.clearWinTimers();
+
+    if (this.safetyTimer) {
+      window.clearTimeout(this.safetyTimer);
+      this.safetyTimer = 0;
+    }
   }
 }

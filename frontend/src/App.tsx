@@ -192,64 +192,22 @@ function App() {
   }
 
   return (
-    <div
-      className="slots-shell"
-      style={{
-        width: '100%',
-        height: '100%',
-        minHeight: '100vh',
-        position: 'relative',
-      }}
-    >
+    <div className="slots-shell">
       <SlotCanvas width={size.w} height={size.h} onAllReelsStopped={handleAllReelsStopped} />
       <HUD />
       <PayTable />
-      <div
-        style={{
-          position: 'absolute',
-          bottom: 'calc(48px + env(safe-area-inset-bottom))',
-          left: 0,
-          right: 0,
-          display: 'flex',
-          justifyContent: 'center',
-        }}
-      >
+      <div className="slots-controls-dock">
         <BetPanel onSpin={handleSpin} spinDisabled={spinCooldown} />
       </div>
       <WinOverlay />
       {error && (
-        <div
-          style={{
-            position: 'absolute',
-            bottom: 140,
-            left: '50%',
-            transform: 'translateX(-50%)',
-            padding: '12px 24px',
-            background: '#252532',
-            border: '1px solid #F87171',
-            color: '#F87171',
-            borderRadius: 8,
-            fontSize: 14,
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
-            gap: 8,
-          }}
-        >
-          <span>{error}</span>
-          <div style={{ display: 'flex', gap: 8 }}>
+        <div className="slots-error-toast" role="alert" aria-live="assertive">
+          <span className="slots-error-message">{error}</span>
+          <div className="slots-error-actions">
             <button
               type="button"
               onClick={handleRetryInit}
-              style={{
-                padding: '8px 16px',
-                background: '#E8B84A',
-                color: '#0D0D12',
-                border: 'none',
-                borderRadius: 6,
-                cursor: 'pointer',
-                fontWeight: 600,
-              }}
+              className="slots-error-btn slots-error-btn-retry"
             >
               Retry
             </button>
@@ -257,15 +215,7 @@ function App() {
               type="button"
               onClick={() => setError(null)}
               aria-label="Dismiss error"
-              style={{
-                padding: '8px 12px',
-                background: 'transparent',
-                color: '#FCA5A5',
-                border: '1px solid #FCA5A5',
-                borderRadius: 6,
-                cursor: 'pointer',
-                fontWeight: 700,
-              }}
+              className="slots-error-btn slots-error-btn-dismiss"
             >
               ×
             </button>

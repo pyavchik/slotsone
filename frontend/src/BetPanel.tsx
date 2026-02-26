@@ -1,3 +1,4 @@
+import { useMemo } from 'react';
 import { useGameStore } from './store';
 import './betPanel.css';
 
@@ -24,88 +25,110 @@ export function BetPanel({
   const canIncrease = idx >= 0 && idx < betLevels.length - 1;
   const canLineDecrease = lines > minLines;
   const canLineIncrease = lines < maxLines;
-  const lineBet = lines > 0 ? bet / lines : 0;
   const canSpin = !spinning && balance >= bet && !spinDisabled;
-  const balanceAfterBet = Math.max(0, balance - bet);
 
-  const handleBetDown = () => {
-    if (!canDecrease) return;
-    setBet(betLevels[idx - 1]!);
-  };
-  const handleBetUp = () => {
-    if (!canIncrease) return;
-    setBet(betLevels[idx + 1]!);
-  };
-  const handleLineDown = () => {
-    if (!canLineDecrease) return;
-    setLines(lines - 1);
-  };
-  const handleLineUp = () => {
-    if (!canLineIncrease) return;
-    setLines(lines + 1);
-  };
+  const lineBet = lines > 0 ? bet / lines : 0;
+  const balanceAfter = Math.max(0, balance - bet);
+
+  const quickBetLevels = useMemo(() => {
+    if (betLevels.length <= 4) return [...betLevels];
+    const first = betLevels[0]!;
+    const quarter = betLevels[Math.floor(betLevels.length * 0.33)]!;
+    const half = betLevels[Math.floor(betLevels.length * 0.66)]!;
+    const last = betLevels[betLevels.length - 1]!;
+    return Array.from(new Set([first, quarter, half, last]));
+  }, [betLevels]);
 
   return (
-    <div className="bet-panel">
-      <div className="bet-panel-group">
-        <span className="bet-panel-label">TOTAL BET</span>
-        <button
-          type="button"
-          onClick={handleBetDown}
-          disabled={!canDecrease || spinning}
-          className="bet-panel-adjust"
-          aria-label="Decrease bet"
-        >
-          −
-        </button>
-        <span className="bet-panel-value">{bet.toFixed(2)}</span>
-        <button
-          type="button"
-          onClick={handleBetUp}
-          disabled={!canIncrease || spinning}
-          className="bet-panel-adjust"
-          aria-label="Increase bet"
-        >
-          +
-        </button>
+    <section className="bet-panel" aria-label="Bet controls">
+      <div className="bet-main-grid">
+        <div className="bet-segment">
+          <span className="bet-segment-label">Total Bet</span>
+          <div className="bet-adjust-row">
+            <button
+              type="button"
+              onClick={() => canDecrease && setBet(betLevels[idx - 1]!)}
+              disabled={!canDecrease || spinning}
+              className="bet-adjust"
+              aria-label="Decrease bet"
+            >
+              −
+            </button>
+            <strong className="bet-value">{bet.toFixed(2)}</strong>
+            <button
+              type="button"
+              onClick={() => canIncrease && setBet(betLevels[idx + 1]!)}
+              disabled={!canIncrease || spinning}
+              className="bet-adjust"
+              aria-label="Increase bet"
+            >
+              +
+            </button>
+          </div>
+          <span className="bet-meta">Line bet: {lineBet.toFixed(2)}</span>
+        </div>
+
+        <div className="bet-segment">
+          <span className="bet-segment-label">Lines</span>
+          <div className="bet-adjust-row">
+            <button
+              type="button"
+              onClick={() => canLineDecrease && setLines(lines - 1)}
+              disabled={!canLineDecrease || spinning}
+              className="bet-adjust"
+              aria-label="Decrease lines"
+            >
+              −
+            </button>
+            <strong className="bet-value">{lines}</strong>
+            <button
+              type="button"
+              onClick={() => canLineIncrease && setLines(lines + 1)}
+              disabled={!canLineIncrease || spinning}
+              className="bet-adjust"
+              aria-label="Increase lines"
+            >
+              +
+            </button>
+          </div>
+          <span className="bet-meta">
+            Range: {minLines}–{maxLines}
+          </span>
+        </div>
+
+        <div className="bet-spin-wrap">
+          <button
+            type="button"
+            onClick={onSpin}
+            disabled={!canSpin}
+            className={`spin-button ${canSpin ? 'spin-button-ready' : ''}`}
+            aria-label="Spin reels"
+          >
+            {spinning ? 'SPINNING…' : 'SPIN'}
+          </button>
+          <span className="bet-after">
+            After spin: {balanceAfter.toFixed(2)} {currency}
+          </span>
+        </div>
       </div>
-      <div className="bet-panel-group bet-panel-lines">
-        <span className="bet-panel-label">LINES</span>
-        <button
-          type="button"
-          onClick={handleLineDown}
-          disabled={!canLineDecrease || spinning}
-          className="bet-panel-adjust"
-          aria-label="Decrease lines"
-        >
-          −
-        </button>
-        <span className="bet-panel-value bet-panel-lines-value">{lines}</span>
-        <button
-          type="button"
-          onClick={handleLineUp}
-          disabled={!canLineIncrease || spinning}
-          className="bet-panel-adjust"
-          aria-label="Increase lines"
-        >
-          +
-        </button>
-        <span className="bet-panel-subvalue">
-          Line bet: {lineBet.toFixed(2)} {currency}
-        </span>
+
+      <div className="bet-quick-row" aria-label="Quick bet presets">
+        {quickBetLevels.map((value) => {
+          const isActive = Math.abs(value - bet) < 0.0001;
+          return (
+            <button
+              key={value}
+              type="button"
+              disabled={spinning}
+              className={`bet-quick ${isActive ? 'bet-quick-active' : ''}`}
+              onClick={() => setBet(value)}
+              aria-pressed={isActive}
+            >
+              {value.toFixed(2)}
+            </button>
+          );
+        })}
       </div>
-      <button
-        type="button"
-        onClick={onSpin}
-        disabled={!canSpin}
-        className={`spin-button${canSpin ? ' spin-button-ready' : ''}`}
-        aria-label="Spin reels"
-      >
-        {spinning ? 'SPINNING…' : 'SPIN'}
-      </button>
-      <span className="bet-panel-meta">
-        After bet: {balanceAfterBet.toFixed(2)} {currency}
-      </span>
-    </div>
+    </section>
   );
 }

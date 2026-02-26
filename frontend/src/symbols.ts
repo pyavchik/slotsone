@@ -23,6 +23,17 @@ const THEMED_ALIASES: Record<string, SymbolId> = {
   coin: '10',
 };
 
+const SYMBOL_IMAGE_FILES: Record<SymbolId, string> = {
+  '10': '10.png',
+  J: 'j.png',
+  Q: 'q.png',
+  K: 'k.png',
+  A: 'a.png',
+  Star: 'star.png',
+  Scatter: 'scatter.png',
+  Wild: 'wild.png',
+};
+
 const THEMED_COLORS: Record<string, number> = {
   pharaoh: 0xfbbf24,
   scarab: 0x22d3ee,
@@ -109,4 +120,16 @@ export function symbolColorNumber(symbolId: string): number {
 
 export function symbolColorCss(symbolId: string): string {
   return `#${symbolColorNumber(symbolId).toString(16).padStart(6, '0')}`;
+}
+
+export function symbolImageFileName(symbolId: string): string {
+  const normalized = normalizeSymbolId(symbolId);
+  if (normalized in SYMBOL_IMAGE_FILES) {
+    return SYMBOL_IMAGE_FILES[normalized as SymbolId];
+  }
+  return `${normalizeKey(normalized)}.png`;
+}
+
+export function symbolImagePath(symbolId: string): string {
+  return `/symbols/${symbolImageFileName(symbolId)}`;
 }
