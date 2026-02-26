@@ -76,6 +76,12 @@ body,
     linear-gradient(180deg, var(--ui-bg-deep) 0%, var(--ui-bg-mid) 54%, var(--ui-bg-bright) 100%);
 }
 
+.slots-preloader-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 130;
+}
+
 .slots-shell::before,
 .slots-shell::after {
   content: '';

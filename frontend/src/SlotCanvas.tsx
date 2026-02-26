@@ -6,6 +6,7 @@ interface SlotCanvasProps {
   width: number;
   height: number;
   onAllReelsStopped?: () => void;
+  onRendererReady?: () => void;
 }
 
 declare global {
@@ -15,15 +16,17 @@ declare global {
   }
 }
 
-export function SlotCanvas({ width, height, onAllReelsStopped }: SlotCanvasProps) {
+export function SlotCanvas({ width, height, onAllReelsStopped, onRendererReady }: SlotCanvasProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const gridRef = useRef<ReelGrid | null>(null);
   const [pixiError, setPixiError] = useState<string | null>(null);
   const [announcement, setAnnouncement] = useState('Slot machine ready.');
+  const rendererReadyNotifiedRef = useRef(false);
 
   const config = useGameStore((s) => s.config);
   const lastOutcome = useGameStore((s) => s.lastOutcome);
   const spinning = useGameStore((s) => s.spinning);
+  const lastSpinId = useGameStore((s) => s.lastSpinId);
   const balance = useGameStore((s) => s.balance);
   const bet = useGameStore((s) => s.bet);
   const lines = useGameStore((s) => s.lines);
@@ -57,6 +60,12 @@ export function SlotCanvas({ width, height, onAllReelsStopped }: SlotCanvasProps
     hasCreatedRef.current = true;
 
     let cancelled = false;
+    const notifyRendererReady = () => {
+      if (rendererReadyNotifiedRef.current) return;
+      rendererReadyNotifiedRef.current = true;
+      onRendererReady?.();
+    };
+
     ReelGrid.create(canvas, {
       width,
       height,
@@ -73,11 +82,13 @@ export function SlotCanvas({ width, height, onAllReelsStopped }: SlotCanvasProps
 
         gridRef.current = grid;
         setPixiError(null);
+        notifyRendererReady();
       })
       .catch((error) => {
         if (!cancelled) {
           setPixiError(error?.message ?? 'Failed to initialize reel renderer.');
           hasCreatedRef.current = false;
+          notifyRendererReady();
         }
       });
 
@@ -87,7 +98,7 @@ export function SlotCanvas({ width, height, onAllReelsStopped }: SlotCanvasProps
         hasCreatedRef.current = false;
       }
     };
-  }, [width, height, lineDefs, safeArea, onAllReelsStopped]);
+  }, [width, height, lineDefs, safeArea, onAllReelsStopped, onRendererReady]);
 
   useEffect(() => {
     return () => {
@@ -152,6 +163,7 @@ export function SlotCanvas({ width, height, onAllReelsStopped }: SlotCanvasProps
         machine: { reels: 5, rows: 3 },
         spin: {
           spinning,
+          last_spin_id: lastSpinId,
           balance,
           bet,
           lines,
@@ -190,7 +202,7 @@ export function SlotCanvas({ width, height, onAllReelsStopped }: SlotCanvasProps
         delete window.advanceTime;
       }
     };
-  }, [spinning, balance, bet, lines, currency, lastOutcome]);
+  }, [spinning, lastSpinId, balance, bet, lines, currency, lastOutcome]);
 
   if (pixiError) {
     return (

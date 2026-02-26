@@ -96,6 +96,62 @@ Original prompt: I don't like this slot machine. can we rebuild it from scratch?
     - Mid-spin: `output/win-badge-mid-spin-forced-win.png` (`midSpinWinVisible=false`)
     - After stop: `output/win-badge-after-stop-forced-win.png` (`endWinVisible=true`, value `+0.20`)
 
+## 2026-02-26 - Branded slot preloader before first screen render
+- Replaced basic loading shell with a dedicated animated slot preloader:
+  - New component: `frontend/src/SlotPreloader.tsx`
+  - New styles: `frontend/src/slotPreloader.css`
+  - App wiring: `frontend/src/App.tsx` now renders `SlotPreloader` while `ready === false`.
+- Preloader behavior:
+  - Animated mini-reels with slot symbols.
+  - Stage text that advances through boot steps.
+  - Smooth progress bar animation (10% -> 96%) while init is pending.
+- Visual verification with delayed init mock:
+  - Before slot mount: `output/preloader-before-slot.png`
+  - After slot mount: `output/preloader-after-slot.png`
+- Checks:
+  - `npm --prefix frontend run lint` PASS
+  - `npm --prefix frontend run build` PASS
+  - `npm --prefix frontend run test:e2e` PASS
+
+## 2026-02-26 - Preloader lifecycle fix (wait for symbol downloads)
+- Adjusted app flow so preloader is not tied only to `init` API completion.
+- New behavior:
+  - `SlotCanvas` mounts after init and starts Pixi + symbol texture warmup.
+  - Preloader overlay remains visible until renderer signals ready (after symbol warmup) or renderer error.
+  - HUD/controls/win UI render only after renderer-ready signal.
+- Implementation:
+  - `frontend/src/SlotCanvas.tsx`: added `onRendererReady` callback, fired once on renderer success/error settle.
+  - `frontend/src/App.tsx`:
+    - split readiness into `initReady` and `rendererReady`,
+    - keep preloader overlay while `rendererReady === false`,
+    - gate gameplay UI behind renderer readiness.
+  - `frontend/src/app.css`: added `.slots-preloader-overlay`.
+- Verification with delayed symbol network route (`/symbols/*.png`):
+  - Overlay present early: `output/preloader-symbol-delay2-early.png`
+  - Overlay still present mid-load: `output/preloader-symbol-delay2-mid.png`
+  - Overlay removed only after all 8 symbol requests observed and warmup completed: `output/preloader-symbol-delay2-late.png`
+  - Metrics: `output/preloader-symbol-delay2-check.json` shows `overlayEarly=1`, `overlayMid=1`, `overlayLate=0`, `symbolRequests=8`.
+- Regression checks:
+  - `npm --prefix frontend run lint` PASS
+  - `npm --prefix frontend run build` PASS
+  - `npm --prefix frontend run test:e2e` PASS
+
+## 2026-02-26 - Symbol/result mismatch investigation
+- Investigated report where on-screen symbols appeared different from selected `spin` network response.
+- Reproduced using the exact provided payload (`spin_id: spin_459cbc04-189`) with route mocking:
+  - Screenshot: `output/symbol-mismatch-repro-final-v2.png`
+  - State dump: `output/symbol-mismatch-repro-state-v2.json`
+  - Result matched expected matrix for that spin id.
+- Hardening added to avoid possible request race from rapid repeated inputs:
+  - `frontend/src/App.tsx`: added synchronous in-flight guard (`spinRequestInFlightRef`) so only one `/spin` request can be in-flight from UI at a time.
+- Added spin id to text debug payload for unambiguous response-to-screen matching:
+  - `frontend/src/store.ts`: track `lastSpinId` from API.
+  - `frontend/src/SlotCanvas.tsx`: include `spin.last_spin_id` in `render_game_to_text`.
+- Checks:
+  - `npm --prefix frontend run lint` PASS
+  - `npm --prefix frontend run build` PASS
+  - `npm --prefix frontend run test:e2e` PASS
+
 ## TODO / suggestions for next pass
 - Tune symbol crop/framing per final generated icon set (current layout supports both old and regenerated assets).
 - Add a dedicated in-game settings panel (reduce motion/sound toggles in UI).

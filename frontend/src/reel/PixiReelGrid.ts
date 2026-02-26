@@ -23,11 +23,12 @@ const BOUNCE_PX = 6;
 const BOUNCE_DURATION_MS = 120;
 const SAFETY_FINISH_MS = 3600;
 
-const WIN_LINE_SHOW_MIN_MS = 360;
-const WIN_LINE_SHOW_MAX_MS = 640;
+const WIN_TIMING_MULTIPLIER = 2;
+const WIN_LINE_SHOW_MIN_MS = 360 * WIN_TIMING_MULTIPLIER;
+const WIN_LINE_SHOW_MAX_MS = 640 * WIN_TIMING_MULTIPLIER;
 const WIN_LINE_PAYOUT_SCALE = 220;
 const MAX_WIN_LINES_TO_PRESENT = 4;
-const WIN_CLEAR_EXTRA_MS = 160;
+const WIN_CLEAR_EXTRA_MS = 160 * WIN_TIMING_MULTIPLIER;
 
 const PAYLINE_COLORS = [
   0xf8b84e, // amber
@@ -609,7 +610,15 @@ export class ReelGrid {
   }
 
   spinThenStop(outcomeMatrix: string[][], winningLines: WinningLineInfo[] = []): void {
-    if (this.reels.some((reel) => reel.spinning || reel.decelerating || reel.bouncing)) return;
+    if (this.reels.some((reel) => reel.spinning || reel.decelerating || reel.bouncing)) {
+      // Reels already in motion from a previous call with stale data.
+      // Update the target so pending stop-timers pick up the correct outcome when they fire.
+      this.targetMatrix = outcomeMatrix.map((column) => [...column]);
+      this.winningLines = winningLines
+        .filter((line) => line.lineIndex >= 0 && line.lineIndex < this.lineDefs.length)
+        .sort((a, b) => b.payout - a.payout);
+      return;
+    }
 
     this.spinFinished = false;
     this.clearTimers();

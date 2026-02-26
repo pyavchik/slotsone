@@ -7,6 +7,7 @@ import { HUD } from './HUD';
 import { WinOverlay } from './WinOverlay';
 import { PayTable } from './PayTable';
 import { CVLanding } from './CVLanding';
+import { SlotPreloader } from './SlotPreloader';
 import { playSpinSound, playWinSound } from './audio';
 import './app.css';
 
@@ -30,9 +31,11 @@ function App() {
     h: typeof window !== 'undefined' ? window.innerHeight : 600,
   }));
   const [screen, setScreen] = useState<'cv' | 'slots'>('cv');
-  const [ready, setReady] = useState(false);
+  const [initReady, setInitReady] = useState(false);
+  const [rendererReady, setRendererReady] = useState(false);
   const [spinCooldown, setSpinCooldown] = useState(false);
   const spinCooldownRef = useRef<number | null>(null);
+  const spinRequestInFlightRef = useRef(false);
 
   useEffect(() => {
     const root = document.getElementById('root');
@@ -66,34 +69,37 @@ function App() {
     if (screen !== 'slots') return;
     if (!token) {
       setError('Missing VITE_DEMO_JWT. Configure an RS256 token for frontend.');
-      setReady(true);
+      setInitReady(true);
       return;
     }
     initGame(token, gameId)
       .then((data) => {
         setInit(data);
-        setReady(true);
+        setInitReady(true);
         setError(null);
       })
       .catch((e) => {
         setError(e?.message ?? 'Connection failed');
-        setReady(true); // show UI so user sees error and can retry
+        setInitReady(true); // show UI so user sees error and can retry
       });
   }, [screen, token, gameId, setInit, setError]);
 
   const handleRetryInit = useCallback(() => {
     setError(null);
-    setReady(false);
+    setInitReady(false);
+    setRendererReady(false);
     initGame(token, gameId)
       .then((data) => {
         setInit(data);
-        setReady(true);
+        setInitReady(true);
       })
       .catch((e) => setError(e?.message ?? 'Connection failed'));
   }, [token, gameId, setInit, setError]);
 
   const handleSpin = useCallback(() => {
-    if (!sessionId || spinning || spinCooldown) return;
+    if (!sessionId || spinning || spinCooldown || spinRequestInFlightRef.current) return;
+
+    spinRequestInFlightRef.current = true;
     playSpinSound();
     setSpinning(true);
     setSpinCooldown(true);
@@ -108,6 +114,9 @@ function App() {
       })
       .catch((e) => {
         setError(e.message);
+      })
+      .finally(() => {
+        spinRequestInFlightRef.current = false;
       });
   }, [
     token,
@@ -136,7 +145,8 @@ function App() {
 
   const handleOpenSlots = useCallback(() => {
     setScreen('slots');
-    setReady(false);
+    setInitReady(false);
+    setRendererReady(false);
     setError(null);
   }, [setError]);
 
@@ -145,6 +155,7 @@ function App() {
       if (spinCooldownRef.current) {
         window.clearTimeout(spinCooldownRef.current);
       }
+      spinRequestInFlightRef.current = false;
     };
   }, []);
 
@@ -181,26 +192,27 @@ function App() {
     return <CVLanding onOpenSlots={handleOpenSlots} />;
   }
 
-  if (!ready) {
-    return (
-      <div className="loading-shell">
-        <div className="loading-spinner" aria-hidden="true" />
-        <div>Loading game…</div>
-        <div className="loading-hint">Ensure backend is running: cd backend && npm run dev</div>
-      </div>
-    );
+  if (!initReady) {
+    return <SlotPreloader />;
   }
 
   return (
     <div className="slots-shell">
-      <SlotCanvas width={size.w} height={size.h} onAllReelsStopped={handleAllReelsStopped} />
-      <HUD />
-      <PayTable />
-      <div className="slots-controls-dock">
-        <BetPanel onSpin={handleSpin} spinDisabled={spinCooldown} />
-      </div>
-      <WinOverlay />
-      {error && (
+      <SlotCanvas
+        width={size.w}
+        height={size.h}
+        onAllReelsStopped={handleAllReelsStopped}
+        onRendererReady={() => setRendererReady(true)}
+      />
+      {rendererReady && <HUD />}
+      {rendererReady && <PayTable />}
+      {rendererReady && (
+        <div className="slots-controls-dock">
+          <BetPanel onSpin={handleSpin} spinDisabled={spinCooldown} />
+        </div>
+      )}
+      {rendererReady && <WinOverlay />}
+      {rendererReady && error && (
         <div className="slots-error-toast" role="alert" aria-live="assertive">
           <span className="slots-error-message">{error}</span>
           <div className="slots-error-actions">
@@ -220,6 +232,11 @@ function App() {
               ×
             </button>
           </div>
+        </div>
+      )}
+      {!rendererReady && (
+        <div className="slots-preloader-overlay" aria-hidden="true">
+          <SlotPreloader />
         </div>
       )}
     </div>

@@ -15,6 +15,7 @@ interface GameState {
   minLines: number;
   maxLines: number;
   spinning: boolean;
+  lastSpinId: string | null;
   lastOutcome: SpinResponse['outcome'] | null;
   lastWinAmount: number;
   pendingWinAmount: number | null;
@@ -45,6 +46,7 @@ export const useGameStore = create<GameState>((set) => ({
   minLines: 1,
   maxLines: 20,
   spinning: false,
+  lastSpinId: null,
   lastOutcome: null,
   lastWinAmount: 0,
   pendingWinAmount: null,
@@ -87,6 +89,7 @@ export const useGameStore = create<GameState>((set) => ({
     })),
   setSpinResult: (data) =>
     set({
+      lastSpinId: data.spin_id,
       balance: data.balance.amount,
       lastOutcome: data.outcome,
       pendingWinAmount: data.outcome.win.amount,
@@ -94,5 +97,6 @@ export const useGameStore = create<GameState>((set) => ({
       // spinning stays true until ReelGrid onAllStopped
     }),
   setError: (e) => set({ error: e, spinning: false, pendingWinAmount: null, lastWinAmount: 0 }),
-  resetOutcome: () => set({ lastOutcome: null, lastWinAmount: 0, pendingWinAmount: null }),
+  resetOutcome: () =>
+    set({ lastSpinId: null, lastOutcome: null, lastWinAmount: 0, pendingWinAmount: null }),
 }));
