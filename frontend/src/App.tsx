@@ -1,4 +1,5 @@
 import { useEffect, useState, useCallback, useRef } from 'react';
+import { Routes, Route, useNavigate, useLocation } from 'react-router-dom';
 import { initGame, spin } from './api';
 import { useGameStore } from './store';
 import { SlotCanvas } from './SlotCanvas';
@@ -29,23 +30,26 @@ function App() {
     w: typeof window !== 'undefined' ? window.innerWidth : 800,
     h: typeof window !== 'undefined' ? window.innerHeight : 600,
   }));
-  const [screen] = useState<'cv' | 'slots'>('cv');
   const [ready, setReady] = useState(false);
   const [spinCooldown, setSpinCooldown] = useState(false);
   const spinCooldownRef = useRef<number | null>(null);
+
+  const navigate = useNavigate();
+  const location = useLocation();
+  const isSlots = location.pathname === '/slots';
 
   useEffect(() => {
     const root = document.getElementById('root');
     const previousRootOverflow = root?.style.overflow ?? '';
     const previousBodyOverflow = document.body.style.overflow;
-    const overflowMode = screen === 'slots' ? 'hidden' : 'auto';
+    const overflowMode = isSlots ? 'hidden' : 'auto';
     if (root) root.style.overflow = overflowMode;
     document.body.style.overflow = overflowMode;
     return () => {
       if (root) root.style.overflow = previousRootOverflow;
       document.body.style.overflow = previousBodyOverflow;
     };
-  }, [screen]);
+  }, [isSlots]);
 
   useEffect(() => {
     let timeoutId: ReturnType<typeof setTimeout>;
@@ -63,7 +67,7 @@ function App() {
   }, []);
 
   useEffect(() => {
-    if (screen !== 'slots') return;
+    if (!isSlots) return;
     if (!token) {
       setError('Missing VITE_DEMO_JWT. Configure an RS256 token for frontend.');
       setReady(true);
@@ -79,7 +83,7 @@ function App() {
         setError(e?.message ?? 'Connection failed');
         setReady(true); // show UI so user sees error and can retry
       });
-  }, [screen, token, gameId, setInit, setError]);
+  }, [isSlots, token, gameId, setInit, setError]);
 
   const handleRetryInit = useCallback(() => {
     setError(null);
@@ -124,19 +128,19 @@ function App() {
   ]);
 
   useEffect(() => {
-    if (screen !== 'slots') return;
+    if (!isSlots) return;
     if (lastWinAmount <= 0) return;
     const multiplier = bet > 0 ? lastWinAmount / bet : 1;
     playWinSound(multiplier);
-  }, [screen, lastWinAmount, bet]);
+  }, [isSlots, lastWinAmount, bet]);
 
   const handleAllReelsStopped = useCallback(() => {
     setSpinning(false);
   }, [setSpinning]);
 
   const handleOpenSlots = useCallback(() => {
-    window.open('https://pyavchik.space/slots', '_blank', 'noopener,noreferrer');
-  }, []);
+    navigate('/slots');
+  }, [navigate]);
 
   useEffect(() => {
     return () => {
@@ -147,7 +151,7 @@ function App() {
   }, []);
 
   useEffect(() => {
-    if (screen !== 'slots') return;
+    if (!isSlots) return;
     const onKeyDown = (event: KeyboardEvent) => {
       if (event.code !== 'Space' || event.repeat) return;
       const target = event.target as HTMLElement | null;
@@ -166,61 +170,69 @@ function App() {
     };
     window.addEventListener('keydown', onKeyDown);
     return () => window.removeEventListener('keydown', onKeyDown);
-  }, [screen, handleSpin]);
+  }, [isSlots, handleSpin]);
 
   useEffect(() => {
-    if (screen !== 'slots') return;
+    if (!isSlots) return;
     if (!error) return;
     const timer = window.setTimeout(() => setError(null), 5000);
     return () => window.clearTimeout(timer);
-  }, [screen, error, setError]);
-
-  if (screen === 'cv') {
-    return <CVLanding onOpenSlots={handleOpenSlots} />;
-  }
-
-  if (!ready) {
-    return (
-      <div className="loading-shell">
-        <div className="loading-spinner" aria-hidden="true" />
-        <div>Loading game…</div>
-        <div className="loading-hint">Ensure backend is running: cd backend && npm run dev</div>
-      </div>
-    );
-  }
+  }, [isSlots, error, setError]);
 
   return (
-    <div className="slots-shell">
-      <SlotCanvas width={size.w} height={size.h} onAllReelsStopped={handleAllReelsStopped} />
-      <HUD />
-      <PayTable />
-      <div className="slots-controls-dock">
-        <BetPanel onSpin={handleSpin} spinDisabled={spinCooldown} />
-      </div>
-      <WinOverlay />
-      {error && (
-        <div className="slots-error-toast" role="alert" aria-live="assertive">
-          <span className="slots-error-message">{error}</span>
-          <div className="slots-error-actions">
-            <button
-              type="button"
-              onClick={handleRetryInit}
-              className="slots-error-btn slots-error-btn-retry"
-            >
-              Retry
-            </button>
-            <button
-              type="button"
-              onClick={() => setError(null)}
-              aria-label="Dismiss error"
-              className="slots-error-btn slots-error-btn-dismiss"
-            >
-              ×
-            </button>
-          </div>
-        </div>
-      )}
-    </div>
+    <Routes>
+      <Route path="/" element={<CVLanding onOpenSlots={handleOpenSlots} />} />
+      <Route
+        path="/slots"
+        element={
+          !ready ? (
+            <div className="loading-shell">
+              <div className="loading-spinner" aria-hidden="true" />
+              <div>Loading game…</div>
+              <div className="loading-hint">
+                Ensure backend is running: cd backend && npm run dev
+              </div>
+            </div>
+          ) : (
+            <div className="slots-shell">
+              <SlotCanvas
+                width={size.w}
+                height={size.h}
+                onAllReelsStopped={handleAllReelsStopped}
+              />
+              <HUD />
+              <PayTable />
+              <div className="slots-controls-dock">
+                <BetPanel onSpin={handleSpin} spinDisabled={spinCooldown} />
+              </div>
+              <WinOverlay />
+              {error && (
+                <div className="slots-error-toast" role="alert" aria-live="assertive">
+                  <span className="slots-error-message">{error}</span>
+                  <div className="slots-error-actions">
+                    <button
+                      type="button"
+                      onClick={handleRetryInit}
+                      className="slots-error-btn slots-error-btn-retry"
+                    >
+                      Retry
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setError(null)}
+                      aria-label="Dismiss error"
+                      className="slots-error-btn slots-error-btn-dismiss"
+                    >
+                      ×
+                    </button>
+                  </div>
+                </div>
+              )}
+            </div>
+          )
+        }
+      />
+    </Routes>
   );
 }
 
