@@ -50,6 +50,8 @@ Thumbs.db
 tmp/
 .tmp/
 temp/
+output/
+.local-node/
 
 # Local env tooling
 .direnv/
