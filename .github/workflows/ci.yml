@@ -12,6 +12,20 @@ permissions:
 jobs:
   verify:
     runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_DB: slotsone
+          POSTGRES_USER: slotsone
+          POSTGRES_PASSWORD: slotsone
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - "5432:5432"
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -32,6 +46,8 @@ jobs:
       - name: Backend contract check
         working-directory: backend
         run: npm run openapi:check
+        env:
+          DATABASE_URL: postgres://slotsone:slotsone@localhost:5432/slotsone
 
       - name: Backend lint
         working-directory: backend
@@ -44,6 +60,8 @@ jobs:
       - name: Backend tests
         working-directory: backend
         run: npm test
+        env:
+          DATABASE_URL: postgres://slotsone:slotsone@localhost:5432/slotsone
 
       - name: Frontend install
         working-directory: frontend

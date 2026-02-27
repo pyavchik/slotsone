@@ -6,6 +6,7 @@ import request from 'supertest';
 import { resetStoreForTests } from '../store.js';
 import { resetUserStoreForTests } from '../userStore.js';
 import { resetRefreshTokenStoreForTests } from '../auth/refreshTokenStore.js';
+import { initDb } from '../db.js';
 
 function encodeBase64Url(input: string): string {
   return Buffer.from(input, 'utf8').toString('base64url');
@@ -19,7 +20,9 @@ process.env.JWT_PUBLIC_KEY = publicKeyPem;
 process.env.JWT_PRIVATE_KEY = privateKey.export({ type: 'pkcs8', format: 'pem' }).toString();
 process.env.JWT_ISSUER = 'slotsone-dev';
 process.env.JWT_AUDIENCE = 'slotsone-client';
+process.env.DATABASE_URL ??= 'postgres://slotsone:slotsone@localhost:5432/slotsone';
 
+await initDb();
 const { app } = await import('../app.js');
 
 function createRs256Token(sub: string): string {
@@ -333,8 +336,8 @@ if (!supportsSockets) {
   // ------------------------------------------------------------------
 
   test('POST /auth/register returns access token (15 min) and sets httpOnly cookie', async () => {
-    resetUserStoreForTests();
-    resetRefreshTokenStoreForTests();
+    await resetUserStoreForTests();
+    await resetRefreshTokenStoreForTests();
 
     const res = await request(app)
       .post('/api/v1/auth/register')
@@ -354,8 +357,8 @@ if (!supportsSockets) {
   });
 
   test('POST /auth/register rejects duplicate email with 409', async () => {
-    resetUserStoreForTests();
-    resetRefreshTokenStoreForTests();
+    await resetUserStoreForTests();
+    await resetRefreshTokenStoreForTests();
 
     await request(app)
       .post('/api/v1/auth/register')
@@ -382,8 +385,8 @@ if (!supportsSockets) {
   });
 
   test('POST /auth/login returns token pair for valid credentials', async () => {
-    resetUserStoreForTests();
-    resetRefreshTokenStoreForTests();
+    await resetUserStoreForTests();
+    await resetRefreshTokenStoreForTests();
 
     await request(app)
       .post('/api/v1/auth/register')
@@ -404,8 +407,8 @@ if (!supportsSockets) {
   });
 
   test('POST /auth/login returns 401 for wrong password', async () => {
-    resetUserStoreForTests();
-    resetRefreshTokenStoreForTests();
+    await resetUserStoreForTests();
+    await resetRefreshTokenStoreForTests();
 
     await request(app)
       .post('/api/v1/auth/register')
@@ -420,7 +423,7 @@ if (!supportsSockets) {
   });
 
   test('POST /auth/login returns 401 for unknown email', async () => {
-    resetUserStoreForTests();
+    await resetUserStoreForTests();
     await request(app)
       .post('/api/v1/auth/login')
       .send({ email: 'nobody@example.com', password: 'password123' })
@@ -432,8 +435,8 @@ if (!supportsSockets) {
   // ------------------------------------------------------------------
 
   test('POST /auth/refresh issues new token pair and rotates the refresh cookie', async () => {
-    resetUserStoreForTests();
-    resetRefreshTokenStoreForTests();
+    await resetUserStoreForTests();
+    await resetRefreshTokenStoreForTests();
 
     const agent = request.agent(app); // agent persists cookies between requests
 
@@ -462,8 +465,8 @@ if (!supportsSockets) {
   });
 
   test('POST /auth/refresh rejects a replayed (already-consumed) refresh token', async () => {
-    resetUserStoreForTests();
-    resetRefreshTokenStoreForTests();
+    await resetUserStoreForTests();
+    await resetRefreshTokenStoreForTests();
 
     const agent = request.agent(app);
 
@@ -491,8 +494,8 @@ if (!supportsSockets) {
   // ------------------------------------------------------------------
 
   test('POST /auth/logout clears cookie and revokes refresh token', async () => {
-    resetUserStoreForTests();
-    resetRefreshTokenStoreForTests();
+    await resetUserStoreForTests();
+    await resetRefreshTokenStoreForTests();
 
     const agent = request.agent(app);
 
@@ -516,8 +519,8 @@ if (!supportsSockets) {
   // ------------------------------------------------------------------
 
   test('access token from /auth/register works for game init', async () => {
-    resetUserStoreForTests();
-    resetRefreshTokenStoreForTests();
+    await resetUserStoreForTests();
+    await resetRefreshTokenStoreForTests();
     resetStoreForTests();
 
     const authRes = await request(app)

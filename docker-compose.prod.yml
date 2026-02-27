@@ -1,6 +1,22 @@
 name: slotsone
 
 services:
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - slotsone
+
   backend:
     build:
       context: ./backend
@@ -17,6 +33,9 @@ services:
       timeout: 3s
       retries: 5
       start_period: 20s
+    depends_on:
+      postgres:
+        condition: service_healthy
     networks:
       - slotsone
 
@@ -60,3 +79,4 @@ networks:
 volumes:
   caddy_data:
   caddy_config:
+  postgres_data:

@@ -42,6 +42,10 @@ export function validateAuthEnvironment(): void {
     );
   }
 
+  if (!process.env.DATABASE_URL) {
+    errors.push('DATABASE_URL is required');
+  }
+
   if (errors.length > 0) {
     throw new Error(`Invalid auth environment:\n- ${errors.join('\n- ')}`);
   }

@@ -46,11 +46,9 @@ function App() {
   const [spinCooldown, setSpinCooldown] = useState(false);
   const spinCooldownRef = useRef<number | null>(null);
 
-  // Guards that prevent the game-init effect from running twice in the same session.
-  // initDoneRef  — set true once initGame succeeds; reset when leaving the slots screen.
-  // refreshTriedRef — set true after the first silent-refresh attempt; reset on screen change.
+  // Prevents the game-init effect from running twice in the same session.
+  // Reset when leaving the slots screen.
   const initDoneRef = useRef(false);
-  const refreshTriedRef = useRef(false);
 
   // -------------------------------------------------------------------------
   // Navigation
@@ -97,54 +95,24 @@ function App() {
   }, []);
 
   // -------------------------------------------------------------------------
-  // Game init — two-token flow
+  // Game init
   //
-  //  1. screen → slots, no token in memory
-  //     └─ try POST /auth/refresh (sends httpOnly cookie automatically)
-  //          ├─ ok  → setToken(access) → effect re-runs → initGame
-  //          └─ 401 → cookie absent/expired → setScreen('auth')
+  //  No token → go to auth immediately. AuthScreen handles silent refresh
+  //  internally: if a valid cookie exists, the user auto-logs in without
+  //  seeing the form.
   //
-  //  2. screen → slots, token present (just logged in, or refresh succeeded)
-  //     └─ initGame(token)
-  //          ├─ ok  → game ready
-  //          └─ 401 → access token expired → setToken('') → effect re-runs
-  //                    → refreshTriedRef guard sends to auth if refresh already tried
-  //
-  //  initDoneRef prevents re-running initGame when the token silently rotates
-  //  mid-session (e.g. a spin returns 401 and triggers a background refresh).
+  //  Token present → call initGame. On 401 (expired access token) go to auth
+  //  so AuthScreen can silently re-issue via the refresh cookie.
   // -------------------------------------------------------------------------
 
   useEffect(() => {
     if (screen !== 'slots') {
       initDoneRef.current = false;
-      refreshTriedRef.current = false;
       return;
     }
 
     // Already in a live game — don't restart the session on token rotation
     if (initDoneRef.current) return;
-
-    // Demo mode: use VITE_DEMO_JWT directly without refresh
-    if (DEMO_TOKEN && DEMO_TOKEN !== 'e2e.mock.token') {
-      initDoneRef.current = true;
-      setToken(DEMO_TOKEN);
-      initGame(DEMO_TOKEN, gameId)
-        .then((data) => {
-          setInit(data);
-          setReady(true);
-          setError(null);
-        })
-        .catch((e: unknown) => {
-          initDoneRef.current = false;
-          if (e instanceof ApiError && e.status === 401) {
-            setToken('');
-            return;
-          }
-          setError(e instanceof Error ? e.message : 'Connection failed');
-          setReady(true);
-        });
-      return;
-    }
 
     // E2E mode: skip auth, use mock token for init
     if (DEMO_TOKEN === 'e2e.mock.token') {
@@ -168,16 +136,9 @@ function App() {
       return;
     }
 
+    // No token — auth screen will handle silent refresh and redirect back
     if (!token) {
-      if (refreshTriedRef.current) {
-        // Refresh was already attempted but yielded no token → send to auth
-        setScreen('auth');
-        return;
-      }
-      refreshTriedRef.current = true;
-      refreshAccessToken()
-        .then((data) => setToken(data.access_token))
-        .catch(() => setScreen('auth'));
+      setScreen('auth');
       return;
     }
 
@@ -191,8 +152,8 @@ function App() {
       .catch((e: unknown) => {
         initDoneRef.current = false;
         if (e instanceof ApiError && e.status === 401) {
-          // Access token is expired — clear it and let the effect retry via refresh
           setToken('');
+          setScreen('auth');
           return;
         }
         setError(e instanceof Error ? e.message : 'Connection failed');
@@ -245,8 +206,8 @@ function App() {
           // Access token expired mid-session — refresh silently.
           // The next spin will use the new token; no error shown.
           setSpinning(false);
-          // In demo/e2e mode, skip refresh - just fail the spin
-          if (DEMO_TOKEN) {
+          // In e2e mode, skip refresh - just fail the spin
+          if (DEMO_TOKEN === 'e2e.mock.token') {
             setError('Session expired');
             return;
           }
@@ -283,7 +244,6 @@ function App() {
     logout().catch(() => undefined); // best-effort — revoke server-side, but always clean up locally
     setToken('');
     initDoneRef.current = false;
-    refreshTriedRef.current = false;
     setReady(false);
     setScreen('auth');
   }, [setToken]);
@@ -306,7 +266,6 @@ function App() {
 
   const handleAuthenticated = useCallback(() => {
     initDoneRef.current = false;
-    refreshTriedRef.current = false;
     setReady(false);
     setScreen('slots');
   }, []);

@@ -16,6 +16,7 @@ Reference implementation of a slot game:
 
 - Node.js 20+
 - npm 10+
+- PostgreSQL 16+ (local dev; Docker Compose provides it automatically)
 
 ## Safe PR Workflow
 
@@ -45,16 +46,42 @@ scripts/safe-pr.sh --allow-untracked --push --create-pr --title "Your PR title"
 
 ## Quick Start (Development)
 
-1. Start backend:
+The fastest way — one command starts postgres, backend, and frontend:
+
+```bash
+scripts/dev.sh
+```
+
+The script starts a Docker postgres container if postgres isn't already reachable,
+loads `backend/.env.development`, then runs both servers with labelled output.
+Press **Ctrl+C** to shut everything down.
+
+### Manual setup (step by step)
+
+1. Start a local PostgreSQL instance (Docker is the easiest):
+
+```bash
+docker run -d --name slotsone-pg \
+  -e POSTGRES_DB=slotsone \
+  -e POSTGRES_USER=slotsone \
+  -e POSTGRES_PASSWORD=slotsone \
+  -p 5432:5432 \
+  postgres:16-alpine
+```
+
+2. Start backend:
 
 ```bash
 cd backend
 npm install
 cp .env.development.example .env.development
+# add to .env.development:
+# DATABASE_URL=postgres://slotsone:slotsone@localhost:5432/slotsone
 npm run dev
 ```
 
 Backend runs on `http://localhost:3001`.
+Tables are created automatically on first start (`CREATE TABLE IF NOT EXISTS`).
 Interactive Swagger docs: `http://localhost:3001/api-docs` (spec: `/api-docs.json`).
 
 API contract source of truth:
@@ -73,7 +100,7 @@ cd backend && npm run openapi:generate
 cd ../frontend && npm run api:types:generate
 ```
 
-2. Start frontend in a second terminal:
+3. Start frontend in a second terminal:
 
 ```bash
 cd frontend
@@ -93,13 +120,16 @@ cp .env.docker.example .env.docker
 
 2. Set `JWT_PUBLIC_KEY` (and optional values) in `.env.docker`.
 
-3. Start both services:
+3. Start all services (backend, frontend, **and postgres**):
 
 ```bash
 docker compose --env-file .env.docker up -d --build
 ```
 
-App URL: `http://localhost:8080`  
+PostgreSQL starts first; backend waits for the healthcheck before accepting connections.
+Tables are created automatically on backend startup.
+
+App URL: `http://localhost:8080`
 Backend health: `http://localhost:3001/health`
 
 ## API Endpoints
@@ -131,15 +161,20 @@ Configuration is loaded automatically from:
 - `JWT_ISSUER` — optional claim check
 - `JWT_AUDIENCE` — optional claim check
 
+### Database Environment Variable
+
+- `DATABASE_URL` — required; PostgreSQL connection string.
+  Format: `postgres://<user>:<password>@<host>:<port>/<dbname>`
+  Example: `postgres://slotsone:slotsone@localhost:5432/slotsone`
+
+Schema migrations run automatically at startup (`CREATE TABLE IF NOT EXISTS`), so no manual migration step is needed.
+
 ### CORS Environment Variable
 
 - `CORS_ORIGINS` — comma-separated allowlist for browser clients (for example `https://app.example.com,https://admin.example.com`).
   Use `*` only for local/dev use cases.
 
-Frontend does not ship a built-in token.  
-Set `VITE_DEMO_JWT` to a valid RS256 JWT.
-
-### Dev Token Setup (RS256)
+### Dev Key Setup (RS256)
 
 Generate a local key pair:
 
@@ -155,18 +190,10 @@ JWT_ALLOWED_ALGS=RS256
 JWT_PUBLIC_KEY="-----BEGIN PUBLIC KEY-----\n...\n-----END PUBLIC KEY-----"
 JWT_ISSUER=slotsone-dev
 JWT_AUDIENCE=slotsone-client
+DATABASE_URL=postgres://slotsone:slotsone@localhost:5432/slotsone
 ```
 
-Generate a JWT for frontend/Postman:
-
-```bash
-cd backend
-JWT_PRIVATE_KEY_FILE=./jwt_private.pem JWT_SUB=demo-user-1 JWT_ISS=slotsone-dev JWT_AUD=slotsone-client node scripts/generate-rs256-jwt.mjs
-```
-
-Use the output token as:
-- `VITE_DEMO_JWT` (frontend)
-- `jwt_token` in `postman/dev.env.json`
+For Postman testing, obtain a token via `POST /api/v1/auth/login` and use it as `jwt_token` in `postman/dev.env.json`.
 
 ## Production Deployment (GitHub Actions + Docker Compose)
 
@@ -193,18 +220,31 @@ After script execution:
 ### 2) Configure runtime env files on the server
 
 Login as `deploy` and create:
-- `/opt/slotsone/backend/.env.production` (backend JWT config)
+- `/opt/slotsone/backend/.env.production` (backend config)
 - `/opt/slotsone/.env.production` (root file used for compose build args)
 
 You can start from:
 - `backend/.env.production.example`
 - `.env.production.example`
 
-Example root file:
+`backend/.env.production` must include:
 
 ```bash
-VITE_DEMO_JWT=<production-jwt-for-frontend-build>
+DATABASE_URL=postgres://<POSTGRES_USER>:<POSTGRES_PASSWORD>@postgres:5432/<POSTGRES_DB>
+POSTGRES_USER=<your-db-user>
+POSTGRES_PASSWORD=<your-db-password>
+POSTGRES_DB=<your-db-name>
+```
+
+Example root `.env.production`:
+
+```bash
 VITE_SYMBOL_ASSET_VERSION=ai-symbols-v2
+TLS_DOMAIN=<your-domain.example.com>
+ACME_EMAIL=<ops-email@example.com>
+POSTGRES_USER=slotsone
+POSTGRES_PASSWORD=<strong-password>
+POSTGRES_DB=slotsone
 ```
 
 ### 3) Add GitHub repository secrets
@@ -216,6 +256,9 @@ Required secrets for `.github/workflows/deploy.yml`:
 - `DEPLOY_PATH` (for example `/opt/slotsone`)
 - `DEPLOY_SSH_KEY_B64` (base64-encoded private key for SSH)
 - `DEPLOY_KNOWN_HOSTS` (optional but recommended)
+- `POSTGRES_USER` — database username
+- `POSTGRES_PASSWORD` — database password
+- `POSTGRES_DB` — database name
 
 ### 4) Deploy
 
@@ -239,7 +282,6 @@ Requirements:
 3. Set these values in `/opt/slotsone/.env.production`:
 
 ```bash
-VITE_DEMO_JWT=<production-jwt-for-frontend-build>
 TLS_DOMAIN=<your-domain.example.com>
 ACME_EMAIL=<ops-email@example.com>
 ```
