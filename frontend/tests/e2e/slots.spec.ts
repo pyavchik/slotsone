@@ -129,17 +129,10 @@ test.describe('Slots app', () => {
     const slotsButton = page.getByTestId('cv-open-slots').first();
     await expect(slotsButton).toBeVisible();
 
-    // Try popup navigation, fallback to same-tab if blocked
-    const popupPromise = context.waitForEvent('page').catch(() => null);
     await slotsButton.click();
+    await expect(page).toHaveURL(/\/slots/);
 
-    let slotsPage = await popupPromise;
-    if (!slotsPage) {
-      // Popup was blocked - check URL changed
-      await expect(page).toHaveURL(/\/slots/);
-      slotsPage = page;
-    }
-
+    const slotsPage = page;
     await slotsPage.waitForLoadState();
 
     const spinButton = slotsPage.getByRole('button', { name: /spin/i });
@@ -155,5 +148,52 @@ test.describe('Slots app', () => {
 
     const balancePanel = slotsPage.getByTestId('hud-balance');
     await expect(balancePanel).toContainText('USD');
+  });
+
+  test('renders reel grid without waiting for slow symbol image downloads', async ({
+    page,
+    context,
+  }) => {
+    await context.route('**/api/v1/game/init', async (route) => {
+      await route.fulfill({
+        status: 200,
+        contentType: 'application/json',
+        body: JSON.stringify({
+          session_id: 'sess_e2e_slow_symbols',
+          game_id: 'slot_mega_fortune_001',
+          config: MOCK_CONFIG,
+          balance: { amount: 1000, currency: 'USD' },
+          expires_at: new Date(Date.now() + 60 * 60 * 1000).toISOString(),
+        }),
+      });
+    });
+
+    await context.route('**/symbols/**', async (route) => {
+      await new Promise<void>((resolve) => setTimeout(resolve, 3500));
+      await route.continue();
+    });
+
+    await page.goto('/slots');
+
+    await expect
+      .poll(
+        async () =>
+          page.evaluate(() => {
+            const renderGameToText = (window as Window & { render_game_to_text?: () => string })
+              .render_game_to_text;
+            if (typeof renderGameToText !== 'function') return false;
+
+            try {
+              const parsed = JSON.parse(renderGameToText()) as { reel_debug?: unknown };
+              return Boolean(parsed.reel_debug);
+            } catch {
+              return false;
+            }
+          }),
+        { timeout: 1500, intervals: [100, 150, 250, 400] }
+      )
+      .toBe(true);
+
+    await expect(page.locator('canvas')).toBeVisible();
   });
 });

@@ -1,11 +1,6 @@
-import { Application, Assets, Container, Graphics, Sprite, Text, Texture } from 'pixi.js';
-import {
-  SYMBOL_IDS,
-  normalizeSymbolId,
-  symbolColorNumber,
-  symbolImagePath,
-  symbolShortLabel,
-} from '../symbols';
+import { Application, Assets, Container, Graphics, Sprite, Text } from 'pixi.js';
+import type { Texture } from 'pixi.js';
+import { SYMBOL_IDS, normalizeSymbolId, symbolColorNumber, symbolImagePath } from '../symbols';
 
 const REELS = 5;
 const ROWS = 3;
@@ -43,7 +38,6 @@ const PAYLINE_COLORS = [
 const FALLBACK_LINE_DEFS: number[][] = [[1, 1, 1, 1, 1]];
 
 const CARD_RADIUS = 18;
-const LABEL_FONT = '"Bebas Neue", "Rajdhani", sans-serif';
 const VALUE_FONT = '"Manrope", "Rajdhani", sans-serif';
 
 function easeOutCubic(t: number): number {
@@ -112,6 +106,7 @@ export interface ReelGridOptions extends ReelGridSafeArea {
   lineDefs?: number[][];
   onReelStopped?: (reelIndex: number) => void;
   onAllStopped?: () => void;
+  onAssetsReady?: () => void;
 }
 
 export interface ReelGridDebugState {
@@ -156,32 +151,25 @@ function drawSymbolFallback(symbolId: string, w: number, h: number): Container {
   const root = new Container();
   drawCardBase(root, w, h, 0x1a2238, color);
 
-  const glow = new Graphics();
-  glow.circle(w / 2, h / 2, 52).fill({ color, alpha: 0.13 });
-  glow.circle(w / 2, h / 2, 30).fill({ color, alpha: 0.09 });
-  root.addChild(glow);
+  const ring = new Graphics();
+  ring.circle(w / 2, h / 2, 44).stroke({ width: 4, color, alpha: 0.5 });
+  ring.circle(w / 2, h / 2, 26).stroke({ width: 2, color: 0xffffff, alpha: 0.3 });
+  root.addChild(ring);
 
-  const label = new Text({
-    text: symbolShortLabel(id),
+  const loader = new Text({
+    text: '...',
     style: {
-      fontFamily: LABEL_FONT,
-      fontSize: 80,
-      fontWeight: '800',
-      fill: color,
-      stroke: { color: 0x090d18, width: 4 },
-      dropShadow: {
-        color: 0x000000,
-        alpha: 0.46,
-        blur: 6,
-        distance: 2,
-        angle: Math.PI / 3,
-      },
+      fontFamily: VALUE_FONT,
+      fontSize: 30,
+      fontWeight: '700',
+      fill: 0xe6f0ff,
+      letterSpacing: 3,
     },
   });
-  label.anchor.set(0.5);
-  label.x = w / 2;
-  label.y = h / 2;
-  root.addChild(label);
+  loader.anchor.set(0.5);
+  loader.x = w / 2;
+  loader.y = h / 2 + 2;
+  root.addChild(loader);
 
   return root;
 }
@@ -198,9 +186,7 @@ class SymbolTextureBank {
   ) {}
 
   async warm(): Promise<void> {
-    for (const id of SYMBOL_IDS) {
-      await this.resolveAsync(id);
-    }
+    await Promise.allSettled(SYMBOL_IDS.map((id) => this.resolveAsync(id)));
   }
 
   sprite(symbolId: string): Sprite {
@@ -243,17 +229,8 @@ class SymbolTextureBank {
 
     const request = this.loadFromImage(key)
       .then((texture) => {
-        const previous = this.textures.get(key);
-        if (
-          previous &&
-          this.provisional.has(key) &&
-          previous !== texture &&
-          !previous.destroyed &&
-          previous !== Texture.EMPTY &&
-          previous !== Texture.WHITE
-        ) {
-          previous.destroy(true);
-        }
+        // Existing sprites may still reference the provisional texture, so keep
+        // it alive and let regular scene teardown reclaim resources.
         this.textures.set(key, texture);
         this.provisional.delete(key);
         this.loading.delete(key);
@@ -565,8 +542,13 @@ export class ReelGrid {
     });
 
     grid.symbolTextures = new SymbolTextureBank(grid.app.renderer, CELL_W, CELL_H);
-    await grid.symbolTextures.warm();
     grid.setupScene();
+    // Keep first paint fast with fallback textures, but notify UI when symbol
+    // image warm-up finishes so it can reveal only real symbols.
+    void grid.symbolTextures.warm().finally(() => {
+      grid.setIdleSymbols([]);
+      options.onAssetsReady?.();
+    });
     return grid;
   }
 
@@ -1019,7 +1001,20 @@ export class ReelGrid {
   }
 
   private defaultIdleMatrix(): string[][] {
-    return Array.from({ length: REELS }, () => ['A', 'K', 'Q']);
+    // Build per-row shuffled pools so no row shows the same symbol twice.
+    const rowPools: string[][] = Array.from({ length: ROWS }, () => {
+      const pool = [...SYMBOL_IDS] as string[];
+      for (let i = pool.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [pool[i], pool[j]] = [pool[j]!, pool[i]!];
+      }
+      return pool;
+    });
+
+    // matrix[reel][row]
+    return Array.from({ length: REELS }, (_, reel) =>
+      Array.from({ length: ROWS }, (_, row) => rowPools[row]![reel]!)
+    );
   }
 
   private clearStopTimers(): void {

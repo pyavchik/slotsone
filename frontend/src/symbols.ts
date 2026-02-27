@@ -1,5 +1,6 @@
 export const SYMBOL_IDS = ['10', 'J', 'Q', 'K', 'A', 'Star', 'Scatter', 'Wild'] as const;
 export type SymbolId = (typeof SYMBOL_IDS)[number];
+const SYMBOL_ASSET_VERSION = (import.meta.env.VITE_SYMBOL_ASSET_VERSION ?? 'ai-symbols-v2').trim();
 
 const CANONICAL_SYMBOL_COLORS: Record<SymbolId, number> = {
   '10': 0x4ade80,
@@ -131,5 +132,9 @@ export function symbolImageFileName(symbolId: string): string {
 }
 
 export function symbolImagePath(symbolId: string): string {
-  return `/symbols/${symbolImageFileName(symbolId)}`;
+  const fileName = symbolImageFileName(symbolId);
+  if (!SYMBOL_ASSET_VERSION) {
+    return `/symbols/${fileName}`;
+  }
+  return `/symbols/${fileName}?v=${encodeURIComponent(SYMBOL_ASSET_VERSION)}`;
 }
