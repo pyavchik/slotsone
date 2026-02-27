@@ -19,6 +19,8 @@ export function SlotCanvas({ width, height, onAllReelsStopped }: SlotCanvasProps
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const gridRef = useRef<ReelGrid | null>(null);
   const [pixiError, setPixiError] = useState<string | null>(null);
+  const [gridReady, setGridReady] = useState(false);
+  const [symbolsReady, setSymbolsReady] = useState(false);
   const [announcement, setAnnouncement] = useState('Slot machine ready.');
 
   const config = useGameStore((s) => s.config);
@@ -50,11 +52,14 @@ export function SlotCanvas({ width, height, onAllReelsStopped }: SlotCanvasProps
     if (gridRef.current) {
       gridRef.current.setLineDefs(lineDefs);
       gridRef.current.resize(width, height, safeArea);
+      setGridReady(true);
       return;
     }
 
     if (hasCreatedRef.current) return;
     hasCreatedRef.current = true;
+    setGridReady(false);
+    setSymbolsReady(false);
 
     let cancelled = false;
     ReelGrid.create(canvas, {
@@ -63,6 +68,11 @@ export function SlotCanvas({ width, height, onAllReelsStopped }: SlotCanvasProps
       lineDefs,
       ...safeArea,
       onAllStopped: () => onAllReelsStopped?.(),
+      onAssetsReady: () => {
+        if (!cancelled) {
+          setSymbolsReady(true);
+        }
+      },
     })
       .then((grid) => {
         if (cancelled) {
@@ -72,11 +82,14 @@ export function SlotCanvas({ width, height, onAllReelsStopped }: SlotCanvasProps
         }
 
         gridRef.current = grid;
+        setGridReady(true);
         setPixiError(null);
       })
       .catch((error) => {
         if (!cancelled) {
           setPixiError(error?.message ?? 'Failed to initialize reel renderer.');
+          setGridReady(false);
+          setSymbolsReady(false);
           hasCreatedRef.current = false;
         }
       });
@@ -95,6 +108,8 @@ export function SlotCanvas({ width, height, onAllReelsStopped }: SlotCanvasProps
         gridRef.current.destroy();
         gridRef.current = null;
       }
+      setGridReady(false);
+      setSymbolsReady(false);
     };
   }, []);
 
@@ -214,18 +229,28 @@ export function SlotCanvas({ width, height, onAllReelsStopped }: SlotCanvasProps
   }
 
   return (
-    <>
+    <div className="slot-canvas-shell">
       <canvas
         ref={canvasRef}
         width={width}
         height={height}
         role="img"
         aria-label={ariaLabel}
-        style={{ display: 'block', width: '100%', height: '100%' }}
+        style={{
+          display: 'block',
+          width: '100%',
+          height: '100%',
+          opacity: gridReady && symbolsReady ? 1 : 0,
+        }}
       />
+      {(!gridReady || !symbolsReady) && !pixiError && (
+        <div className="slot-canvas-loading" role="status" aria-live="polite">
+          Loading symbols...
+        </div>
+      )}
       <div className="sr-only" aria-live="polite" aria-atomic="true">
         {announcement}
       </div>
-    </>
+    </div>
   );
 }

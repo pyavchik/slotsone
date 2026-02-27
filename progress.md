@@ -99,3 +99,57 @@ Original prompt: I don't like this slot machine. can we rebuild it from scratch?
 ## TODO / suggestions for next pass
 - Tune symbol crop/framing per final generated icon set (current layout supports both old and regenerated assets).
 - Add a dedicated in-game settings panel (reduce motion/sound toggles in UI).
+
+## 2026-02-27 - Empty/blank slots screen hardening
+- User reported intermittent empty `/slots` screen (black or UI-only without reels) with screenshots.
+- Root cause in reel renderer startup:
+  - `ReelGrid.create()` waited for full symbol image warm-up before `setupScene()`.
+  - On slow network/devtools throttling, this delayed first reel render and left an empty canvas area.
+- Implemented frontend fixes:
+  - `frontend/src/reel/PixiReelGrid.ts`
+    - start scene immediately after Pixi init (`setupScene()` no longer blocked on `warm()`).
+    - keep symbol warm-up in background (`void warm()`).
+    - make warm-up parallel via `Promise.allSettled`.
+    - removed provisional texture destruction that could trigger Pixi runtime errors while sprites still referenced old textures.
+  - `frontend/src/SlotCanvas.tsx`
+    - added non-empty intermediate state with `Preparing reels...` overlay until grid is ready.
+  - `frontend/src/app.css`
+    - added styles for `slot-canvas-shell` and `slot-canvas-loading`.
+- Added regression test for slow assets:
+  - `frontend/tests/e2e/slots.spec.ts`
+    - new test delays `**/symbols/**` responses by 3.5s and verifies reel debug state appears within 1.5s.
+- Validation:
+  - `npm --prefix frontend run lint` PASS
+  - `npm --prefix frontend run build` PASS
+  - `npm --prefix frontend run test:e2e -- --project=chromium --grep "Slots app"` PASS (2 tests)
+  - develop-web-game Playwright client rerun succeeded with no page errors and visible reel captures in:
+    - `output/web-game-empty-debug-after/`
+
+## 2026-02-27 - Ensure only new symbol set appears on /slots
+- User requested removing old symbols seen when opening `/slots`.
+- Implemented two changes:
+  - `frontend/src/symbols.ts`
+    - Added symbol asset cache-busting query suffix via `VITE_SYMBOL_ASSET_VERSION` (default `ai-symbols-v2`) so browser reloads newest PNGs.
+  - `frontend/src/reel/PixiReelGrid.ts`
+    - Replaced fallback symbol art (letter-based old look) with neutral loading placeholders (`...`) so old symbols are not flashed before images are ready.
+  - `.env.production.example` + `README.md`
+    - Added `VITE_SYMBOL_ASSET_VERSION` example so deploys can invalidate browser symbol cache when replacing symbol PNGs.
+- Validation:
+  - `npm --prefix frontend run lint` PASS
+  - `npm --prefix frontend run build` PASS
+  - `npm --prefix frontend run test:e2e -- --project=chromium --grep "Slots app"` PASS
+
+## 2026-02-27 - Hide placeholder grid until real symbols are ready
+- User flagged placeholder-only screen at `/slots` and asked to prefer real symbols.
+- Updated renderer/UI boot sequence:
+  - `frontend/src/reel/PixiReelGrid.ts`
+    - Added `onAssetsReady` callback in `ReelGridOptions`.
+    - Trigger callback when symbol warm-up completes.
+  - `frontend/src/SlotCanvas.tsx`
+    - Added `symbolsReady` state.
+    - Canvas remains hidden (`opacity: 0`) until both grid init and symbol warm-up are complete.
+    - Loading message now shows `Loading symbols...` while waiting.
+- Validation:
+  - `npm --prefix frontend run lint` PASS
+  - `npm --prefix frontend run build` PASS
+  - `npm --prefix frontend run test:e2e -- --project=chromium --grep "Slots app"` PASS

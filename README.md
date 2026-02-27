@@ -204,6 +204,7 @@ Example root file:
 
 ```bash
 VITE_DEMO_JWT=<production-jwt-for-frontend-build>
+VITE_SYMBOL_ASSET_VERSION=ai-symbols-v2
 ```
 
 ### 3) Add GitHub repository secrets

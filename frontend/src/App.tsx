@@ -316,13 +316,8 @@ function App() {
   // -------------------------------------------------------------------------
 
   const handleOpenSlots = useCallback(() => {
-    const slotsUrl = new URL('/slots', window.location.origin).toString();
-    const newTab = window.open(slotsUrl, '_blank');
-    if (newTab) {
-      newTab.opener = null;
-      return;
-    }
-    window.location.assign(slotsUrl);
+    window.history.pushState({}, '', '/slots');
+    setScreen('slots');
   }, []);
 
   // -------------------------------------------------------------------------
@@ -384,10 +379,78 @@ function App() {
 
   if (!ready) {
     return (
-      <div className="loading-shell">
-        <div className="loading-spinner" aria-hidden="true" />
-        <div>Loading game…</div>
-        <div className="loading-hint">Ensure backend is running: cd backend && npm run dev</div>
+      <div className="loader-shell" aria-label="Loading game, please wait">
+        <div className="loader-card">
+          <div className="loader-brand" aria-hidden="true">
+            SLOTS<span>ONE</span>
+          </div>
+          <div className="loader-reels-wrap" aria-hidden="true">
+            <div className="loader-reels">
+              <div className="loader-reel">
+                <div className="loader-reel-strip loader-reel-strip-1">
+                  <span>7</span>
+                  <span>A</span>
+                  <span>K</span>
+                  <span>Q</span>
+                  <span>J</span>
+                  <span>★</span>
+                  <span>◆</span>
+                  <span>7</span>
+                  <span>A</span>
+                  <span>K</span>
+                  <span>Q</span>
+                  <span>J</span>
+                  <span>★</span>
+                  <span>◆</span>
+                </div>
+              </div>
+              <div className="loader-reel">
+                <div className="loader-reel-strip loader-reel-strip-2">
+                  <span>★</span>
+                  <span>◆</span>
+                  <span>7</span>
+                  <span>A</span>
+                  <span>K</span>
+                  <span>Q</span>
+                  <span>J</span>
+                  <span>★</span>
+                  <span>◆</span>
+                  <span>7</span>
+                  <span>A</span>
+                  <span>K</span>
+                  <span>Q</span>
+                  <span>J</span>
+                </div>
+              </div>
+              <div className="loader-reel">
+                <div className="loader-reel-strip loader-reel-strip-3">
+                  <span>K</span>
+                  <span>Q</span>
+                  <span>J</span>
+                  <span>★</span>
+                  <span>◆</span>
+                  <span>7</span>
+                  <span>A</span>
+                  <span>K</span>
+                  <span>Q</span>
+                  <span>J</span>
+                  <span>★</span>
+                  <span>◆</span>
+                  <span>7</span>
+                  <span>A</span>
+                </div>
+              </div>
+            </div>
+            <div className="loader-payline" aria-hidden="true" />
+          </div>
+          <div className="loader-dots" aria-hidden="true">
+            <span />
+            <span />
+            <span />
+          </div>
+          <p className="loader-text">Loading game…</p>
+        </div>
+        <p className="loading-hint">Ensure backend is running: cd backend &amp;&amp; npm run dev</p>
       </div>
     );
   }
