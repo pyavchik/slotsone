@@ -152,10 +152,13 @@ function App() {
 
   const handleOpenSlots = useCallback(() => {
     const slotsUrl = new URL('/slots', window.location.origin).toString();
-    const newTab = window.open(slotsUrl, '_blank', 'noopener,noreferrer');
-    if (!newTab) {
-      window.location.assign(slotsUrl);
+    const newTab = window.open(slotsUrl, '_blank');
+    if (newTab) {
+      // Keep security parity with noopener while preserving reliable popup detection.
+      newTab.opener = null;
+      return;
     }
+    window.location.assign(slotsUrl);
   }, []);
 
   useEffect(() => {
