@@ -47,7 +47,7 @@ test.describe('Slots app', () => {
     let spinRequests = 0;
     let balance = 1000;
 
-    await page.route('**/api/v1/game/init', async (route) => {
+    await page.context().route('**/api/v1/game/init', async (route) => {
       await route.fulfill({
         status: 200,
         contentType: 'application/json',
@@ -61,7 +61,7 @@ test.describe('Slots app', () => {
       });
     });
 
-    await page.route('**/api/v1/spin', async (route) => {
+    await page.context().route('**/api/v1/spin', async (route) => {
       spinRequests += 1;
       const requestBody = route.request().postDataJSON() as {
         bet?: { amount?: number; currency?: string; lines?: number };
@@ -92,7 +92,9 @@ test.describe('Slots app', () => {
             win: {
               amount: winAmount,
               currency,
-              breakdown: [{ type: 'line', line_index: 0, symbol: 'A', count: 3, payout: winAmount }],
+              breakdown: [
+                { type: 'line', line_index: 0, symbol: 'A', count: 3, payout: winAmount },
+              ],
             },
             bonus_triggered: null,
           },
@@ -105,13 +107,21 @@ test.describe('Slots app', () => {
     await page.goto('/');
 
     await expect(page.getByRole('heading', { name: /Oleksander Pyavchik/i })).toBeVisible();
-    await page.getByRole('button', { name: /^slots$/i }).first().click();
 
-    await expect(page.getByRole('button', { name: /spin/i })).toBeVisible();
-    await page.getByRole('button', { name: /spin/i }).click();
+    const [slotsPage] = await Promise.all([
+      page.context().waitForEvent('page'),
+      page
+        .getByRole('button', { name: /^slots$/i })
+        .first()
+        .click(),
+    ]);
+    await slotsPage.waitForLoadState();
+
+    await expect(slotsPage.getByRole('button', { name: /spin/i })).toBeVisible();
+    await slotsPage.getByRole('button', { name: /spin/i }).click();
 
     await expect.poll(() => spinRequests).toBe(1);
-    await expect(page.getByText('WIN')).toBeVisible();
-    await expect(page.getByText('+0.20')).toBeVisible();
+    await expect(slotsPage.getByText('WIN')).toBeVisible();
+    await expect(slotsPage.getByText('+0.20')).toBeVisible();
   });
 });
