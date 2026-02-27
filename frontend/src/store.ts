@@ -32,7 +32,9 @@ interface GameState {
 }
 
 export const useGameStore = create<GameState>((set) => ({
-  token: import.meta.env.VITE_DEMO_JWT ?? '',
+  // Access token lives in JS memory only — never localStorage.
+  // The refresh token is stored in an httpOnly cookie by the server.
+  token: '',
   sessionId: null,
   gameId: 'slot_mega_fortune_001',
   balance: 0,

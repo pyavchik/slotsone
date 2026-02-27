@@ -68,7 +68,9 @@ export function CVLanding({ onOpenSlots }: { onOpenSlots: () => void }) {
 
           <div className="cv-identity">
             <p className="cv-kicker">Automated QA Engineer</p>
-            <h1 className="cv-title">Oleksander Pyavchik</h1>
+            <h1 className="cv-title" data-testid="cv-title">
+              Oleksander Pyavchik
+            </h1>
             <p className="cv-subtitle">
               Experienced QA engineer with 7+ years in automation, API/E2E testing, CI/CD, and
               performance testing.
@@ -87,7 +89,12 @@ export function CVLanding({ onOpenSlots }: { onOpenSlots: () => void }) {
         </div>
 
         <div className="cv-actions">
-          <button type="button" className="cv-open-slots" onClick={onOpenSlots}>
+          <button
+            type="button"
+            className="cv-open-slots"
+            onClick={onOpenSlots}
+            data-testid="cv-open-slots"
+          >
             slots
           </button>
           <a className="cv-link" href={POSTMAN_TESTS_PATH} target="_blank" rel="noreferrer">
@@ -154,7 +161,12 @@ export function CVLanding({ onOpenSlots }: { onOpenSlots: () => void }) {
       <section className="cv-section cv-final-cta">
         <h2>Project Demo</h2>
         <p>Use the button below to launch the interactive slots application.</p>
-        <button type="button" className="cv-open-slots" onClick={onOpenSlots}>
+        <button
+          type="button"
+          className="cv-open-slots"
+          onClick={onOpenSlots}
+          data-testid="cv-open-slots"
+        >
           slots
         </button>
       </section>

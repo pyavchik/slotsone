@@ -1,5 +1,5 @@
 import { useEffect, useState, useCallback, useRef } from 'react';
-import { initGame, spin } from './api';
+import { initGame, spin, refreshAccessToken, logout, ApiError } from './api';
 import { useGameStore } from './store';
 import { SlotCanvas } from './SlotCanvas';
 import { BetPanel } from './BetPanel';
@@ -7,10 +7,13 @@ import { HUD } from './HUD';
 import { WinOverlay } from './WinOverlay';
 import { PayTable } from './PayTable';
 import { CVLanding } from './CVLanding';
+import { AuthScreen } from './AuthScreen';
 import { playSpinSound, playWinSound } from './audio';
 import './app.css';
 
-type Screen = 'cv' | 'slots';
+type Screen = 'cv' | 'auth' | 'slots';
+
+const DEMO_TOKEN = import.meta.env.VITE_DEMO_JWT;
 
 function getScreenFromPath(pathname: string): Screen {
   return pathname === '/slots' || pathname.startsWith('/slots/') ? 'slots' : 'cv';
@@ -23,6 +26,7 @@ function App() {
   const bet = useGameStore((s) => s.bet);
   const lines = useGameStore((s) => s.lines);
   const currency = useGameStore((s) => s.currency);
+  const setToken = useGameStore((s) => s.setToken);
   const setInit = useGameStore((s) => s.setInit);
   const setSpinResult = useGameStore((s) => s.setSpinResult);
   const setSpinning = useGameStore((s) => s.setSpinning);
@@ -42,13 +46,25 @@ function App() {
   const [spinCooldown, setSpinCooldown] = useState(false);
   const spinCooldownRef = useRef<number | null>(null);
 
+  // Guards that prevent the game-init effect from running twice in the same session.
+  // initDoneRef  — set true once initGame succeeds; reset when leaving the slots screen.
+  // refreshTriedRef — set true after the first silent-refresh attempt; reset on screen change.
+  const initDoneRef = useRef(false);
+  const refreshTriedRef = useRef(false);
+
+  // -------------------------------------------------------------------------
+  // Navigation
+  // -------------------------------------------------------------------------
+
   useEffect(() => {
-    const onPopState = () => {
-      setScreen(getScreenFromPath(window.location.pathname));
-    };
+    const onPopState = () => setScreen(getScreenFromPath(window.location.pathname));
     window.addEventListener('popstate', onPopState);
     return () => window.removeEventListener('popstate', onPopState);
   }, []);
+
+  // -------------------------------------------------------------------------
+  // Overflow lock for slots screen
+  // -------------------------------------------------------------------------
 
   useEffect(() => {
     const root = document.getElementById('root');
@@ -63,13 +79,15 @@ function App() {
     };
   }, [screen]);
 
+  // -------------------------------------------------------------------------
+  // Resize
+  // -------------------------------------------------------------------------
+
   useEffect(() => {
     let timeoutId: ReturnType<typeof setTimeout>;
     const onResize = () => {
       clearTimeout(timeoutId);
-      timeoutId = setTimeout(() => {
-        setSize({ w: window.innerWidth, h: window.innerHeight });
-      }, 250);
+      timeoutId = setTimeout(() => setSize({ w: window.innerWidth, h: window.innerHeight }), 250);
     };
     window.addEventListener('resize', onResize);
     return () => {
@@ -78,52 +96,169 @@ function App() {
     };
   }, []);
 
+  // -------------------------------------------------------------------------
+  // Game init — two-token flow
+  //
+  //  1. screen → slots, no token in memory
+  //     └─ try POST /auth/refresh (sends httpOnly cookie automatically)
+  //          ├─ ok  → setToken(access) → effect re-runs → initGame
+  //          └─ 401 → cookie absent/expired → setScreen('auth')
+  //
+  //  2. screen → slots, token present (just logged in, or refresh succeeded)
+  //     └─ initGame(token)
+  //          ├─ ok  → game ready
+  //          └─ 401 → access token expired → setToken('') → effect re-runs
+  //                    → refreshTriedRef guard sends to auth if refresh already tried
+  //
+  //  initDoneRef prevents re-running initGame when the token silently rotates
+  //  mid-session (e.g. a spin returns 401 and triggers a background refresh).
+  // -------------------------------------------------------------------------
+
   useEffect(() => {
-    if (screen !== 'slots') return;
-    if (!token) {
-      setError('Missing VITE_DEMO_JWT. Configure an RS256 token for frontend.');
-      setReady(true);
+    if (screen !== 'slots') {
+      initDoneRef.current = false;
+      refreshTriedRef.current = false;
       return;
     }
+
+    // Already in a live game — don't restart the session on token rotation
+    if (initDoneRef.current) return;
+
+    // Demo mode: use VITE_DEMO_JWT directly without refresh
+    if (DEMO_TOKEN && DEMO_TOKEN !== 'e2e.mock.token') {
+      initDoneRef.current = true;
+      setToken(DEMO_TOKEN);
+      initGame(DEMO_TOKEN, gameId)
+        .then((data) => {
+          setInit(data);
+          setReady(true);
+          setError(null);
+        })
+        .catch((e: unknown) => {
+          initDoneRef.current = false;
+          if (e instanceof ApiError && e.status === 401) {
+            setToken('');
+            return;
+          }
+          setError(e instanceof Error ? e.message : 'Connection failed');
+          setReady(true);
+        });
+      return;
+    }
+
+    // E2E mode: skip auth, use mock token for init
+    if (DEMO_TOKEN === 'e2e.mock.token') {
+      initDoneRef.current = true;
+      setToken(DEMO_TOKEN);
+      initGame(DEMO_TOKEN, gameId)
+        .then((data) => {
+          setInit(data);
+          setReady(true);
+          setError(null);
+        })
+        .catch((e: unknown) => {
+          initDoneRef.current = false;
+          if (e instanceof ApiError && e.status === 401) {
+            setToken('');
+            return;
+          }
+          setError(e instanceof Error ? e.message : 'Connection failed');
+          setReady(true);
+        });
+      return;
+    }
+
+    if (!token) {
+      if (refreshTriedRef.current) {
+        // Refresh was already attempted but yielded no token → send to auth
+        setScreen('auth');
+        return;
+      }
+      refreshTriedRef.current = true;
+      refreshAccessToken()
+        .then((data) => setToken(data.access_token))
+        .catch(() => setScreen('auth'));
+      return;
+    }
+
+    initDoneRef.current = true;
     initGame(token, gameId)
       .then((data) => {
         setInit(data);
         setReady(true);
         setError(null);
       })
-      .catch((e) => {
-        setError(e?.message ?? 'Connection failed');
-        setReady(true); // show UI so user sees error and can retry
+      .catch((e: unknown) => {
+        initDoneRef.current = false;
+        if (e instanceof ApiError && e.status === 401) {
+          // Access token is expired — clear it and let the effect retry via refresh
+          setToken('');
+          return;
+        }
+        setError(e instanceof Error ? e.message : 'Connection failed');
+        setReady(true);
       });
-  }, [screen, token, gameId, setInit, setError]);
+  }, [screen, token, gameId, setInit, setError, setToken]);
+
+  // -------------------------------------------------------------------------
+  // Retry button (for non-auth errors like network failures)
+  // -------------------------------------------------------------------------
 
   const handleRetryInit = useCallback(() => {
     setError(null);
     setReady(false);
+    initDoneRef.current = false;
     initGame(token, gameId)
       .then((data) => {
         setInit(data);
         setReady(true);
       })
-      .catch((e) => setError(e?.message ?? 'Connection failed'));
-  }, [token, gameId, setInit, setError]);
+      .catch((e: unknown) => {
+        if (e instanceof ApiError && e.status === 401) {
+          setToken('');
+          setScreen('auth');
+          return;
+        }
+        setError(e instanceof Error ? e.message : 'Connection failed');
+        setReady(true);
+      });
+  }, [token, gameId, setInit, setError, setToken]);
+
+  // -------------------------------------------------------------------------
+  // Spin
+  // -------------------------------------------------------------------------
 
   const handleSpin = useCallback(() => {
     if (!sessionId || spinning || spinCooldown) return;
     playSpinSound();
     setSpinning(true);
     setSpinCooldown(true);
-    if (spinCooldownRef.current) {
-      window.clearTimeout(spinCooldownRef.current);
-    }
+    if (spinCooldownRef.current) window.clearTimeout(spinCooldownRef.current);
     spinCooldownRef.current = window.setTimeout(() => setSpinCooldown(false), 250);
+
+    const spinToken = DEMO_TOKEN === 'e2e.mock.token' ? DEMO_TOKEN : token;
     const idempotencyKey = `spin-${Date.now()}-${Math.random().toString(36).slice(2)}`;
-    spin(token, sessionId, gameId, { amount: bet, currency, lines }, idempotencyKey)
-      .then((data) => {
-        setSpinResult(data);
-      })
-      .catch((e) => {
-        setError(e.message);
+    spin(spinToken, sessionId, gameId, { amount: bet, currency, lines }, idempotencyKey)
+      .then((data) => setSpinResult(data))
+      .catch((e: unknown) => {
+        if (e instanceof ApiError && e.status === 401) {
+          // Access token expired mid-session — refresh silently.
+          // The next spin will use the new token; no error shown.
+          setSpinning(false);
+          // In demo/e2e mode, skip refresh - just fail the spin
+          if (DEMO_TOKEN) {
+            setError('Session expired');
+            return;
+          }
+          refreshAccessToken()
+            .then((data) => setToken(data.access_token))
+            .catch(() => {
+              setToken('');
+              setScreen('auth');
+            });
+          return;
+        }
+        setError(e instanceof Error ? e.message : 'Spin failed');
       });
   }, [
     token,
@@ -136,38 +271,63 @@ function App() {
     setSpinning,
     setSpinResult,
     setError,
+    setToken,
     spinCooldown,
   ]);
+
+  // -------------------------------------------------------------------------
+  // Logout
+  // -------------------------------------------------------------------------
+
+  const handleLogout = useCallback(() => {
+    logout().catch(() => undefined); // best-effort — revoke server-side, but always clean up locally
+    setToken('');
+    initDoneRef.current = false;
+    refreshTriedRef.current = false;
+    setReady(false);
+    setScreen('auth');
+  }, [setToken]);
+
+  // -------------------------------------------------------------------------
+  // Win sound
+  // -------------------------------------------------------------------------
 
   useEffect(() => {
     if (screen !== 'slots') return;
     if (lastWinAmount <= 0) return;
-    const multiplier = bet > 0 ? lastWinAmount / bet : 1;
-    playWinSound(multiplier);
+    playWinSound(bet > 0 ? lastWinAmount / bet : 1);
   }, [screen, lastWinAmount, bet]);
 
-  const handleAllReelsStopped = useCallback(() => {
-    setSpinning(false);
-  }, [setSpinning]);
+  const handleAllReelsStopped = useCallback(() => setSpinning(false), [setSpinning]);
+
+  // -------------------------------------------------------------------------
+  // Auth screen callback
+  // -------------------------------------------------------------------------
+
+  const handleAuthenticated = useCallback(() => {
+    initDoneRef.current = false;
+    refreshTriedRef.current = false;
+    setReady(false);
+    setScreen('slots');
+  }, []);
+
+  // -------------------------------------------------------------------------
+  // CV → slots navigation
+  // -------------------------------------------------------------------------
 
   const handleOpenSlots = useCallback(() => {
     const slotsUrl = new URL('/slots', window.location.origin).toString();
     const newTab = window.open(slotsUrl, '_blank');
     if (newTab) {
-      // Keep security parity with noopener while preserving reliable popup detection.
       newTab.opener = null;
       return;
     }
     window.location.assign(slotsUrl);
   }, []);
 
-  useEffect(() => {
-    return () => {
-      if (spinCooldownRef.current) {
-        window.clearTimeout(spinCooldownRef.current);
-      }
-    };
-  }, []);
+  // -------------------------------------------------------------------------
+  // Spacebar to spin
+  // -------------------------------------------------------------------------
 
   useEffect(() => {
     if (screen !== 'slots') return;
@@ -180,9 +340,8 @@ function App() {
         target?.tagName === 'TEXTAREA' ||
         target?.tagName === 'SELECT' ||
         target?.tagName === 'BUTTON'
-      ) {
+      )
         return;
-      }
       if (document.getElementById('paytable-dialog')) return;
       event.preventDefault();
       handleSpin();
@@ -191,15 +350,36 @@ function App() {
     return () => window.removeEventListener('keydown', onKeyDown);
   }, [screen, handleSpin]);
 
+  // -------------------------------------------------------------------------
+  // Error auto-dismiss
+  // -------------------------------------------------------------------------
+
   useEffect(() => {
-    if (screen !== 'slots') return;
-    if (!error) return;
+    if (screen !== 'slots' || !error) return;
     const timer = window.setTimeout(() => setError(null), 5000);
     return () => window.clearTimeout(timer);
   }, [screen, error, setError]);
 
+  // -------------------------------------------------------------------------
+  // Cleanup
+  // -------------------------------------------------------------------------
+
+  useEffect(() => {
+    return () => {
+      if (spinCooldownRef.current) window.clearTimeout(spinCooldownRef.current);
+    };
+  }, []);
+
+  // -------------------------------------------------------------------------
+  // Render
+  // -------------------------------------------------------------------------
+
   if (screen === 'cv') {
     return <CVLanding onOpenSlots={handleOpenSlots} />;
+  }
+
+  if (screen === 'auth') {
+    return <AuthScreen onAuthenticated={handleAuthenticated} />;
   }
 
   if (!ready) {
@@ -215,7 +395,7 @@ function App() {
   return (
     <div className="slots-shell">
       <SlotCanvas width={size.w} height={size.h} onAllReelsStopped={handleAllReelsStopped} />
-      <HUD />
+      <HUD onLogout={handleLogout} />
       <PayTable />
       <div className="slots-controls-dock">
         <BetPanel onSpin={handleSpin} spinDisabled={spinCooldown} />

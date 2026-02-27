@@ -228,3 +228,29 @@
     opacity: 0;
   }
 }
+
+.hud-logout-btn {
+  display: block;
+  margin-top: 6px;
+  padding: 2px 10px;
+  border: 1px solid rgba(98, 215, 255, 0.3);
+  border-radius: 999px;
+  background: transparent;
+  color: var(--ui-text-sub);
+  font-family: 'Manrope', sans-serif;
+  font-size: 11px;
+  letter-spacing: 0.04em;
+  cursor: pointer;
+  transition:
+    border-color 0.2s,
+    color 0.2s;
+  pointer-events: auto; /* hud-root sets pointer-events:none to let canvas receive clicks */
+}
+.hud-logout-btn:hover {
+  border-color: rgba(98, 215, 255, 0.7);
+  color: var(--ui-accent-cyan);
+}
+.hud-logout-btn:focus-visible {
+  outline: 2px solid rgba(255, 255, 255, 0.8);
+  outline-offset: 2px;
+}

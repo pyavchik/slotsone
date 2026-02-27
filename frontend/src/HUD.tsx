@@ -2,7 +2,11 @@ import { useEffect, useRef, useState } from 'react';
 import { useGameStore } from './store';
 import './hud.css';
 
-export function HUD() {
+interface HUDProps {
+  onLogout?: () => void;
+}
+
+export function HUD({ onLogout }: HUDProps) {
   const balance = useGameStore((s) => s.balance);
   const bet = useGameStore((s) => s.bet);
   const lines = useGameStore((s) => s.lines);
@@ -88,7 +92,11 @@ export function HUD() {
 
   return (
     <div className="hud-root" aria-label="Slot machine status bar">
-      <section className="hud-card hud-card-left" aria-label="Balance panel">
+      <section
+        className="hud-card hud-card-left"
+        aria-label="Balance panel"
+        data-testid="hud-balance"
+      >
         <span className="hud-micro-label">Balance</span>
         <strong className="hud-value-main">
           {displayBalance.toFixed(2)} {currency}
@@ -98,12 +106,16 @@ export function HUD() {
 
       <section className="hud-center" aria-live="polite" aria-atomic="true">
         {lastWinAmount > 0 && (
-          <div className="hud-win-badge">
+          <div className="hud-win-badge" data-testid="hud-win-badge">
             <span className="hud-win-label">WIN</span>
             <strong className="hud-win-value">+{displayWin.toFixed(2)}</strong>
           </div>
         )}
-        {showNoWin && <div className="hud-nowin-badge">NO WIN</div>}
+        {showNoWin && (
+          <div className="hud-nowin-badge" data-testid="hud-nowin-badge">
+            NO WIN
+          </div>
+        )}
         <span className="hud-tip" aria-hidden="true">
           Space = Spin
         </span>
@@ -117,6 +129,11 @@ export function HUD() {
         <span className="hud-subtext">
           {lines} lines • {lineBet.toFixed(2)} / line
         </span>
+        {onLogout && (
+          <button type="button" className="hud-logout-btn" onClick={onLogout} aria-label="Logout">
+            Logout
+          </button>
+        )}
       </section>
     </div>
   );

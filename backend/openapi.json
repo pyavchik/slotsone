@@ -3,7 +3,7 @@
   "info": {
     "title": "Slots API",
     "version": "1.0.0",
-    "description": "Slots backend API for session init, spin execution, and history retrieval."
+    "description": "Slots RGS (Remote Game Server) API.\n\n**Auth flow (two-token pattern):**\n1. `POST /api/v1/auth/register` or `/login` — returns a 15-min **access token** in the body; sets a 7-day **refresh token** in an `httpOnly` cookie\n2. Copy `access_token` → click **Authorize** → paste → game endpoints unlock\n3. When the access token expires, `POST /api/v1/auth/refresh` silently issues a new pair (token rotation)\n4. `POST /api/v1/auth/logout` revokes all refresh tokens and clears the cookie"
   },
   "servers": [
     {
@@ -16,6 +16,9 @@
     }
   ],
   "tags": [
+    {
+      "name": "Auth"
+    },
     {
       "name": "Game"
     },
@@ -45,6 +48,76 @@
         "required": [
           "error",
           "code"
+        ],
+        "additionalProperties": false
+      },
+      "RegisterRequest": {
+        "type": "object",
+        "properties": {
+          "email": {
+            "type": "string",
+            "format": "email",
+            "example": "player@example.com",
+            "description": "Player email address"
+          },
+          "password": {
+            "type": "string",
+            "minLength": 8,
+            "example": "password123",
+            "description": "Min. 8 characters"
+          }
+        },
+        "required": [
+          "email",
+          "password"
+        ],
+        "additionalProperties": false
+      },
+      "LoginRequest": {
+        "type": "object",
+        "properties": {
+          "email": {
+            "type": "string",
+            "format": "email",
+            "example": "player@example.com",
+            "description": "Player email address"
+          },
+          "password": {
+            "type": "string",
+            "minLength": 8,
+            "example": "password123"
+          }
+        },
+        "required": [
+          "email",
+          "password"
+        ],
+        "additionalProperties": false
+      },
+      "AuthResponse": {
+        "type": "object",
+        "properties": {
+          "access_token": {
+            "type": "string",
+            "description": "RS256 JWT — paste into the Authorize dialog above"
+          },
+          "token_type": {
+            "type": "string",
+            "enum": [
+              "Bearer"
+            ],
+            "example": "Bearer"
+          },
+          "expires_in": {
+            "type": "integer",
+            "example": 900,
+            "description": "Access token TTL in seconds (15 min)"
+          }
+        },
+        "required": [
+          "access_token",
+          "token_type",
+          "expires_in"
         ],
         "additionalProperties": false
       },
@@ -1045,6 +1118,166 @@
     "parameters": {}
   },
   "paths": {
+    "/api/v1/auth/register": {
+      "post": {
+        "tags": [
+          "Auth"
+        ],
+        "summary": "Register a new player account",
+        "description": "Creates an account and issues a token pair:\n- **Body**: 15-min RS256 access token — copy and paste into **Authorize**\n- **Cookie** (`httpOnly`): 7-day refresh token — stored by the browser, never readable by JS",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RegisterRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Account created, JWT issued",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AuthResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request body",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Email already registered",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/auth/login": {
+      "post": {
+        "tags": [
+          "Auth"
+        ],
+        "summary": "Login and receive a JWT",
+        "description": "Verifies credentials and issues a fresh token pair. Same response shape as register.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/LoginRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "JWT issued",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AuthResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request body",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Invalid credentials",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/auth/refresh": {
+      "post": {
+        "tags": [
+          "Auth"
+        ],
+        "summary": "Silently refresh the access token",
+        "description": "Reads the `refresh_token` httpOnly cookie, validates it, and issues a new token pair (**token rotation** — the old refresh token is invalidated on use). Returns 401 if the cookie is missing or expired. In the browser this happens automatically; the cookie is never visible to JS.",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "example": "refresh_token=<opaque-hex>",
+              "description": "Set automatically by the browser"
+            },
+            "required": false,
+            "description": "Set automatically by the browser",
+            "name": "Cookie",
+            "in": "header"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "New access token issued, new refresh cookie set",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AuthResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing, invalid, or expired refresh token",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/auth/logout": {
+      "post": {
+        "tags": [
+          "Auth"
+        ],
+        "summary": "Logout and revoke all refresh tokens",
+        "description": "Revokes the current refresh token **and all other active sessions** for the user, then clears the cookie. Safe to call even if the cookie is already gone.",
+        "responses": {
+          "204": {
+            "description": "Logged out — cookie cleared"
+          }
+        }
+      }
+    },
     "/health": {
       "get": {
         "tags": [

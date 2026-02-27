@@ -1,3 +1,4 @@
+import { existsSync } from 'fs';
 import { SUPPORTED_JWT_ALGORITHMS, type SupportedJwtAlgorithm } from './authConstants.js';
 
 function parseAllowedAlgorithms(rawValue: string | undefined): SupportedJwtAlgorithm[] {
@@ -29,6 +30,16 @@ export function validateAuthEnvironment(): void {
 
   if (allowedAlgs.includes('RS256') && !process.env.JWT_PUBLIC_KEY) {
     errors.push('JWT_PUBLIC_KEY is required when JWT_ALLOWED_ALGS includes RS256');
+  }
+
+  const hasPrivateKey =
+    !!process.env.JWT_PRIVATE_KEY ||
+    !!process.env.JWT_PRIVATE_KEY_FILE ||
+    existsSync('./jwt_private.pem');
+  if (!hasPrivateKey) {
+    errors.push(
+      'JWT signing key is required: set JWT_PRIVATE_KEY, JWT_PRIVATE_KEY_FILE, or provide ./jwt_private.pem'
+    );
   }
 
   if (errors.length > 0) {
