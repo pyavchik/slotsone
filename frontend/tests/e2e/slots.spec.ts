@@ -43,11 +43,16 @@ const MOCK_CONFIG = {
 };
 
 test.describe('Slots app', () => {
-  test('opens from CV page and performs a spin', async ({ page }) => {
+  test('opens from CV page and performs a spin', async ({ page, context }) => {
     let spinRequests = 0;
     let balance = 1000;
 
-    await page.context().route('**/api/v1/game/init', async (route) => {
+    await context.route('**/api/v1/game/init', async (route) => {
+      const request = route.request();
+      const authHeader = request.headers()['authorization'];
+      expect(authHeader).toBeDefined();
+      expect(authHeader).toMatch(/^Bearer /);
+
       await route.fulfill({
         status: 200,
         contentType: 'application/json',
@@ -61,11 +66,24 @@ test.describe('Slots app', () => {
       });
     });
 
-    await page.context().route('**/api/v1/spin', async (route) => {
+    await context.route('**/api/v1/spin', async (route) => {
       spinRequests += 1;
-      const requestBody = route.request().postDataJSON() as {
+      const request = route.request();
+      const authHeader = request.headers()['authorization'];
+      const idempotencyKey = request.headers()['idempotency-key'];
+
+      expect(authHeader).toBeDefined();
+      expect(authHeader).toMatch(/^Bearer /);
+      expect(idempotencyKey).toBeDefined();
+
+      const requestBody = request.postDataJSON() as {
         bet?: { amount?: number; currency?: string; lines?: number };
       };
+      expect(requestBody.session_id).toBeDefined();
+      expect(requestBody.game_id).toBeDefined();
+      expect(requestBody.bet).toBeDefined();
+      expect(requestBody.bet?.amount).toBeGreaterThan(0);
+
       const betAmount = requestBody.bet?.amount ?? 1;
       const lines = requestBody.bet?.lines ?? 20;
       const currency = requestBody.bet?.currency ?? 'USD';
@@ -106,22 +124,36 @@ test.describe('Slots app', () => {
 
     await page.goto('/');
 
-    await expect(page.getByRole('heading', { name: /Oleksander Pyavchik/i })).toBeVisible();
+    await expect(page.getByTestId('cv-title')).toBeVisible();
 
-    const [slotsPage] = await Promise.all([
-      page.context().waitForEvent('page'),
-      page
-        .getByRole('button', { name: /^slots$/i })
-        .first()
-        .click(),
-    ]);
+    const slotsButton = page.getByTestId('cv-open-slots').first();
+    await expect(slotsButton).toBeVisible();
+
+    // Try popup navigation, fallback to same-tab if blocked
+    const popupPromise = context.waitForEvent('page').catch(() => null);
+    await slotsButton.click();
+
+    let slotsPage = await popupPromise;
+    if (!slotsPage) {
+      // Popup was blocked - check URL changed
+      await expect(page).toHaveURL(/\/slots/);
+      slotsPage = page;
+    }
+
     await slotsPage.waitForLoadState();
 
-    await expect(slotsPage.getByRole('button', { name: /spin/i })).toBeVisible();
-    await slotsPage.getByRole('button', { name: /spin/i }).click();
+    const spinButton = slotsPage.getByRole('button', { name: /spin/i });
+    await expect(spinButton).toBeVisible();
+    await spinButton.click();
 
     await expect.poll(() => spinRequests).toBe(1);
-    await expect(slotsPage.getByText('WIN')).toBeVisible();
-    await expect(slotsPage.getByText('+0.20')).toBeVisible();
+
+    const winBadge = slotsPage.getByTestId('hud-win-badge');
+    await expect(winBadge).toBeVisible();
+    await expect(winBadge).toContainText('WIN');
+    await expect(winBadge).toContainText('+0.20');
+
+    const balancePanel = slotsPage.getByTestId('hud-balance');
+    await expect(balancePanel).toContainText('USD');
   });
 });

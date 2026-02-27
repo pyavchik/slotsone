@@ -92,7 +92,11 @@ export function HUD({ onLogout }: HUDProps) {
 
   return (
     <div className="hud-root" aria-label="Slot machine status bar">
-      <section className="hud-card hud-card-left" aria-label="Balance panel">
+      <section
+        className="hud-card hud-card-left"
+        aria-label="Balance panel"
+        data-testid="hud-balance"
+      >
         <span className="hud-micro-label">Balance</span>
         <strong className="hud-value-main">
           {displayBalance.toFixed(2)} {currency}
@@ -102,12 +106,16 @@ export function HUD({ onLogout }: HUDProps) {
 
       <section className="hud-center" aria-live="polite" aria-atomic="true">
         {lastWinAmount > 0 && (
-          <div className="hud-win-badge">
+          <div className="hud-win-badge" data-testid="hud-win-badge">
             <span className="hud-win-label">WIN</span>
             <strong className="hud-win-value">+{displayWin.toFixed(2)}</strong>
           </div>
         )}
-        {showNoWin && <div className="hud-nowin-badge">NO WIN</div>}
+        {showNoWin && (
+          <div className="hud-nowin-badge" data-testid="hud-nowin-badge">
+            NO WIN
+          </div>
+        )}
         <span className="hud-tip" aria-hidden="true">
           Space = Spin
         </span>
