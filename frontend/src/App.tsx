@@ -13,6 +13,8 @@ import './app.css';
 
 type Screen = 'cv' | 'auth' | 'slots';
 
+const DEMO_TOKEN = import.meta.env.VITE_DEMO_JWT;
+
 function getScreenFromPath(pathname: string): Screen {
   return pathname === '/slots' || pathname.startsWith('/slots/') ? 'slots' : 'cv';
 }
@@ -122,6 +124,50 @@ function App() {
     // Already in a live game — don't restart the session on token rotation
     if (initDoneRef.current) return;
 
+    // Demo mode: use VITE_DEMO_JWT directly without refresh
+    if (DEMO_TOKEN && DEMO_TOKEN !== 'e2e.mock.token') {
+      initDoneRef.current = true;
+      setToken(DEMO_TOKEN);
+      initGame(DEMO_TOKEN, gameId)
+        .then((data) => {
+          setInit(data);
+          setReady(true);
+          setError(null);
+        })
+        .catch((e: unknown) => {
+          initDoneRef.current = false;
+          if (e instanceof ApiError && e.status === 401) {
+            setToken('');
+            return;
+          }
+          setError(e instanceof Error ? e.message : 'Connection failed');
+          setReady(true);
+        });
+      return;
+    }
+
+    // E2E mode: skip auth, use mock token for init
+    if (DEMO_TOKEN === 'e2e.mock.token') {
+      initDoneRef.current = true;
+      setToken(DEMO_TOKEN);
+      initGame(DEMO_TOKEN, gameId)
+        .then((data) => {
+          setInit(data);
+          setReady(true);
+          setError(null);
+        })
+        .catch((e: unknown) => {
+          initDoneRef.current = false;
+          if (e instanceof ApiError && e.status === 401) {
+            setToken('');
+            return;
+          }
+          setError(e instanceof Error ? e.message : 'Connection failed');
+          setReady(true);
+        });
+      return;
+    }
+
     if (!token) {
       if (refreshTriedRef.current) {
         // Refresh was already attempted but yielded no token → send to auth
@@ -190,14 +236,20 @@ function App() {
     if (spinCooldownRef.current) window.clearTimeout(spinCooldownRef.current);
     spinCooldownRef.current = window.setTimeout(() => setSpinCooldown(false), 250);
 
+    const spinToken = DEMO_TOKEN === 'e2e.mock.token' ? DEMO_TOKEN : token;
     const idempotencyKey = `spin-${Date.now()}-${Math.random().toString(36).slice(2)}`;
-    spin(token, sessionId, gameId, { amount: bet, currency, lines }, idempotencyKey)
+    spin(spinToken, sessionId, gameId, { amount: bet, currency, lines }, idempotencyKey)
       .then((data) => setSpinResult(data))
       .catch((e: unknown) => {
         if (e instanceof ApiError && e.status === 401) {
           // Access token expired mid-session — refresh silently.
           // The next spin will use the new token; no error shown.
           setSpinning(false);
+          // In demo/e2e mode, skip refresh - just fail the spin
+          if (DEMO_TOKEN) {
+            setError('Session expired');
+            return;
+          }
           refreshAccessToken()
             .then((data) => setToken(data.access_token))
             .catch(() => {
