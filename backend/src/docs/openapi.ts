@@ -231,6 +231,10 @@ export const openApiSpec = generator.generateDocument({
   },
   servers: [
     {
+      url: 'https://pyavchik.space',
+      description: 'Production',
+    },
+    {
       url: 'http://localhost:3001',
       description: 'Local development',
     },
