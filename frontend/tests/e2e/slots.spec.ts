@@ -129,17 +129,10 @@ test.describe('Slots app', () => {
     const slotsButton = page.getByTestId('cv-open-slots').first();
     await expect(slotsButton).toBeVisible();
 
-    // Try popup navigation, fallback to same-tab if blocked
-    const popupPromise = context.waitForEvent('page').catch(() => null);
     await slotsButton.click();
+    await expect(page).toHaveURL(/\/slots/);
 
-    let slotsPage = await popupPromise;
-    if (!slotsPage) {
-      // Popup was blocked - check URL changed
-      await expect(page).toHaveURL(/\/slots/);
-      slotsPage = page;
-    }
-
+    const slotsPage = page;
     await slotsPage.waitForLoadState();
 
     const spinButton = slotsPage.getByRole('button', { name: /spin/i });
