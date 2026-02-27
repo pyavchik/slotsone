@@ -10,9 +10,6 @@ COPY index.html ./
 COPY public ./public
 COPY src ./src
 
-ARG VITE_DEMO_JWT=""
-ENV VITE_DEMO_JWT=${VITE_DEMO_JWT}
-
 RUN npm run build
 
 FROM nginx:1.27-alpine AS runtime

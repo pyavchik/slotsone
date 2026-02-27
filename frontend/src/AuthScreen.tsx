@@ -1,5 +1,5 @@
-import { useState, type FormEvent } from 'react';
-import { register, login } from './api';
+import { useState, useEffect, type FormEvent } from 'react';
+import { register, login, refreshAccessToken } from './api';
 import { useGameStore } from './store';
 import './authScreen.css';
 
@@ -17,6 +17,18 @@ export function AuthScreen({ onAuthenticated }: Props) {
   const [ageConfirmed, setAgeConfirmed] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  // true while we try to silently re-issue via the httpOnly refresh cookie
+  const [silentRefreshing, setSilentRefreshing] = useState(true);
+
+  useEffect(() => {
+    refreshAccessToken()
+      .then((data) => {
+        setToken(data.access_token);
+        onAuthenticated();
+      })
+      .catch(() => setSilentRefreshing(false));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   async function handleSubmit(e: FormEvent) {
     e.preventDefault();
@@ -40,6 +52,20 @@ export function AuthScreen({ onAuthenticated }: Props) {
   function handleTabChange(next: Tab) {
     setTab(next);
     setError(null);
+  }
+
+  if (silentRefreshing) {
+    return (
+      <div className="auth-shell">
+        <div className="auth-card">
+          <div className="auth-logo">
+            <h1 className="auth-logo-title">SlotsOne</h1>
+            <p className="auth-logo-sub">Demo iGaming Platform</p>
+          </div>
+          <p className="auth-silent-checking">Checking session…</p>
+        </div>
+      </div>
+    );
   }
 
   return (

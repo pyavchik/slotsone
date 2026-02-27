@@ -198,3 +198,10 @@
   font-size: 13px;
   text-align: center;
 }
+
+.auth-silent-checking {
+  text-align: center;
+  color: rgba(255, 255, 255, 0.45);
+  font-size: 13px;
+  padding: 16px 0 8px;
+}

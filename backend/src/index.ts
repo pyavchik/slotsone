@@ -1,7 +1,10 @@
 import { app } from './app.js';
+import { initDb } from './db.js';
 import { logger } from './logger.js';
 
 const PORT = Number(process.env.PORT) || 3001;
+
+await initDb();
 const server = app.listen(PORT, () => {
   logger.info('server_started', { port: PORT, env: process.env.NODE_ENV ?? 'unknown' });
 });

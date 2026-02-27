@@ -69,13 +69,13 @@ router.post('/register', async (req, res) => {
 
   let user;
   try {
-    user = createUser(email, passwordHash);
+    user = await createUser(email, passwordHash);
   } catch {
     res.status(409).json({ error: 'Email already registered', code: 'email_taken' });
     return;
   }
 
-  setRefreshCookie(res, createRefreshToken(user.id));
+  setRefreshCookie(res, await createRefreshToken(user.id));
   res.status(201).json({
     access_token: signToken(user.id, ACCESS_TOKEN_TTL),
     token_type: 'Bearer',
@@ -91,14 +91,14 @@ router.post('/login', async (req, res) => {
   }
 
   const { email, password } = parsed.data;
-  const user = findUserByEmail(email);
+  const user = await findUserByEmail(email);
 
   if (!user || !(await verifyPassword(password, user.passwordHash))) {
     res.status(401).json({ error: 'Invalid credentials', code: 'invalid_credentials' });
     return;
   }
 
-  setRefreshCookie(res, createRefreshToken(user.id));
+  setRefreshCookie(res, await createRefreshToken(user.id));
   res.json({
     access_token: signToken(user.id, ACCESS_TOKEN_TTL),
     token_type: 'Bearer',
@@ -106,7 +106,7 @@ router.post('/login', async (req, res) => {
   });
 });
 
-router.post('/refresh', (req, res) => {
+router.post('/refresh', async (req, res) => {
   const incoming = getRefreshCookie(req);
   if (!incoming) {
     res.status(401).json({ error: 'No refresh token', code: 'missing_refresh_token' });
@@ -116,7 +116,7 @@ router.post('/refresh', (req, res) => {
   // consumeRefreshToken rotates: it deletes the old token and returns userId.
   // If the same token is presented twice (theft detection), entry is already
   // gone so consumeRefreshToken returns null.
-  const userId = consumeRefreshToken(incoming);
+  const userId = await consumeRefreshToken(incoming);
   if (!userId) {
     clearRefreshCookie(res);
     res
@@ -126,7 +126,7 @@ router.post('/refresh', (req, res) => {
   }
 
   // Issue a fresh rotation pair
-  setRefreshCookie(res, createRefreshToken(userId));
+  setRefreshCookie(res, await createRefreshToken(userId));
   res.json({
     access_token: signToken(userId, ACCESS_TOKEN_TTL),
     token_type: 'Bearer',
@@ -134,11 +134,11 @@ router.post('/refresh', (req, res) => {
   });
 });
 
-router.post('/logout', (req, res) => {
+router.post('/logout', async (req, res) => {
   const incoming = getRefreshCookie(req);
   if (incoming) {
-    const userId = consumeRefreshToken(incoming);
-    if (userId) revokeAllRefreshTokensForUser(userId); // logout all devices
+    const userId = await consumeRefreshToken(incoming);
+    if (userId) await revokeAllRefreshTokensForUser(userId); // logout all devices
   }
   clearRefreshCookie(res);
   res.status(204).send();

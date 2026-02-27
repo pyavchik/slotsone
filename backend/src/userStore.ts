@@ -1,4 +1,4 @@
-import { randomUUID } from 'crypto';
+import { getPool } from './db.js';
 
 export interface User {
   id: string;
@@ -6,22 +6,33 @@ export interface User {
   passwordHash: string;
 }
 
-const users = new Map<string, User>(); // key: email (normalised)
-
-export function createUser(email: string, passwordHash: string): User {
+export async function createUser(email: string, passwordHash: string): Promise<User> {
   const key = email.toLowerCase();
-  if (users.has(key)) {
-    throw new Error('email_taken');
+  try {
+    const result = await getPool().query<{ id: string; email: string; password_hash: string }>(
+      'INSERT INTO users (email, password_hash) VALUES ($1, $2) RETURNING id, email, password_hash',
+      [key, passwordHash]
+    );
+    const row = result.rows[0];
+    return { id: row.id, email: row.email, passwordHash: row.password_hash };
+  } catch (err: unknown) {
+    if ((err as { code?: string }).code === '23505') {
+      throw new Error('email_taken');
+    }
+    throw err;
   }
-  const user: User = { id: randomUUID(), email: key, passwordHash };
-  users.set(key, user);
-  return user;
 }
 
-export function findUserByEmail(email: string): User | undefined {
-  return users.get(email.toLowerCase());
+export async function findUserByEmail(email: string): Promise<User | undefined> {
+  const result = await getPool().query<{ id: string; email: string; password_hash: string }>(
+    'SELECT id, email, password_hash FROM users WHERE email = $1',
+    [email.toLowerCase()]
+  );
+  if (result.rows.length === 0) return undefined;
+  const row = result.rows[0];
+  return { id: row.id, email: row.email, passwordHash: row.password_hash };
 }
 
-export function resetUserStoreForTests(): void {
-  users.clear();
+export async function resetUserStoreForTests(): Promise<void> {
+  await getPool().query('TRUNCATE TABLE users CASCADE');
 }
