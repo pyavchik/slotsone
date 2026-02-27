@@ -8,6 +8,7 @@ import { validateAuthEnvironment } from './config/validateAuthEnv.js';
 import { openApiSpec } from './docs/openapi.js';
 import { logger } from './logger.js';
 import gameRoutes from './routes/game.js';
+import authRoutes from './routes/auth.js';
 
 loadEnvironmentFiles();
 validateAuthEnvironment();
@@ -72,6 +73,9 @@ app.use(
     customSiteTitle: 'Slots API Docs',
   })
 );
+
+// POST /api/v1/auth/register, POST /api/v1/auth/login
+app.use('/api/v1/auth', authRoutes);
 
 // POST /api/v1/game/init, POST /api/v1/spin, GET /api/v1/history
 app.use('/api/v1', gameRoutes);

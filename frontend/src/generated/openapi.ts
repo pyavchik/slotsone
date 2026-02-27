@@ -4,6 +4,218 @@
  */
 
 export interface paths {
+    "/api/v1/auth/register": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Register a new player account
+         * @description Creates an account and issues a token pair:
+         *     - **Body**: 15-min RS256 access token — copy and paste into **Authorize**
+         *     - **Cookie** (`httpOnly`): 7-day refresh token — stored by the browser, never readable by JS
+         */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": components["schemas"]["RegisterRequest"];
+                };
+            };
+            responses: {
+                /** @description Account created, JWT issued */
+                201: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["AuthResponse"];
+                    };
+                };
+                /** @description Invalid request body */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
+                };
+                /** @description Email already registered */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/auth/login": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Login and receive a JWT
+         * @description Verifies credentials and issues a fresh token pair. Same response shape as register.
+         */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": components["schemas"]["LoginRequest"];
+                };
+            };
+            responses: {
+                /** @description JWT issued */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["AuthResponse"];
+                    };
+                };
+                /** @description Invalid request body */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
+                };
+                /** @description Invalid credentials */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/auth/refresh": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Silently refresh the access token
+         * @description Reads the `refresh_token` httpOnly cookie, validates it, and issues a new token pair (**token rotation** — the old refresh token is invalidated on use). Returns 401 if the cookie is missing or expired. In the browser this happens automatically; the cookie is never visible to JS.
+         */
+        post: {
+            parameters: {
+                query?: never;
+                header?: {
+                    /** @description Set automatically by the browser */
+                    Cookie?: string;
+                };
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description New access token issued, new refresh cookie set */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["AuthResponse"];
+                    };
+                };
+                /** @description Missing, invalid, or expired refresh token */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/auth/logout": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Logout and revoke all refresh tokens
+         * @description Revokes the current refresh token **and all other active sessions** for the user, then clears the cookie. Safe to call even if the cookie is already gone.
+         */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Logged out — cookie cleared */
+                204: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/health": {
         parameters: {
             query?: never;
@@ -261,6 +473,43 @@ export interface components {
         ErrorResponse: {
             error: string;
             code: string;
+        };
+        RegisterRequest: {
+            /**
+             * Format: email
+             * @description Player email address
+             * @example player@example.com
+             */
+            email: string;
+            /**
+             * @description Min. 8 characters
+             * @example password123
+             */
+            password: string;
+        };
+        LoginRequest: {
+            /**
+             * Format: email
+             * @description Player email address
+             * @example player@example.com
+             */
+            email: string;
+            /** @example password123 */
+            password: string;
+        };
+        AuthResponse: {
+            /** @description RS256 JWT — paste into the Authorize dialog above */
+            access_token: string;
+            /**
+             * @example Bearer
+             * @enum {string}
+             */
+            token_type: "Bearer";
+            /**
+             * @description Access token TTL in seconds (15 min)
+             * @example 900
+             */
+            expires_in: number;
         };
         Bet: {
             amount: number;

@@ -2,7 +2,11 @@ import { useEffect, useRef, useState } from 'react';
 import { useGameStore } from './store';
 import './hud.css';
 
-export function HUD() {
+interface HUDProps {
+  onLogout?: () => void;
+}
+
+export function HUD({ onLogout }: HUDProps) {
   const balance = useGameStore((s) => s.balance);
   const bet = useGameStore((s) => s.bet);
   const lines = useGameStore((s) => s.lines);
@@ -117,6 +121,11 @@ export function HUD() {
         <span className="hud-subtext">
           {lines} lines • {lineBet.toFixed(2)} / line
         </span>
+        {onLogout && (
+          <button type="button" className="hud-logout-btn" onClick={onLogout} aria-label="Logout">
+            Logout
+          </button>
+        )}
       </section>
     </div>
   );
