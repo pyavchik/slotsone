@@ -76,13 +76,11 @@ router.post('/register', async (req, res) => {
   }
 
   setRefreshCookie(res, createRefreshToken(user.id));
-  res
-    .status(201)
-    .json({
-      access_token: signToken(user.id, ACCESS_TOKEN_TTL),
-      token_type: 'Bearer',
-      expires_in: ACCESS_TOKEN_TTL,
-    });
+  res.status(201).json({
+    access_token: signToken(user.id, ACCESS_TOKEN_TTL),
+    token_type: 'Bearer',
+    expires_in: ACCESS_TOKEN_TTL,
+  });
 });
 
 router.post('/login', async (req, res) => {
