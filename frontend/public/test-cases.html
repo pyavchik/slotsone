@@ -1,0 +1,1187 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Test Cases — pyavchik.space</title>
+    <style>
+      *, *::before, *::after { box-sizing: border-box; }
+
+      body {
+        margin: 0;
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+        background: linear-gradient(180deg, #0f1118 0%, #0b0d13 100%);
+        color: #f8fafc;
+        min-height: 100vh;
+        font-size: 14px;
+      }
+
+      .wrap {
+        max-width: 1080px;
+        margin: 0 auto;
+        padding: 28px 18px 56px;
+        display: flex;
+        flex-direction: column;
+        gap: 14px;
+      }
+
+      /* ── Cards ───────────────────────────────────── */
+      .card {
+        border: 1px solid rgba(255,255,255,0.13);
+        border-radius: 14px;
+        background: rgba(17,20,30,0.78);
+        padding: 20px 22px;
+      }
+
+      h1 { margin: 0 0 3px; font-size: 26px; letter-spacing: -.3px; }
+      .subtitle { margin: 0 0 14px; color: #94a3b8; font-size: 13px; }
+      h2 { margin: 0 0 14px; font-size: 16px; color: #f1f5f9; }
+      p  { margin: 0 0 10px; color: #dbe2ec; line-height: 1.55; }
+
+      /* ── Back link ───────────────────────────────── */
+      .back {
+        display: inline-flex; align-items: center; gap: 6px;
+        font-size: 13px; font-weight: 600; color: #94a3b8;
+        text-decoration: none;
+        border: 1px solid rgba(148,163,184,.3);
+        padding: 6px 12px; border-radius: 8px;
+        background: rgba(15,23,42,.5);
+        width: fit-content;
+      }
+      .back:hover { color: #f8fafc; border-color: rgba(148,163,184,.7); }
+
+      /* ── Stats ───────────────────────────────────── */
+      .stats { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 8px; }
+      .stat {
+        padding: 8px 14px; border-radius: 10px;
+        background: rgba(15,23,42,.65);
+        border: 1px solid rgba(148,163,184,.2);
+        font-size: 13px; color: #dbe2ec; text-align: center;
+      }
+      .stat strong { display: block; font-size: 22px; line-height: 1.15; color: #f8fafc; }
+
+      /* ── Controls ────────────────────────────────── */
+      .controls { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+
+      .filter-tabs { display: flex; flex-wrap: wrap; gap: 6px; flex: 1; }
+      .tab {
+        padding: 6px 14px; border-radius: 999px;
+        border: 1px solid rgba(148,163,184,.3);
+        background: transparent; color: #94a3b8;
+        font-size: 12px; font-weight: 700; cursor: pointer;
+        transition: border-color .15s, color .15s, background .15s;
+        white-space: nowrap;
+      }
+      .tab:hover { border-color: rgba(248,250,252,.5); color: #f8fafc; }
+      .tab.active {
+        border-color: rgba(248,250,252,.7); color: #f8fafc;
+        background: rgba(248,250,252,.08);
+      }
+
+      .search-wrap { position: relative; }
+      .search-wrap svg {
+        position: absolute; left: 10px; top: 50%; transform: translateY(-50%);
+        color: #64748b; pointer-events: none;
+      }
+      #search {
+        padding: 7px 10px 7px 32px; border-radius: 8px;
+        border: 1px solid rgba(148,163,184,.3);
+        background: rgba(15,23,42,.65); color: #f8fafc;
+        font-size: 13px; width: 220px; outline: none;
+      }
+      #search:focus { border-color: rgba(148,163,184,.7); }
+      #search::placeholder { color: #475569; }
+
+      .count-label { font-size: 12px; color: #475569; white-space: nowrap; }
+
+      /* ── Badges ──────────────────────────────────── */
+      .badge {
+        display: inline-block; padding: 2px 7px;
+        border-radius: 5px; font-size: 11px; font-weight: 700;
+        white-space: nowrap; letter-spacing: .02em;
+      }
+      .badge-ui   { background: rgba(167,139,250,.18); color: #a78bfa; }
+      .badge-auth { background: rgba(98,215,255,.15);  color: #62d7ff; }
+      .badge-game { background: rgba(245,208,106,.15); color: #f5d06a; }
+      .badge-e2e  { background: rgba(62,224,169,.15);  color: #3ee0a9; }
+      .badge-sec  { background: rgba(248,113,113,.15); color: #f87171; }
+
+      .prio { font-size: 11px; font-weight: 800; white-space: nowrap; }
+      .prio-HIGH { color: #f87171; }
+      .prio-MED  { color: #fbbf24; }
+      .prio-LOW  { color: #64748b; }
+
+      .status-badge {
+        padding: 2px 8px; border-radius: 5px; font-size: 11px; font-weight: 700;
+      }
+      .status-not-run { background: rgba(100,116,139,.2); color: #94a3b8; }
+      .status-pass    { background: rgba(34,197,94,.15);  color: #4ade80; }
+      .status-fail    { background: rgba(248,113,113,.15);color: #f87171; }
+      .status-blocked { background: rgba(251,191,36,.15); color: #fbbf24; }
+
+      /* ── Table ───────────────────────────────────── */
+      .tc-table { width: 100%; border-collapse: collapse; }
+
+      .tc-table thead th {
+        text-align: left; padding: 9px 12px;
+        color: #64748b; font-size: 11px; font-weight: 700;
+        text-transform: uppercase; letter-spacing: .07em;
+        border-bottom: 1px solid rgba(255,255,255,.1);
+      }
+
+      .tc-row {
+        cursor: pointer;
+        transition: background .1s;
+      }
+      .tc-row:hover td { background: rgba(255,255,255,.04); }
+      .tc-row td {
+        padding: 10px 12px;
+        border-bottom: 1px solid rgba(255,255,255,.06);
+        vertical-align: middle;
+        color: #dbe2ec;
+      }
+      .tc-row.open td { border-bottom: none; }
+
+      .tc-id {
+        font-family: ui-monospace, monospace; font-size: 12px;
+        color: #62d7ff; white-space: nowrap;
+      }
+      .tc-title { color: #f1f5f9; line-height: 1.4; }
+      .tc-chevron {
+        transition: transform .2s; color: #475569;
+        display: inline-block;
+      }
+      .tc-row.open .tc-chevron { transform: rotate(90deg); }
+
+      /* ── Detail panel ────────────────────────────── */
+      .tc-detail-row td {
+        padding: 0;
+        border-bottom: 1px solid rgba(255,255,255,.08);
+      }
+      .tc-detail-panel {
+        display: none;
+        padding: 0 12px 18px 48px;
+        background: rgba(11,13,19,.6);
+      }
+      .tc-detail-panel.open { display: block; }
+
+      .detail-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 12px;
+        margin-top: 14px;
+      }
+      .detail-grid .full { grid-column: 1 / -1; }
+
+      .detail-field { display: flex; flex-direction: column; gap: 5px; }
+      .detail-label {
+        font-size: 10px; font-weight: 700; text-transform: uppercase;
+        letter-spacing: .08em; color: #64748b;
+      }
+      .detail-value {
+        color: #dbe2ec; line-height: 1.5; font-size: 13px;
+        padding: 8px 10px; border-radius: 8px;
+        background: rgba(15,23,42,.55);
+        border: 1px solid rgba(148,163,184,.12);
+      }
+      .detail-value.none { color: #475569; font-style: italic; }
+      .detail-value code {
+        font-family: ui-monospace, monospace;
+        font-size: 12px; color: #a78bfa;
+        background: rgba(167,139,250,.1);
+        padding: 1px 4px; border-radius: 3px;
+      }
+
+      .steps-list {
+        margin: 0; padding: 0; list-style: none;
+        display: flex; flex-direction: column; gap: 5px;
+      }
+      .steps-list li {
+        display: flex; gap: 8px; align-items: flex-start;
+        font-size: 13px; color: #dbe2ec; line-height: 1.5;
+      }
+      .step-num {
+        min-width: 20px; height: 20px; border-radius: 999px;
+        background: rgba(98,215,255,.15); color: #62d7ff;
+        font-size: 10px; font-weight: 800;
+        display: flex; align-items: center; justify-content: center;
+        margin-top: 1px; flex-shrink: 0;
+      }
+
+      .actual-placeholder { color: #475569; font-style: italic; }
+
+      /* ── Empty state ─────────────────────────────── */
+      .empty-row td {
+        padding: 40px 12px; text-align: center;
+        color: #475569; font-style: italic;
+        border-bottom: none;
+      }
+
+      /* ── Legend ──────────────────────────────────── */
+      .legend {
+        display: flex; flex-wrap: wrap; gap: 10px;
+        align-items: center; font-size: 12px; color: #64748b;
+      }
+      .legend-sep { width: 1px; height: 14px; background: rgba(255,255,255,.1); }
+
+      /* ── Responsive ──────────────────────────────── */
+      @media (max-width: 700px) {
+        .wrap { padding: 14px 12px 40px; }
+        .card { padding: 16px; }
+        .detail-grid { grid-template-columns: 1fr; }
+        .detail-grid .full { grid-column: auto; }
+        .tc-detail-panel { padding-left: 12px; }
+        #search { width: 100%; }
+        .search-wrap { width: 100%; }
+        .col-module, .col-prio, .col-status { display: none; }
+      }
+    </style>
+  </head>
+  <body>
+    <main class="wrap">
+      <a class="back" href="/">&#8592; back to CV</a>
+
+      <!-- Header -->
+      <section class="card">
+        <h1>Test Cases</h1>
+        <p class="subtitle">pyavchik.space — Full test coverage for UI, Auth API, Game API, E2E flows &amp; Security</p>
+        <div class="stats" id="stats-row">
+          <!-- populated by JS -->
+        </div>
+      </section>
+
+      <!-- Controls -->
+      <section class="card">
+        <div class="controls">
+          <div class="filter-tabs" id="filter-tabs">
+            <button class="tab active" data-module="ALL">All</button>
+            <button class="tab" data-module="UI">UI</button>
+            <button class="tab" data-module="AUTH">Auth</button>
+            <button class="tab" data-module="GAME">Game</button>
+            <button class="tab" data-module="E2E">E2E</button>
+            <button class="tab" data-module="SEC">Security</button>
+          </div>
+          <div class="search-wrap">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+              <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
+            </svg>
+            <input id="search" type="text" placeholder="Search test cases…" autocomplete="off" />
+          </div>
+          <span class="count-label" id="count-label"></span>
+        </div>
+      </section>
+
+      <!-- Table -->
+      <section class="card" style="padding: 0 0 4px;">
+        <table class="tc-table">
+          <thead>
+            <tr>
+              <th style="width:90px">ID</th>
+              <th class="col-module" style="width:80px">Module</th>
+              <th>Title</th>
+              <th class="col-prio" style="width:60px">Priority</th>
+              <th class="col-status" style="width:80px">Status</th>
+              <th style="width:30px"></th>
+            </tr>
+          </thead>
+          <tbody id="tc-tbody">
+            <!-- populated by JS -->
+          </tbody>
+        </table>
+      </section>
+
+      <!-- Legend -->
+      <section class="card">
+        <div class="legend">
+          <span><span class="badge badge-ui">UI</span> CV Landing</span>
+          <span><span class="badge badge-auth">AUTH</span> Auth API</span>
+          <span><span class="badge badge-game">GAME</span> Game API</span>
+          <span><span class="badge badge-e2e">E2E</span> End-to-End</span>
+          <span><span class="badge badge-sec">SEC</span> Security</span>
+          <span class="legend-sep"></span>
+          <span class="prio prio-HIGH">HIGH</span>
+          <span class="prio prio-MED">MED</span>
+          <span class="prio prio-LOW">LOW</span>
+          <span class="legend-sep"></span>
+          <a href="/postman-tests.html" target="_blank" rel="noreferrer" style="color:#62d7ff">Postman Tests</a>
+          <a href="/api-docs" target="_blank" rel="noreferrer" style="color:#62d7ff">Swagger</a>
+        </div>
+      </section>
+    </main>
+
+    <script>
+      /* ─────────────────────────────────────────────────────────────────────
+         TEST CASE DATA
+         Fields: id, module, priority, title, preconditions,
+                 steps (array), testData (string|null), expected
+      ───────────────────────────────────────────────────────────────────── */
+      const CASES = [
+
+        /* ═══════════════════  UI — CV Landing Page  ══════════════════════ */
+        {
+          id: 'UI-01', module: 'UI', priority: 'HIGH',
+          title: 'CV page renders with correct name heading',
+          preconditions: 'Application is running and reachable in a browser.',
+          steps: [
+            'Open a browser and navigate to https://pyavchik.space/.',
+            'Wait for the page to fully load (network idle).',
+            'Locate the main heading element.'
+          ],
+          testData: 'URL: https://pyavchik.space/',
+          expected: 'h1[data-testid="cv-title"] is visible and contains exactly "Oleksander Pyavchik".'
+        },
+        {
+          id: 'UI-02', module: 'UI', priority: 'MED',
+          title: 'Avatar photo loads without a broken-image icon',
+          preconditions: 'Application running. Asset /cv-photo.png exists on the server.',
+          steps: [
+            'Navigate to https://pyavchik.space/.',
+            'Wait for the page to fully load.',
+            'Locate img[alt="Oleksander Pyavchik"].',
+            'Inspect whether the image renders or shows a broken placeholder.'
+          ],
+          testData: 'Image src: /cv-photo.png',
+          expected: 'Image renders correctly. img.naturalWidth > 0. No broken-image icon visible.'
+        },
+        {
+          id: 'UI-03', module: 'UI', priority: 'HIGH',
+          title: 'All 5 action bar items are visible',
+          preconditions: 'Application running.',
+          steps: [
+            'Navigate to https://pyavchik.space/.',
+            'Locate the .cv-actions container in the page header.',
+            'Verify the "slots" button is visible.',
+            'Verify the "test cases" link is visible.',
+            'Verify the "postman" link is visible.',
+            'Verify the "swager" link is visible.',
+            'Verify the "Download PDF CV" link is visible.'
+          ],
+          testData: null,
+          expected: 'All 5 elements are visible inside .cv-actions: [slots] [test cases] [postman] [swager] [Download PDF CV].'
+        },
+        {
+          id: 'UI-04', module: 'UI', priority: 'HIGH',
+          title: '"test cases" link has correct href and opens in a new tab',
+          preconditions: 'Application running.',
+          steps: [
+            'Navigate to https://pyavchik.space/.',
+            'Locate a[data-testid="cv-test-cases"].',
+            'Inspect its href, target, and rel attributes.',
+            'Click the link.'
+          ],
+          testData: null,
+          expected: 'href="/test-cases.html". target="_blank". rel="noreferrer". Clicking opens a new browser tab at /test-cases.html.'
+        },
+        {
+          id: 'UI-05', module: 'UI', priority: 'HIGH',
+          title: '"postman" link opens postman-tests page in a new tab',
+          preconditions: 'Application running.',
+          steps: [
+            'Navigate to https://pyavchik.space/.',
+            'Inspect the "postman" link\'s href, target, and rel attributes.',
+            'Click the "postman" link.'
+          ],
+          testData: null,
+          expected: 'href="/postman-tests.html". target="_blank". rel="noreferrer". New browser tab opens at /postman-tests.html.'
+        },
+        {
+          id: 'UI-06', module: 'UI', priority: 'HIGH',
+          title: '"swager" link opens API docs in a new tab',
+          preconditions: 'Application running.',
+          steps: [
+            'Navigate to https://pyavchik.space/.',
+            'Inspect the "swager" link\'s href, target, and rel attributes.',
+            'Click the "swager" link.'
+          ],
+          testData: null,
+          expected: 'href="/api-docs". target="_blank". rel="noreferrer". New browser tab opens at /api-docs.'
+        },
+        {
+          id: 'UI-07', module: 'UI', priority: 'HIGH',
+          title: '"Download PDF CV" link opens the PDF in a new tab',
+          preconditions: 'Application running. /QA_Oleksander_Pyavchik_CV.pdf exists on the server.',
+          steps: [
+            'Navigate to https://pyavchik.space/.',
+            'Inspect the "Download PDF CV" link\'s href, target, and rel attributes.',
+            'Click the "Download PDF CV" link.'
+          ],
+          testData: 'File path: /QA_Oleksander_Pyavchik_CV.pdf',
+          expected: 'href="/QA_Oleksander_Pyavchik_CV.pdf". target="_blank". rel="noreferrer". New tab opens and PDF file is displayed or downloaded.'
+        },
+        {
+          id: 'UI-08', module: 'UI', priority: 'MED',
+          title: 'Work Experience section renders all 3 past roles',
+          preconditions: 'Application running.',
+          steps: [
+            'Navigate to https://pyavchik.space/.',
+            'Scroll to the "Work Experience" section.',
+            'Count the number of .cv-experience-item article elements.',
+            'Read the role and company name of each article.'
+          ],
+          testData: null,
+          expected: 'Exactly 3 articles visible: (1) AQA Engineer @ EG, 2021–2025; (2) AQA Engineer @ Digicode, 2019–2021; (3) Manual/Automation QA @ Innovation Group, 2014–2019.'
+        },
+        {
+          id: 'UI-09', module: 'UI', priority: 'LOW',
+          title: 'Core Skills section renders 10 skill pills',
+          preconditions: 'Application running.',
+          steps: [
+            'Navigate to https://pyavchik.space/.',
+            'Scroll to the "Core Skills" section.',
+            'Count all .cv-skill-pill span elements.'
+          ],
+          testData: null,
+          expected: 'Exactly 10 .cv-skill-pill elements are visible and readable.'
+        },
+        {
+          id: 'UI-10', module: 'UI', priority: 'MED',
+          title: 'Contact email link has correct mailto: href',
+          preconditions: 'Application running.',
+          steps: [
+            'Navigate to https://pyavchik.space/.',
+            'Locate the contact list (.cv-contact-list).',
+            'Inspect the email anchor element\'s href attribute.'
+          ],
+          testData: 'Expected email address: pyavchik@gmail.com',
+          expected: 'a[href="mailto:pyavchik@gmail.com"] is present and visible in the contact list.'
+        },
+        {
+          id: 'UI-11', module: 'UI', priority: 'MED',
+          title: 'Footer CTA contains a second "slots" button',
+          preconditions: 'Application running.',
+          steps: [
+            'Navigate to https://pyavchik.space/.',
+            'Scroll to the bottom of the page to the "Project Demo" section.',
+            'Locate the button inside .cv-final-cta.'
+          ],
+          testData: null,
+          expected: 'A button with data-testid="cv-open-slots" and text "slots" is visible inside .cv-final-cta. Total count of [data-testid="cv-open-slots"] on the page = 2.'
+        },
+        {
+          id: 'UI-12', module: 'UI', priority: 'MED',
+          title: 'Action bar items appear in the correct left-to-right order',
+          preconditions: 'Application running.',
+          steps: [
+            'Navigate to https://pyavchik.space/.',
+            'Inspect the DOM children of .cv-actions in document order.',
+            'Note the text content of each direct child element.'
+          ],
+          testData: null,
+          expected: 'Children in order: [0] "slots" (button), [1] "test cases" (a), [2] "postman" (a), [3] "swager" (a), [4] "Download PDF CV" (a).'
+        },
+        {
+          id: 'UI-13', module: 'UI', priority: 'MED',
+          title: 'Page has no horizontal overflow at 375 px viewport',
+          preconditions: 'Application running. Browser DevTools available.',
+          steps: [
+            'Open DevTools and set the viewport to 375 × 812 px (iPhone SE).',
+            'Navigate to https://pyavchik.space/.',
+            'Run in console: document.body.scrollWidth.',
+            'Visually inspect for a horizontal scrollbar.'
+          ],
+          testData: 'Viewport: 375 × 812 px',
+          expected: 'document.body.scrollWidth ≤ 375. No horizontal scrollbar appears. All content fits within the viewport width.'
+        },
+
+        /* ═══════════════════  AUTH — API Endpoints  ══════════════════════ */
+        {
+          id: 'AUTH-01', module: 'AUTH', priority: 'HIGH',
+          title: 'Register new user returns 201 with access token',
+          preconditions: 'Backend and PostgreSQL running. The test email address has not been registered before.',
+          steps: [
+            'Send POST /api/v1/auth/register with header Content-Type: application/json.',
+            'Set body: { "email": "testuser_001@test.com", "password": "Str0ng!Pass" }.',
+            'Check the HTTP response status code.',
+            'Validate the response body fields.'
+          ],
+          testData: '{ "email": "testuser_001@test.com", "password": "Str0ng!Pass" }',
+          expected: 'HTTP 201. Body: { access_token: <JWT string>, token_type: "Bearer", expires_in: 3600 }.'
+        },
+        {
+          id: 'AUTH-02', module: 'AUTH', priority: 'HIGH',
+          title: 'Register with duplicate email returns 409',
+          preconditions: 'AUTH-01 already executed — testuser_001@test.com is registered.',
+          steps: [
+            'Send POST /api/v1/auth/register.',
+            'Set body: { "email": "testuser_001@test.com", "password": "AnyPassword1!" } (same email as AUTH-01).',
+            'Check the HTTP response status code and body.'
+          ],
+          testData: '{ "email": "testuser_001@test.com" } (already registered)',
+          expected: 'HTTP 409. Body: { error: "...", code: "email_taken" }.'
+        },
+        {
+          id: 'AUTH-03', module: 'AUTH', priority: 'HIGH',
+          title: 'Register with missing password field returns 400',
+          preconditions: 'Backend running.',
+          steps: [
+            'Send POST /api/v1/auth/register.',
+            'Set body: { "email": "nopassword@test.com" } — omit the password field entirely.',
+            'Check the HTTP response status code and body.'
+          ],
+          testData: '{ "email": "nopassword@test.com" } — no "password" key',
+          expected: 'HTTP 400. Body: { error: "...", code: "invalid_body" }.'
+        },
+        {
+          id: 'AUTH-04', module: 'AUTH', priority: 'HIGH',
+          title: 'Login with valid credentials returns 200 and sets refresh cookie',
+          preconditions: 'AUTH-01 executed — testuser_001@test.com is registered.',
+          steps: [
+            'Send POST /api/v1/auth/login with Content-Type: application/json.',
+            'Set body: { "email": "testuser_001@test.com", "password": "Str0ng!Pass" }.',
+            'Check the HTTP response status code.',
+            'Check the response body for access_token.',
+            'Inspect the Set-Cookie response header.'
+          ],
+          testData: '{ "email": "testuser_001@test.com", "password": "Str0ng!Pass" }',
+          expected: 'HTTP 200. Body: { access_token: <JWT>, token_type: "Bearer", expires_in: 3600 }. Set-Cookie header present with an HttpOnly refresh token cookie.'
+        },
+        {
+          id: 'AUTH-05', module: 'AUTH', priority: 'HIGH',
+          title: 'Login with wrong password returns 401',
+          preconditions: 'AUTH-01 executed — testuser_001@test.com is registered.',
+          steps: [
+            'Send POST /api/v1/auth/login.',
+            'Set body: { "email": "testuser_001@test.com", "password": "WrongPass999!" }.',
+            'Check the HTTP response status code and body.'
+          ],
+          testData: '{ "email": "testuser_001@test.com", "password": "WrongPass999!" } (incorrect password)',
+          expected: 'HTTP 401. Body: { error: "...", code: "invalid_credentials" }.'
+        },
+        {
+          id: 'AUTH-06', module: 'AUTH', priority: 'MED',
+          title: 'Login with empty body returns 400',
+          preconditions: 'Backend running.',
+          steps: [
+            'Send POST /api/v1/auth/login.',
+            'Set body to an empty JSON object: {}.',
+            'Check the HTTP response status code and body.'
+          ],
+          testData: 'Body: {} (empty — no email, no password)',
+          expected: 'HTTP 400. Body: { error: "...", code: "invalid_body" }.'
+        },
+        {
+          id: 'AUTH-07', module: 'AUTH', priority: 'HIGH',
+          title: 'Refresh token endpoint rotates and returns a new access token',
+          preconditions: 'AUTH-04 executed — refresh HttpOnly cookie is present in the cookie jar.',
+          steps: [
+            'Send POST /api/v1/auth/refresh, including the refresh cookie from AUTH-04.',
+            'Check the HTTP response status code.',
+            'Compare the new access_token with the one received in AUTH-04.',
+            'Confirm that the Set-Cookie header contains a new rotated refresh token.'
+          ],
+          testData: 'Refresh cookie obtained from the Set-Cookie header in AUTH-04.',
+          expected: 'HTTP 200. Body: { access_token: <new JWT, differs from AUTH-04>, token_type: "Bearer", expires_in: 3600 }. New Set-Cookie issued (token rotated — old token invalidated).'
+        },
+        {
+          id: 'AUTH-08', module: 'AUTH', priority: 'HIGH',
+          title: 'Refresh without a cookie returns 401',
+          preconditions: 'No cookies present in the request.',
+          steps: [
+            'Send POST /api/v1/auth/refresh without any Cookie header.',
+            'Check the HTTP response status code and body.'
+          ],
+          testData: 'No Cookie header sent.',
+          expected: 'HTTP 401. Body: { error: "...", code: "missing_refresh_token" }.'
+        },
+        {
+          id: 'AUTH-09', module: 'AUTH', priority: 'HIGH',
+          title: 'Logout revokes refresh token — subsequent refresh returns 401',
+          preconditions: 'AUTH-04 executed — valid access_token and refresh cookie available.',
+          steps: [
+            'Send POST /api/v1/auth/logout with header Authorization: Bearer <access_token from AUTH-04>.',
+            'Check the HTTP response status code.',
+            'Send POST /api/v1/auth/refresh using the refresh cookie from AUTH-04.',
+            'Check the status code of the refresh attempt.'
+          ],
+          testData: 'Authorization: Bearer <token from AUTH-04>. Refresh cookie from AUTH-04.',
+          expected: 'Step 2: HTTP 204 No Content. Step 4: HTTP 401 — token has been revoked and is no longer valid.'
+        },
+
+        /* ═══════════════════  GAME — API Endpoints  ══════════════════════ */
+        {
+          id: 'GAME-01', module: 'GAME', priority: 'HIGH',
+          title: 'Game init returns session ID, config, and balance',
+          preconditions: 'Valid access_token obtained via AUTH-04.',
+          steps: [
+            'Send POST /api/v1/game/init.',
+            'Set header Authorization: Bearer <access_token>.',
+            'Check the HTTP response status code.',
+            'Validate all required fields in the response body.'
+          ],
+          testData: 'Authorization: Bearer <valid access_token>',
+          expected: 'HTTP 200. Body includes: { session_id: <string>, game_id: <string>, config: { min_bet, max_bet, reels: 5, rows: 3, paylines: 20, bet_levels[], paytable }, balance: { amount: <number>, currency: "USD" }, expires_at: <ISO timestamp> }.'
+        },
+        {
+          id: 'GAME-02', module: 'GAME', priority: 'HIGH',
+          title: 'Game init without auth header returns 401',
+          preconditions: 'Backend running.',
+          steps: [
+            'Send POST /api/v1/game/init without any Authorization header.',
+            'Check the HTTP response status code.'
+          ],
+          testData: 'No Authorization header.',
+          expected: 'HTTP 401 Unauthorized.'
+        },
+        {
+          id: 'GAME-03', module: 'GAME', priority: 'HIGH',
+          title: 'Spin with valid bet returns complete outcome structure',
+          preconditions: 'GAME-01 executed — active session_id and game_id available. Balance ≥ 1 USD.',
+          steps: [
+            'Send POST /api/v1/spin.',
+            'Set Authorization: Bearer <access_token> and Idempotency-Key: "idem-g03-001".',
+            'Set body: { "session_id": "<from GAME-01>", "game_id": "<from GAME-01>", "bet": { "amount": 1, "currency": "USD", "lines": 20 } }.',
+            'Check the HTTP response status code.',
+            'Validate all required fields in the response body.'
+          ],
+          testData: 'bet: { amount: 1, currency: "USD", lines: 20 }. Idempotency-Key: "idem-g03-001".',
+          expected: 'HTTP 200. Body: { spin_id, session_id, game_id, balance: { amount, currency }, bet, outcome: { reel_matrix: [5 columns][3 rows], win: { amount, currency, breakdown[] }, bonus_triggered }, next_state, timestamp }.'
+        },
+        {
+          id: 'GAME-04', module: 'GAME', priority: 'HIGH',
+          title: 'Balance after spin equals balance before minus bet plus win',
+          preconditions: 'GAME-01 executed — balance_before is known from the init response.',
+          steps: [
+            'Note balance_before from the GAME-01 init response.',
+            'Send POST /api/v1/spin with bet.amount = 1 and a unique Idempotency-Key.',
+            'From the spin response read outcome.win.amount and the updated balance.amount.',
+            'Calculate: expected_balance = balance_before − 1 + win.amount.',
+            'Compare expected_balance with actual balance.amount from the response.'
+          ],
+          testData: 'bet.amount = 1, currency = "USD". Unique Idempotency-Key.',
+          expected: 'balance.amount in the spin response = round(balance_before − 1.00 + win.amount, 2 decimal places). Floating-point tolerance: ±0.001.'
+        },
+        {
+          id: 'GAME-05', module: 'GAME', priority: 'MED',
+          title: 'Free spins bonus triggered when scatter lands',
+          preconditions: 'Active session. Balance ≥ 50 USD. config.features includes "free_spins".',
+          steps: [
+            'Send repeated POST /api/v1/spin requests, each with a unique Idempotency-Key.',
+            'After each response, inspect outcome.bonus_triggered.',
+            'Stop when bonus_triggered is not null.',
+            'Inspect the bonus_triggered object structure.'
+          ],
+          testData: 'bet.amount = 1, lines = 20 per spin. Repeat up to 200 spins.',
+          expected: 'When triggered: bonus_triggered.type = "free_spins". bonus_triggered.free_spins_count > 0. next_state reflects a bonus state.'
+        },
+        {
+          id: 'GAME-06', module: 'GAME', priority: 'HIGH',
+          title: 'Spin without auth header returns 401',
+          preconditions: 'Backend running.',
+          steps: [
+            'Send POST /api/v1/spin without any Authorization header.',
+            'Include a plausible request body.',
+            'Check the HTTP response status code.'
+          ],
+          testData: 'No Authorization header. Body: { session_id: "any", game_id: "any", bet: { amount: 1, currency: "USD", lines: 20 } }.',
+          expected: 'HTTP 401 Unauthorized.'
+        },
+        {
+          id: 'GAME-07', module: 'GAME', priority: 'HIGH',
+          title: 'Spin with bet exceeding balance returns 422',
+          preconditions: 'Active session. Current balance known (e.g. 1000 USD).',
+          steps: [
+            'Send POST /api/v1/spin with a valid Authorization header.',
+            'Set bet.amount = 999999 (far exceeds balance).',
+            'Set a unique Idempotency-Key.',
+            'Check the HTTP response status code and body.'
+          ],
+          testData: 'bet: { amount: 999999, currency: "USD", lines: 20 }.',
+          expected: 'HTTP 422. Body: { error: "...", code: "insufficient_balance" }. Balance unchanged.'
+        },
+        {
+          id: 'GAME-08', module: 'GAME', priority: 'HIGH',
+          title: 'Spin with negative bet amount returns 400',
+          preconditions: 'Active session. Valid access_token.',
+          steps: [
+            'Send POST /api/v1/spin with a valid Authorization header.',
+            'Set bet.amount = -1.',
+            'Set a unique Idempotency-Key.',
+            'Check the HTTP response status code.'
+          ],
+          testData: 'bet: { amount: -1, currency: "USD", lines: 20 }.',
+          expected: 'HTTP 400 Bad Request. Response body indicates a validation failure.'
+        },
+        {
+          id: 'GAME-09', module: 'GAME', priority: 'MED',
+          title: 'Spin with bet below configured minimum returns 422',
+          preconditions: 'Active session. config.min_bet = 0.1 (from GAME-01 init response).',
+          steps: [
+            'Send POST /api/v1/spin with a valid Authorization header.',
+            'Set bet.amount = 0.001 (below min_bet of 0.1).',
+            'Set a unique Idempotency-Key.',
+            'Check the HTTP response status code and body.'
+          ],
+          testData: 'bet: { amount: 0.001, currency: "USD", lines: 20 }. config.min_bet = 0.1.',
+          expected: 'HTTP 422. Body: { error: "...", code: "invalid_bet" }.'
+        },
+        {
+          id: 'GAME-10', module: 'GAME', priority: 'MED',
+          title: 'Spin with unsupported currency returns 422',
+          preconditions: 'Active session. Game configured for USD only.',
+          steps: [
+            'Send POST /api/v1/spin with a valid Authorization header.',
+            'Set bet.currency = "EUR".',
+            'Set a unique Idempotency-Key.',
+            'Check the HTTP response status code and body.'
+          ],
+          testData: 'bet: { amount: 1, currency: "EUR", lines: 20 }.',
+          expected: 'HTTP 422. Body: { error: "...", code: "invalid_currency" }.'
+        },
+        {
+          id: 'GAME-11', module: 'GAME', priority: 'MED',
+          title: 'Spin with lines = 0 returns 422',
+          preconditions: 'Active session. config.min_lines = 1.',
+          steps: [
+            'Send POST /api/v1/spin with a valid Authorization header.',
+            'Set bet.lines = 0.',
+            'Set a unique Idempotency-Key.',
+            'Check the HTTP response status code and body.'
+          ],
+          testData: 'bet: { amount: 1, currency: "USD", lines: 0 }. config.min_lines = 1.',
+          expected: 'HTTP 422. Body: { error: "...", code: "invalid_lines" }.'
+        },
+        {
+          id: 'GAME-12', module: 'GAME', priority: 'HIGH',
+          title: 'Spin with expired or unknown session_id returns 403',
+          preconditions: 'Valid access_token. An unknown/expired session_id string.',
+          steps: [
+            'Send POST /api/v1/spin with a valid Authorization header.',
+            'Set session_id = "expired-or-unknown-session-xyz".',
+            'Set a unique Idempotency-Key.',
+            'Check the HTTP response status code and body.'
+          ],
+          testData: 'session_id: "expired-or-unknown-session-xyz". game_id: "slot_mega_fortune_001". bet valid.',
+          expected: 'HTTP 403. Body: { error: "...", code: "session_expired" }.'
+        },
+        {
+          id: 'GAME-13', module: 'GAME', priority: 'MED',
+          title: 'Spin with game_id that does not match the session returns 400',
+          preconditions: 'Active session created for game_id "slot_mega_fortune_001" (from GAME-01).',
+          steps: [
+            'Send POST /api/v1/spin with valid session_id from GAME-01.',
+            'Set game_id = "slot_wrong_game_999" (does not match the session).',
+            'Set a unique Idempotency-Key.',
+            'Check the HTTP response status code and body.'
+          ],
+          testData: 'session_id: <valid from GAME-01>. game_id: "slot_wrong_game_999" (mismatch).',
+          expected: 'HTTP 400. Body: { error: "...", code: "invalid_game_id" }.'
+        },
+        {
+          id: 'GAME-14', module: 'GAME', priority: 'HIGH',
+          title: 'Duplicate Idempotency-Key returns same spin result without double debit',
+          preconditions: 'Active session with sufficient balance.',
+          steps: [
+            'Send POST /api/v1/spin with Idempotency-Key: "idem-dup-001". Note spin_id_1 and balance_1.',
+            'Send the exact same POST /api/v1/spin with the same Idempotency-Key: "idem-dup-001" and identical body.',
+            'Compare the spin_id values from both responses.',
+            'Compare balance_1 with the balance from the second response.'
+          ],
+          testData: 'Idempotency-Key: "idem-dup-001" used twice. Identical request body both times.',
+          expected: 'Both responses return HTTP 200, or the second returns 409. spin_id is identical in both responses. Balance is debited exactly once (balance does not change after the second request).'
+        },
+        {
+          id: 'GAME-15', module: 'GAME', priority: 'HIGH',
+          title: 'Idempotency key reused with different payload returns 409',
+          preconditions: 'Active session. Idempotency-Key "idem-diff-001" was used in a prior spin with bet.amount = 1.',
+          steps: [
+            'Send POST /api/v1/spin with Idempotency-Key: "idem-diff-001" and bet.amount = 1.',
+            'Send a second POST /api/v1/spin with the same key "idem-diff-001" but bet.amount = 5.',
+            'Check the HTTP response status code and body of the second request.'
+          ],
+          testData: 'First request: Idempotency-Key="idem-diff-001", bet.amount=1. Second request: same key, bet.amount=5 (different payload).',
+          expected: 'Second request returns HTTP 409. Body: { error: "...", code: "idempotency_key_reused" }.'
+        },
+        {
+          id: 'GAME-16', module: 'GAME', priority: 'HIGH',
+          title: 'GET history returns own spin records with pagination metadata',
+          preconditions: 'At least 1 spin performed under the current user account. Valid access_token.',
+          steps: [
+            'Send GET /api/v1/game/history.',
+            'Set header Authorization: Bearer <access_token>.',
+            'Check the HTTP response status code.',
+            'Inspect the response body structure and items array.'
+          ],
+          testData: 'Authorization: Bearer <valid access_token>.',
+          expected: 'HTTP 200. Body: { items: [ { spin_id, bet, outcome, timestamp }, ... ], total: <number>, limit: <number>, offset: 0 }. items array contains own spin records and is not empty.'
+        },
+        {
+          id: 'GAME-17', module: 'GAME', priority: 'MED',
+          title: 'GET history with limit=2 returns at most 2 records',
+          preconditions: 'At least 3 spins performed. Valid access_token.',
+          steps: [
+            'Send GET /api/v1/game/history?limit=2&offset=0.',
+            'Set header Authorization: Bearer <access_token>.',
+            'Check the HTTP response status code.',
+            'Count the number of items in the response array.',
+            'Verify the limit and offset values echoed in the response body.'
+          ],
+          testData: 'Query params: limit=2, offset=0.',
+          expected: 'HTTP 200. items.length ≤ 2. Response body echoes limit=2 and offset=0.'
+        },
+        {
+          id: 'GAME-18', module: 'GAME', priority: 'HIGH',
+          title: 'GET history without auth header returns 401',
+          preconditions: 'Backend running.',
+          steps: [
+            'Send GET /api/v1/game/history without any Authorization header.',
+            'Check the HTTP response status code.'
+          ],
+          testData: 'No Authorization header.',
+          expected: 'HTTP 401 Unauthorized.'
+        },
+
+        /* ═══════════════════  E2E — End-to-End Flows  ════════════════════ */
+        {
+          id: 'E2E-01', module: 'E2E', priority: 'HIGH',
+          title: 'Header "slots" button navigates browser to /slots',
+          preconditions: 'Application running. Browser at /. Backend running or API mocked.',
+          steps: [
+            'Navigate to https://pyavchik.space/.',
+            'Confirm h1[data-testid="cv-title"] is visible.',
+            'Click the first [data-testid="cv-open-slots"] button in the header actions bar.',
+            'Observe the URL and rendered screen.'
+          ],
+          testData: null,
+          expected: 'URL changes to https://pyavchik.space/slots. Either the game loading screen or the Auth screen is shown.'
+        },
+        {
+          id: 'E2E-02', module: 'E2E', priority: 'MED',
+          title: 'Footer CTA "slots" button also navigates to /slots',
+          preconditions: 'Application running. Browser at /.',
+          steps: [
+            'Navigate to https://pyavchik.space/.',
+            'Scroll to the bottom of the page to the "Project Demo" section.',
+            'Click the "slots" button inside .cv-final-cta.',
+            'Observe the URL.'
+          ],
+          testData: null,
+          expected: 'URL changes to https://pyavchik.space/slots.'
+        },
+        {
+          id: 'E2E-03', module: 'E2E', priority: 'HIGH',
+          title: 'Navigating to /slots without a token shows the Auth screen',
+          preconditions: 'No auth token in localStorage. No refresh cookie present (clear all browser storage).',
+          steps: [
+            'Open DevTools → Application → clear all cookies and localStorage.',
+            'Navigate directly to https://pyavchik.space/slots.',
+            'Observe the rendered screen.'
+          ],
+          testData: 'No stored token. No refresh cookie.',
+          expected: 'Auth screen (login / register form) is displayed. URL remains /slots. Game canvas is NOT visible.'
+        },
+        {
+          id: 'E2E-04', module: 'E2E', priority: 'HIGH',
+          title: 'Valid login redirects to /slots and game initialises',
+          preconditions: 'Registered user account exists. Backend running. No current session (logged out).',
+          steps: [
+            'Navigate to https://pyavchik.space/slots (expect auth redirect).',
+            'Enter a valid email address in the email field.',
+            'Enter the correct password in the password field.',
+            'Click the "Login" button.',
+            'Wait for navigation and page load to complete.'
+          ],
+          testData: 'email: "testuser_001@test.com", password: "Str0ng!Pass".',
+          expected: 'App stays on /slots. Loading spinner disappears. Spin button is visible and enabled. PixiJS canvas renders the reel grid.'
+        },
+        {
+          id: 'E2E-05', module: 'E2E', priority: 'HIGH',
+          title: 'Clicking Spin shows a win badge after all reels stop',
+          preconditions: 'User authenticated. On /slots. Game initialised. Active session.',
+          steps: [
+            'Verify the Spin button is visible and not disabled.',
+            'Click the Spin button.',
+            'Wait for all 5 reels to finish animating.',
+            'Inspect the win badge element.'
+          ],
+          testData: 'Default minimum bet. Current active session.',
+          expected: '[data-testid="hud-win-badge"] appears after reels stop. It contains text "WIN" and the payout formatted as "+X.XX".'
+        },
+        {
+          id: 'E2E-06', module: 'E2E', priority: 'HIGH',
+          title: 'HUD balance updates after each spin',
+          preconditions: 'User authenticated. On /slots. Game loaded. Balance visible in HUD.',
+          steps: [
+            'Read and note balance_before from [data-testid="hud-balance"].',
+            'Click the Spin button.',
+            'Wait for all reels to stop.',
+            'Read the updated balance from [data-testid="hud-balance"].',
+            'Compare the new value with balance_before.'
+          ],
+          testData: 'Current balance read from the HUD display.',
+          expected: 'Balance value changes after spin. New value = balance_before − bet + win. Currency "USD" is displayed alongside the amount.'
+        },
+        {
+          id: 'E2E-07', module: 'E2E', priority: 'MED',
+          title: 'Pressing Spacebar triggers a spin',
+          preconditions: 'User authenticated. On /slots. Game loaded. No modal or dialog open. Reels not currently spinning. No button element focused.',
+          steps: [
+            'Confirm no paytable dialog or modal is open.',
+            'Click on the canvas area to ensure no button has focus.',
+            'Press the Space key.',
+            'Observe whether a spin request is triggered.'
+          ],
+          testData: 'Key: Space (keyCode 32). No paytable dialog visible.',
+          expected: 'A spin request is fired. Reels begin animating — equivalent to clicking the Spin button.'
+        },
+        {
+          id: 'E2E-08', module: 'E2E', priority: 'HIGH',
+          title: 'Logout clears the token and shows the Auth screen',
+          preconditions: 'User authenticated and on /slots.',
+          steps: [
+            'Click the Logout button on the HUD.',
+            'Observe the screen transition.',
+            'Attempt to navigate to /slots again.'
+          ],
+          testData: null,
+          expected: 'Auth screen is displayed immediately after logout. Navigating back to /slots also shows the Auth screen — the token has been cleared and the session is terminated.'
+        },
+
+        /* ═══════════════════  SECURITY  ═════════════════════════════════ */
+        {
+          id: 'SEC-01', module: 'SEC', priority: 'HIGH',
+          title: 'JWT with alg:none is rejected with 401',
+          preconditions: 'Backend running. Ability to craft custom JWTs (e.g. Postman pre-request script or manual base64url encoding).',
+          steps: [
+            'Craft a JWT manually: set header { "alg": "none", "typ": "JWT" }.',
+            'Set payload: { "sub": "00000000-0000-0000-0000-000000000000", "exp": 9999999999 }.',
+            'Base64url-encode header and payload. Use an empty string as the signature: <header>.<payload>.',
+            'Send POST /api/v1/spin with Authorization: Bearer <crafted-token>.',
+            'Check the HTTP response status code.'
+          ],
+          testData: 'JWT header: {"alg":"none","typ":"JWT"}. Payload: {"sub":"00000000-0000-0000-0000-000000000000","exp":9999999999}. Signature: empty string.',
+          expected: 'HTTP 401 Unauthorized. The server enforces RS256 and rejects any token not signed with the expected algorithm.'
+        },
+        {
+          id: 'SEC-02', module: 'SEC', priority: 'HIGH',
+          title: 'IDOR: user A cannot access user B\'s spin history',
+          preconditions: 'Two registered accounts: User A and User B, both with spin history. User A is authenticated.',
+          steps: [
+            'Login as User A and obtain access_token_A.',
+            'Obtain User B\'s user UUID (from a prior registration response or DB).',
+            'Send GET /api/v1/game/history?user_id={user_B_uuid} with Authorization: Bearer <access_token_A>.',
+            'Inspect the items array in the response.'
+          ],
+          testData: 'access_token belongs to User A. user_id query param is User B\'s UUID.',
+          expected: 'HTTP 403 (Forbidden) — OR — HTTP 200 with items containing only User A\'s own spin records. User B\'s data is never exposed.'
+        },
+        {
+          id: 'SEC-03', module: 'SEC', priority: 'HIGH',
+          title: 'SQL injection in bet.amount is safely rejected without 500',
+          preconditions: 'Active session. Valid access_token.',
+          steps: [
+            'Send POST /api/v1/spin with a valid Authorization header.',
+            'Set bet.amount = "1; DROP TABLE users; --".',
+            'Check the HTTP response status code.',
+            'Verify the response is not HTTP 500.',
+            'If DB access is available, confirm the users table still exists.'
+          ],
+          testData: 'bet.amount: "1; DROP TABLE users; --"',
+          expected: 'HTTP 400 or 422. No HTTP 500. SQL statement is not executed. users table remains intact after the request.'
+        },
+        {
+          id: 'SEC-04', module: 'SEC', priority: 'HIGH',
+          title: 'XSS payload in session_id is not reflected in the response body',
+          preconditions: 'Valid access_token.',
+          steps: [
+            'Send POST /api/v1/spin with a valid Authorization header.',
+            'Set session_id = "<scr\x69pt>alert(document.cookie)<\x2Fscr\x69pt>" (XSS probe).',
+            'Check the HTTP response status code.',
+            'Inspect the raw response body for any reflected script tags.'
+          ],
+          testData: 'session_id: "<scr\x69pt>alert(document.cookie)<\x2Fscr\x69pt>" (XSS probe string)',
+          expected: 'HTTP 400 or 403. The raw response body does NOT contain any script tags. No XSS payload is reflected.'
+        },
+        {
+          id: 'SEC-05', module: 'SEC', priority: 'MED',
+          title: 'Rate limiting returns 429 after threshold exceeded',
+          preconditions: 'Valid access_token. Active session. Tool capable of rapid requests (Postman Runner / Newman / k6).',
+          steps: [
+            'Send 50 POST /api/v1/spin requests in rapid succession (within ~5 seconds), each with a unique Idempotency-Key.',
+            'Monitor the HTTP status codes of all responses.',
+            'When HTTP 429 is received, inspect the Retry-After response header.'
+          ],
+          testData: '50 spin requests, each with a unique Idempotency-Key, sent concurrently or in very rapid sequence.',
+          expected: 'After the rate limit threshold is exceeded: HTTP 429 Too Many Requests. Response includes a Retry-After header indicating when the client may retry.'
+        },
+        {
+          id: 'SEC-06', module: 'SEC', priority: 'HIGH',
+          title: 'Replay attack does not cause a double balance debit',
+          preconditions: 'Active session with sufficient balance. Ability to re-send an identical HTTP request.',
+          steps: [
+            'Send POST /api/v1/spin with Idempotency-Key: "replay-test-001". Record spin_id_1 and balance_after_1.',
+            'Re-send the exact same request: same URL, same headers (including Idempotency-Key), same body.',
+            'Record the spin_id from the second response and the balance after it.',
+            'Compare spin_id_1 with spin_id_2 and both balance values.'
+          ],
+          testData: 'Idempotency-Key: "replay-test-001" (reused). Identical headers and body for both requests.',
+          expected: 'spin_id_2 = spin_id_1, or the second request returns HTTP 409. Balance is debited exactly once — balance_after_1 = balance_after_2.'
+        }
+      ];
+
+      /* ─────────────────────────────────────────────────────────────────────
+         HELPERS
+      ───────────────────────────────────────────────────────────────────── */
+      function esc(str) {
+        if (!str) return '';
+        return String(str)
+          .replace(/&/g, '&amp;')
+          .replace(/</g, '&lt;')
+          .replace(/>/g, '&gt;')
+          .replace(/"/g, '&quot;');
+      }
+
+      const MODULE_BADGE = {
+        UI:   'badge-ui',
+        AUTH: 'badge-auth',
+        GAME: 'badge-game',
+        E2E:  'badge-e2e',
+        SEC:  'badge-sec',
+      };
+      const MODULE_LABEL = { UI: 'UI', AUTH: 'Auth', GAME: 'Game', E2E: 'E2E', SEC: 'Security' };
+
+      /* ─────────────────────────────────────────────────────────────────────
+         STATS
+      ───────────────────────────────────────────────────────────────────── */
+      function renderStats() {
+        const counts = { ALL: CASES.length, UI: 0, AUTH: 0, GAME: 0, E2E: 0, SEC: 0 };
+        CASES.forEach(c => counts[c.module]++);
+        const labels = [
+          ['ALL',  'Total'],
+          ['UI',   'UI'],
+          ['AUTH', 'Auth'],
+          ['GAME', 'Game'],
+          ['E2E',  'E2E'],
+          ['SEC',  'Security'],
+        ];
+        document.getElementById('stats-row').innerHTML = labels.map(([key, label]) =>
+          `<div class="stat"><strong>${counts[key]}</strong>${label}</div>`
+        ).join('');
+      }
+
+      /* ─────────────────────────────────────────────────────────────────────
+         RENDER TABLE
+      ───────────────────────────────────────────────────────────────────── */
+      let activeModule = 'ALL';
+      let searchQuery  = '';
+
+      function filteredCases() {
+        const q = searchQuery.toLowerCase();
+        return CASES.filter(c => {
+          const matchModule = activeModule === 'ALL' || c.module === activeModule;
+          const matchSearch = !q ||
+            c.id.toLowerCase().includes(q) ||
+            c.title.toLowerCase().includes(q) ||
+            (c.testData || '').toLowerCase().includes(q) ||
+            c.expected.toLowerCase().includes(q) ||
+            c.preconditions.toLowerCase().includes(q);
+          return matchModule && matchSearch;
+        });
+      }
+
+      function renderTable() {
+        const cases = filteredCases();
+        const tbody = document.getElementById('tc-tbody');
+
+        document.getElementById('count-label').textContent =
+          cases.length === CASES.length
+            ? `${CASES.length} test cases`
+            : `${cases.length} of ${CASES.length} test cases`;
+
+        if (cases.length === 0) {
+          tbody.innerHTML = `<tr class="empty-row"><td colspan="6">No test cases match your filter.</td></tr>`;
+          return;
+        }
+
+        tbody.innerHTML = cases.map(c => {
+          const stepRows = c.steps.map((s, i) =>
+            `<li><span class="step-num">${i + 1}</span><span>${esc(s)}</span></li>`
+          ).join('');
+
+          const testDataHtml = c.testData
+            ? esc(c.testData).replace(/(&quot;[^&]*&quot;)/g, '<code>$1</code>')
+            : '<span class="none">None — no specific input data required.</span>';
+
+          return `
+            <tr class="tc-row" data-id="${esc(c.id)}">
+              <td class="tc-id">${esc(c.id)}</td>
+              <td class="col-module"><span class="badge ${MODULE_BADGE[c.module]}">${MODULE_LABEL[c.module]}</span></td>
+              <td class="tc-title">${esc(c.title)}</td>
+              <td class="col-prio"><span class="prio prio-${c.priority}">${c.priority}</span></td>
+              <td class="col-status"><span class="status-badge status-not-run">Not Run</span></td>
+              <td><span class="tc-chevron">&#9654;</span></td>
+            </tr>
+            <tr class="tc-detail-row" data-for="${esc(c.id)}">
+              <td colspan="6">
+                <div class="tc-detail-panel" id="panel-${esc(c.id)}">
+                  <div class="detail-grid">
+                    <div class="detail-field full">
+                      <span class="detail-label">Preconditions</span>
+                      <div class="detail-value">${esc(c.preconditions)}</div>
+                    </div>
+                    <div class="detail-field">
+                      <span class="detail-label">Test Data</span>
+                      <div class="detail-value">${testDataHtml}</div>
+                    </div>
+                    <div class="detail-field">
+                      <span class="detail-label">Expected Result</span>
+                      <div class="detail-value">${esc(c.expected)}</div>
+                    </div>
+                    <div class="detail-field full">
+                      <span class="detail-label">Test Steps</span>
+                      <div class="detail-value">
+                        <ol class="steps-list">${stepRows}</ol>
+                      </div>
+                    </div>
+                    <div class="detail-field">
+                      <span class="detail-label">Actual Result</span>
+                      <div class="detail-value actual-placeholder">— (fill in during execution)</div>
+                    </div>
+                    <div class="detail-field">
+                      <span class="detail-label">Status</span>
+                      <div class="detail-value"><span class="status-badge status-not-run">Not Run</span></div>
+                    </div>
+                  </div>
+                </div>
+              </td>
+            </tr>`;
+        }).join('');
+
+        /* re-attach row click handlers */
+        tbody.querySelectorAll('.tc-row').forEach(row => {
+          row.addEventListener('click', () => {
+            const id = row.dataset.id;
+            const panel = document.getElementById('panel-' + id);
+            const isOpen = panel.classList.contains('open');
+            panel.classList.toggle('open', !isOpen);
+            row.classList.toggle('open', !isOpen);
+          });
+        });
+      }
+
+      /* ─────────────────────────────────────────────────────────────────────
+         FILTER TABS
+      ───────────────────────────────────────────────────────────────────── */
+      document.getElementById('filter-tabs').addEventListener('click', e => {
+        const btn = e.target.closest('.tab');
+        if (!btn) return;
+        activeModule = btn.dataset.module;
+        document.querySelectorAll('.tab').forEach(t => t.classList.toggle('active', t === btn));
+        renderTable();
+      });
+
+      /* ─────────────────────────────────────────────────────────────────────
+         SEARCH
+      ───────────────────────────────────────────────────────────────────── */
+      document.getElementById('search').addEventListener('input', e => {
+        searchQuery = e.target.value;
+        renderTable();
+      });
+
+      /* ─────────────────────────────────────────────────────────────────────
+         INIT
+      ───────────────────────────────────────────────────────────────────── */
+      renderStats();
+      renderTable();
+    </script>
+  </body>
+</html>
