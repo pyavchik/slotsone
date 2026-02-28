@@ -96,19 +96,19 @@ test.describe('CV Landing – actions bar', () => {
     await expect(pdfLink).toHaveAttribute('rel', 'noreferrer');
   });
 
-  test('PDF link triggers a download or opens the PDF', async ({ page, context }) => {
+  test('PDF link opens the correct URL in a new tab', async ({ page, context }) => {
     const pdfLink = page.locator('a.cv-link', { hasText: 'Download PDF CV' });
 
-    // Serve a minimal PDF so the test does not depend on a real file being present.
+    // Use text/plain so Chromium navigates to the URL instead of triggering
+    // a download (application/pdf causes the new tab to stay at about:blank).
     await context.route('**/QA_Oleksander_Pyavchik_CV.pdf', (route) =>
-      route.fulfill({
-        status: 200,
-        contentType: 'application/pdf',
-        body: Buffer.from('%PDF-1.4 stub'),
-      })
+      route.fulfill({ status: 200, contentType: 'text/plain', body: 'stub' })
     );
 
-    const [newPage] = await Promise.all([context.waitForEvent('page'), pdfLink.click()]);
+    const pagePromise = context.waitForEvent('page');
+    await pdfLink.click();
+    const newPage = await pagePromise;
+    await newPage.waitForLoadState();
 
     expect(newPage.url()).toContain('/QA_Oleksander_Pyavchik_CV.pdf');
     await newPage.close();
