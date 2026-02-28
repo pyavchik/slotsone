@@ -106,6 +106,7 @@
       .badge-ui   { background: rgba(167,139,250,.18); color: #a78bfa; }
       .badge-api  { background: rgba(62,224,169,.15);  color: #3ee0a9; }
       .badge-nfr  { background: rgba(248,113,113,.15); color: #f87171; }
+      .badge-sql  { background: rgba(56,189,248,.15);  color: #38bdf8; }
 
       .prio { font-size: 11px; font-weight: 800; white-space: nowrap; }
       .prio-must   { color: #f87171; }
@@ -377,6 +378,7 @@
             <button class="tab" data-filter="game">Game</button>
             <button class="tab" data-filter="ui">UI</button>
             <button class="tab" data-filter="api">API</button>
+            <button class="tab" data-filter="sql">SQL</button>
             <button class="tab" data-filter="nfr">NFR</button>
           </div>
           <div class="search-wrap">
@@ -895,6 +897,140 @@
         tests: ['TC-API-07'],
       },
 
+      // ── SQL / Database ─────────────────────────────────────────────────────
+      {
+        id: 'FR-SQL-01', module: 'sql', prio: 'must',
+        title: 'PostgreSQL 16+ as persistent data store',
+        desc: 'User accounts and refresh tokens shall be stored in PostgreSQL 16+. Game sessions and balances are intentionally kept in-memory (ephemeral by design).',
+        bdd: [
+          { kw: 'Given', text: 'the application is deployed' },
+          { kw: 'When',  text: 'a user registers or logs in' },
+          { kw: 'Then',  text: 'their account and tokens are persisted in PostgreSQL and survive server restarts' },
+        ],
+        tests: ['TC-SQL-01'],
+      },
+      {
+        id: 'FR-SQL-02', module: 'sql', prio: 'must',
+        title: 'Parameterized queries for SQL injection prevention',
+        desc: 'All database queries shall use parameterized placeholders ($1, $2, …) via the pg driver. No raw string concatenation of user input into SQL statements.',
+        bdd: [
+          { kw: 'Given', text: 'any user-supplied data (email, password, token)' },
+          { kw: 'When',  text: 'it is used in a database query' },
+          { kw: 'Then',  text: 'the value is passed as a parameterised argument, never interpolated into the SQL string' },
+        ],
+        tests: ['TC-SQL-02'],
+      },
+      {
+        id: 'FR-SQL-03', module: 'sql', prio: 'must',
+        title: 'Connection pooling with pg.Pool',
+        desc: 'The application shall use a singleton pg.Pool with max 10 connections, 30 s idle timeout, and 5 s connection timeout. The pool is lazily initialised on first use.',
+        bdd: [
+          { kw: 'Given', text: 'the server starts' },
+          { kw: 'When',  text: 'the first database query is executed' },
+          { kw: 'Then',  text: 'a connection pool is created with the configured limits and reused for all subsequent queries' },
+        ],
+        tests: ['TC-SQL-03'],
+      },
+      {
+        id: 'FR-SQL-04', module: 'sql', prio: 'must',
+        title: 'Automatic schema migration on startup',
+        desc: 'On startup the server shall execute the SQL migration file (001_init.sql) to create tables and indexes if they do not already exist. All DDL statements use IF NOT EXISTS.',
+        bdd: [
+          { kw: 'Given', text: 'the server starts with a fresh or existing database' },
+          { kw: 'When',  text: 'initDb() runs' },
+          { kw: 'Then',  text: 'the users and refresh_tokens tables and their indexes are created (idempotent)' },
+        ],
+        tests: ['TC-SQL-04'],
+      },
+      {
+        id: 'FR-SQL-05', module: 'sql', prio: 'must',
+        title: 'Users table with UUID primary key and unique email',
+        desc: 'The users table shall have a UUID primary key (gen_random_uuid()), a UNIQUE email column, a password_hash column, and a created_at timestamp with timezone.',
+        bdd: [
+          { kw: 'Given', text: 'a new user registration' },
+          { kw: 'When',  text: 'the INSERT is executed' },
+          { kw: 'Then',  text: 'a UUID is auto-generated, the email uniqueness constraint is enforced, and created_at defaults to NOW()' },
+        ],
+        tests: ['TC-SQL-05'],
+      },
+      {
+        id: 'FR-SQL-06', module: 'sql', prio: 'must',
+        title: 'Refresh tokens table with foreign key cascade',
+        desc: 'The refresh_tokens table shall reference users(id) with ON DELETE CASCADE. It includes indexes on user_id and expires_at for efficient lookups and cleanup.',
+        bdd: [
+          { kw: 'Given', text: 'a user account is deleted' },
+          { kw: 'When',  text: 'the CASCADE fires' },
+          { kw: 'Then',  text: 'all associated refresh tokens are automatically removed' },
+        ],
+        tests: ['TC-SQL-06'],
+      },
+      {
+        id: 'FR-SQL-07', module: 'sql', prio: 'must',
+        title: 'Atomic token rotation via DELETE … RETURNING',
+        desc: 'Consuming a refresh token shall atomically delete it and return the user_id and expires_at in a single DELETE … RETURNING statement, preventing race conditions and replay attacks.',
+        bdd: [
+          { kw: 'Given', text: 'a valid refresh token' },
+          { kw: 'When',  text: 'the token is consumed' },
+          { kw: 'Then',  text: 'it is deleted and the user_id is returned in one atomic operation; a second consume returns null' },
+        ],
+        tests: ['TC-SQL-07'],
+      },
+      {
+        id: 'FR-SQL-08', module: 'sql', prio: 'must',
+        title: 'Index optimisation for token queries',
+        desc: 'Indexes shall exist on refresh_tokens.user_id and refresh_tokens.expires_at to ensure O(log n) lookups for token validation and expiry cleanup.',
+        bdd: [
+          { kw: 'Given', text: 'a refresh token lookup or cleanup query' },
+          { kw: 'When',  text: 'the query plan is inspected' },
+          { kw: 'Then',  text: 'it uses the idx_refresh_tokens_user_id or idx_refresh_tokens_expires_at index' },
+        ],
+        tests: ['TC-SQL-08'],
+      },
+      {
+        id: 'FR-SQL-09', module: 'sql', prio: 'must',
+        title: 'Duplicate email constraint handling',
+        desc: 'When a registration INSERT violates the unique email constraint, the application shall catch PostgreSQL error code 23505 and return a 409 Conflict with code email_taken.',
+        bdd: [
+          { kw: 'Given', text: 'a user tries to register with an already-taken email' },
+          { kw: 'When',  text: 'the INSERT triggers a 23505 unique violation' },
+          { kw: 'Then',  text: 'the error is caught and a 409 { error, code: "email_taken" } response is returned' },
+        ],
+        tests: ['TC-SQL-09'],
+      },
+      {
+        id: 'FR-SQL-10', module: 'sql', prio: 'should',
+        title: 'Server-side TTL via PostgreSQL interval',
+        desc: 'Refresh token expiration should be calculated server-side using NOW() + interval \'7 days\' to avoid clock-skew issues between application and database.',
+        bdd: [
+          { kw: 'Given', text: 'a new refresh token is created' },
+          { kw: 'When',  text: 'the INSERT is executed' },
+          { kw: 'Then',  text: 'expires_at is set to NOW() + interval \'7 days\' by the database server' },
+        ],
+        tests: ['TC-SQL-10'],
+      },
+      {
+        id: 'FR-SQL-11', module: 'sql', prio: 'must',
+        title: 'DATABASE_URL environment validation',
+        desc: 'The server shall validate that DATABASE_URL is set at startup and abort with a clear error message if missing.',
+        bdd: [
+          { kw: 'Given', text: 'DATABASE_URL is not set' },
+          { kw: 'When',  text: 'the server starts' },
+          { kw: 'Then',  text: 'startup fails immediately with "DATABASE_URL is required"' },
+        ],
+        tests: ['TC-SQL-11'],
+      },
+      {
+        id: 'FR-SQL-12', module: 'sql', prio: 'should',
+        title: 'Graceful connection pool shutdown',
+        desc: 'The application should close the pg.Pool gracefully on shutdown, draining active connections before exiting.',
+        bdd: [
+          { kw: 'Given', text: 'the server receives a shutdown signal' },
+          { kw: 'When',  text: 'closePool() is called' },
+          { kw: 'Then',  text: 'all idle connections are released and the pool reference is cleared' },
+        ],
+        tests: ['TC-SQL-12'],
+      },
+
       // ── Non-Functional ────────────────────────────────────────────────────
       {
         id: 'NFR-PERF-01', module: 'nfr', prio: 'must',
@@ -1073,10 +1209,10 @@
     const searchInput = document.getElementById('search');
 
     const MODULE_LABELS = {
-      auth: 'Auth', game: 'Game', ui: 'UI', api: 'API', nfr: 'NFR',
+      auth: 'Auth', game: 'Game', ui: 'UI', api: 'API', sql: 'SQL', nfr: 'NFR',
     };
     const MODULE_BADGE = {
-      auth: 'badge-auth', game: 'badge-game', ui: 'badge-ui', api: 'badge-api', nfr: 'badge-nfr',
+      auth: 'badge-auth', game: 'badge-game', ui: 'badge-ui', api: 'badge-api', sql: 'badge-sql', nfr: 'badge-nfr',
     };
     const PRIO_LABELS = { must: 'Must', should: 'Should', could: 'Could' };
     const PRIO_CLASS  = { must: 'prio-must', should: 'prio-should', could: 'prio-could' };
