@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>postmam</title>
+    <title>Postman Tests — Slots API</title>
     <style>
       * { box-sizing: border-box; }
       body {
@@ -17,97 +17,373 @@
         max-width: 980px;
         margin: 0 auto;
         padding: 28px 18px 36px;
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
       }
       .card {
         border: 1px solid rgba(255, 255, 255, 0.14);
         border-radius: 14px;
         background: rgba(17, 20, 30, 0.78);
-        padding: 18px;
+        padding: 20px 22px;
       }
       h1 {
-        margin: 0 0 6px;
-        font-size: 30px;
+        margin: 0 0 4px;
+        font-size: 28px;
+        letter-spacing: -0.3px;
+      }
+      .subtitle {
+        margin: 0 0 16px;
+        color: #94a3b8;
+        font-size: 14px;
       }
       p {
         color: #dbe2ec;
         line-height: 1.55;
+        margin: 0 0 12px;
       }
       .actions {
         display: flex;
         flex-wrap: wrap;
         gap: 10px;
-        margin: 16px 0 4px;
+        margin-top: 4px;
       }
       .btn {
         display: inline-flex;
         align-items: center;
         justify-content: center;
         min-height: 44px;
-        padding: 10px 14px;
+        padding: 10px 16px;
         border-radius: 10px;
         border: 1px solid rgba(148, 163, 184, 0.5);
         background: rgba(15, 23, 42, 0.65);
         color: #e2e8f0;
         font-weight: 600;
         text-decoration: none;
+        font-size: 14px;
+        transition: border-color 0.15s, background 0.15s;
       }
+      .btn:hover { border-color: rgba(148, 163, 184, 0.9); background: rgba(15, 23, 42, 0.9); }
       .btn.primary {
         border: none;
         color: #0a0b10;
         background: linear-gradient(180deg, #f5d06a 0%, #e8b84a 100%);
       }
-      .section {
-        margin-top: 14px;
-      }
+      .btn.primary:hover { background: linear-gradient(180deg, #f7d97a 0%, #ecbf58 100%); }
       h2 {
-        margin: 0 0 8px;
-        font-size: 18px;
+        margin: 0 0 12px;
+        font-size: 17px;
+        color: #f1f5f9;
       }
       code, pre {
         font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
       }
       pre {
         margin: 0;
-        padding: 12px;
+        padding: 12px 14px;
         border-radius: 10px;
         background: rgba(15, 23, 42, 0.85);
         border: 1px solid rgba(148, 163, 184, 0.22);
         color: #dbe2ec;
         overflow-x: auto;
+        font-size: 13px;
       }
       ul {
-        margin: 8px 0 0 20px;
+        margin: 0 0 0 20px;
         padding: 0;
       }
-      li { margin: 6px 0; color: #dbe2ec; }
+      li { margin: 6px 0; color: #dbe2ec; font-size: 14px; }
+
+      /* Test coverage table */
+      .test-table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 13.5px;
+      }
+      .test-table th {
+        text-align: left;
+        padding: 8px 12px;
+        color: #94a3b8;
+        font-weight: 600;
+        font-size: 12px;
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+        border-bottom: 1px solid rgba(255,255,255,0.1);
+      }
+      .test-table td {
+        padding: 9px 12px;
+        color: #dbe2ec;
+        border-bottom: 1px solid rgba(255,255,255,0.06);
+        vertical-align: top;
+      }
+      .test-table tr:last-child td { border-bottom: none; }
+      .test-table tr:hover td { background: rgba(255,255,255,0.03); }
+      .tc-id {
+        font-family: ui-monospace, monospace;
+        font-size: 12px;
+        color: #62d7ff;
+        white-space: nowrap;
+      }
+      .badge {
+        display: inline-block;
+        padding: 2px 8px;
+        border-radius: 5px;
+        font-size: 11px;
+        font-weight: 600;
+        white-space: nowrap;
+      }
+      .badge-auth   { background: rgba(98,215,255,0.15);  color: #62d7ff; }
+      .badge-happy  { background: rgba(62,224,169,0.15); color: #3ee0a9; }
+      .badge-neg    { background: rgba(251,191,36,0.15);  color: #fbbf24; }
+      .badge-sec    { background: rgba(248,113,113,0.15); color: #f87171; }
+      .expects {
+        font-family: ui-monospace, monospace;
+        font-size: 12px;
+        color: #94a3b8;
+      }
     </style>
   </head>
   <body>
     <main class="wrap">
+
       <section class="card">
-        <h1>postmam</h1>
-        <p>Download the regression collection and environment below, then run tests in Postman or Newman.</p>
+        <h1>Postman Tests</h1>
+        <p class="subtitle">Slots API — Full Regression Suite</p>
+        <p>Download the collection and environment, then run the full regression suite in Postman or Newman.</p>
 
         <div class="actions">
           <a class="btn primary" href="/postman/slots-collection.json" download>Download Collection</a>
           <a class="btn" href="/postman/dev.env.json" download>Download Environment</a>
-          <a class="btn" href="/postman/README.md" target="_blank" rel="noreferrer">Open Test Guide</a>
-        </div>
-
-        <div class="section">
-          <h2>Quick Start</h2>
-          <ul>
-            <li>Open Postman and import <code>slots-collection.json</code> and <code>dev.env.json</code>.</li>
-            <li>Set <code>base_url</code> and <code>jwt_token</code> in the imported environment.</li>
-            <li>Run the full collection from Collection Runner.</li>
-          </ul>
-        </div>
-
-        <div class="section">
-          <h2>Newman</h2>
-          <pre>newman run slots-collection.json -e dev.env.json</pre>
+          <a class="btn" href="/postman/test-guide.html" target="_blank" rel="noreferrer">Test Guide</a>
         </div>
       </section>
+
+      <section class="card">
+        <h2>Test Coverage</h2>
+        <table class="test-table">
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Category</th>
+              <th>Description</th>
+              <th>Expects</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td class="tc-id">AUTH-01</td>
+              <td><span class="badge badge-auth">Auth</span></td>
+              <td>POST /auth/register — new user, returns access_token</td>
+              <td class="expects">201, access_token, token_type</td>
+            </tr>
+            <tr>
+              <td class="tc-id">AUTH-02</td>
+              <td><span class="badge badge-auth">Auth</span></td>
+              <td>POST /auth/register — duplicate email</td>
+              <td class="expects">409, code: email_taken</td>
+            </tr>
+            <tr>
+              <td class="tc-id">AUTH-03</td>
+              <td><span class="badge badge-auth">Auth</span></td>
+              <td>POST /auth/register — invalid body (missing password)</td>
+              <td class="expects">400, code: invalid_body</td>
+            </tr>
+            <tr>
+              <td class="tc-id">AUTH-04</td>
+              <td><span class="badge badge-auth">Auth</span></td>
+              <td>POST /auth/login — valid credentials, saves jwt_token</td>
+              <td class="expects">200, access_token saved to env</td>
+            </tr>
+            <tr>
+              <td class="tc-id">AUTH-05</td>
+              <td><span class="badge badge-auth">Auth</span></td>
+              <td>POST /auth/login — wrong password</td>
+              <td class="expects">401, code: invalid_credentials</td>
+            </tr>
+            <tr>
+              <td class="tc-id">AUTH-06</td>
+              <td><span class="badge badge-auth">Auth</span></td>
+              <td>POST /auth/login — missing body</td>
+              <td class="expects">400, code: invalid_body</td>
+            </tr>
+            <tr>
+              <td class="tc-id">AUTH-07</td>
+              <td><span class="badge badge-auth">Auth</span></td>
+              <td>POST /auth/refresh — valid cookie, rotates token</td>
+              <td class="expects">200, new access_token</td>
+            </tr>
+            <tr>
+              <td class="tc-id">AUTH-08</td>
+              <td><span class="badge badge-auth">Auth</span></td>
+              <td>POST /auth/refresh — no cookie</td>
+              <td class="expects">401, code: missing_refresh_token</td>
+            </tr>
+            <tr>
+              <td class="tc-id">AUTH-09</td>
+              <td><span class="badge badge-auth">Auth</span></td>
+              <td>POST /auth/logout — revokes all refresh tokens</td>
+              <td class="expects">204 No Content</td>
+            </tr>
+            <tr>
+              <td class="tc-id">TC-01</td>
+              <td><span class="badge badge-happy">Happy Path</span></td>
+              <td>POST /game/init — successful initialization</td>
+              <td class="expects">200, session_id, config (min/max bet), balance</td>
+            </tr>
+            <tr>
+              <td class="tc-id">TC-02</td>
+              <td><span class="badge badge-happy">Happy Path</span></td>
+              <td>POST /spin — valid bet, full outcome</td>
+              <td class="expects">200, spin_id, reel_matrix, win, balance</td>
+            </tr>
+            <tr>
+              <td class="tc-id">TC-03</td>
+              <td><span class="badge badge-happy">Happy Path</span></td>
+              <td>POST /spin — balance delta validation</td>
+              <td class="expects">balance_after = balance_before − bet + win</td>
+            </tr>
+            <tr>
+              <td class="tc-id">TC-04</td>
+              <td><span class="badge badge-happy">Happy Path</span></td>
+              <td>POST /spin — Free Spins bonus trigger</td>
+              <td class="expects">200, bonus_triggered.type = free_spins</td>
+            </tr>
+            <tr>
+              <td class="tc-id">TC-05</td>
+              <td><span class="badge badge-neg">Negative</span></td>
+              <td>POST /spin — missing Authorization header</td>
+              <td class="expects">401 Unauthorized</td>
+            </tr>
+            <tr>
+              <td class="tc-id">TC-06</td>
+              <td><span class="badge badge-neg">Negative</span></td>
+              <td>POST /spin — bet exceeds balance (999 999)</td>
+              <td class="expects">422, code: insufficient_balance</td>
+            </tr>
+            <tr>
+              <td class="tc-id">TC-07</td>
+              <td><span class="badge badge-neg">Negative</span></td>
+              <td>POST /spin — negative bet amount (−100)</td>
+              <td class="expects">400 Bad Request</td>
+            </tr>
+            <tr>
+              <td class="tc-id">TC-08</td>
+              <td><span class="badge badge-neg">Negative</span></td>
+              <td>POST /spin — duplicate Idempotency-Key</td>
+              <td class="expects">409 or 200 with same spin_id</td>
+            </tr>
+            <tr>
+              <td class="tc-id">TC-09</td>
+              <td><span class="badge badge-neg">Negative</span></td>
+              <td>POST /spin — JWT with alg: none</td>
+              <td class="expects">401 Unauthorized</td>
+            </tr>
+            <tr>
+              <td class="tc-id">TC-10</td>
+              <td><span class="badge badge-neg">Negative</span></td>
+              <td>GET /history — IDOR via foreign user_id param</td>
+              <td class="expects">403 or 200 with own data only</td>
+            </tr>
+            <tr>
+              <td class="tc-id">TC-11</td>
+              <td><span class="badge badge-sec">Security</span></td>
+              <td>POST /spin — SQL injection in bet.amount</td>
+              <td class="expects">4xx, no 500, SQL not executed</td>
+            </tr>
+            <tr>
+              <td class="tc-id">TC-12</td>
+              <td><span class="badge badge-sec">Security</span></td>
+              <td>POST /spin — XSS payload in session_id</td>
+              <td class="expects">4xx, no &lt;script&gt; in response body</td>
+            </tr>
+            <tr>
+              <td class="tc-id">TC-13</td>
+              <td><span class="badge badge-sec">Security</span></td>
+              <td>POST /spin — rate limit (50 req/s via Runner)</td>
+              <td class="expects">429 with Retry-After after threshold</td>
+            </tr>
+            <tr>
+              <td class="tc-id">TC-14</td>
+              <td><span class="badge badge-sec">Security</span></td>
+              <td>POST /spin — replay attack (intercepted request)</td>
+              <td class="expects">200 same spin_id or 409, no double debit</td>
+            </tr>
+            <tr>
+              <td class="tc-id">TC-15</td>
+              <td><span class="badge badge-happy">Happy Path</span></td>
+              <td>GET /history — own spin history</td>
+              <td class="expects">200, items[], total, limit, offset</td>
+            </tr>
+            <tr>
+              <td class="tc-id">TC-16</td>
+              <td><span class="badge badge-happy">Happy Path</span></td>
+              <td>GET /history — pagination (limit=2)</td>
+              <td class="expects">items.length ≤ 2, limit echoed</td>
+            </tr>
+            <tr>
+              <td class="tc-id">TC-17</td>
+              <td><span class="badge badge-neg">Negative</span></td>
+              <td>GET /history — no Authorization header</td>
+              <td class="expects">401 Unauthorized</td>
+            </tr>
+            <tr>
+              <td class="tc-id">TC-18</td>
+              <td><span class="badge badge-neg">Negative</span></td>
+              <td>POST /spin — invalid session_id</td>
+              <td class="expects">403, code: session_expired</td>
+            </tr>
+            <tr>
+              <td class="tc-id">TC-19</td>
+              <td><span class="badge badge-neg">Negative</span></td>
+              <td>POST /spin — game_id mismatch</td>
+              <td class="expects">400, code: invalid_game_id</td>
+            </tr>
+            <tr>
+              <td class="tc-id">TC-20</td>
+              <td><span class="badge badge-neg">Negative</span></td>
+              <td>POST /spin — bet below min (0.001)</td>
+              <td class="expects">422, code: invalid_bet</td>
+            </tr>
+            <tr>
+              <td class="tc-id">TC-21</td>
+              <td><span class="badge badge-neg">Negative</span></td>
+              <td>POST /spin — unsupported currency (EUR)</td>
+              <td class="expects">422, code: invalid_currency</td>
+            </tr>
+            <tr>
+              <td class="tc-id">TC-22</td>
+              <td><span class="badge badge-neg">Negative</span></td>
+              <td>POST /spin — lines out of range (0)</td>
+              <td class="expects">422, code: invalid_lines</td>
+            </tr>
+            <tr>
+              <td class="tc-id">TC-23</td>
+              <td><span class="badge badge-neg">Negative</span></td>
+              <td>POST /spin — idempotency key reused with different payload</td>
+              <td class="expects">409, code: idempotency_key_reused</td>
+            </tr>
+          </tbody>
+        </table>
+      </section>
+
+      <section class="card">
+        <h2>Quick Start</h2>
+        <ul>
+          <li>Open Postman and import <code>slots-collection.json</code> and <code>dev.env.json</code>.</li>
+          <li>Select the <code>Slots API - Dev</code> environment in the top-right dropdown.</li>
+          <li>Set <code>base_url</code>, then run <strong>Auth → Login</strong> — <code>jwt_token</code> is saved automatically.</li>
+          <li>Run a single request: open it → <strong>Send</strong> → check the <strong>Test Results</strong> tab.</li>
+          <li>Run the full suite: right-click the collection → <strong>Run collection</strong>.</li>
+        </ul>
+      </section>
+
+      <section class="card">
+        <h2>Newman CLI</h2>
+        <pre>newman run slots-collection.json -e dev.env.json</pre>
+        <p style="margin-top:10px;margin-bottom:6px;font-size:13px;color:#94a3b8;">With HTML report:</p>
+        <pre>newman run slots-collection.json -e dev.env.json -r htmlextra --reporter-htmlextra-export report.html</pre>
+      </section>
+
     </main>
   </body>
 </html>

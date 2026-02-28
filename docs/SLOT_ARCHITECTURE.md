@@ -1,6 +1,6 @@
-# Архитектура современного онлайн-слота (iGaming)
+# Architecture of a Modern Online Slot (iGaming)
 
-Документ описывает backend core engine, API и схему БД для сертифицированного слота.
+This document describes the backend core engine, API, and database schema for a certified slot.
 
 ---
 
@@ -10,105 +10,105 @@
 
 #### Certified RNG
 
-- **Mersenne Twister (MT19937)** — типичный выбор для certified RNG в слотах:
-  - Период 2^19937 − 1, равномерное распределение в [0, 1).
-  - Детерминированность при одном seed для воспроизводимости аудита.
-  - Сертификация: GLI-11, eCOGRA, iTech Labs и др. проверяют реализацию и тесты.
+- **Mersenne Twister (MT19937)** — a typical choice for a certified RNG in slots:
+  - Period 2^19937 − 1, uniform distribution in [0, 1).
+  - Deterministic with a single seed for audit reproducibility.
+  - Certification: GLI-11, eCOGRA, iTech Labs, and others verify the implementation and tests.
 
 ```text
-Поток: External Entropy → Seed Generator → MT State → Next Random → Map to Reel/Symbol
+Flow: External Entropy → Seed Generator → MT State → Next Random → Map to Reel/Symbol
 ```
 
-- **Seed generation (серверная)**:
-  - **True entropy**: `/dev/urandom`, HW RNG (если есть), timestamp, process ID.
-  - **Формула**: `seed = HMAC(server_secret, concat(entropy_sources))` или просто криптостойкий random для инициализации MT.
-  - Seed привязывается к `session_id` и `spin_id` и логируется для аудита (reproducibility).
+- **Seed generation (server-side)**:
+  - **True entropy**: `/dev/urandom`, HW RNG (if available), timestamp, process ID.
+  - **Formula**: `seed = HMAC(server_secret, concat(entropy_sources))` or simply a cryptographically secure random for MT initialization.
+  - The seed is bound to `session_id` and `spin_id` and logged for audit (reproducibility).
 
 - **Server-side vs client-side**:
-  - **Outcome всегда на сервере**: результат спина (позиции символов, выигрыш, бонусы) вычисляется только на backend. Клиент не может повлиять на результат.
-  - **Client-side**: только анимация и отображение уже выданного результата; клиент может использовать свой PRNG только для визуальных эффектов (particles, shuffle animation), но не для игровой логики.
+  - **Outcome always on the server**: the spin result (symbol positions, win, bonuses) is computed solely on the backend. The client cannot influence the outcome.
+  - **Client-side**: only animation and display of the already-determined result; the client may use its own PRNG only for visual effects (particles, shuffle animation), but not for game logic.
 
 ---
 
-### 1.2 Алгоритм расчёта спина (outcome до анимации)
+### 1.2 Spin Outcome Calculation Algorithm (outcome before animation)
 
-1. **Вход**: `game_id`, `bet`, `currency`, `session_id`, опционально `feature_buy`, `bonus_round_id`.
-2. **RNG**: из текущего состояния MT (или подсостояния для этой игры) получаем N случайных чисел (по числу позиций на барабанах).
-3. **Mapping**: каждое число из [0,1) маппится в индекс символа на данном reel (reel strip — массив символов для каждого барабана). Учитывается **weighted RNG** (веса символов на полосе) для достижения целевого RTP и волатильности.
-4. **Outcome matrix**: строится матрица символов [reels × rows], например 5×3.
-5. **Paytable evaluation**: по правилам игры (линии, ways, scatter) считается выигрыш.
-6. **Bonus logic**: проверка триггеров (scatter count, special symbols) → решение о Free Spins / Multiplier / Cascade и т.д.
-7. **Фиксация**: результат сохраняется в БД, затем отдаётся клиенту. Клиент только анимирует уже известный outcome.
+1. **Input**: `game_id`, `bet`, `currency`, `session_id`, optionally `feature_buy`, `bonus_round_id`.
+2. **RNG**: from the current MT state (or sub-state for this game) we obtain N random numbers (one per reel position).
+3. **Mapping**: each number from [0,1) is mapped to a symbol index on the given reel (reel strip — an array of symbols for each reel). **Weighted RNG** (symbol weights on the strip) is applied to achieve the target RTP and volatility.
+4. **Outcome matrix**: a symbol matrix [reels × rows] is built, e.g. 5×3.
+5. **Paytable evaluation**: the win is calculated according to the game rules (lines, ways, scatter).
+6. **Bonus logic**: trigger checks (scatter count, special symbols) → decision on Free Spins / Multiplier / Cascade, etc.
+7. **Commit**: the result is saved to the database, then returned to the client. The client only animates the already-known outcome.
 
-**Важно**: анимация на клиенте использует уже переданный outcome (порядок остановки барабанов может быть задан в ответе или жёстко на клиенте), чтобы исключить рассинхрон и читерство.
+**Important**: the client-side animation uses the already-transmitted outcome (the reel stop order may be specified in the response or hardcoded on the client) to eliminate desync and cheating.
 
 ---
 
 ### 1.3 RTP (Return to Player)
 
-- **Определение**: RTP = (сумма выплат за длительную игру) / (сумма ставок). Например, 96% значит, что в долгосрочной перспективе игроку возвращается 96% от поставленного.
-- **Математическая реализация**:
-  - Задаётся **target RTP** (96%, 97% и т.д.) на уровне конфига игры.
-  - **Reel strips** и **symbol weights** подбираются так, чтобы математическое ожидание выигрыша на спин при данной ставке давало нужный RTP. Используется симуляция миллионов спинов для калибровки.
-  - Формула по сути: `E[win per spin] = target_RTP * bet`. Достигается за счёт вероятностей символов на полосах и выплат по paytable.
-- **Проверка**: периодический расчёт фактического RTP по реальным спинам (за период/по игре) для мониторинга и соответствия лицензии.
+- **Definition**: RTP = (total payouts over extended play) / (total bets). For example, 96% means that in the long run the player gets back 96% of the amount wagered.
+- **Mathematical implementation**:
+  - A **target RTP** (96%, 97%, etc.) is set at the game config level.
+  - **Reel strips** and **symbol weights** are calibrated so that the expected win per spin at the given bet produces the required RTP. Millions of simulated spins are used for calibration.
+  - The formula in essence: `E[win per spin] = target_RTP * bet`. Achieved through symbol probabilities on the strips and paytable payouts.
+- **Verification**: periodic calculation of the actual RTP from real spins (per period / per game) for monitoring and licence compliance.
 
 ---
 
 ### 1.4 Volatility / Variance
 
-- **Low**: частые мелкие выигрыши, редкие крупные — стабильная кривая баланса.
-- **Medium**: баланс между частотой и размером выигрышей.
-- **High**: редкие выигрыши, но крупные (в т.ч. джекпоты, бонусы).
+- **Low**: frequent small wins, rare large wins — a stable balance curve.
+- **Medium**: a balance between win frequency and win size.
+- **High**: rare but large wins (including jackpots, bonuses).
 
-**Реализация в механике**:
-- **Frequency vs size**: задаётся распределением символов на reel strips (больше высокооплачиваемых символов → выше частота выигрышей; меньше, но с большими множителями → высокая волатильность).
-- **Bonus frequency**: вероятность триггера Free Spins / бонусов влияет на variance (чаще бонусы — выше variance при прочих равных).
-- В коде это набор конфигов (веса символов, размеры выплат, вероятности бонусов), подобранных под целевой RTP и выбранный уровень volatility.
+**Implementation in the mechanics**:
+- **Frequency vs size**: set by the distribution of symbols on the reel strips (more high-paying symbols → higher win frequency; fewer symbols with larger multipliers → high volatility).
+- **Bonus frequency**: the probability of triggering Free Spins / bonuses affects variance (more frequent bonuses — higher variance, all else being equal).
+- In code this is a set of configs (symbol weights, payout sizes, bonus probabilities) tuned to the target RTP and the chosen volatility level.
 
 ---
 
 ### 1.5 Paytable Engine
 
-- **Хранение**:
-  - **Paytable**: таблица (symbol_id, count_min, count_max, multiplier_or_fixed, pay_per_line_or_ways).
-  - Пример: символ "A" — 3 = 5x bet, 4 = 20x, 5 = 100x; линии или "all ways" (совпадения по позициям).
-  - Хранится в БД (таблицы `paytable`, `paytable_lines`) или в конфиге игры (JSON/YAML).
+- **Storage**:
+  - **Paytable**: a table (symbol_id, count_min, count_max, multiplier_or_fixed, pay_per_line_or_ways).
+  - Example: symbol "A" — 3 = 5x bet, 4 = 20x, 5 = 100x; lines or "all ways" (matches by position).
+  - Stored in the database (tables `paytable`, `paytable_lines`) or in the game config (JSON/YAML).
 
-- **Расчёт**:
-  - После построения outcome matrix проверяются выигрышные комбинации:
-    - **Line-based**: заданы линии (массивы позиций [reel][row]); для каждой линии смотрим символы, считаем длину совпадения с начала, берём выплату из paytable.
-    - **Ways**: считаем количество "путей" (совпадений по позициям) для каждого символа, применяем paytable (часто выплата за N одинаковых символов на любых позициях).
-  - Умножение на ставку (или на ставку за линию): `win = multiplier_from_paytable * bet_per_line * num_lines_played`.
+- **Calculation**:
+  - After the outcome matrix is built, winning combinations are checked:
+    - **Line-based**: lines are defined (arrays of positions [reel][row]); for each line the symbols are examined, the match length from the start is counted, and the payout is taken from the paytable.
+    - **Ways**: the number of "ways" (position matches) for each symbol is counted and the paytable is applied (typically the payout is for N identical symbols at any positions).
+  - Multiplication by bet (or by bet per line): `win = multiplier_from_paytable * bet_per_line * num_lines_played`.
 
 ---
 
 ### 1.6 Bonus Mechanics (Backend)
 
-- **Free Spins**: отдельный режим (state), счётчик оставшихся спинов. Каждый спин в бонусе считается так же (RNG → outcome → paytable), но с возможными отличиями: другие веса символов, множители, дополнительные символы. Триггер: N scatter в одном спине.
-- **Multipliers**: глобальный или per-spin множитель к выигрышу (например x2, x3). Хранится в контексте бонус-раунда или передаётся в расчёт выплаты.
-- **Cascading Reels**: после спина удаляются выигрышные символы, сверху "падают" новые (новый RNG для освободившихся позиций), снова проверка выплат. Цикл до тех пор, пока есть новые выигрыши. Все каскады считаются на сервере в одном "логическом" спине (один spin_id, несколько cascade steps в ответе).
-- **Buy Feature**: запрос клиента на покупку бонус-раунда за фиксированную сумму. Сервер проверяет баланс, списывает цену, запускает бонус-раунд (тот же движок Free Spins/Cascade и т.д.).
+- **Free Spins**: a separate mode (state) with a remaining-spins counter. Each spin in the bonus is evaluated the same way (RNG → outcome → paytable), but with possible differences: different symbol weights, multipliers, additional symbols. Trigger: N scatters in a single spin.
+- **Multipliers**: a global or per-spin multiplier applied to the win (e.g. x2, x3). Stored in the bonus-round context or passed into the payout calculation.
+- **Cascading Reels**: after a spin, winning symbols are removed and new ones "fall" from above (new RNG for the freed positions), then payouts are checked again. The cycle continues as long as new wins appear. All cascades are calculated on the server within a single "logical" spin (one spin_id, multiple cascade steps in the response).
+- **Buy Feature**: a client request to purchase a bonus round for a fixed amount. The server checks the balance, deducts the price, and launches the bonus round (the same Free Spins/Cascade engine, etc.).
 
-Все эти механики — часть одного **game state machine** на backend (base game → bonus → free spins → cascade steps), с единым RNG и сохранением каждого шага в БД.
+All these mechanics are part of a single **game state machine** on the backend (base game → bonus → free spins → cascade steps), with a unified RNG and each step saved to the database.
 
 ---
 
 ## 2. API ENDPOINTS
 
-Базовый URL: `https://api.example.com`  
-Все запросы к игровому API требуют аутентификации.
+Base URL: `https://api.example.com`
+All requests to the game API require authentication.
 
 ### Auth
 
 - **Header**: `Authorization: Bearer <JWT>`
-- JWT содержит: `sub` (user_id), `session_id`, `iss`, `exp`. Проверка на каждом запросе.
+- JWT contains: `sub` (user_id), `session_id`, `iss`, `exp`. Verified on every request.
 
 ---
 
 ### 2.1 POST /api/v1/game/init
 
-Инициализация сессии игры, получение конфига (reel strips, paytable, правила).
+Initializes a game session and retrieves the config (reel strips, paytable, rules).
 
 **Request Headers**
 
@@ -171,7 +171,7 @@
 
 ### 2.2 POST /api/v1/spin
 
-Основной спин: ставка, обновление баланса, результат (outcome).
+Main spin: bet placement, balance update, result (outcome).
 
 **Request Headers**
 
@@ -230,7 +230,7 @@
 }
 ```
 
-Пример ответа с триггером Free Spins:
+Example response with a Free Spins trigger:
 
 ```json
 {
@@ -266,9 +266,9 @@
 
 ### 2.3 POST /api/v1/bonus/trigger
 
-Триггер или продолжение бонусной механики (Free Spins спин, Buy Feature, и т.д.).
+Trigger or continuation of a bonus mechanic (Free Spins spin, Buy Feature, etc.).
 
-**Request (продолжение Free Spins)**
+**Request (Free Spins continuation)**
 
 ```json
 {
@@ -292,7 +292,7 @@
 }
 ```
 
-**Response 200 OK (спин в бонусе)**
+**Response 200 OK (spin in bonus)**
 
 ```json
 {
@@ -310,7 +310,7 @@
 }
 ```
 
-**Response 200 OK (бонус завершён)**
+**Response 200 OK (bonus completed)**
 
 ```json
 {
@@ -345,7 +345,7 @@
 
 ### 2.4 GET /api/v1/history
 
-История спинов (пагинация).
+Spin history (paginated).
 
 **Request Headers**
 
@@ -405,14 +405,14 @@
 
 ### 2.5 WebSocket /ws/game
 
-Real-time соединение: уведомления о балансе, блокировках, промо, завершении бонус-раунда с другого устройства.
+Real-time connection: balance notifications, blocks, promotions, bonus-round completion from another device.
 
 **Connection**
 
 - URL: `wss://api.example.com/ws/game`
-- Query или subprotocol: передача JWT, например `?token=<JWT>` или в первом сообщении после open.
+- Query or subprotocol: JWT delivery, e.g. `?token=<JWT>` or in the first message after open.
 
-**Client → Server (опционально)**
+**Client → Server (optional)**
 
 ```json
 { "type": "subscribe", "channel": "balance" }
@@ -437,14 +437,14 @@ Real-time соединение: уведомления о балансе, бло
 
 ## 3. DATABASE SCHEMA
 
-Условные типы: PostgreSQL (BIGINT, NUMERIC, JSONB, TIMESTAMPTZ).
+Column types: PostgreSQL (BIGINT, NUMERIC, JSONB, TIMESTAMPTZ).
 
 ### users
 
 | Column         | Type         | Description                |
 |----------------|--------------|----------------------------|
 | id             | BIGSERIAL    | PK                         |
-| external_id    | VARCHAR(64)  | UNIQUE, id из identity provider |
+| external_id    | VARCHAR(64)  | UNIQUE, id from identity provider |
 | email          | VARCHAR(255) | nullable                   |
 | country_code   | CHAR(2)      | ISO 3166-1                  |
 | currency       | CHAR(3)      | default currency           |
@@ -474,7 +474,7 @@ Real-time соединение: уведомления о балансе, бло
 | id              | BIGSERIAL    | PK                                  |
 | spin_id         | VARCHAR(64)  | UNIQUE, public spin id              |
 | session_id      | BIGINT       | FK → sessions.id                    |
-| user_id         | BIGINT       | FK → users.id (денормализация)      |
+| user_id         | BIGINT       | FK → users.id (denormalization)     |
 | game_id         | VARCHAR(64)  |                                     |
 | bet_amount      | NUMERIC(18,4)|                                     |
 | bet_currency    | CHAR(3)      |                                     |
@@ -483,8 +483,8 @@ Real-time соединение: уведомления о балансе, бло
 | state_before    | VARCHAR(32)  | base_game, free_spins, etc.         |
 | state_after     | VARCHAR(32)  |                                     |
 | outcome         | JSONB        | reel_matrix, win breakdown, bonus   |
-| rng_seed        | BIGINT       | или VARCHAR для аудита (опционально)|
-| bonus_round_id  | VARCHAR(64)  | nullable, FK логический             |
+| rng_seed        | BIGINT       | or VARCHAR for audit (optional)     |
+| bonus_round_id  | VARCHAR(64)  | nullable, logical FK                |
 | created_at      | TIMESTAMPTZ  |                                     |
 
 ### balances
@@ -494,7 +494,7 @@ Real-time соединение: уведомления о балансе, бло
 | id         | BIGSERIAL    | PK                 |
 | user_id    | BIGINT       | FK → users.id UNIQUE per (user_id, currency) |
 | currency   | CHAR(3)      |                    |
-| amount     | NUMERIC(18,4)| текущий баланс     |
+| amount     | NUMERIC(18,4)| current balance    |
 | version    | INTEGER      | optimistic lock    |
 | updated_at | TIMESTAMPTZ  |                    |
 
@@ -509,16 +509,16 @@ Real-time соединение: уведомления о балансе, бло
 | game_id          | VARCHAR(64)  |                                |
 | type             | VARCHAR(32)  | free_spins, bonus_game, etc.   |
 | status           | VARCHAR(20)  | active, completed, expired     |
-| total_spins      | INTEGER      | запланировано (e.g. 10)       |
+| total_spins      | INTEGER      | scheduled count (e.g. 10)     |
 | spins_played     | INTEGER      | default 0                      |
-| total_win        | NUMERIC(18,4)| накопленный выигрыш в бонусе   |
+| total_win        | NUMERIC(18,4)| accumulated win in the bonus   |
 | config           | JSONB        | multiplier, reel set, etc.     |
 | created_at       | TIMESTAMPTZ  |                                |
 | completed_at     | TIMESTAMPTZ  | nullable                       |
 
 ### transactions
 
-Иммутабельный журнал движений по балансу (ставка, выигрыш, депозит, бонус, админ).
+Immutable ledger of balance movements (bet, win, deposit, bonus, admin).
 
 | Column       | Type         | Description                    |
 |--------------|--------------|--------------------------------|
@@ -526,9 +526,9 @@ Real-time соединение: уведомления о балансе, бло
 | transaction_id | VARCHAR(64) | UNIQUE                         |
 | user_id      | BIGINT       | FK → users.id                  |
 | type         | VARCHAR(32)  | bet, win, deposit, withdrawal, bonus, adjustment |
-| amount       | NUMERIC(18,4)| положительный = кредит        |
+| amount       | NUMERIC(18,4)| positive = credit              |
 | currency     | CHAR(3)      |                                |
-| balance_after| NUMERIC(18,4)| баланс после операции          |
+| balance_after| NUMERIC(18,4)| balance after the operation    |
 | reference_type | VARCHAR(32) | spin, bonus_round, deposit_id  |
 | reference_id | VARCHAR(64)  | spin_id, bonus_round_id, etc.  |
 | created_at   | TIMESTAMPTZ  |                                |
@@ -536,13 +536,13 @@ Real-time соединение: уведомления о балансе, бло
 
 ---
 
-### Индексы (рекомендуемые)
+### Indexes (recommended)
 
-- `spins(user_id, created_at)`, `spins(session_id, created_at)`, `spins(game_id, created_at)` — история и отчёты.
-- `transactions(user_id, created_at)` — выписка по счёту.
-- `bonus_rounds(session_id, status)` — поиск активного бонуса.
+- `spins(user_id, created_at)`, `spins(session_id, created_at)`, `spins(game_id, created_at)` — history and reports.
+- `transactions(user_id, created_at)` — account statement.
+- `bonus_rounds(session_id, status)` — active bonus lookup.
 - `sessions(user_id, status)`, `sessions(session_id)`.
 
 ---
 
-*Документ можно использовать как референс для разработки backend слота и интеграции с клиентом.*
+*This document can be used as a reference for backend slot development and client integration.*

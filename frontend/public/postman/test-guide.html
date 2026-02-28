@@ -1,0 +1,1247 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Test Guide — Slots API</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Rajdhani:wght@400;500;600;700&family=Manrope:wght@300;400;500;600&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --navy-0: #020810;
+      --navy-1: #040b16;
+      --navy-2: #07142a;
+      --navy-3: #0c1e3e;
+      --navy-4: #112550;
+      --cyan:   #62d7ff;
+      --gold:   #f6be57;
+      --mint:   #3ee0a9;
+      --red:    #f87171;
+      --text:   #e2ecf8;
+      --muted:  #7a94b8;
+      --border: rgba(98,215,255,0.12);
+      --glass:  rgba(7,20,42,0.72);
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: 'Manrope', sans-serif;
+      background: var(--navy-1);
+      color: var(--text);
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    /* ── Background grid ── */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image:
+        linear-gradient(rgba(98,215,255,0.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(98,215,255,0.03) 1px, transparent 1px);
+      background-size: 48px 48px;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    /* ── Glow blobs ── */
+    body::after {
+      content: '';
+      position: fixed;
+      top: -200px;
+      left: -200px;
+      width: 600px;
+      height: 600px;
+      background: radial-gradient(circle, rgba(98,215,255,0.06) 0%, transparent 70%);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    /* ── Layout ── */
+    .layout {
+      position: relative;
+      z-index: 1;
+      display: grid;
+      grid-template-columns: 220px 1fr;
+      min-height: 100vh;
+      max-width: 1160px;
+      margin: 0 auto;
+      padding: 0 20px;
+      gap: 32px;
+    }
+
+    /* ── Sidebar ── */
+    .sidebar {
+      position: sticky;
+      top: 0;
+      height: 100vh;
+      padding: 40px 0 40px;
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+      overflow-y: auto;
+    }
+
+    .sidebar-brand {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 22px;
+      letter-spacing: 2px;
+      color: var(--cyan);
+      text-shadow: 0 0 20px rgba(98,215,255,0.4);
+      margin-bottom: 6px;
+    }
+
+    .sidebar-sub {
+      font-family: 'Rajdhani', sans-serif;
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 32px;
+    }
+
+    .nav-section {
+      font-family: 'Rajdhani', sans-serif;
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--muted);
+      padding: 16px 0 6px;
+      border-top: 1px solid var(--border);
+    }
+
+    .nav-section:first-of-type { border-top: none; padding-top: 0; }
+
+    .nav-link {
+      display: block;
+      font-family: 'Rajdhani', sans-serif;
+      font-size: 13.5px;
+      font-weight: 500;
+      color: var(--muted);
+      text-decoration: none;
+      padding: 5px 0 5px 12px;
+      border-left: 2px solid transparent;
+      transition: color 0.15s, border-color 0.15s;
+    }
+
+    .nav-link:hover,
+    .nav-link.active {
+      color: var(--cyan);
+      border-left-color: var(--cyan);
+    }
+
+    .back-link {
+      margin-top: auto;
+      padding-top: 24px;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-family: 'Rajdhani', sans-serif;
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--muted);
+      text-decoration: none;
+      transition: color 0.15s;
+    }
+    .back-link:hover { color: var(--text); }
+    .back-link svg { flex-shrink: 0; }
+
+    /* ── Main content ── */
+    .main {
+      padding: 40px 0 80px;
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+    }
+
+    /* ── Section ── */
+    .section {
+      padding: 48px 0 0;
+    }
+
+    .section:first-child { padding-top: 0; }
+
+    .section-label {
+      font-family: 'Rajdhani', sans-serif;
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--cyan);
+      margin-bottom: 10px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .section-label::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: linear-gradient(90deg, rgba(98,215,255,0.3), transparent);
+    }
+
+    .section-title {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 36px;
+      letter-spacing: 1.5px;
+      color: var(--text);
+      margin-bottom: 6px;
+      line-height: 1;
+    }
+
+    .section-desc {
+      font-size: 14px;
+      color: var(--muted);
+      margin-bottom: 28px;
+      line-height: 1.6;
+    }
+
+    /* ── Card ── */
+    .card {
+      background: var(--glass);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 22px 24px;
+      backdrop-filter: blur(10px);
+      margin-bottom: 16px;
+    }
+
+    .card:last-child { margin-bottom: 0; }
+
+    /* ── Hero ── */
+    .hero {
+      padding: 48px 0 0;
+    }
+
+    .hero-eyebrow {
+      font-family: 'Rajdhani', sans-serif;
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 12px;
+    }
+
+    .hero-title {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: clamp(52px, 8vw, 80px);
+      letter-spacing: 3px;
+      line-height: 0.92;
+      margin-bottom: 8px;
+      background: linear-gradient(135deg, #ffffff 30%, var(--cyan) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .hero-meta {
+      font-family: 'Rajdhani', sans-serif;
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 12px;
+    }
+
+    .hero-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 32px;
+    }
+
+    .hero-tag {
+      font-family: 'Rajdhani', sans-serif;
+      font-size: 13px;
+      font-weight: 700;
+      letter-spacing: 0.07em;
+      text-transform: uppercase;
+      padding: 5px 12px;
+      border-radius: 7px;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .hero-tag em {
+      font-style: normal;
+      font-weight: 400;
+      opacity: 0.6;
+      font-size: 12px;
+    }
+
+    .hero-tag.auth  { background: rgba(98,215,255,0.1);  color: var(--cyan); border: 1px solid rgba(98,215,255,0.2); }
+    .hero-tag.happy { background: rgba(62,224,169,0.1);  color: var(--mint); border: 1px solid rgba(62,224,169,0.2); }
+    .hero-tag.neg   { background: rgba(246,190,87,0.1);  color: var(--gold); border: 1px solid rgba(246,190,87,0.2); }
+    .hero-tag.sec   { background: rgba(248,113,113,0.1); color: var(--red);  border: 1px solid rgba(248,113,113,0.2); }
+
+    .actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-bottom: 48px;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 7px;
+      min-height: 42px;
+      padding: 9px 18px;
+      border-radius: 9px;
+      font-family: 'Rajdhani', sans-serif;
+      font-size: 14px;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+      text-decoration: none;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+
+    .btn-primary {
+      background: linear-gradient(160deg, var(--gold) 0%, #d4972e 100%);
+      color: #0a0b10;
+      border: none;
+      box-shadow: 0 0 24px rgba(246,190,87,0.25);
+    }
+    .btn-primary:hover {
+      box-shadow: 0 0 36px rgba(246,190,87,0.45);
+      transform: translateY(-1px);
+    }
+
+    .btn-ghost {
+      background: rgba(15,30,60,0.6);
+      color: var(--text);
+      border: 1px solid rgba(255,255,255,0.14);
+    }
+    .btn-ghost:hover {
+      border-color: rgba(98,215,255,0.4);
+      color: var(--cyan);
+      background: rgba(98,215,255,0.06);
+    }
+
+    /* ── Tables ── */
+    .data-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13.5px;
+    }
+
+    .data-table th {
+      font-family: 'Rajdhani', sans-serif;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--muted);
+      padding: 8px 12px;
+      text-align: left;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .data-table td {
+      padding: 10px 12px;
+      border-bottom: 1px solid rgba(255,255,255,0.04);
+      vertical-align: top;
+      color: var(--text);
+      line-height: 1.5;
+    }
+
+    .data-table tr:last-child td { border-bottom: none; }
+    .data-table tr:hover td { background: rgba(98,215,255,0.03); }
+
+    .data-table td.mono {
+      font-family: ui-monospace, 'Cascadia Code', 'Fira Code', monospace;
+      font-size: 12.5px;
+      color: var(--cyan);
+    }
+
+    .data-table td.ex {
+      font-family: ui-monospace, monospace;
+      font-size: 12px;
+      color: var(--gold);
+    }
+
+    .data-table td.desc {
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    /* ── TC cards ── */
+    .tc-group { margin-bottom: 24px; }
+    .tc-group:last-child { margin-bottom: 0; }
+
+    .tc-group-header {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 12px;
+    }
+
+    .tc-badge {
+      font-family: 'Rajdhani', sans-serif;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      padding: 3px 10px;
+      border-radius: 5px;
+    }
+
+    .tc-badge.happy  { background: rgba(62,224,169,0.15); color: var(--mint); }
+    .tc-badge.neg    { background: rgba(246,190,87,0.15);  color: var(--gold); }
+    .tc-badge.sec    { background: rgba(248,113,113,0.15); color: var(--red); }
+
+    .tc-group-line {
+      flex: 1;
+      height: 1px;
+    }
+    .tc-group-line.happy { background: linear-gradient(90deg, rgba(62,224,169,0.25), transparent); }
+    .tc-group-line.neg   { background: linear-gradient(90deg, rgba(246,190,87,0.25), transparent); }
+    .tc-group-line.sec   { background: linear-gradient(90deg, rgba(248,113,113,0.25), transparent); }
+
+    .tc-list { display: flex; flex-direction: column; gap: 8px; }
+
+    .tc-item {
+      background: rgba(7,20,42,0.6);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 12px 16px;
+      display: grid;
+      grid-template-columns: 52px 1fr auto;
+      align-items: start;
+      gap: 12px;
+      transition: border-color 0.15s, background 0.15s;
+    }
+
+    .tc-item.happy:hover  { border-color: rgba(62,224,169,0.3);  background: rgba(62,224,169,0.04); }
+    .tc-item.neg:hover    { border-color: rgba(246,190,87,0.3);   background: rgba(246,190,87,0.04); }
+    .tc-item.sec:hover    { border-color: rgba(248,113,113,0.3); background: rgba(248,113,113,0.04); }
+
+    .tc-id {
+      font-family: ui-monospace, monospace;
+      font-size: 11.5px;
+      font-weight: 600;
+      padding-top: 1px;
+    }
+    .tc-item.happy .tc-id { color: var(--mint); }
+    .tc-item.neg   .tc-id { color: var(--gold); }
+    .tc-item.sec   .tc-id { color: var(--red); }
+
+    .tc-desc {
+      font-size: 13.5px;
+      color: var(--text);
+      line-height: 1.45;
+    }
+
+    .tc-expects {
+      font-family: ui-monospace, monospace;
+      font-size: 11.5px;
+      color: var(--muted);
+      white-space: nowrap;
+      padding-top: 2px;
+    }
+
+    /* ── Steps ── */
+    .steps { display: flex; flex-direction: column; gap: 12px; }
+
+    .step {
+      display: flex;
+      gap: 16px;
+      align-items: flex-start;
+    }
+
+    .step-num {
+      flex-shrink: 0;
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: 'Rajdhani', sans-serif;
+      font-size: 13px;
+      font-weight: 700;
+      background: rgba(98,215,255,0.1);
+      border: 1px solid rgba(98,215,255,0.25);
+      color: var(--cyan);
+      margin-top: 1px;
+    }
+
+    .step-body {
+      flex: 1;
+      font-size: 14px;
+      color: var(--text);
+      line-height: 1.6;
+      padding-top: 3px;
+    }
+
+    .step-body code {
+      font-family: ui-monospace, monospace;
+      font-size: 12.5px;
+      background: rgba(98,215,255,0.08);
+      color: var(--cyan);
+      padding: 1px 5px;
+      border-radius: 4px;
+    }
+
+    .step-body strong { color: var(--gold); font-weight: 600; }
+
+    /* ── Code blocks ── */
+    .code-block {
+      position: relative;
+      margin-bottom: 12px;
+    }
+    .code-block:last-child { margin-bottom: 0; }
+
+    .code-label {
+      font-family: 'Rajdhani', sans-serif;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 6px;
+    }
+
+    pre {
+      background: rgba(2,8,16,0.85);
+      border: 1px solid rgba(98,215,255,0.1);
+      border-radius: 10px;
+      padding: 14px 42px 14px 16px;
+      overflow-x: auto;
+      font-family: ui-monospace, 'Cascadia Code', 'Fira Code', monospace;
+      font-size: 13px;
+      line-height: 1.65;
+      color: #c9daf8;
+    }
+
+    pre .comment { color: #4a6080; }
+    pre .cmd     { color: var(--cyan); }
+    pre .flag    { color: var(--gold); }
+    pre .val     { color: var(--mint); }
+
+    .copy-btn {
+      position: absolute;
+      top: 8px;
+      right: 8px;
+      width: 28px;
+      height: 28px;
+      border-radius: 6px;
+      border: 1px solid rgba(255,255,255,0.1);
+      background: rgba(15,30,60,0.7);
+      color: var(--muted);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.15s;
+      font-size: 12px;
+    }
+    .copy-btn:hover { border-color: var(--cyan); color: var(--cyan); }
+    .copy-btn.copied { border-color: var(--mint); color: var(--mint); }
+
+    /* ── Notes / callouts ── */
+    .callout {
+      display: flex;
+      gap: 14px;
+      background: rgba(7,20,42,0.6);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 14px 16px;
+      margin-bottom: 12px;
+    }
+    .callout:last-child { margin-bottom: 0; }
+
+    .callout-icon {
+      flex-shrink: 0;
+      width: 28px;
+      height: 28px;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 13px;
+      background: rgba(246,190,87,0.1);
+      border: 1px solid rgba(246,190,87,0.2);
+      margin-top: 1px;
+    }
+
+    .callout-body { flex: 1; }
+
+    .callout-tc {
+      font-family: ui-monospace, monospace;
+      font-size: 11.5px;
+      font-weight: 600;
+      color: var(--gold);
+      margin-bottom: 4px;
+    }
+
+    .callout-text {
+      font-size: 13.5px;
+      color: var(--muted);
+      line-height: 1.6;
+    }
+
+    .callout-text code {
+      font-family: ui-monospace, monospace;
+      font-size: 12px;
+      background: rgba(98,215,255,0.08);
+      color: var(--cyan);
+      padding: 1px 5px;
+      border-radius: 4px;
+    }
+
+    /* ── Divider ── */
+    .divider {
+      height: 1px;
+      background: linear-gradient(90deg, transparent, var(--border), transparent);
+      margin: 48px 0 0;
+    }
+
+    /* ── Inline code ── */
+    code {
+      font-family: ui-monospace, monospace;
+      font-size: 12.5px;
+      background: rgba(98,215,255,0.07);
+      color: var(--cyan);
+      padding: 1px 6px;
+      border-radius: 4px;
+    }
+
+    em {
+      font-style: italic;
+      color: var(--muted);
+    }
+
+    /* ── Animate in ── */
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(14px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    .section {
+      animation: fadeUp 0.45s ease both;
+    }
+
+    .section:nth-child(1)  { animation-delay: 0.05s; }
+    .section:nth-child(2)  { animation-delay: 0.12s; }
+    .section:nth-child(3)  { animation-delay: 0.18s; }
+    .section:nth-child(4)  { animation-delay: 0.24s; }
+    .section:nth-child(5)  { animation-delay: 0.30s; }
+    .section:nth-child(6)  { animation-delay: 0.36s; }
+    .section:nth-child(7)  { animation-delay: 0.42s; }
+    .section:nth-child(8)  { animation-delay: 0.48s; }
+
+    /* ── Responsive ── */
+    @media (max-width: 768px) {
+      .layout {
+        grid-template-columns: 1fr;
+        padding: 0 16px;
+      }
+
+      .sidebar {
+        position: static;
+        height: auto;
+        padding: 24px 0 0;
+        flex-direction: row;
+        flex-wrap: wrap;
+        gap: 8px;
+        border-bottom: 1px solid var(--border);
+        margin-bottom: 4px;
+      }
+
+      .sidebar-brand { display: none; }
+      .sidebar-sub   { display: none; }
+      .nav-section   { display: none; }
+      .back-link     { margin-top: 0; padding-top: 0; }
+
+      .nav-link {
+        font-size: 12px;
+        padding: 4px 10px;
+        border: 1px solid var(--border);
+        border-left: none;
+        border-radius: 6px;
+        background: rgba(7,20,42,0.6);
+      }
+
+      .nav-link.active, .nav-link:hover {
+        border-color: rgba(98,215,255,0.3);
+        background: rgba(98,215,255,0.06);
+      }
+
+      .tc-item { grid-template-columns: 44px 1fr; }
+      .tc-expects { display: none; }
+
+      .hero-title { font-size: clamp(44px, 14vw, 72px); }
+    }
+  </style>
+</head>
+<body>
+
+<div class="layout">
+
+  <!-- ── Sidebar ── -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-brand">SLOTSONE</div>
+    <div class="sidebar-sub">Postman Test Guide</div>
+
+    <span class="nav-section">Setup</span>
+    <a class="nav-link" href="#files">Files</a>
+    <a class="nav-link" href="#env-vars">Environment</a>
+
+    <span class="nav-section">Tests</span>
+    <a class="nav-link" href="#test-cases">Test Cases</a>
+
+    <span class="nav-section">Running</span>
+    <a class="nav-link" href="#postman">In Postman</a>
+    <a class="nav-link" href="#runner">Collection Runner</a>
+    <a class="nav-link" href="#newman">Newman CLI</a>
+
+    <span class="nav-section">Reference</span>
+    <a class="nav-link" href="#notes">Notes</a>
+
+    <a class="back-link" href="/postman-tests.html">
+      <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+        <path d="M9 11L5 7L9 3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+      Back to Tests
+    </a>
+  </aside>
+
+  <!-- ── Main ── -->
+  <main class="main">
+
+    <!-- Hero -->
+    <section class="section" id="hero">
+      <div class="hero-eyebrow">Slots API — Regression Suite</div>
+      <h1 class="hero-title">Test<br>Guide</h1>
+      <p class="hero-meta">32 requests &middot; 4 categories</p>
+      <div class="hero-tags">
+        <span class="hero-tag auth">Auth <em>AUTH-01–09</em></span>
+        <span class="hero-tag happy">Happy Path <em>TC-01–04, 15–16</em></span>
+        <span class="hero-tag neg">Negative <em>TC-05–10, 17–23</em></span>
+        <span class="hero-tag sec">Security <em>TC-11–14</em></span>
+      </div>
+      <div class="actions">
+        <a class="btn btn-primary" href="/postman/slots-collection.json" download>
+          <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+            <path d="M7 1v8M4 7l3 3 3-3M2 11h10" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+          Download Collection
+        </a>
+        <a class="btn btn-ghost" href="/postman/dev.env.json" download>
+          <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+            <path d="M7 1v8M4 7l3 3 3-3M2 11h10" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+          Download Environment
+        </a>
+        <a class="btn btn-ghost" href="/postman-tests.html">
+          <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+            <path d="M9 11L5 7L9 3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+          Test Overview
+        </a>
+      </div>
+    </section>
+
+    <div class="divider"></div>
+
+    <!-- Files -->
+    <section class="section" id="files">
+      <div class="section-label">Setup</div>
+      <h2 class="section-title">Files</h2>
+      <p class="section-desc">Import both files into Postman before running the suite.</p>
+      <div class="card">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>File</th>
+              <th>Description</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td class="mono">slots-collection.json</td>
+              <td class="desc">Requests + test scripts (TC-01 … TC-14)</td>
+            </tr>
+            <tr>
+              <td class="mono">dev.env.json</td>
+              <td class="desc">Environment: base_url, jwt_token, session_id, user_id, game_id</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <div class="divider"></div>
+
+    <!-- Environment Variables -->
+    <section class="section" id="env-vars">
+      <div class="section-label">Setup</div>
+      <h2 class="section-title">Environment Variables</h2>
+      <p class="section-desc">Import <code>dev.env.json</code> and fill in the values below. Variables marked <em>auto</em> are set by test scripts at runtime.</p>
+      <div class="card">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>Variable</th>
+              <th>Example</th>
+              <th>Description</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td class="mono">base_url</td>
+              <td class="ex">https://pyavchik.space</td>
+              <td class="desc">API base URL (use http://localhost:3001 for local dev)</td>
+            </tr>
+            <tr>
+              <td class="mono">jwt_token</td>
+              <td class="ex">eyJhbGciOiJSUzI1NiIs…</td>
+              <td class="desc">JWT Bearer token (obtain from POST /auth/login)</td>
+            </tr>
+            <tr>
+              <td class="mono">session_id</td>
+              <td class="ex"><em>set by TC-01</em></td>
+              <td class="desc">Game session identifier — auto-populated by TC-01</td>
+            </tr>
+            <tr>
+              <td class="mono">user_id</td>
+              <td class="ex">12345</td>
+              <td class="desc">User ID used for IDOR checks (TC-10)</td>
+            </tr>
+            <tr>
+              <td class="mono">game_id</td>
+              <td class="ex">slot_mega_fortune_001</td>
+              <td class="desc">Game ID passed to /game/init</td>
+            </tr>
+            <tr>
+              <td class="mono">last_spin_id</td>
+              <td class="ex"><em>auto</em></td>
+              <td class="desc">Saved by TC-02 from spin response</td>
+            </tr>
+            <tr>
+              <td class="mono">balance_before_spin</td>
+              <td class="ex"><em>auto</em></td>
+              <td class="desc">Saved by TC-02 for delta validation in TC-03</td>
+            </tr>
+            <tr>
+              <td class="mono">idempotency_key</td>
+              <td class="ex"><em>auto</em></td>
+              <td class="desc">Saved by TC-08 for replay tests</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <div class="divider"></div>
+
+    <!-- Test Cases -->
+    <section class="section" id="test-cases">
+      <div class="section-label">Tests</div>
+      <h2 class="section-title">Test Cases</h2>
+      <p class="section-desc">23 test cases across three categories. TC-01 runs first and seeds <code>session_id</code> for all subsequent requests.</p>
+
+      <!-- Auth -->
+      <div class="tc-group">
+        <div class="tc-group-header">
+          <span class="tc-badge" style="background:rgba(98,215,255,0.15);color:var(--cyan)">Auth</span>
+          <div class="tc-group-line" style="background:linear-gradient(90deg,rgba(98,215,255,0.25),transparent)"></div>
+        </div>
+        <div class="tc-list">
+          <div class="tc-item" style="--tc-color:var(--cyan)" onmouseover="this.style.borderColor='rgba(98,215,255,0.3)';this.style.background='rgba(98,215,255,0.04)'" onmouseout="this.style.borderColor='';this.style.background=''">
+            <span class="tc-id" style="color:var(--cyan)">AUTH-01</span>
+            <div class="tc-desc">POST /auth/register — new user; test script auto-saves <code>access_token</code> to <code>jwt_token</code> env variable</div>
+            <span class="tc-expects">201 · access_token</span>
+          </div>
+          <div class="tc-item" onmouseover="this.style.borderColor='rgba(98,215,255,0.3)';this.style.background='rgba(98,215,255,0.04)'" onmouseout="this.style.borderColor='';this.style.background=''">
+            <span class="tc-id" style="color:var(--cyan)">AUTH-02</span>
+            <div class="tc-desc">POST /auth/register — duplicate email (same address as above) → <code>email_taken</code></div>
+            <span class="tc-expects">409 · email_taken</span>
+          </div>
+          <div class="tc-item" onmouseover="this.style.borderColor='rgba(98,215,255,0.3)';this.style.background='rgba(98,215,255,0.04)'" onmouseout="this.style.borderColor='';this.style.background=''">
+            <span class="tc-id" style="color:var(--cyan)">AUTH-03</span>
+            <div class="tc-desc">POST /auth/register — missing <code>password</code> field → <code>invalid_body</code></div>
+            <span class="tc-expects">400 · invalid_body</span>
+          </div>
+          <div class="tc-item" onmouseover="this.style.borderColor='rgba(98,215,255,0.3)';this.style.background='rgba(98,215,255,0.04)'" onmouseout="this.style.borderColor='';this.style.background=''">
+            <span class="tc-id" style="color:var(--cyan)">AUTH-04</span>
+            <div class="tc-desc">POST /auth/login — valid credentials; auto-saves <code>jwt_token</code> and sets <code>refresh_token</code> cookie for subsequent requests</div>
+            <span class="tc-expects">200 · token saved</span>
+          </div>
+          <div class="tc-item" onmouseover="this.style.borderColor='rgba(98,215,255,0.3)';this.style.background='rgba(98,215,255,0.04)'" onmouseout="this.style.borderColor='';this.style.background=''">
+            <span class="tc-id" style="color:var(--cyan)">AUTH-05</span>
+            <div class="tc-desc">POST /auth/login — correct email, wrong password → <code>invalid_credentials</code></div>
+            <span class="tc-expects">401 · invalid_credentials</span>
+          </div>
+          <div class="tc-item" onmouseover="this.style.borderColor='rgba(98,215,255,0.3)';this.style.background='rgba(98,215,255,0.04)'" onmouseout="this.style.borderColor='';this.style.background=''">
+            <span class="tc-id" style="color:var(--cyan)">AUTH-06</span>
+            <div class="tc-desc">POST /auth/login — empty body, both fields missing → <code>invalid_body</code></div>
+            <span class="tc-expects">400 · invalid_body</span>
+          </div>
+          <div class="tc-item" onmouseover="this.style.borderColor='rgba(98,215,255,0.3)';this.style.background='rgba(98,215,255,0.04)'" onmouseout="this.style.borderColor='';this.style.background=''">
+            <span class="tc-id" style="color:var(--cyan)">AUTH-07</span>
+            <div class="tc-desc">POST /auth/refresh — uses the <code>refresh_token</code> cookie set by Login; returns new <code>access_token</code> and rotates the cookie</div>
+            <span class="tc-expects">200 · new access_token</span>
+          </div>
+          <div class="tc-item" onmouseover="this.style.borderColor='rgba(98,215,255,0.3)';this.style.background='rgba(98,215,255,0.04)'" onmouseout="this.style.borderColor='';this.style.background=''">
+            <span class="tc-id" style="color:var(--cyan)">AUTH-08</span>
+            <div class="tc-desc">POST /auth/refresh — no <code>refresh_token</code> cookie (Cookie header deliberately empty) → <code>missing_refresh_token</code></div>
+            <span class="tc-expects">401 · missing_refresh_token</span>
+          </div>
+          <div class="tc-item" onmouseover="this.style.borderColor='rgba(98,215,255,0.3)';this.style.background='rgba(98,215,255,0.04)'" onmouseout="this.style.borderColor='';this.style.background=''">
+            <span class="tc-id" style="color:var(--cyan)">AUTH-09</span>
+            <div class="tc-desc">POST /auth/logout — revokes all refresh tokens for the user, clears the <code>refresh_token</code> cookie; subsequent /refresh calls return 401</div>
+            <span class="tc-expects">204 No Content</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Happy Path -->
+      <div class="tc-group">
+        <div class="tc-group-header">
+          <span class="tc-badge happy">Happy Path</span>
+          <div class="tc-group-line happy"></div>
+        </div>
+        <div class="tc-list">
+          <div class="tc-item happy">
+            <span class="tc-id">TC-01</span>
+            <div class="tc-desc">POST /game/init — successful game initialization, returns session_id, config (min/max bet), and starting balance</div>
+            <span class="tc-expects">200 · session_id · balance</span>
+          </div>
+          <div class="tc-item happy">
+            <span class="tc-id">TC-02</span>
+            <div class="tc-desc">POST /spin — valid bet, verifies full outcome structure; saves <code>last_spin_id</code> and <code>balance_before_spin</code></div>
+            <span class="tc-expects">200 · spin_id · reel_matrix</span>
+          </div>
+          <div class="tc-item happy">
+            <span class="tc-id">TC-03</span>
+            <div class="tc-desc">POST /spin — balance delta validation: <code>balance_after = balance_before − bet + win</code></div>
+            <span class="tc-expects">balance delta correct</span>
+          </div>
+          <div class="tc-item happy">
+            <span class="tc-id">TC-04</span>
+            <div class="tc-desc">POST /spin — bonus trigger structure check: if <code>bonus_triggered</code> is present, <code>type</code> must be <code>free_spins</code> or <code>bonus</code></div>
+            <span class="tc-expects">bonus_triggered.type valid</span>
+          </div>
+          <div class="tc-item happy">
+            <span class="tc-id">TC-15</span>
+            <div class="tc-desc">GET /history — returns the authenticated user's own spin history; validates <code>items</code>, <code>total</code>, <code>limit</code>, <code>offset</code> fields</div>
+            <span class="tc-expects">200 · items[] · total</span>
+          </div>
+          <div class="tc-item happy">
+            <span class="tc-id">TC-16</span>
+            <div class="tc-desc">GET /history — pagination: <code>limit=2</code> returns at most 2 items and echoes the correct <code>limit</code> and <code>offset</code> values</div>
+            <span class="tc-expects">items.length ≤ 2 · limit echoed</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Negative Testing -->
+      <div class="tc-group">
+        <div class="tc-group-header">
+          <span class="tc-badge neg">Negative Testing</span>
+          <div class="tc-group-line neg"></div>
+        </div>
+        <div class="tc-list">
+          <div class="tc-item neg">
+            <span class="tc-id">TC-05</span>
+            <div class="tc-desc">POST /spin — missing Authorization header entirely</div>
+            <span class="tc-expects">401 Unauthorized</span>
+          </div>
+          <div class="tc-item neg">
+            <span class="tc-id">TC-06</span>
+            <div class="tc-desc">POST /spin — bet exceeds balance (amount: 999999); triggers <code>insufficient_balance</code> error code</div>
+            <span class="tc-expects">422 · insufficient_balance</span>
+          </div>
+          <div class="tc-item neg">
+            <span class="tc-id">TC-07</span>
+            <div class="tc-desc">POST /spin — negative bet amount (<code>−100</code>); must be rejected at validation layer</div>
+            <span class="tc-expects">400 Bad Request</span>
+          </div>
+          <div class="tc-item neg">
+            <span class="tc-id">TC-08</span>
+            <div class="tc-desc">POST /spin — duplicate Idempotency-Key sent twice; second request must not create a new spin</div>
+            <span class="tc-expects">409 or 200 + same spin_id</span>
+          </div>
+          <div class="tc-item neg">
+            <span class="tc-id">TC-09</span>
+            <div class="tc-desc">POST /spin — JWT with <code>alg: none</code> (unsigned token); must be rejected</div>
+            <span class="tc-expects">401 Unauthorized</span>
+          </div>
+          <div class="tc-item neg">
+            <span class="tc-id">TC-10</span>
+            <div class="tc-desc">GET /history?user_id=99999 — IDOR check; response must be 403 or return only the authenticated user's own data</div>
+            <span class="tc-expects">403 or own data only</span>
+          </div>
+          <div class="tc-item neg">
+            <span class="tc-id">TC-17</span>
+            <div class="tc-desc">GET /history — no Authorization header; history endpoint must be protected</div>
+            <span class="tc-expects">401 Unauthorized</span>
+          </div>
+          <div class="tc-item neg">
+            <span class="tc-id">TC-18</span>
+            <div class="tc-desc">POST /spin — completely invalid <code>session_id</code>; session lookup fails → <code>session_expired</code></div>
+            <span class="tc-expects">403 · session_expired</span>
+          </div>
+          <div class="tc-item neg">
+            <span class="tc-id">TC-19</span>
+            <div class="tc-desc">POST /spin — <code>game_id</code> does not match the session's registered game → <code>invalid_game_id</code></div>
+            <span class="tc-expects">400 · invalid_game_id</span>
+          </div>
+          <div class="tc-item neg">
+            <span class="tc-id">TC-20</span>
+            <div class="tc-desc">POST /spin — bet amount <code>0.001</code> below MIN_BET (0.1) → <code>invalid_bet</code></div>
+            <span class="tc-expects">422 · invalid_bet</span>
+          </div>
+          <div class="tc-item neg">
+            <span class="tc-id">TC-21</span>
+            <div class="tc-desc">POST /spin — unsupported currency <code>EUR</code>; only USD is accepted → <code>invalid_currency</code></div>
+            <span class="tc-expects">422 · invalid_currency</span>
+          </div>
+          <div class="tc-item neg">
+            <span class="tc-id">TC-22</span>
+            <div class="tc-desc">POST /spin — <code>lines: 0</code> is outside valid range (1–20) → <code>invalid_lines</code></div>
+            <span class="tc-expects">422 · invalid_lines</span>
+          </div>
+          <div class="tc-item neg">
+            <span class="tc-id">TC-23</span>
+            <div class="tc-desc">POST /spin — reuses the <code>idempotency_key</code> from TC-08 with a <em>different</em> bet amount (2.0 vs 1.0); payload mismatch must be rejected</div>
+            <span class="tc-expects">409 · idempotency_key_reused</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Security Testing -->
+      <div class="tc-group">
+        <div class="tc-group-header">
+          <span class="tc-badge sec">Security Testing</span>
+          <div class="tc-group-line sec"></div>
+        </div>
+        <div class="tc-list">
+          <div class="tc-item sec">
+            <span class="tc-id">TC-11</span>
+            <div class="tc-desc">POST /spin — SQL injection in <code>bet.amount</code>: <code>"1; DROP TABLE spins;--"</code>; must return 4xx, not 500</div>
+            <span class="tc-expects">4xx · no 500 · no exec</span>
+          </div>
+          <div class="tc-item sec">
+            <span class="tc-id">TC-12</span>
+            <div class="tc-desc">POST /spin — XSS payload in <code>session_id</code>: <code>&lt;script&gt;alert(1)&lt;/script&gt;</code>; response body must not echo unescaped markup</div>
+            <span class="tc-expects">4xx · no &lt;script&gt; in body</span>
+          </div>
+          <div class="tc-item sec">
+            <span class="tc-id">TC-13</span>
+            <div class="tc-desc">POST /spin — rate limit test; full check requires 50+ req/s via Collection Runner; single entry validates 200/429 and <code>Retry-After</code> header on 429</div>
+            <span class="tc-expects">429 + Retry-After</span>
+          </div>
+          <div class="tc-item sec">
+            <span class="tc-id">TC-14</span>
+            <div class="tc-desc">POST /spin — replay attack; identical intercepted request sent twice; second must not cause a double debit</div>
+            <span class="tc-expects">200 same spin_id or 409</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <div class="divider"></div>
+
+    <!-- Running in Postman -->
+    <section class="section" id="postman">
+      <div class="section-label">Running</div>
+      <h2 class="section-title">In Postman</h2>
+      <p class="section-desc">Run individual requests or the full suite from the Postman desktop client.</p>
+      <div class="card">
+        <div class="steps">
+          <div class="step">
+            <div class="step-num">1</div>
+            <div class="step-body"><strong>Import</strong> — click <strong>Import</strong> → select <code>slots-collection.json</code> and <code>dev.env.json</code>.</div>
+          </div>
+          <div class="step">
+            <div class="step-num">2</div>
+            <div class="step-body">Select the <code>Slots API - Dev</code> environment in the top-right dropdown.</div>
+          </div>
+          <div class="step">
+            <div class="step-num">3</div>
+            <div class="step-body">Run <strong>Auth → Login</strong> — the test script automatically saves <code>jwt_token</code> to the environment. Optionally set <code>session_id</code>, or let TC-01 populate it.</div>
+          </div>
+          <div class="step">
+            <div class="step-num">4</div>
+            <div class="step-body"><strong>Single request</strong> — open any TC → click <strong>Send</strong> → check the <strong>Test Results</strong> tab at the bottom.</div>
+          </div>
+          <div class="step">
+            <div class="step-num">5</div>
+            <div class="step-body"><strong>Full suite</strong> — right-click the collection → <strong>Run collection</strong> (see Collection Runner below).</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <div class="divider"></div>
+
+    <!-- Collection Runner -->
+    <section class="section" id="runner">
+      <div class="section-label">Running</div>
+      <h2 class="section-title">Collection Runner</h2>
+      <p class="section-desc">Execute all 14 test cases in sequence with a single click. Folder order: <em>Happy Path → Negative → Security</em>.</p>
+      <div class="card">
+        <div class="steps">
+          <div class="step">
+            <div class="step-num">1</div>
+            <div class="step-body">Right-click <strong>Slots API - Full Regression</strong> → <strong>Run collection</strong>.</div>
+          </div>
+          <div class="step">
+            <div class="step-num">2</div>
+            <div class="step-body">Select the <code>Slots API - Dev</code> environment.</div>
+          </div>
+          <div class="step">
+            <div class="step-num">3</div>
+            <div class="step-body">Set options: <strong>Iterations</strong> — <code>1</code> (full single pass). <strong>Delay</strong> — <code>100 ms</code> between requests (prevents accidental rate-limit on happy path).</div>
+          </div>
+          <div class="step">
+            <div class="step-num">4</div>
+            <div class="step-body">Click <strong>Run Slots API - Full Regression</strong> — all requests execute in order and results appear in the report panel.</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <div class="divider"></div>
+
+    <!-- Newman CLI -->
+    <section class="section" id="newman">
+      <div class="section-label">Running</div>
+      <h2 class="section-title">Newman CLI</h2>
+      <p class="section-desc">Run the entire suite headlessly from the terminal — useful for CI pipelines and automated regression.</p>
+
+      <div class="card">
+        <div class="code-block">
+          <div class="code-label">Install</div>
+          <pre id="pre-install"><span class="cmd">npm</span> install <span class="flag">-g</span> newman
+<span class="cmd">npm</span> install <span class="flag">-g</span> newman-reporter-htmlextra</pre>
+          <button class="copy-btn" data-target="pre-install" title="Copy">
+            <svg width="13" height="13" viewBox="0 0 13 13" fill="none"><rect x="4" y="4" width="8" height="8" rx="1.5" stroke="currentColor" stroke-width="1.3"/><path d="M2 9V2h7" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
+          </button>
+        </div>
+
+        <div class="code-block">
+          <div class="code-label">Run with environment</div>
+          <pre id="pre-run"><span class="cmd">cd</span> postman
+<span class="cmd">newman</span> run slots-collection.json <span class="flag">-e</span> dev.env.json</pre>
+          <button class="copy-btn" data-target="pre-run" title="Copy">
+            <svg width="13" height="13" viewBox="0 0 13 13" fill="none"><rect x="4" y="4" width="8" height="8" rx="1.5" stroke="currentColor" stroke-width="1.3"/><path d="M2 9V2h7" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
+          </button>
+        </div>
+
+        <div class="code-block">
+          <div class="code-label">With HTML report (htmlextra)</div>
+          <pre id="pre-html"><span class="cmd">newman</span> run slots-collection.json <span class="flag">-e</span> dev.env.json \
+  <span class="flag">-r</span> htmlextra <span class="flag">--reporter-htmlextra-export</span> <span class="val">report.html</span></pre>
+          <button class="copy-btn" data-target="pre-html" title="Copy">
+            <svg width="13" height="13" viewBox="0 0 13 13" fill="none"><rect x="4" y="4" width="8" height="8" rx="1.5" stroke="currentColor" stroke-width="1.3"/><path d="M2 9V2h7" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
+          </button>
+        </div>
+
+        <div class="code-block">
+          <div class="code-label">Additional options</div>
+          <pre id="pre-opts"><span class="comment"># 200 ms delay (reduce load / avoid rate limit)</span>
+<span class="cmd">newman</span> run slots-collection.json <span class="flag">-e</span> dev.env.json <span class="flag">-d</span> <span class="val">200</span>
+
+<span class="comment"># 10-second request timeout</span>
+<span class="cmd">newman</span> run slots-collection.json <span class="flag">-e</span> dev.env.json <span class="flag">--timeout-request</span> <span class="val">10000</span>
+
+<span class="comment"># Override base URL from CLI</span>
+<span class="cmd">newman</span> run slots-collection.json <span class="flag">-e</span> dev.env.json \
+  <span class="flag">--env-var</span> <span class="val">"base_url=https://api.casino-staging.com"</span></pre>
+          <button class="copy-btn" data-target="pre-opts" title="Copy">
+            <svg width="13" height="13" viewBox="0 0 13 13" fill="none"><rect x="4" y="4" width="8" height="8" rx="1.5" stroke="currentColor" stroke-width="1.3"/><path d="M2 9V2h7" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <div class="divider"></div>
+
+    <!-- Notes -->
+    <section class="section" id="notes">
+      <div class="section-label">Reference</div>
+      <h2 class="section-title">Notes</h2>
+      <p class="section-desc">Edge cases and setup hints for specific test cases.</p>
+
+      <div class="callout">
+        <div class="callout-icon">⚠</div>
+        <div class="callout-body">
+          <div class="callout-tc">TC-06 — Insufficient Balance</div>
+          <div class="callout-text">For a stable 422, use a bet larger than the current balance (e.g. <code>999999</code>) or a user account with zero balance. Using a realistic balance makes the test flaky if the account has been topped up.</div>
+        </div>
+      </div>
+
+      <div class="callout">
+        <div class="callout-icon">🔑</div>
+        <div class="callout-body">
+          <div class="callout-tc">TC-08 — Idempotency</div>
+          <div class="callout-text">To reliably verify idempotency, run TC-08 twice with the exact same <code>Idempotency-Key</code>. Either set a fixed <code>idempotency_key</code> value in the environment, or edit the request header to a constant string before the second run.</div>
+        </div>
+      </div>
+
+      <div class="callout">
+        <div class="callout-icon">⚡</div>
+        <div class="callout-body">
+          <div class="callout-tc">TC-13 — Rate Limit</div>
+          <div class="callout-text">A full rate-limit check requires a separate scenario with 50+ iterations in a short window (use the Collection Runner with iterations set to <code>60</code> and delay <code>0</code>). The single collection entry only validates the response is <code>200</code> or <code>429</code> and checks for a <code>Retry-After</code> header when the limit is hit.</div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+</div>
+
+<script>
+  // Copy button
+  document.querySelectorAll('.copy-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const target = document.getElementById(btn.dataset.target);
+      if (!target) return;
+      const text = target.innerText;
+      navigator.clipboard.writeText(text).then(() => {
+        btn.classList.add('copied');
+        btn.innerHTML = '<svg width="13" height="13" viewBox="0 0 13 13" fill="none"><path d="M2 7l3 3 6-6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+        setTimeout(() => {
+          btn.classList.remove('copied');
+          btn.innerHTML = '<svg width="13" height="13" viewBox="0 0 13 13" fill="none"><rect x="4" y="4" width="8" height="8" rx="1.5" stroke="currentColor" stroke-width="1.3"/><path d="M2 9V2h7" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>';
+        }, 1800);
+      });
+    });
+  });
+
+  // Active nav on scroll
+  const sections = document.querySelectorAll('section[id]');
+  const navLinks = document.querySelectorAll('.nav-link');
+
+  const observer = new IntersectionObserver(entries => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        navLinks.forEach(l => l.classList.remove('active'));
+        const active = document.querySelector(`.nav-link[href="#${entry.target.id}"]`);
+        if (active) active.classList.add('active');
+      }
+    });
+  }, { threshold: 0.3, rootMargin: '-60px 0px -60% 0px' });
+
+  sections.forEach(s => observer.observe(s));
+</script>
+
+</body>
+</html>
