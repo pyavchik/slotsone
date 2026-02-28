@@ -1,6 +1,7 @@
 import './cvLanding.css';
 
 const CV_PDF_PATH = '/QA_Oleksander_Pyavchik_CV.pdf';
+const TEST_CASES_PATH = '/test-cases.html';
 const POSTMAN_TESTS_PATH = '/postman-tests.html';
 const SWAGER_PATH = '/api-docs';
 
@@ -97,6 +98,15 @@ export function CVLanding({ onOpenSlots }: { onOpenSlots: () => void }) {
           >
             slots
           </button>
+          <a
+            className="cv-link"
+            href={TEST_CASES_PATH}
+            target="_blank"
+            rel="noreferrer"
+            data-testid="cv-test-cases"
+          >
+            test cases
+          </a>
           <a className="cv-link" href={POSTMAN_TESTS_PATH} target="_blank" rel="noreferrer">
             postman
           </a>
