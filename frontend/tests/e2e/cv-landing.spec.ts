@@ -138,12 +138,36 @@ test.describe('CV Landing – actions bar', () => {
   });
 
   // -------------------------------------------------------------------------
-  // All five actions are rendered (slots + test cases + postman + swagger + pdf)
+  // Requirements link
   // -------------------------------------------------------------------------
 
-  test('renders all five cv-actions elements', async ({ page }) => {
+  test('requirements link points to /requirements.html and opens in new tab', async ({ page }) => {
+    const reqLink = page.getByTestId('cv-requirements');
+    await expect(reqLink).toBeVisible();
+    await expect(reqLink).toHaveText('requirements');
+    await expect(reqLink).toHaveAttribute('href', '/requirements.html');
+    await expect(reqLink).toHaveAttribute('target', '_blank');
+    await expect(reqLink).toHaveAttribute('rel', 'noreferrer');
+  });
+
+  test('requirements link opens requirements page in new tab', async ({ page, context }) => {
+    const reqLink = page.getByTestId('cv-requirements');
+
+    const [newPage] = await Promise.all([context.waitForEvent('page'), reqLink.click()]);
+
+    await newPage.waitForLoadState();
+    expect(newPage.url()).toContain('/requirements.html');
+    await newPage.close();
+  });
+
+  // -------------------------------------------------------------------------
+  // All six actions are rendered (slots + requirements + test cases + postman + swagger + pdf)
+  // -------------------------------------------------------------------------
+
+  test('renders all six cv-actions elements', async ({ page }) => {
     const actions = page.locator('.cv-actions').first();
     await expect(actions.getByTestId('cv-open-slots')).toBeVisible();
+    await expect(actions.getByTestId('cv-requirements')).toBeVisible();
     await expect(actions.getByTestId('cv-test-cases')).toBeVisible();
     await expect(actions.locator('a.cv-link', { hasText: 'postman' })).toBeVisible();
     await expect(actions.locator('a.cv-link', { hasText: 'swager' })).toBeVisible();
@@ -151,15 +175,16 @@ test.describe('CV Landing – actions bar', () => {
   });
 
   // -------------------------------------------------------------------------
-  // Action bar order: slots → test cases → postman → swagger → pdf
+  // Action bar order: slots → requirements → test cases → postman → swagger → pdf
   // -------------------------------------------------------------------------
 
   test('action bar items appear in correct order', async ({ page }) => {
     const items = page.locator('.cv-actions').first().locator('button, a');
     await expect(items.nth(0)).toHaveText('slots');
-    await expect(items.nth(1)).toHaveText('test cases');
-    await expect(items.nth(2)).toHaveText('postman');
-    await expect(items.nth(3)).toHaveText('swager');
-    await expect(items.nth(4)).toHaveText('Download PDF CV');
+    await expect(items.nth(1)).toHaveText('requirements');
+    await expect(items.nth(2)).toHaveText('test cases');
+    await expect(items.nth(3)).toHaveText('postman');
+    await expect(items.nth(4)).toHaveText('swager');
+    await expect(items.nth(5)).toHaveText('Download PDF CV');
   });
 });

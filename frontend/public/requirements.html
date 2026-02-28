@@ -1,0 +1,1230 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Software Requirements Specification — pyavchik.space</title>
+    <style>
+      *, *::before, *::after { box-sizing: border-box; }
+
+      body {
+        margin: 0;
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+        background: linear-gradient(180deg, #0f1118 0%, #0b0d13 100%);
+        color: #f8fafc;
+        min-height: 100vh;
+        font-size: 14px;
+      }
+
+      .wrap {
+        max-width: 1080px;
+        margin: 0 auto;
+        padding: 28px 18px 56px;
+        display: flex;
+        flex-direction: column;
+        gap: 14px;
+      }
+
+      /* ── Cards ───────────────────────────────────── */
+      .card {
+        border: 1px solid rgba(255,255,255,0.13);
+        border-radius: 14px;
+        background: rgba(17,20,30,0.78);
+        padding: 20px 22px;
+      }
+
+      h1 { margin: 0 0 3px; font-size: 26px; letter-spacing: -.3px; }
+      .subtitle { margin: 0 0 14px; color: #94a3b8; font-size: 13px; }
+      h2 { margin: 0 0 14px; font-size: 16px; color: #f1f5f9; }
+      h3 { margin: 0 0 10px; font-size: 14px; color: #e2e8f0; }
+      p  { margin: 0 0 10px; color: #dbe2ec; line-height: 1.55; }
+
+      /* ── Back link ───────────────────────────────── */
+      .back {
+        display: inline-flex; align-items: center; gap: 6px;
+        font-size: 13px; font-weight: 600; color: #94a3b8;
+        text-decoration: none;
+        border: 1px solid rgba(148,163,184,.3);
+        padding: 6px 12px; border-radius: 8px;
+        background: rgba(15,23,42,.5);
+        width: fit-content;
+      }
+      .back:hover { color: #f8fafc; border-color: rgba(148,163,184,.7); }
+
+      /* ── Stats ───────────────────────────────────── */
+      .stats { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 8px; }
+      .stat {
+        padding: 8px 14px; border-radius: 10px;
+        background: rgba(15,23,42,.65);
+        border: 1px solid rgba(148,163,184,.2);
+        font-size: 13px; color: #dbe2ec; text-align: center;
+      }
+      .stat strong { display: block; font-size: 22px; line-height: 1.15; color: #f8fafc; }
+
+      /* ── Controls ────────────────────────────────── */
+      .controls { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+
+      .filter-tabs { display: flex; flex-wrap: wrap; gap: 6px; flex: 1; }
+      .tab {
+        padding: 6px 14px; border-radius: 999px;
+        border: 1px solid rgba(148,163,184,.3);
+        background: transparent; color: #94a3b8;
+        font-size: 12px; font-weight: 700; cursor: pointer;
+        transition: border-color .15s, color .15s, background .15s;
+        white-space: nowrap;
+      }
+      .tab:hover { border-color: rgba(248,250,252,.5); color: #f8fafc; }
+      .tab.active {
+        border-color: rgba(248,250,252,.7); color: #f8fafc;
+        background: rgba(248,250,252,.08);
+      }
+
+      .search-wrap { position: relative; }
+      .search-wrap svg {
+        position: absolute; left: 10px; top: 50%; transform: translateY(-50%);
+        color: #64748b; pointer-events: none;
+      }
+      #search {
+        padding: 7px 10px 7px 32px; border-radius: 8px;
+        border: 1px solid rgba(148,163,184,.3);
+        background: rgba(15,23,42,.65); color: #f8fafc;
+        font-size: 13px; width: 220px; outline: none;
+      }
+      #search:focus { border-color: rgba(148,163,184,.7); }
+      #search::placeholder { color: #475569; }
+
+      .count-label { font-size: 12px; color: #475569; white-space: nowrap; }
+
+      /* ── Badges ──────────────────────────────────── */
+      .badge {
+        display: inline-block; padding: 2px 7px;
+        border-radius: 5px; font-size: 11px; font-weight: 700;
+        white-space: nowrap; letter-spacing: .02em;
+      }
+      .badge-auth { background: rgba(98,215,255,.15);  color: #62d7ff; }
+      .badge-game { background: rgba(245,208,106,.15); color: #f5d06a; }
+      .badge-ui   { background: rgba(167,139,250,.18); color: #a78bfa; }
+      .badge-api  { background: rgba(62,224,169,.15);  color: #3ee0a9; }
+      .badge-nfr  { background: rgba(248,113,113,.15); color: #f87171; }
+
+      .prio { font-size: 11px; font-weight: 800; white-space: nowrap; }
+      .prio-must   { color: #f87171; }
+      .prio-should { color: #fbbf24; }
+      .prio-could  { color: #64748b; }
+
+      /* ── Table ───────────────────────────────────── */
+      .req-table { width: 100%; border-collapse: collapse; }
+
+      .req-table thead th {
+        text-align: left; padding: 9px 12px;
+        color: #64748b; font-size: 11px; font-weight: 700;
+        text-transform: uppercase; letter-spacing: .07em;
+        border-bottom: 1px solid rgba(255,255,255,.1);
+      }
+
+      .req-row {
+        cursor: pointer;
+        transition: background .1s;
+      }
+      .req-row:hover td { background: rgba(255,255,255,.04); }
+      .req-row td {
+        padding: 10px 12px;
+        border-bottom: 1px solid rgba(255,255,255,.06);
+        vertical-align: middle;
+        color: #dbe2ec;
+      }
+      .req-row.open td { border-bottom: none; }
+
+      .req-id {
+        font-family: ui-monospace, monospace; font-size: 12px;
+        color: #62d7ff; white-space: nowrap;
+      }
+      .req-title { color: #f1f5f9; line-height: 1.4; }
+      .req-chevron {
+        transition: transform .2s; color: #475569;
+        display: inline-block;
+      }
+      .req-row.open .req-chevron { transform: rotate(90deg); }
+
+      /* ── Detail panel ────────────────────────────── */
+      .req-detail-row td {
+        padding: 0;
+        border-bottom: 1px solid rgba(255,255,255,.08);
+      }
+      .req-detail-panel {
+        display: none;
+        padding: 0 12px 18px 48px;
+        background: rgba(11,13,19,.6);
+      }
+      .req-detail-panel.open { display: block; }
+
+      .detail-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 12px;
+        margin-top: 14px;
+      }
+      .detail-grid .full { grid-column: 1 / -1; }
+
+      .detail-field { display: flex; flex-direction: column; gap: 5px; }
+      .detail-label {
+        font-size: 10px; font-weight: 700; text-transform: uppercase;
+        letter-spacing: .08em; color: #64748b;
+      }
+      .detail-value {
+        color: #dbe2ec; line-height: 1.5; font-size: 13px;
+        padding: 8px 10px; border-radius: 8px;
+        background: rgba(15,23,42,.55);
+        border: 1px solid rgba(148,163,184,.12);
+      }
+      .detail-value code {
+        font-family: ui-monospace, monospace;
+        font-size: 12px; color: #a78bfa;
+        background: rgba(167,139,250,.1);
+        padding: 1px 4px; border-radius: 3px;
+      }
+
+      .bdd-list {
+        margin: 0; padding: 0; list-style: none;
+        display: flex; flex-direction: column; gap: 5px;
+      }
+      .bdd-list li {
+        display: flex; gap: 8px; align-items: flex-start;
+        font-size: 13px; line-height: 1.45;
+      }
+      .bdd-list li::before {
+        content: attr(data-keyword);
+        font-weight: 700; font-size: 11px;
+        color: #a78bfa; min-width: 50px; flex-shrink: 0;
+        padding-top: 1px;
+      }
+
+      .trace-link {
+        color: #62d7ff; text-decoration: none; font-size: 12px;
+        font-family: ui-monospace, monospace;
+      }
+      .trace-link:hover { text-decoration: underline; }
+
+      /* ── Section titles ──────────────────────────── */
+      .section-title {
+        font-size: 18px; font-weight: 700; margin: 0 0 4px;
+        color: #f1f5f9;
+      }
+      .section-desc {
+        font-size: 13px; color: #94a3b8; margin: 0 0 12px;
+      }
+
+      /* ── Glossary / Info lists ────────────────────── */
+      .info-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 10px;
+      }
+      .info-item {
+        padding: 10px 14px; border-radius: 10px;
+        background: rgba(15,23,42,.55);
+        border: 1px solid rgba(148,163,184,.12);
+      }
+      .info-item dt {
+        font-size: 11px; font-weight: 700; text-transform: uppercase;
+        letter-spacing: .06em; color: #62d7ff; margin-bottom: 4px;
+      }
+      .info-item dd {
+        margin: 0; color: #dbe2ec; font-size: 13px; line-height: 1.5;
+      }
+
+      /* ── Context diagram ──────────────────────────── */
+      .diagram {
+        font-family: ui-monospace, monospace;
+        font-size: 12px; line-height: 1.5;
+        color: #94a3b8;
+        padding: 16px;
+        border-radius: 10px;
+        background: rgba(15,23,42,.65);
+        border: 1px solid rgba(148,163,184,.15);
+        overflow-x: auto;
+        white-space: pre;
+      }
+
+      /* ── Traceability matrix ──────────────────────── */
+      .matrix-table { width: 100%; border-collapse: collapse; }
+      .matrix-table th {
+        text-align: left; padding: 8px 12px;
+        color: #64748b; font-size: 11px; font-weight: 700;
+        text-transform: uppercase; letter-spacing: .07em;
+        border-bottom: 1px solid rgba(255,255,255,.1);
+      }
+      .matrix-table td {
+        padding: 8px 12px;
+        border-bottom: 1px solid rgba(255,255,255,.06);
+        font-size: 13px; color: #dbe2ec;
+      }
+      .matrix-table td:first-child {
+        font-family: ui-monospace, monospace;
+        font-size: 12px; color: #62d7ff;
+      }
+
+      /* ── Responsive ──────────────────────────────── */
+      @media (max-width: 640px) {
+        .info-grid { grid-template-columns: 1fr; }
+        .detail-grid { grid-template-columns: 1fr; }
+        #search { width: 100%; }
+        .controls { flex-direction: column; align-items: stretch; }
+        .diagram { font-size: 10px; }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="wrap">
+
+      <!-- Back link -->
+      <a class="back" href="/">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5"/><path d="M12 19l-7-7 7-7"/></svg>
+        Back to CV
+      </a>
+
+      <!-- ────────────────────────────────────────────────────────────────────── -->
+      <!-- HEADER CARD                                                           -->
+      <!-- ────────────────────────────────────────────────────────────────────── -->
+      <div class="card">
+        <h1>Software Requirements Specification</h1>
+        <p class="subtitle">SlotsOne — Interactive Slot Machine Demo &nbsp;|&nbsp; v1.0 &nbsp;|&nbsp; Last updated: 2026-02-28</p>
+        <p>This document specifies the functional and non-functional requirements for the SlotsOne project,
+           an interactive online slot machine built as a portfolio demonstration piece. It follows
+           <strong>IEEE 830</strong> guidelines and uses <strong>MoSCoW</strong> prioritisation.</p>
+
+        <div class="stats" id="stats">
+          <!-- filled by JS -->
+        </div>
+      </div>
+
+      <!-- ────────────────────────────────────────────────────────────────────── -->
+      <!-- 1. INTRODUCTION                                                       -->
+      <!-- ────────────────────────────────────────────────────────────────────── -->
+      <div class="card">
+        <h2>1. Introduction</h2>
+
+        <h3>1.1 Purpose</h3>
+        <p>Define verifiable requirements for the SlotsOne application so that development, QA, and
+           stakeholders share a single source of truth. Each requirement is traceable to at least one
+           test case.</p>
+
+        <h3>1.2 Scope</h3>
+        <p>SlotsOne is a browser-based slot machine with a React/PixiJS frontend and an Express/TypeScript
+           backend (Remote Game Server). It includes user authentication, game session management, spin
+           mechanics, and a responsive UI. The system is deployed via Docker Compose with Caddy for TLS.</p>
+
+        <h3>1.3 Intended Audience</h3>
+        <p>QA engineers, developers, hiring managers reviewing this portfolio, and anyone evaluating the
+           project's completeness and test coverage.</p>
+
+        <h3>1.4 Glossary</h3>
+        <dl class="info-grid">
+          <div class="info-item"><dt>RGS</dt><dd>Remote Game Server — the backend that processes spins and manages state</dd></div>
+          <div class="info-item"><dt>JWT</dt><dd>JSON Web Token — used for stateless authentication (RS256)</dd></div>
+          <div class="info-item"><dt>MoSCoW</dt><dd>Must / Should / Could / Won't — prioritisation framework</dd></div>
+          <div class="info-item"><dt>BDD</dt><dd>Behaviour-Driven Development — Given/When/Then acceptance criteria</dd></div>
+          <div class="info-item"><dt>Payline</dt><dd>A line across the reels that determines winning combinations</dd></div>
+          <div class="info-item"><dt>Scatter</dt><dd>A special symbol that triggers bonus features regardless of payline position</dd></div>
+          <div class="info-item"><dt>RTP</dt><dd>Return To Player — the theoretical percentage of wagered money returned over time</dd></div>
+          <div class="info-item"><dt>Idempotency</dt><dd>Ensuring repeated identical requests produce the same result without side effects</dd></div>
+        </dl>
+      </div>
+
+      <!-- ────────────────────────────────────────────────────────────────────── -->
+      <!-- 2. PRODUCT OVERVIEW                                                   -->
+      <!-- ────────────────────────────────────────────────────────────────────── -->
+      <div class="card">
+        <h2>2. Product Overview</h2>
+
+        <h3>2.1 System Context</h3>
+        <div class="diagram">
+  +------------------+          HTTPS          +------------------+
+  |                  | ----------------------> |                  |
+  |   Browser        |    REST API (JSON)      |   Express RGS    |
+  |   (React + Pixi) | <---------------------- |   (TypeScript)   |
+  |                  |                         |                  |
+  +------------------+                         +--------+---------+
+                                                        |
+                                                        | SQL
+                                                        v
+                                               +------------------+
+                                               |   PostgreSQL 16  |
+                                               |  (users, tokens) |
+                                               +------------------+</div>
+
+        <h3>2.2 User Classes</h3>
+        <dl class="info-grid">
+          <div class="info-item"><dt>Visitor</dt><dd>Views the CV landing page and navigates to demo artifacts (test cases, Swagger docs, etc.)</dd></div>
+          <div class="info-item"><dt>Player</dt><dd>Registers/logs in and plays the slot machine demo with virtual currency</dd></div>
+          <div class="info-item"><dt>Recruiter</dt><dd>Reviews the CV, inspects code quality artifacts, and downloads the PDF resume</dd></div>
+        </dl>
+
+        <h3>2.3 Constraints</h3>
+        <p>The application uses virtual currency only (no real-money gambling). Sessions and balances are stored
+           in-memory and reset on server restart. User accounts and refresh tokens persist in PostgreSQL.</p>
+
+        <h3>2.4 Assumptions</h3>
+        <p>Users have a modern browser (Chrome, Firefox, Safari, or Edge, latest two major versions).
+           The server runs on a single instance behind a Caddy reverse proxy with automatic HTTPS.</p>
+      </div>
+
+      <!-- ────────────────────────────────────────────────────────────────────── -->
+      <!-- CONTROLS (filter + search)                                            -->
+      <!-- ────────────────────────────────────────────────────────────────────── -->
+      <div class="card">
+        <div class="controls">
+          <div class="filter-tabs" id="filters">
+            <button class="tab active" data-filter="all">All</button>
+            <button class="tab" data-filter="auth">Auth</button>
+            <button class="tab" data-filter="game">Game</button>
+            <button class="tab" data-filter="ui">UI</button>
+            <button class="tab" data-filter="api">API</button>
+            <button class="tab" data-filter="nfr">NFR</button>
+          </div>
+          <div class="search-wrap">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+            <input type="text" id="search" placeholder="Search requirements..." />
+          </div>
+          <span class="count-label" id="count-label"></span>
+        </div>
+      </div>
+
+      <!-- ────────────────────────────────────────────────────────────────────── -->
+      <!-- REQUIREMENTS TABLE                                                    -->
+      <!-- ────────────────────────────────────────────────────────────────────── -->
+      <div class="card" style="padding: 0; overflow: hidden;">
+        <table class="req-table" id="req-table">
+          <thead>
+            <tr>
+              <th style="width:36px"></th>
+              <th>ID</th>
+              <th>Module</th>
+              <th>Priority</th>
+              <th>Requirement</th>
+            </tr>
+          </thead>
+          <tbody id="req-body">
+            <!-- filled by JS -->
+          </tbody>
+        </table>
+      </div>
+
+      <!-- ────────────────────────────────────────────────────────────────────── -->
+      <!-- 6. EXTERNAL INTERFACE REQUIREMENTS                                    -->
+      <!-- ────────────────────────────────────────────────────────────────────── -->
+      <div class="card">
+        <h2>6. External Interface Requirements</h2>
+
+        <h3>6.1 API Contracts</h3>
+        <p>All endpoints live under <code>/api/v1/</code>. Request and response bodies are validated with
+           Zod schemas. The full OpenAPI 3.0 specification is served at
+           <a href="/api-docs" style="color:#62d7ff">/api-docs</a>.</p>
+
+        <h3>6.2 Database</h3>
+        <p>PostgreSQL 16+ stores <code>users</code> and <code>refresh_tokens</code> tables. Game sessions,
+           balances, and spin history are kept in-memory (ephemeral). Connection is configured via the
+           <code>DATABASE_URL</code> environment variable.</p>
+
+        <h3>6.3 Browser Support</h3>
+        <p>Latest two major versions of Chrome, Firefox, Safari, and Edge. WebGL is required for the
+           PixiJS canvas renderer.</p>
+      </div>
+
+      <!-- ────────────────────────────────────────────────────────────────────── -->
+      <!-- 7. TRACEABILITY MATRIX                                                -->
+      <!-- ────────────────────────────────────────────────────────────────────── -->
+      <div class="card">
+        <h2>7. Traceability Matrix</h2>
+        <p class="section-desc">Maps requirements to test cases. Click a test case ID to view it in the
+           <a href="/test-cases.html" style="color:#62d7ff">Test Cases</a> page.</p>
+        <div style="overflow-x:auto">
+          <table class="matrix-table" id="matrix-table">
+            <thead>
+              <tr>
+                <th>Requirement</th>
+                <th>Title</th>
+                <th>Test Cases</th>
+              </tr>
+            </thead>
+            <tbody id="matrix-body">
+              <!-- filled by JS -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+    </div>
+
+    <script>
+    /* ======================================================================= */
+    /*  REQUIREMENTS DATA                                                      */
+    /* ======================================================================= */
+    const REQS = [
+      // ── Auth ──────────────────────────────────────────────────────────────
+      {
+        id: 'FR-AUTH-01', module: 'auth', prio: 'must',
+        title: 'User registration with email and password',
+        desc: 'The system shall allow a new user to register by providing a unique email address and a password. On success the server returns an access token.',
+        bdd: [
+          { kw: 'Given', text: 'a visitor on the registration form' },
+          { kw: 'When',  text: 'they submit a valid email and password' },
+          { kw: 'Then',  text: 'a new account is created and an access token is returned' },
+        ],
+        tests: ['TC-AUTH-01'],
+      },
+      {
+        id: 'FR-AUTH-02', module: 'auth', prio: 'must',
+        title: 'User login with credentials',
+        desc: 'The system shall authenticate existing users by email and password, returning an access token on success.',
+        bdd: [
+          { kw: 'Given', text: 'a registered user' },
+          { kw: 'When',  text: 'they submit correct email and password' },
+          { kw: 'Then',  text: 'an access token is returned' },
+        ],
+        tests: ['TC-AUTH-02'],
+      },
+      {
+        id: 'FR-AUTH-03', module: 'auth', prio: 'must',
+        title: 'JWT access token issuance (RS256)',
+        desc: 'Access tokens shall be RS256-signed JWTs with a configurable TTL (default 1 hour). The token payload includes the user UUID as the sub claim.',
+        bdd: [
+          { kw: 'Given', text: 'a successful login or registration' },
+          { kw: 'When',  text: 'the server generates a token' },
+          { kw: 'Then',  text: 'it is an RS256 JWT with sub=user UUID and correct expiry' },
+        ],
+        tests: ['TC-AUTH-03'],
+      },
+      {
+        id: 'FR-AUTH-04', module: 'auth', prio: 'should',
+        title: 'Refresh token rotation via httpOnly cookie',
+        desc: 'The system should issue refresh tokens as httpOnly, Secure, SameSite=Strict cookies with a 7-day TTL. On refresh, the old token is revoked and a new pair is issued.',
+        bdd: [
+          { kw: 'Given', text: 'a valid refresh token cookie' },
+          { kw: 'When',  text: 'the client calls the refresh endpoint' },
+          { kw: 'Then',  text: 'a new access token and refresh token are returned, and the old refresh token is revoked' },
+        ],
+        tests: ['TC-AUTH-04'],
+      },
+      {
+        id: 'FR-AUTH-05', module: 'auth', prio: 'should',
+        title: 'Logout with token revocation',
+        desc: 'The system should revoke the refresh token on logout, preventing further use.',
+        bdd: [
+          { kw: 'Given', text: 'an authenticated user' },
+          { kw: 'When',  text: 'they call the logout endpoint' },
+          { kw: 'Then',  text: 'the refresh token is revoked and the cookie is cleared' },
+        ],
+        tests: ['TC-AUTH-05'],
+      },
+      {
+        id: 'FR-AUTH-06', module: 'auth', prio: 'must',
+        title: 'Password hashing with scrypt',
+        desc: 'User passwords shall be hashed using Node.js crypto.scrypt before storage. Raw passwords must never be persisted.',
+        bdd: [
+          { kw: 'Given', text: 'a user submitting a password' },
+          { kw: 'When',  text: 'the server processes registration' },
+          { kw: 'Then',  text: 'the password is hashed with scrypt and only the hash is stored' },
+        ],
+        tests: ['TC-AUTH-06'],
+      },
+      {
+        id: 'FR-AUTH-07', module: 'auth', prio: 'should',
+        title: 'Silent token refresh on page load',
+        desc: 'On page load, the frontend should attempt to silently refresh the access token using the refresh cookie, enabling seamless session continuity.',
+        bdd: [
+          { kw: 'Given', text: 'a user revisiting the app with a valid refresh cookie' },
+          { kw: 'When',  text: 'the page loads' },
+          { kw: 'Then',  text: 'the access token is refreshed without user interaction' },
+        ],
+        tests: ['TC-AUTH-07'],
+      },
+      {
+        id: 'FR-AUTH-08', module: 'auth', prio: 'must',
+        title: 'Reject duplicate email registration',
+        desc: 'The system shall reject registration attempts with an email that already exists, returning a clear error message.',
+        bdd: [
+          { kw: 'Given', text: 'an email already registered in the system' },
+          { kw: 'When',  text: 'a new registration is attempted with the same email' },
+          { kw: 'Then',  text: 'a 409 Conflict error is returned' },
+        ],
+        tests: ['TC-AUTH-08'],
+      },
+      {
+        id: 'FR-AUTH-09', module: 'auth', prio: 'must',
+        title: 'Reject invalid login credentials',
+        desc: 'The system shall return a 401 Unauthorized error when login credentials do not match any existing account.',
+        bdd: [
+          { kw: 'Given', text: 'an incorrect email or password' },
+          { kw: 'When',  text: 'the user attempts to log in' },
+          { kw: 'Then',  text: 'a 401 error is returned without revealing which field was wrong' },
+        ],
+        tests: ['TC-AUTH-09'],
+      },
+
+      // ── Game Engine ───────────────────────────────────────────────────────
+      {
+        id: 'FR-GAME-01', module: 'game', prio: 'must',
+        title: 'Game session initialisation',
+        desc: 'The system shall create a new game session with a default balance of 1000 USD and a 1-hour TTL when an authenticated user calls the init endpoint.',
+        bdd: [
+          { kw: 'Given', text: 'an authenticated user' },
+          { kw: 'When',  text: 'they call POST /api/v1/game/init' },
+          { kw: 'Then',  text: 'a session is created with balance=1000, TTL=1hr, and session details are returned' },
+        ],
+        tests: ['TC-GAME-01'],
+      },
+      {
+        id: 'FR-GAME-02', module: 'game', prio: 'must',
+        title: '5x3 reel spin with RNG',
+        desc: 'Each spin shall generate a 5-column, 3-row symbol grid using a seeded PRNG (Mulberry32 with crypto-random seed).',
+        bdd: [
+          { kw: 'Given', text: 'an active game session with sufficient balance' },
+          { kw: 'When',  text: 'a spin is requested' },
+          { kw: 'Then',  text: 'a 5x3 grid of symbols is generated using Mulberry32 PRNG' },
+        ],
+        tests: ['TC-GAME-02'],
+      },
+      {
+        id: 'FR-GAME-03', module: 'game', prio: 'must',
+        title: 'Win calculation across 20 paylines',
+        desc: 'The system shall evaluate 20 predefined paylines against the spin result and calculate winnings based on the pay table.',
+        bdd: [
+          { kw: 'Given', text: 'a completed spin result' },
+          { kw: 'When',  text: 'the server evaluates paylines' },
+          { kw: 'Then',  text: 'matching symbols on active paylines produce calculated winnings' },
+        ],
+        tests: ['TC-GAME-03'],
+      },
+      {
+        id: 'FR-GAME-04', module: 'game', prio: 'must',
+        title: 'Balance deduction and win credit',
+        desc: 'The bet amount shall be deducted before the spin, and any winnings shall be credited to the session balance after evaluation.',
+        bdd: [
+          { kw: 'Given', text: 'a player with balance >= bet amount' },
+          { kw: 'When',  text: 'they spin' },
+          { kw: 'Then',  text: 'balance = previous_balance - bet + winnings' },
+        ],
+        tests: ['TC-GAME-04'],
+      },
+      {
+        id: 'FR-GAME-05', module: 'game', prio: 'must',
+        title: 'Free spins bonus trigger',
+        desc: 'When 3 or more scatter symbols appear anywhere on the reels, the system shall award free spins to the player.',
+        bdd: [
+          { kw: 'Given', text: 'a spin result with 3+ scatter symbols' },
+          { kw: 'When',  text: 'the result is evaluated' },
+          { kw: 'Then',  text: 'free spins are awarded and tracked in the session' },
+        ],
+        tests: ['TC-GAME-05'],
+      },
+      {
+        id: 'FR-GAME-06', module: 'game', prio: 'must',
+        title: 'Spin idempotency',
+        desc: 'Repeated spin requests with the same idempotency key within a 24-hour window shall return the original result without re-processing.',
+        bdd: [
+          { kw: 'Given', text: 'a spin request with an idempotency key that was already used' },
+          { kw: 'When',  text: 'the server receives the duplicate request' },
+          { kw: 'Then',  text: 'the original spin result is returned without modifying balance' },
+        ],
+        tests: ['TC-GAME-06'],
+      },
+      {
+        id: 'FR-GAME-07', module: 'game', prio: 'should',
+        title: 'Rate limiting (5 spins/sec)',
+        desc: 'The system should enforce a rate limit of 5 spin requests per second per session to prevent abuse.',
+        bdd: [
+          { kw: 'Given', text: 'a player making rapid spin requests' },
+          { kw: 'When',  text: 'the rate exceeds 5 spins/second' },
+          { kw: 'Then',  text: 'excess requests are rejected with a 429 status' },
+        ],
+        tests: ['TC-GAME-07'],
+      },
+      {
+        id: 'FR-GAME-08', module: 'game', prio: 'must',
+        title: 'Spin history storage (last 100)',
+        desc: 'The system shall store the last 100 spin results per session and make them available via the history endpoint.',
+        bdd: [
+          { kw: 'Given', text: 'a player who has performed spins' },
+          { kw: 'When',  text: 'they request spin history' },
+          { kw: 'Then',  text: 'up to 100 most recent spin results are returned' },
+        ],
+        tests: ['TC-GAME-08'],
+      },
+      {
+        id: 'FR-GAME-09', module: 'game', prio: 'must',
+        title: 'Reject spin with insufficient balance',
+        desc: 'The system shall reject a spin request if the session balance is less than the requested bet amount.',
+        bdd: [
+          { kw: 'Given', text: 'a session with balance < bet amount' },
+          { kw: 'When',  text: 'a spin is requested' },
+          { kw: 'Then',  text: 'a 400 error with code INSUFFICIENT_BALANCE is returned' },
+        ],
+        tests: ['TC-GAME-09'],
+      },
+      {
+        id: 'FR-GAME-10', module: 'game', prio: 'must',
+        title: 'Reject spin without active session',
+        desc: 'The system shall reject spin requests that do not reference a valid, non-expired game session.',
+        bdd: [
+          { kw: 'Given', text: 'no active session or an expired session ID' },
+          { kw: 'When',  text: 'a spin is requested' },
+          { kw: 'Then',  text: 'a 404 error with code SESSION_NOT_FOUND is returned' },
+        ],
+        tests: ['TC-GAME-10'],
+      },
+      {
+        id: 'FR-GAME-11', module: 'game', prio: 'must',
+        title: 'Wild symbol substitution',
+        desc: 'Wild symbols shall substitute for any regular symbol on a payline to form the best winning combination.',
+        bdd: [
+          { kw: 'Given', text: 'a payline containing wild and regular symbols' },
+          { kw: 'When',  text: 'wins are evaluated' },
+          { kw: 'Then',  text: 'wild symbols count as the best matching regular symbol' },
+        ],
+        tests: ['TC-GAME-11'],
+      },
+
+      // ── Game UI ───────────────────────────────────────────────────────────
+      {
+        id: 'FR-UI-01', module: 'ui', prio: 'must',
+        title: 'CV landing page with action links',
+        desc: 'The root URL shall display a CV landing page with links to: slots demo, requirements, test cases, Postman tests, Swagger docs, and PDF download.',
+        bdd: [
+          { kw: 'Given', text: 'a visitor navigating to /' },
+          { kw: 'When',  text: 'the page loads' },
+          { kw: 'Then',  text: 'the CV is displayed with all action links in the correct order' },
+        ],
+        tests: ['TC-UI-01'],
+      },
+      {
+        id: 'FR-UI-02', module: 'ui', prio: 'must',
+        title: 'Auth screen with login/register tabs',
+        desc: 'Before accessing the game, users shall see an auth screen with tabs to switch between login and registration forms. An 18+ age confirmation checkbox is required.',
+        bdd: [
+          { kw: 'Given', text: 'an unauthenticated user clicking "slots"' },
+          { kw: 'When',  text: 'the auth screen appears' },
+          { kw: 'Then',  text: 'login and register tabs are available, and the 18+ checkbox must be checked before submission' },
+        ],
+        tests: ['TC-UI-02'],
+      },
+      {
+        id: 'FR-UI-03', module: 'ui', prio: 'must',
+        title: 'Slot machine canvas rendering (PixiJS WebGL)',
+        desc: 'The slot machine shall render on an HTML5 canvas using PixiJS with WebGL acceleration.',
+        bdd: [
+          { kw: 'Given', text: 'an authenticated user on the slots screen' },
+          { kw: 'When',  text: 'the game loads' },
+          { kw: 'Then',  text: 'a PixiJS canvas renders the 5x3 reel grid with symbol textures' },
+        ],
+        tests: ['TC-UI-03'],
+      },
+      {
+        id: 'FR-UI-04', module: 'ui', prio: 'must',
+        title: 'Reel spin animation with easing',
+        desc: 'When a spin is triggered, the reels shall animate vertically with an easing curve, stopping left-to-right with a staggered delay.',
+        bdd: [
+          { kw: 'Given', text: 'the player presses spin' },
+          { kw: 'When',  text: 'the animation plays' },
+          { kw: 'Then',  text: 'reels spin with eased motion and stop sequentially from left to right' },
+        ],
+        tests: ['TC-UI-04'],
+      },
+      {
+        id: 'FR-UI-05', module: 'ui', prio: 'must',
+        title: 'HUD: balance, win amount, bet summary',
+        desc: 'The game UI shall display the current balance, last win amount, and bet summary (bet per line, active lines, total bet) in a heads-up display.',
+        bdd: [
+          { kw: 'Given', text: 'an active game session' },
+          { kw: 'When',  text: 'the player views the game' },
+          { kw: 'Then',  text: 'balance, win, and bet info are visible and update after each spin' },
+        ],
+        tests: ['TC-UI-05'],
+      },
+      {
+        id: 'FR-UI-06', module: 'ui', prio: 'must',
+        title: 'Bet panel with amount, lines, and quick presets',
+        desc: 'The UI shall provide controls to adjust bet-per-line, number of active lines, and quick-select preset buttons for common bet amounts.',
+        bdd: [
+          { kw: 'Given', text: 'the player on the game screen' },
+          { kw: 'When',  text: 'they interact with bet controls' },
+          { kw: 'Then',  text: 'bet amount and active lines update, and the total bet reflects the changes' },
+        ],
+        tests: ['TC-UI-06'],
+      },
+      {
+        id: 'FR-UI-07', module: 'ui', prio: 'should',
+        title: 'Win overlay with tiered celebrations',
+        desc: 'On a win, the UI should show an overlay sized to the win tier: Nice Win, Big Win, Mega Win, or Ultra Win.',
+        bdd: [
+          { kw: 'Given', text: 'a spin result with winnings' },
+          { kw: 'When',  text: 'the reels stop' },
+          { kw: 'Then',  text: 'a celebration overlay appears matching the win tier' },
+        ],
+        tests: ['TC-UI-07'],
+      },
+      {
+        id: 'FR-UI-08', module: 'ui', prio: 'should',
+        title: 'Pay table modal',
+        desc: 'The UI should provide a button to display a modal showing the pay table with symbol values and payline patterns.',
+        bdd: [
+          { kw: 'Given', text: 'the player on the game screen' },
+          { kw: 'When',  text: 'they click the pay table button' },
+          { kw: 'Then',  text: 'a modal displays symbol payouts and payline diagrams' },
+        ],
+        tests: ['TC-UI-08'],
+      },
+      {
+        id: 'FR-UI-09', module: 'ui', prio: 'should',
+        title: 'Spacebar-to-spin keyboard shortcut',
+        desc: 'Pressing the spacebar while the game is idle should trigger a spin, providing keyboard accessibility.',
+        bdd: [
+          { kw: 'Given', text: 'the game is in idle state' },
+          { kw: 'When',  text: 'the player presses spacebar' },
+          { kw: 'Then',  text: 'a spin is initiated' },
+        ],
+        tests: ['TC-UI-09'],
+      },
+      {
+        id: 'FR-UI-10', module: 'ui', prio: 'must',
+        title: 'Error toast with retry/dismiss',
+        desc: 'When an API error occurs, the UI shall display a toast notification with the error message and options to retry or dismiss.',
+        bdd: [
+          { kw: 'Given', text: 'an API call fails' },
+          { kw: 'When',  text: 'the error is received' },
+          { kw: 'Then',  text: 'a toast appears with the error message, a retry button, and a dismiss button' },
+        ],
+        tests: ['TC-UI-10'],
+      },
+      {
+        id: 'FR-UI-11', module: 'ui', prio: 'must',
+        title: 'Responsive layout',
+        desc: 'The game UI shall adapt to different screen sizes, remaining usable on viewports from 360px to 1920px wide.',
+        bdd: [
+          { kw: 'Given', text: 'a user on a mobile or desktop device' },
+          { kw: 'When',  text: 'the game loads' },
+          { kw: 'Then',  text: 'the layout adjusts without horizontal scroll or overlapping elements' },
+        ],
+        tests: ['TC-UI-11'],
+      },
+      {
+        id: 'FR-UI-12', module: 'ui', prio: 'should',
+        title: 'Spin button disabled during animation',
+        desc: 'The spin button should be disabled while the reels are spinning to prevent double-submissions.',
+        bdd: [
+          { kw: 'Given', text: 'the reels are currently spinning' },
+          { kw: 'When',  text: 'the player tries to click spin again' },
+          { kw: 'Then',  text: 'the button is disabled and does not trigger another spin' },
+        ],
+        tests: ['TC-UI-12'],
+      },
+
+      // ── API ───────────────────────────────────────────────────────────────
+      {
+        id: 'FR-API-01', module: 'api', prio: 'must',
+        title: 'RESTful endpoints under /api/v1/',
+        desc: 'All game and auth endpoints shall be mounted under the /api/v1/ path prefix following REST conventions.',
+        bdd: [
+          { kw: 'Given', text: 'any API request' },
+          { kw: 'When',  text: 'the client sends a request to a valid endpoint' },
+          { kw: 'Then',  text: 'the URL starts with /api/v1/ and follows RESTful resource naming' },
+        ],
+        tests: ['TC-API-01'],
+      },
+      {
+        id: 'FR-API-02', module: 'api', prio: 'must',
+        title: 'OpenAPI 3.0 spec with Swagger UI',
+        desc: 'The server shall expose an OpenAPI 3.0 specification at /api-docs, rendered as interactive Swagger UI.',
+        bdd: [
+          { kw: 'Given', text: 'a developer or reviewer' },
+          { kw: 'When',  text: 'they navigate to /api-docs' },
+          { kw: 'Then',  text: 'the Swagger UI loads with all endpoints documented' },
+        ],
+        tests: ['TC-API-02'],
+      },
+      {
+        id: 'FR-API-03', module: 'api', prio: 'must',
+        title: 'Zod request validation',
+        desc: 'All incoming request bodies shall be validated against Zod schemas. Invalid payloads return a 400 error with details.',
+        bdd: [
+          { kw: 'Given', text: 'a request with an invalid body' },
+          { kw: 'When',  text: 'the server processes it' },
+          { kw: 'Then',  text: 'a 400 error is returned with validation details' },
+        ],
+        tests: ['TC-API-03'],
+      },
+      {
+        id: 'FR-API-04', module: 'api', prio: 'must',
+        title: 'Structured error responses',
+        desc: 'All error responses shall follow the shape { error: string, code: string } for consistent client-side handling.',
+        bdd: [
+          { kw: 'Given', text: 'any error condition' },
+          { kw: 'When',  text: 'the server responds with an error' },
+          { kw: 'Then',  text: 'the body contains { error, code } with appropriate HTTP status' },
+        ],
+        tests: ['TC-API-04'],
+      },
+      {
+        id: 'FR-API-05', module: 'api', prio: 'must',
+        title: 'CORS configuration',
+        desc: 'The server shall configure CORS to allow requests from the frontend origin in development and production.',
+        bdd: [
+          { kw: 'Given', text: 'a cross-origin request from the frontend' },
+          { kw: 'When',  text: 'the browser sends a preflight OPTIONS request' },
+          { kw: 'Then',  text: 'the correct CORS headers are returned' },
+        ],
+        tests: ['TC-API-05'],
+      },
+      {
+        id: 'FR-API-06', module: 'api', prio: 'should',
+        title: 'Request ID tracking',
+        desc: 'Each API request should receive a unique request ID in the response headers for debugging and traceability.',
+        bdd: [
+          { kw: 'Given', text: 'any API request' },
+          { kw: 'When',  text: 'the server responds' },
+          { kw: 'Then',  text: 'the response includes an X-Request-Id header' },
+        ],
+        tests: ['TC-API-06'],
+      },
+      {
+        id: 'FR-API-07', module: 'api', prio: 'must',
+        title: 'Authentication required for game endpoints',
+        desc: 'All game endpoints (init, spin, history) shall require a valid JWT bearer token. Unauthenticated requests return 401.',
+        bdd: [
+          { kw: 'Given', text: 'a request to a game endpoint without a valid token' },
+          { kw: 'When',  text: 'the server receives it' },
+          { kw: 'Then',  text: 'a 401 Unauthorized error is returned' },
+        ],
+        tests: ['TC-API-07'],
+      },
+
+      // ── Non-Functional ────────────────────────────────────────────────────
+      {
+        id: 'NFR-PERF-01', module: 'nfr', prio: 'must',
+        title: 'Spin API response time < 200ms',
+        desc: 'The spin endpoint shall respond within 200 milliseconds under normal load (single user).',
+        bdd: [
+          { kw: 'Given', text: 'a single concurrent user' },
+          { kw: 'When',  text: 'a spin request is made' },
+          { kw: 'Then',  text: 'the response is received in under 200ms' },
+        ],
+        tests: ['TC-PERF-01'],
+      },
+      {
+        id: 'NFR-PERF-02', module: 'nfr', prio: 'should',
+        title: 'UI rendering at 60 FPS',
+        desc: 'The PixiJS game canvas should maintain 60 frames per second during idle and spin animations on supported hardware.',
+        bdd: [
+          { kw: 'Given', text: 'a supported browser on modern hardware' },
+          { kw: 'When',  text: 'the reels are spinning' },
+          { kw: 'Then',  text: 'the frame rate stays at or above 60 FPS' },
+        ],
+        tests: ['TC-PERF-02'],
+      },
+      {
+        id: 'NFR-SEC-01', module: 'nfr', prio: 'must',
+        title: 'RS256 JWT signing',
+        desc: 'JWTs shall be signed with RS256 (asymmetric) using a private key stored on the server. Public key verification enables future microservice architectures.',
+        bdd: [
+          { kw: 'Given', text: 'a JWT issued by the server' },
+          { kw: 'When',  text: 'it is inspected' },
+          { kw: 'Then',  text: 'the algorithm is RS256 and the signature is verifiable with the public key' },
+        ],
+        tests: ['TC-SEC-01'],
+      },
+      {
+        id: 'NFR-SEC-02', module: 'nfr', prio: 'must',
+        title: 'Scrypt password hashing',
+        desc: 'Passwords shall be hashed with Node.js crypto.scrypt with a unique salt per user. No plaintext passwords are stored or logged.',
+        bdd: [
+          { kw: 'Given', text: 'a new user registration' },
+          { kw: 'When',  text: 'the password is processed' },
+          { kw: 'Then',  text: 'only the scrypt hash with salt is stored in the database' },
+        ],
+        tests: ['TC-SEC-02'],
+      },
+      {
+        id: 'NFR-SEC-03', module: 'nfr', prio: 'should',
+        title: 'httpOnly cookie for refresh tokens',
+        desc: 'Refresh tokens should be transmitted only via httpOnly, Secure, SameSite=Strict cookies to mitigate XSS attacks.',
+        bdd: [
+          { kw: 'Given', text: 'a refresh token is issued' },
+          { kw: 'When',  text: 'it is set on the response' },
+          { kw: 'Then',  text: 'the cookie has httpOnly, Secure, and SameSite=Strict flags' },
+        ],
+        tests: ['TC-SEC-03'],
+      },
+      {
+        id: 'NFR-SEC-04', module: 'nfr', prio: 'should',
+        title: 'CSRF protection',
+        desc: 'State-changing endpoints should implement CSRF protection via SameSite cookies and origin validation.',
+        bdd: [
+          { kw: 'Given', text: 'a cross-site request to a state-changing endpoint' },
+          { kw: 'When',  text: 'the origin does not match' },
+          { kw: 'Then',  text: 'the request is rejected' },
+        ],
+        tests: ['TC-SEC-04'],
+      },
+      {
+        id: 'NFR-USA-01', module: 'nfr', prio: 'should',
+        title: 'Keyboard shortcuts (spacebar to spin)',
+        desc: 'The game should support keyboard shortcuts for core actions to improve accessibility.',
+        bdd: [
+          { kw: 'Given', text: 'a player using a keyboard' },
+          { kw: 'When',  text: 'they press spacebar while the game is idle' },
+          { kw: 'Then',  text: 'a spin is triggered' },
+        ],
+        tests: ['TC-USA-01'],
+      },
+      {
+        id: 'NFR-USA-02', module: 'nfr', prio: 'could',
+        title: 'ARIA labels for screen readers',
+        desc: 'Interactive elements could include ARIA labels and roles for screen-reader compatibility.',
+        bdd: [
+          { kw: 'Given', text: 'a user with a screen reader' },
+          { kw: 'When',  text: 'they navigate the game UI' },
+          { kw: 'Then',  text: 'interactive elements have descriptive ARIA labels' },
+        ],
+        tests: ['TC-USA-02'],
+      },
+      {
+        id: 'NFR-USA-03', module: 'nfr', prio: 'could',
+        title: 'Reduced-motion support',
+        desc: 'When the user prefers reduced motion (OS setting), the game could tone down or skip animations.',
+        bdd: [
+          { kw: 'Given', text: 'a user with prefers-reduced-motion enabled' },
+          { kw: 'When',  text: 'the game loads' },
+          { kw: 'Then',  text: 'animations are simplified or disabled' },
+        ],
+        tests: ['TC-USA-03'],
+      },
+      {
+        id: 'NFR-REL-01', module: 'nfr', prio: 'must',
+        title: 'Spin idempotency guarantees',
+        desc: 'The idempotency mechanism shall prevent double-charging and ensure consistent results for duplicate requests within a 24-hour window.',
+        bdd: [
+          { kw: 'Given', text: 'a duplicate spin request within 24 hours' },
+          { kw: 'When',  text: 'the server processes it' },
+          { kw: 'Then',  text: 'the original result is returned and balance is unchanged' },
+        ],
+        tests: ['TC-REL-01'],
+      },
+      {
+        id: 'NFR-REL-02', module: 'nfr', prio: 'must',
+        title: 'Graceful error handling',
+        desc: 'The system shall handle all errors gracefully without crashing, returning structured error responses to the client.',
+        bdd: [
+          { kw: 'Given', text: 'an unexpected error occurs' },
+          { kw: 'When',  text: 'the server catches it' },
+          { kw: 'Then',  text: 'a 500 response with { error, code } is returned and the server remains operational' },
+        ],
+        tests: ['TC-REL-02'],
+      },
+      {
+        id: 'NFR-COMP-01', module: 'nfr', prio: 'must',
+        title: 'Modern browser compatibility',
+        desc: 'The application shall function correctly on the latest two major versions of Chrome, Firefox, Safari, and Edge.',
+        bdd: [
+          { kw: 'Given', text: 'a supported browser' },
+          { kw: 'When',  text: 'the user accesses the application' },
+          { kw: 'Then',  text: 'all features work without JavaScript errors' },
+        ],
+        tests: ['TC-COMP-01'],
+      },
+      {
+        id: 'NFR-DEP-01', module: 'nfr', prio: 'must',
+        title: 'Docker Compose deployment',
+        desc: 'The application shall be deployable via Docker Compose with services for the frontend, backend, and PostgreSQL database.',
+        bdd: [
+          { kw: 'Given', text: 'a server with Docker installed' },
+          { kw: 'When',  text: 'docker compose up is executed' },
+          { kw: 'Then',  text: 'all services start and the application is accessible' },
+        ],
+        tests: ['TC-DEP-01'],
+      },
+      {
+        id: 'NFR-DEP-02', module: 'nfr', prio: 'should',
+        title: 'Caddy TLS termination',
+        desc: 'In production, Caddy should handle automatic HTTPS certificate provisioning and TLS termination.',
+        bdd: [
+          { kw: 'Given', text: 'a production deployment' },
+          { kw: 'When',  text: 'a client connects' },
+          { kw: 'Then',  text: 'the connection is encrypted via TLS with a valid certificate' },
+        ],
+        tests: ['TC-DEP-02'],
+      },
+      {
+        id: 'NFR-DEP-03', module: 'nfr', prio: 'must',
+        title: 'PostgreSQL 16+ data persistence',
+        desc: 'User accounts and refresh tokens shall be stored in PostgreSQL 16+ and survive server restarts.',
+        bdd: [
+          { kw: 'Given', text: 'a registered user' },
+          { kw: 'When',  text: 'the server restarts' },
+          { kw: 'Then',  text: 'the user can still log in with their credentials' },
+        ],
+        tests: ['TC-DEP-03'],
+      },
+    ];
+
+    /* ======================================================================= */
+    /*  RENDER                                                                 */
+    /* ======================================================================= */
+    const body = document.getElementById('req-body');
+    const matrixBody = document.getElementById('matrix-body');
+    const countLabel = document.getElementById('count-label');
+    const statsEl = document.getElementById('stats');
+    const searchInput = document.getElementById('search');
+
+    const MODULE_LABELS = {
+      auth: 'Auth', game: 'Game', ui: 'UI', api: 'API', nfr: 'NFR',
+    };
+    const MODULE_BADGE = {
+      auth: 'badge-auth', game: 'badge-game', ui: 'badge-ui', api: 'badge-api', nfr: 'badge-nfr',
+    };
+    const PRIO_LABELS = { must: 'Must', should: 'Should', could: 'Could' };
+    const PRIO_CLASS  = { must: 'prio-must', should: 'prio-should', could: 'prio-could' };
+
+    // Stats
+    const totalCount = REQS.length;
+    const mustCount = REQS.filter(r => r.prio === 'must').length;
+    const shouldCount = REQS.filter(r => r.prio === 'should').length;
+    const couldCount = REQS.filter(r => r.prio === 'could').length;
+    const moduleCount = new Set(REQS.map(r => r.module)).size;
+
+    statsEl.innerHTML = `
+      <div class="stat"><strong>${totalCount}</strong>Requirements</div>
+      <div class="stat"><strong>${mustCount}</strong>Must</div>
+      <div class="stat"><strong>${shouldCount}</strong>Should</div>
+      <div class="stat"><strong>${couldCount}</strong>Could</div>
+      <div class="stat"><strong>${moduleCount}</strong>Modules</div>
+    `;
+
+    // Build table rows
+    function buildRows() {
+      let html = '';
+      REQS.forEach((r, i) => {
+        html += `
+        <tr class="req-row" data-idx="${i}" data-module="${r.module}">
+          <td><span class="req-chevron">&#9654;</span></td>
+          <td><span class="req-id">${r.id}</span></td>
+          <td><span class="badge ${MODULE_BADGE[r.module]}">${MODULE_LABELS[r.module]}</span></td>
+          <td><span class="prio ${PRIO_CLASS[r.prio]}">${PRIO_LABELS[r.prio]}</span></td>
+          <td class="req-title">${r.title}</td>
+        </tr>
+        <tr class="req-detail-row" data-idx="${i}" data-module="${r.module}">
+          <td colspan="5">
+            <div class="req-detail-panel" id="detail-${i}">
+              <div class="detail-grid">
+                <div class="detail-field full">
+                  <span class="detail-label">Description</span>
+                  <div class="detail-value">${r.desc}</div>
+                </div>
+                <div class="detail-field full">
+                  <span class="detail-label">Acceptance Criteria (BDD)</span>
+                  <div class="detail-value">
+                    <ul class="bdd-list">
+                      ${r.bdd.map(b => `<li data-keyword="${b.kw}">${b.text}</li>`).join('')}
+                    </ul>
+                  </div>
+                </div>
+                <div class="detail-field">
+                  <span class="detail-label">Priority</span>
+                  <div class="detail-value"><span class="prio ${PRIO_CLASS[r.prio]}">${PRIO_LABELS[r.prio]}</span></div>
+                </div>
+                <div class="detail-field">
+                  <span class="detail-label">Traced Test Cases</span>
+                  <div class="detail-value">
+                    ${r.tests.map(t => `<a class="trace-link" href="/test-cases.html#${t}" target="_blank">${t}</a>`).join(', ')}
+                  </div>
+                </div>
+              </div>
+            </div>
+          </td>
+        </tr>`;
+      });
+      body.innerHTML = html;
+    }
+
+    buildRows();
+
+    // Build traceability matrix
+    function buildMatrix() {
+      let html = '';
+      REQS.forEach(r => {
+        html += `<tr>
+          <td>${r.id}</td>
+          <td>${r.title}</td>
+          <td>${r.tests.map(t => `<a class="trace-link" href="/test-cases.html#${t}" target="_blank">${t}</a>`).join(', ')}</td>
+        </tr>`;
+      });
+      matrixBody.innerHTML = html;
+    }
+
+    buildMatrix();
+
+    /* ======================================================================= */
+    /*  INTERACTIVITY                                                          */
+    /* ======================================================================= */
+
+    // Expand/collapse rows
+    body.addEventListener('click', (e) => {
+      const row = e.target.closest('.req-row');
+      if (!row) return;
+      const idx = row.dataset.idx;
+      const panel = document.getElementById('detail-' + idx);
+      const isOpen = row.classList.contains('open');
+
+      // close all
+      document.querySelectorAll('.req-row.open').forEach(r => r.classList.remove('open'));
+      document.querySelectorAll('.req-detail-panel.open').forEach(p => p.classList.remove('open'));
+
+      if (!isOpen) {
+        row.classList.add('open');
+        panel.classList.add('open');
+      }
+    });
+
+    // Filter tabs
+    let activeFilter = 'all';
+    document.getElementById('filters').addEventListener('click', (e) => {
+      const tab = e.target.closest('.tab');
+      if (!tab) return;
+
+      document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+      tab.classList.add('active');
+      activeFilter = tab.dataset.filter;
+      applyFilters();
+    });
+
+    // Search
+    searchInput.addEventListener('input', () => applyFilters());
+
+    function applyFilters() {
+      const q = searchInput.value.toLowerCase().trim();
+      let visible = 0;
+
+      document.querySelectorAll('.req-row').forEach(row => {
+        const idx = parseInt(row.dataset.idx);
+        const r = REQS[idx];
+        const detailRow = row.nextElementSibling;
+
+        const matchModule = activeFilter === 'all' || r.module === activeFilter;
+        const matchSearch = !q ||
+          r.id.toLowerCase().includes(q) ||
+          r.title.toLowerCase().includes(q) ||
+          r.desc.toLowerCase().includes(q);
+
+        const show = matchModule && matchSearch;
+        row.style.display = show ? '' : 'none';
+        detailRow.style.display = show ? '' : 'none';
+
+        if (show) visible++;
+      });
+
+      countLabel.textContent = `${visible} of ${totalCount}`;
+    }
+
+    applyFilters();
+    </script>
+  </body>
+</html>
