@@ -1,58 +1,58 @@
-# UI/UX архитектура онлайн-слота (iGaming)
+# UI/UX Architecture of an Online Slot (iGaming)
 
-Полный стек, игровой цикл, компоненты и меры защиты на клиенте.
-
----
-
-## 1. ТЕХНОЛОГИИ
-
-### 1.1 Рендеринг барабанов (WebGL)
-
-**PixiJS** — основной выбор для 2D-слотов:
-
-- WebGL (с fallback на Canvas) из коробки.
-- Спрайты символов как `Texture` из атласов (PNG/JSON).
-- Отдельный `Container` на каждый барабан (reel), внутри — полоса символов с маской видимой области (5×3 → видно 3 ряда).
-- Анимация: изменение `y` или обновление позиций символов в цикле (ticker), затем «привязка» к финальным позициям из outcome.
-- ParticleContainer для лампочек, частиц без логики коллизий.
-
-**Three.js** — для 3D-слотов:
-
-- Каждый барабан — группа `Mesh` (символы как плоскости с текстурами или 3D-модели).
-- Вращение вокруг оси (reel rotation), остановка по углам, соответствующим outcome.
-- Камера, освещение, постобработка (bloom для «Big Win»).
-
-**Рекомендация**: для классического 5×3 чаще используют **PixiJS** (проще, легче, быстрее для 2D). Three.js — при необходимости 3D-рельсов и кинематики.
+Full stack, game loop, components, and client-side protection measures.
 
 ---
 
-### 1.2 Оболочка (HUD): React или Vue
+## 1. TECHNOLOGIES
 
-- **React** (или **Vue 3**) — всё, что не WebGL: баланс, ставка, кнопки, модалки, маршрутизация.
-- Состояние: глобальный store (Zustand, Pinia, Redux) — баланс, ставка, автоспин, блокировка UI во время спина, результат последнего спина (для линий и оверлеев).
-- WebGL-холст (Pixi/Three) монтируется в один ref (React) или через `vue-pixi` / кастомный wrapper: создание `Application` в `useEffect`/`onMounted`, передача колбэков (onSpinClick) и данных (outcome) в контейнер с канвасом.
+### 1.1 Reel Rendering (WebGL)
 
-**Связка React + PixiJS**:
+**PixiJS** — the primary choice for 2D slots:
 
-- Один корневой компонент владеет `PixiApplication` (ref).
-- ReelGrid — либо отдельный класс/модуль внутри этого ref, либо компонент, получающий `app` через context.
-- События: «SPIN нажат» → store/spin request → по ответу API передаём outcome в ReelGrid и запускаем анимацию.
+- WebGL (with Canvas fallback) out of the box.
+- Symbol sprites as `Texture` from atlases (PNG/JSON).
+- A separate `Container` per reel, containing a symbol strip masked to the visible area (5×3 → 3 rows visible).
+- Animation: changing `y` or updating symbol positions in a loop (ticker), then "snapping" to the final positions from the outcome.
+- ParticleContainer for lights and particles without collision logic.
 
----
+**Three.js** — for 3D slots:
 
-### 1.3 WebSocket клиент
+- Each reel is a group of `Mesh` objects (symbols as planes with textures or 3D models).
+- Rotation around an axis (reel rotation), stopping at angles that correspond to the outcome.
+- Camera, lighting, post-processing (bloom for "Big Win").
 
-- Подключение к `wss://api.example.com/ws/game?token=<JWT>` при входе в игру.
-- Подписка на каналы: `balance`, `game_events` (опционально).
-- При `balance_updated` — обновление баланса в store и в HUD без перезагрузки.
-- Reconnect с exponential backoff, повторная аутентификация по JWT.
-- Спины идут через **REST** (POST /spin), WebSocket — только для live-обновлений (баланс, уведомления), не для подмены результата спина.
+**Recommendation**: for classic 5×3, **PixiJS** is more commonly used (simpler, lighter, faster for 2D). Three.js — when 3D rails and kinematics are required.
 
 ---
 
-## 2. ИГРОВОЙ ЦИКЛ (Game Loop)
+### 1.2 Shell (HUD): React or Vue
 
-Последовательность шагов от нажатия SPIN до обновления баланса.
+- **React** (or **Vue 3**) — everything outside WebGL: balance, bet, buttons, modals, routing.
+- State: global store (Zustand, Pinia, Redux) — balance, bet, autospin, UI lock during spin, last spin result (for paylines and overlays).
+- The WebGL canvas (Pixi/Three) is mounted into a single ref (React) or via `vue-pixi` / a custom wrapper: creating an `Application` in `useEffect`/`onMounted`, passing callbacks (onSpinClick) and data (outcome) to the canvas container.
+
+**React + PixiJS combination**:
+
+- One root component owns the `PixiApplication` (ref).
+- ReelGrid — either a separate class/module inside that ref, or a component that receives `app` via context.
+- Events: "SPIN pressed" → store/spin request → on API response, pass outcome to ReelGrid and start the animation.
+
+---
+
+### 1.3 WebSocket Client
+
+- Connect to `wss://api.example.com/ws/game?token=<JWT>` on game entry.
+- Subscribe to channels: `balance`, `game_events` (optional).
+- On `balance_updated` — update balance in the store and in the HUD without a page reload.
+- Reconnect with exponential backoff, re-authenticate via JWT.
+- Spins go through **REST** (POST /spin); WebSocket is only for live updates (balance, notifications), not for substituting spin results.
+
+---
+
+## 2. GAME LOOP
+
+Sequence of steps from clicking SPIN to balance update.
 
 ```
 ┌─────────────────────────────────────────────────────────────────────────────┐
@@ -103,154 +103,154 @@
 └─────────────────────────────────────────────────────────────────────────────┘
 ```
 
-**Важно**:
+**Important**:
 
-- Результат спина **всегда** приходит с сервера. Клиент не вычисляет и не подменяет outcome — только анимирует переданный `reel_matrix` и отображает `win` / бонусы.
-- Блокировка кнопки SPIN на время запроса и анимации предотвращает двойные запросы и рассинхрон.
+- The spin result **always** comes from the server. The client does not calculate or substitute the outcome — it only animates the received `reel_matrix` and displays `win` / bonuses.
+- Locking the SPIN button during the request and animation prevents double requests and desync.
 
 ---
 
-## 3. КОМПОНЕНТЫ UI
+## 3. UI COMPONENTS
 
-### 3.1 ReelGrid (5×3 сетка, анимация барабанов)
+### 3.1 ReelGrid (5×3 grid, reel animation)
 
-**Назначение**: отображение символов и анимация «вращения» с остановкой по серверному outcome.
+**Purpose**: displaying symbols and animating "spinning" with a stop at the server-determined outcome.
 
-**Структура (PixiJS)**:
+**Structure (PixiJS)**:
 
-- 5 контейнеров (reels). В каждом — вертикальная полоса символов (strip): для плавного скролла храним больше 3 символов (например 5–7), видимая область обрезана маской (3 символа).
-- Символы — спрайты из атласа, ключ по `symbol_id` из конфига.
+- 5 containers (reels). Each contains a vertical symbol strip: for smooth scrolling, more than 3 symbols are stored (e.g. 5–7), with the visible area clipped by a mask (3 symbols).
+- Symbols are sprites from an atlas, keyed by `symbol_id` from the config.
 
-**Анимация**:
+**Animation**:
 
-1. **Spinning**: в цикле (ticker) сдвигаем strip вниз (или вверх), при выходе символа за край — переставляем его в противоположный конец и подставляем «случайный» символ из визуального набора (только для вида, не для результата).
-2. **Stop**: по таймеру или по очереди (reel 0 → reel 1 → … → reel 4) останавливаем барабан так, чтобы в видимой зоне оказались **ровно** символы из `outcome.reel_matrix[column]`. Позиции финальные задаются сервером — подгоняем scroll offset так, чтобы визуально совпало.
-3. Easing (easeOutQuad / easeOutCubic) на последних пикселях для «мягкой» остановки.
+1. **Spinning**: in a loop (ticker), shift the strip downward (or upward); when a symbol goes past the edge — move it to the opposite end and substitute a "random" symbol from the visual set (for visual purposes only, not for the result).
+2. **Stop**: by timer or in sequence (reel 0 → reel 1 → … → reel 4), stop the reel so that the visible zone shows **exactly** the symbols from `outcome.reel_matrix[column]`. Final positions are defined by the server — adjust the scroll offset to match visually.
+3. Easing (easeOutQuad / easeOutCubic) on the last pixels for a "soft" stop.
 
 **Props/Input**:
 
-- `outcome: { reel_matrix: string[][] }` — после ответа API.
-- `onReelStopped?: (reelIndex: number) => void` — для звука/эффектов по каждому барабану.
-- `onAllReelsStopped?: () => void` — для показа линий и оверлеев.
+- `outcome: { reel_matrix: string[][] }` — after the API response.
+- `onReelStopped?: (reelIndex: number) => void` — for sound/effects per reel.
+- `onAllReelsStopped?: () => void` — for showing paylines and overlays.
 
-**Состояния**: idle, spinning, stopping.
-
----
-
-### 3.2 Paylines (выигрышные линии)
-
-**Назначение**: подсветка линий, по которым прошла выигрышная комбинация.
-
-**Реализация**:
-
-- Линии заданы в конфиге: массив путей `[ [reel, row], ... ]` для каждой линии (например 20 линий для 5×3).
-- По `outcome.win.breakdown` знаем, какие `line_index` выиграли и какие символы.
-- Рисуем поверх ReelGrid:
-  - **PixiJS**: Graphics — линии (curve или segment) по координатам слотов, цвет/свечение для выигрышной линии.
-  - Или отдельный слой с пререндеренными спрайтами линий (вкл/выкл по индексу).
-- Анимация: короткая вспышка/glow при `onAllReelsStopped`, затем таймер отключения или переход к следующему шагу (Big Win overlay).
-
-**Данные**: `winningLineIndices: number[]`, `paylinePaths: [reel, row][][]` из конфига.
+**States**: idle, spinning, stopping.
 
 ---
 
-### 3.3 BetPanel (ставка)
+### 3.2 Paylines (winning lines)
 
-**Элементы**:
+**Purpose**: highlighting the lines on which a winning combination landed.
 
-- Текущая ставка (монеты/валюта).
-- Кнопки **- / +** или список уровней ставки (например 0.10, 0.20, … 100).
-- Отображение **min / max** (из конфига игры после init).
-- Валюта (из баланса/сессии).
+**Implementation**:
 
-**Поведение**:
+- Lines are defined in the config: an array of paths `[ [reel, row], ... ]` for each line (e.g. 20 lines for 5×3).
+- From `outcome.win.breakdown` we know which `line_index` values won and which symbols.
+- Draw on top of ReelGrid:
+  - **PixiJS**: Graphics — lines (curve or segment) along slot coordinates, color/glow for a winning line.
+  - Or a separate layer with pre-rendered line sprites (toggled on/off by index).
+- Animation: a brief flash/glow on `onAllReelsStopped`, then a timer to hide or transition to the next step (Big Win overlay).
 
-- Ставка хранится в store; при изменении — валидация против min/max.
-- Во время спина и анимации панель ставки обычно **disabled**, чтобы нельзя было изменить bet до завершения цикла.
-- Отправка в POST /spin: `bet: { amount: currentBet, currency, lines }`.
+**Data**: `winningLineIndices: number[]`, `paylinePaths: [reel, row][][]` from the config.
+
+---
+
+### 3.3 BetPanel (bet)
+
+**Elements**:
+
+- Current bet (coins/currency).
+- **- / +** buttons or a list of bet levels (e.g. 0.10, 0.20, … 100).
+- Display of **min / max** (from the game config after init).
+- Currency (from balance/session).
+
+**Behavior**:
+
+- The bet is stored in the store; on change — validated against min/max.
+- During a spin and animation the bet panel is usually **disabled**, so the bet cannot be changed before the cycle completes.
+- Sent in POST /spin: `bet: { amount: currentBet, currency, lines }`.
 
 ---
 
 ### 3.4 AutoSpin
 
-**Настройки** (в модалке или панели):
+**Settings** (in a modal or panel):
 
-- Количество спинов: 10, 25, 50, 100, «до отмены».
-- Условия остановки: «остановить при выигрыше &gt; X», «остановить при бонусе», «без ограничений».
-- Кнопка **Start AutoSpin** / **Stop AutoSpin**.
+- Number of spins: 10, 25, 50, 100, "until cancelled".
+- Stop conditions: "stop on win > X", "stop on bonus", "no limit".
+- **Start AutoSpin** / **Stop AutoSpin** button.
 
-**Логика**:
+**Logic**:
 
-- После завершения одного спина (все барабаны остановились, эффекты показаны) — таймер (например 1–2 сек), затем автоматический вызов того же flow: POST /spin с текущей ставкой. Счётчик автоспинов уменьшается.
-- Остановка при: срабатывании условия, нажатии Stop, недостатке баланса, открытии бонус-раунда (опционально — пауза автоспина до конца бонуса).
+- After one spin completes (all reels stopped, effects shown) — a timer (e.g. 1–2 sec), then an automatic call of the same flow: POST /spin with the current bet. The autospin counter decrements.
+- Stop when: a stop condition triggers, Stop is pressed, balance is insufficient, a bonus round opens (optionally — pause autospin until the bonus ends).
 
-**UI**: индикатор «AutoSpin 47/100» и кнопка Stop.
+**UI**: "AutoSpin 47/100" indicator and a Stop button.
 
 ---
 
-### 3.5 InfoPanel (paytable, правила)
+### 3.5 InfoPanel (paytable, rules)
 
-- **Кнопка (i) или «Paytable»** открывает модальное окно.
-- Контент: таблица выплат (символ × количество = множитель), описание бонусов (Scatter, Free Spins, множители), ссылка на полные правила (внешняя страница или встроенный iframe/HTML из конфига).
-- Данные могут подгружаться с CDN (config.paytable_url) или быть в конфиге после init.
+- **Button (i) or "Paytable"** opens a modal window.
+- Content: payout table (symbol × count = multiplier), description of bonuses (Scatter, Free Spins, multipliers), link to full rules (external page or embedded iframe/HTML from config).
+- Data can be loaded from CDN (config.paytable_url) or be present in the config after init.
 
 ---
 
 ### 3.6 BonusOverlay
 
-**Сценарии**:
+**Scenarios**:
 
-- **Триггер бонуса** (например 3+ Scatter): полноэкранный оверлей «FREE SPINS x10», анимация счёта спинов, кнопка «Start» или автоматический переход к первому бонус-спину.
-- **Во время Free Spins**: счётчик «7 / 10», множитель «x2», при необходимости — кнопка «Skip» (если продукт разрешает).
-- **Big Win**: при выигрыше выше порога — оверлей «BIG WIN» с суммой и конфетти/анимация, затем закрытие и продолжение.
+- **Bonus trigger** (e.g. 3+ Scatter): full-screen overlay "FREE SPINS x10", spin count animation, "Start" button or automatic transition to the first bonus spin.
+- **During Free Spins**: counter "7 / 10", multiplier "x2", optionally — a "Skip" button (if the product allows it).
+- **Big Win**: when the win exceeds the threshold — "BIG WIN" overlay with the amount and confetti/animation, then close and continue.
 
-**Реализация**: React/Vue компоненты поверх канваса (z-index), анимации через CSS/GSAP или Lottie. Данные (количество спинов, множитель, сумма) приходят с сервера в outcome и хранятся в store.
-
----
-
-## 4. ANTI-CHEAT НА КЛИЕНТЕ
-
-Цель: усложнить манипуляции через DevTools и подмену кода, не создавая иллюзию «полной защиты» (критичная логика и баланс — только на сервере).
-
-### 4.1 Предотвращение манипуляции с результатами
-
-- **Outcome только с сервера**: клиент никогда не генерирует и не перезаписывает результат спина. ReelGrid получает `reel_matrix` и `win` из ответа API и только отображает их. Даже если пользователь изменит переменную в консоли, следующий спин снова придет с сервера и перезапишет состояние.
-- **Не хранить баланс только на клиенте**: баланс приходит с каждым ответом /spin и при WebSocket; UI показывает серверное значение. Проверка «хватает ли на ставку» дублируется на сервере (422 при недостатке средств).
-- **Токен и запросы**: JWT в httpOnly cookie (где возможно) или в памяти; не класть долгоживущий токен в localStorage с открытым доступом из консоли. Критичные действия (спин, вывод) только с валидным токеном и rate limit на сервере.
-- **Целостность ответа**: проверять наличие обязательных полей (`spin_id`, `outcome.reel_matrix`, `balance`). При неполном ответе не запускать анимацию выигрыша, показывать ошибку и при необходимости переподключаться.
-
-### 4.2 Obfuscation JS
-
-- **Минификация + обфускация** (например Webpack + Terser + обфускатор вроде javascript-obfuscator): имена переменных/функций, строки, контрольный поток (flatten), разбиение строк. Цель — усложнить чтение и точечное изменение логики (например подмена функции, парсящей outcome).
-- **Не полагаться только на обфускацию**: сервер остаётся источником правды; обфускация лишь повышает порог для быстрого хака.
-
-### 4.3 Fingerprinting сессии
-
-- **Зачем**: привязка сессии к устройству/браузеру для выявления мультиаккаунтов, подозрительной смены контекста, частично — детект ботов.
-- **Данные** (собираются на клиенте и отправляются при init или первом spin):
-  - User-Agent, язык, часовой пояс, разрешение экрана, глубина цвета.
-  - Canvas fingerprint (рисование текста/фигур и хэш пикселей).
-  - WebGL renderer/vendor (если не скрыто).
-  - Список плагинов/шрифтов (где доступно).
-- **Отправка**: хэш fingerprint в заголовке (например `X-Client-Fingerprint: <hash>`) или в теле запроса. Сервер сохраняет привязку session_id ↔ fingerprint и при смене может требовать повторную аутентификацию или логировать для антифрода.
-- **Ограничения**: не блокировать игру только по смене fingerprint (VPN, очистка кэша), использовать как сигнал в совокупности с другими признаками.
-
-### 4.4 Дополнительно
-
-- **Детект DevTools**: проверка `window.outerWidth - window.innerWidth` или `debugger` в коде (легко обходится, но может замедлить неопытного пользователя). Не блокировать игру жёстко — только опциональное логирование на бэкенд.
-- **Тайминги**: сервер может проверять разумные интервалы между спинами (не 0 мс); клиент не должен отправлять следующий spin до получения ответа предыдущего.
-- **Rate limiting**: лимиты на /spin на сервере по user_id/session_id, чтобы исключить флуд и автоматизированные запросы.
+**Implementation**: React/Vue components on top of the canvas (z-index), animations via CSS/GSAP or Lottie. Data (spin count, multiplier, amount) comes from the server in the outcome and is stored in the store.
 
 ---
 
-## Сводка по стеку
+## 4. CLIENT-SIDE ANTI-CHEAT
 
-| Слой            | Технология              | Назначение                          |
-|-----------------|-------------------------|-------------------------------------|
-| Рендер барабанов| PixiJS (2D) / Three.js (3D) | ReelGrid, символы, анимация     |
-| Оболочка        | React или Vue           | HUD, BetPanel, AutoSpin, модалки     |
-| Сеть            | REST (fetch/axios) + WebSocket | Спины, init, live-обновления   |
-| Состояние       | Zustand / Pinia / Redux | Баланс, ставка, outcome, автоспин   |
-| Анимация UI     | CSS / GSAP / Lottie     | Оверлеи, кнопки, Big Win            |
+Goal: make manipulation via DevTools and code substitution harder, without creating the illusion of "complete protection" (critical logic and balance — on the server only).
 
-Игровой цикл строится вокруг **серверного outcome**: клиент только отображает и анимирует уже выданный результат; античит на клиенте дополняет серверную валидацию и усложняет примитивные манипуляции.
+### 4.1 Preventing Result Manipulation
+
+- **Outcome from server only**: the client never generates or overwrites the spin result. ReelGrid receives `reel_matrix` and `win` from the API response and only displays them. Even if the user modifies a variable in the console, the next spin will again come from the server and overwrite the state.
+- **Do not store balance only on the client**: balance arrives with every /spin response and via WebSocket; the UI shows the server value. The "enough for the bet" check is duplicated on the server (422 on insufficient funds).
+- **Token and requests**: JWT in an httpOnly cookie (where possible) or in memory; do not store a long-lived token in localStorage with open access from the console. Critical actions (spin, withdrawal) only with a valid token and server-side rate limiting.
+- **Response integrity**: verify the presence of required fields (`spin_id`, `outcome.reel_matrix`, `balance`). On an incomplete response, do not start the win animation — show an error and reconnect if necessary.
+
+### 4.2 JS Obfuscation
+
+- **Minification + obfuscation** (e.g. Webpack + Terser + an obfuscator such as javascript-obfuscator): variable/function names, strings, control flow (flatten), string splitting. Goal — make it harder to read and precisely modify logic (e.g. replacing the function that parses the outcome).
+- **Do not rely on obfuscation alone**: the server remains the source of truth; obfuscation only raises the bar for a quick hack.
+
+### 4.3 Session Fingerprinting
+
+- **Why**: binding a session to a device/browser to detect multi-accounts, suspicious context changes, and partially — bot detection.
+- **Data** (collected on the client and sent on init or the first spin):
+  - User-Agent, language, timezone, screen resolution, color depth.
+  - Canvas fingerprint (drawing text/shapes and hashing pixels).
+  - WebGL renderer/vendor (if not hidden).
+  - Plugin/font list (where available).
+- **Sending**: fingerprint hash in a header (e.g. `X-Client-Fingerprint: <hash>`) or in the request body. The server stores the session_id ↔ fingerprint binding and on change may require re-authentication or log it for anti-fraud.
+- **Limitations**: do not block the game solely on a fingerprint change (VPN, cache clear) — use it as a signal combined with other indicators.
+
+### 4.4 Additional Measures
+
+- **DevTools detection**: checking `window.outerWidth - window.innerWidth` or `debugger` in code (easily bypassed, but can slow down an inexperienced user). Do not hard-block the game — only optional logging to the backend.
+- **Timings**: the server can verify reasonable intervals between spins (not 0 ms); the client must not send the next spin before receiving the response to the previous one.
+- **Rate limiting**: limits on /spin on the server by user_id/session_id to prevent flooding and automated requests.
+
+---
+
+## Stack Summary
+
+| Layer           | Technology                  | Purpose                                  |
+|-----------------|-----------------------------|------------------------------------------|
+| Reel rendering  | PixiJS (2D) / Three.js (3D) | ReelGrid, symbols, animation             |
+| Shell           | React or Vue                | HUD, BetPanel, AutoSpin, modals          |
+| Network         | REST (fetch/axios) + WebSocket | Spins, init, live updates             |
+| State           | Zustand / Pinia / Redux     | Balance, bet, outcome, autospin          |
+| UI animation    | CSS / GSAP / Lottie         | Overlays, buttons, Big Win               |
+
+The game loop is built around the **server outcome**: the client only displays and animates the already-determined result; client-side anti-cheat supplements server-side validation and raises the bar against primitive manipulation.
