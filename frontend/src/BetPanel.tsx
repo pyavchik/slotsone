@@ -5,9 +5,11 @@ import './betPanel.css';
 export function BetPanel({
   onSpin,
   spinDisabled = false,
+  onInfoClick,
 }: {
   onSpin: () => void;
   spinDisabled?: boolean;
+  onInfoClick?: () => void;
 }) {
   const bet = useGameStore((s) => s.bet);
   const setBet = useGameStore((s) => s.setBet);
@@ -42,6 +44,15 @@ export function BetPanel({
   return (
     <section className="bet-panel" aria-label="Bet controls">
       <div className="bet-main-grid">
+        <button
+          type="button"
+          className="bet-info-btn"
+          aria-label="Open paytable"
+          onClick={onInfoClick}
+        >
+          <span className="bet-info-icon">i</span>
+        </button>
+
         <div className="bet-segment">
           <span className="bet-segment-label">Total Bet</span>
           <div className="bet-adjust-row">

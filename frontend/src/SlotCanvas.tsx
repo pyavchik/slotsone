@@ -37,12 +37,7 @@ export function SlotCanvas({ width, height, onAllReelsStopped }: SlotCanvasProps
     const safeTop = Math.round(Math.min(120, Math.max(72, height * 0.13)));
     const safeBottom = Math.round(Math.min(210, Math.max(130, height * 0.22)));
     const side = Math.round(Math.min(36, Math.max(14, width * 0.03)));
-    return {
-      safeTop,
-      safeBottom,
-      safeLeft: side,
-      safeRight: side,
-    };
+    return { safeTop, safeBottom, safeLeft: side, safeRight: side };
   }, [width, height]);
 
   const hasCreatedRef = useRef(false);

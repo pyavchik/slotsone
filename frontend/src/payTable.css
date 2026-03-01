@@ -1,280 +1,673 @@
-.paytable-toggle {
-  position: absolute;
-  top: calc(env(safe-area-inset-top) + 16px);
-  right: calc(16px + env(safe-area-inset-right));
-  z-index: 60;
-  min-height: 42px;
-  padding: 0 16px;
-  border-radius: 999px;
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  background:
-    linear-gradient(145deg, rgba(255, 255, 255, 0.2), rgba(255, 255, 255, 0.04)),
-    rgba(11, 20, 38, 0.78);
-  color: #edf5ff;
-  font-family: 'Rajdhani', sans-serif;
-  font-size: 14px;
-  font-weight: 700;
-  letter-spacing: 0.04em;
-  cursor: pointer;
-  transition:
-    transform 140ms ease,
-    border-color 140ms ease,
-    background-color 140ms ease;
-}
+/* ======================================================
+   PayTable – Full-screen paginated overlay
+   iGaming standard info overlay (4 pages)
+   ====================================================== */
 
-.paytable-toggle:hover {
-  transform: translateY(-1px);
-  border-color: rgba(125, 211, 252, 0.62);
-}
+/* === Backdrop ================================================== */
 
-.paytable-toggle:focus-visible {
-  outline: 2px solid rgba(125, 211, 252, 0.9);
-  outline-offset: 2px;
-}
-
-.paytable-backdrop {
+.pt-backdrop {
   position: absolute;
   inset: 0;
-  z-index: 130;
+  z-index: 120;
   display: flex;
-  justify-content: flex-end;
-  background: rgba(2, 6, 13, 0.58);
-  backdrop-filter: blur(4px);
-  animation: paytable-fade 180ms ease;
+  align-items: center;
+  justify-content: center;
+  background: rgba(2, 6, 14, 0.7);
+  backdrop-filter: blur(6px);
+  animation: pt-fade-in 200ms ease-out;
 }
 
-.paytable-dialog {
-  width: min(460px, 100%);
-  height: 100%;
+/* === Container ================================================= */
+
+.pt-container {
+  position: relative;
+  max-width: 820px;
+  width: 92%;
+  max-height: 88vh;
   display: flex;
   flex-direction: column;
+  border-radius: 24px;
+  border: 1px solid rgba(102, 215, 255, 0.16);
   background:
-    radial-gradient(circle at 30% -10%, rgba(124, 213, 255, 0.18), rgba(255, 255, 255, 0) 45%),
-    linear-gradient(180deg, #0d1a32 0%, #091223 100%);
-  color: #ecf3ff;
-  border-left: 1px solid rgba(255, 255, 255, 0.14);
-  box-shadow: -30px 0 52px rgba(1, 8, 20, 0.6);
-  animation: paytable-slide 240ms cubic-bezier(0.18, 0.83, 0.36, 1);
+    radial-gradient(ellipse at 50% -20%, rgba(102, 215, 255, 0.06), transparent 60%),
+    linear-gradient(180deg, rgba(14, 24, 44, 0.97) 0%, rgba(8, 16, 32, 0.97) 100%);
+  backdrop-filter: blur(16px);
+  box-shadow:
+    0 8px 36px rgba(0, 0, 0, 0.5),
+    inset 0 1px 0 rgba(255, 255, 255, 0.06),
+    0 0 0 1px rgba(248, 184, 78, 0.08);
+  color: #e0ecff;
+  font-family: 'Rajdhani', sans-serif;
+  animation: pt-scale-in 250ms cubic-bezier(0.22, 1, 0.36, 1);
 }
 
-.paytable-header {
+/* === Top Bar ==================================================== */
+
+.pt-topbar {
   display: flex;
-  align-items: flex-start;
+  align-items: center;
   justify-content: space-between;
-  gap: 12px;
-  padding: 20px 18px 14px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+  padding: 16px 20px 12px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  flex-shrink: 0;
 }
 
-.paytable-header h2 {
-  margin: 0;
+.pt-topbar-title {
   font-family: 'Bebas Neue', 'Rajdhani', sans-serif;
-  font-size: 44px;
-  line-height: 0.9;
-  letter-spacing: 0.05em;
+  font-size: 18px;
+  letter-spacing: 0.14em;
+  color: rgba(200, 220, 255, 0.65);
 }
 
-.paytable-header p {
-  margin: 4px 0 0;
-  font-family: 'Manrope', sans-serif;
-  font-size: 13px;
-  color: rgba(220, 233, 255, 0.82);
+.pt-close {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: rgba(255, 255, 255, 0.04);
+  color: rgba(200, 220, 255, 0.7);
+  font-size: 22px;
+  line-height: 1;
+  cursor: pointer;
+  transition:
+    background 150ms ease,
+    border-color 150ms ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
 }
 
-.paytable-close {
+.pt-close:hover {
+  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(255, 255, 255, 0.2);
+}
+
+/* === Page Wrapper =============================================== */
+
+.pt-page-wrap {
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+  min-height: 0;
+}
+
+.pt-page {
+  padding: 20px 24px;
+  animation: pt-page-enter 300ms ease-out;
+}
+
+.pt-page--enter-right {
+  animation: pt-slide-from-right 300ms ease-out;
+}
+
+.pt-page--enter-left {
+  animation: pt-slide-from-left 300ms ease-out;
+}
+
+/* === Navigation Bar ============================================= */
+
+.pt-nav {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  padding: 12px 20px 16px;
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+  flex-shrink: 0;
+}
+
+.pt-nav-arrow {
   width: 36px;
   height: 36px;
-  border: 1px solid rgba(255, 255, 255, 0.24);
-  border-radius: 999px;
-  background: rgba(255, 255, 255, 0.05);
-  color: #f8fafc;
-  font-family: 'Rajdhani', sans-serif;
+  border-radius: 50%;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: rgba(255, 255, 255, 0.04);
+  color: rgba(200, 220, 255, 0.7);
+  font-size: 22px;
+  line-height: 1;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition:
+    background 150ms ease,
+    border-color 150ms ease;
+}
+
+.pt-nav-arrow:hover:not(:disabled) {
+  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(116, 201, 255, 0.4);
+}
+
+.pt-nav-arrow:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+}
+
+.pt-nav-dots {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.pt-nav-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  border: 1.5px solid rgba(200, 220, 255, 0.35);
+  background: transparent;
+  padding: 0;
+  cursor: pointer;
+  transition:
+    background 200ms ease,
+    border-color 200ms ease,
+    transform 200ms ease;
+}
+
+.pt-nav-dot:hover {
+  border-color: rgba(200, 220, 255, 0.6);
+}
+
+.pt-nav-dot--active {
+  background: rgba(102, 215, 255, 0.8);
+  border-color: rgba(102, 215, 255, 0.8);
+  transform: scale(1.2);
+}
+
+/* ================================================================
+   PAGE 0 — Symbol Payouts
+   ================================================================ */
+
+.pt-page-title {
+  margin: 0 0 4px;
+  font-family: 'Bebas Neue', 'Rajdhani', sans-serif;
+  font-size: 22px;
+  letter-spacing: 0.12em;
+  color: rgba(220, 235, 255, 0.85);
+}
+
+.pt-page-subtitle {
+  margin: 0 0 20px;
+  font-family: 'Manrope', sans-serif;
+  font-size: 13px;
+  color: rgba(180, 200, 240, 0.5);
+}
+
+.pt-sym-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 10px;
+}
+
+.pt-sym-card {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 10px 16px 10px 14px;
+  border-radius: 14px;
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-left: 3px solid rgba(255, 255, 255, 0.15);
+  background: rgba(255, 255, 255, 0.02);
+  transition:
+    background 250ms ease,
+    box-shadow 250ms ease;
+}
+
+.pt-sym-card--hit {
+  background: rgba(58, 231, 170, 0.08);
+  box-shadow: 0 0 20px rgba(58, 231, 170, 0.15);
+  border-color: rgba(58, 231, 170, 0.25);
+  animation: pt-hit-pulse 1.4s ease-in-out infinite;
+}
+
+.pt-sym-card-img {
+  width: 48px;
+  height: 48px;
+  border-radius: 10px;
+  object-fit: contain;
+  flex-shrink: 0;
+}
+
+.pt-sym-card-pays {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.pt-pay-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  padding: 1px 0;
+}
+
+.pt-pay-count {
+  font-size: 12px;
+  color: rgba(180, 200, 240, 0.5);
+  font-weight: 600;
+}
+
+.pt-pay-val {
+  font-size: 14px;
+  font-weight: 700;
+  color: rgba(220, 235, 255, 0.7);
+}
+
+.pt-pay-val--top {
+  color: #f6be57;
+  text-shadow: 0 0 10px rgba(246, 190, 87, 0.2);
+}
+
+/* ================================================================
+   PAGE 1 — Special Symbols
+   ================================================================ */
+
+.pt-page-specials {
+  display: flex;
+  flex-direction: column;
+}
+
+.pt-special-cards {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.pt-special-card {
+  padding: 20px;
+  border-radius: 16px;
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.pt-special-head {
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+  margin-bottom: 12px;
+}
+
+.pt-special-img {
+  width: 72px;
+  height: 72px;
+  border-radius: 14px;
+  object-fit: contain;
+  flex-shrink: 0;
+}
+
+.pt-special-body {
+  flex: 1;
+  min-width: 0;
+}
+
+.pt-special-name {
+  display: block;
+  font-family: 'Bebas Neue', 'Rajdhani', sans-serif;
   font-size: 20px;
   font-weight: 700;
-  cursor: pointer;
+  letter-spacing: 0.08em;
+  margin-bottom: 4px;
 }
 
-.paytable-close:focus-visible {
-  outline: 2px solid rgba(125, 211, 252, 0.9);
-  outline-offset: 2px;
+.pt-special-desc {
+  margin: 0;
+  font-family: 'Manrope', sans-serif;
+  font-size: 13px;
+  line-height: 1.5;
+  color: rgba(200, 218, 240, 0.6);
 }
 
-.paytable-chip-row {
-  padding: 12px 18px;
+.pt-special-chips {
   display: flex;
   flex-wrap: wrap;
-  gap: 8px;
-}
-
-.paytable-chip-row span {
-  display: inline-flex;
-  align-items: baseline;
   gap: 6px;
-  padding: 8px 10px;
+  margin-top: 4px;
+}
+
+.pt-chip {
+  padding: 3px 10px;
   border-radius: 999px;
-  border: 1px solid rgba(255, 255, 255, 0.14);
-  background: rgba(6, 13, 27, 0.5);
-  font-family: 'Rajdhani', sans-serif;
-  font-size: 13px;
-  color: rgba(232, 241, 255, 0.9);
-}
-
-.paytable-chip-row strong {
+  border: 1px solid rgba(255, 255, 255, 0.2);
   font-family: 'Manrope', sans-serif;
+  font-size: 12px;
+  font-weight: 600;
+  color: rgba(220, 235, 255, 0.75);
+  background: rgba(255, 255, 255, 0.03);
 }
 
-.paytable-scroll {
-  padding: 0 18px;
-  overflow: auto;
-}
-
-.paytable-table {
+.pt-scatter-table {
   width: 100%;
   border-collapse: collapse;
-  min-width: 360px;
+  margin-top: 4px;
 }
 
-.paytable-table thead th {
-  position: sticky;
-  top: 0;
-  background: #0b1427;
-  font-family: 'Rajdhani', sans-serif;
+.pt-scatter-table th {
+  font-size: 11px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: rgba(180, 200, 240, 0.4);
+  text-align: left;
+  padding: 6px 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  font-weight: 600;
+}
+
+.pt-scatter-ct {
+  font-size: 14px;
+  font-weight: 700;
+  color: rgba(180, 200, 240, 0.6);
+  padding: 8px 0;
+}
+
+.pt-scatter-aw {
+  font-family: 'Manrope', sans-serif;
+  font-size: 14px;
+  color: #22d3ee;
+  font-weight: 600;
+  padding: 8px 0;
+}
+
+/* ================================================================
+   PAGE 2 — Paylines
+   ================================================================ */
+
+.pt-page-paylines {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.pt-page-paylines .pt-page-title,
+.pt-page-paylines .pt-page-subtitle {
+  text-align: center;
+  width: 100%;
+}
+
+.pt-payline-group {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+  width: 100%;
+  max-width: 640px;
+}
+
+.pt-payline-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.pt-payline-label {
+  font-family: 'Bebas Neue', 'Rajdhani', sans-serif;
+  font-size: 16px;
+  font-weight: 700;
+  min-width: 32px;
+  text-align: center;
+}
+
+.pt-payline-svg {
+  flex: 1;
+  height: 56px;
+}
+
+.pt-payline-dot {
+  fill: rgba(200, 220, 255, 0.15);
+}
+
+.pt-payline-nav {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin-top: 16px;
+}
+
+.pt-payline-dot-btn {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  border: 1.5px solid rgba(200, 220, 255, 0.3);
+  background: transparent;
+  padding: 0;
+  cursor: pointer;
+  transition:
+    background 200ms ease,
+    border-color 200ms ease;
+}
+
+.pt-payline-dot-btn--active {
+  background: rgba(102, 215, 255, 0.7);
+  border-color: rgba(102, 215, 255, 0.7);
+}
+
+/* ================================================================
+   PAGE 3 — Game Rules
+   ================================================================ */
+
+.pt-page-rules {
+  display: flex;
+  flex-direction: column;
+}
+
+.pt-rules-stats {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+  margin-bottom: 24px;
+}
+
+.pt-rules-stat {
+  padding: 14px 16px;
+  border-radius: 14px;
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  background: rgba(255, 255, 255, 0.02);
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.pt-rules-stat-label {
   font-size: 11px;
   letter-spacing: 0.12em;
   text-transform: uppercase;
-  color: rgba(214, 227, 255, 0.78);
-  text-align: left;
-  padding: 10px 8px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+  color: rgba(180, 200, 240, 0.4);
 }
 
-.paytable-table tbody th,
-.paytable-table tbody td {
-  padding: 10px 8px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-  text-align: left;
-  vertical-align: middle;
-}
-
-.paytable-symbol {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  font-family: 'Rajdhani', sans-serif;
+.pt-rules-stat-value {
+  font-size: 20px;
   font-weight: 700;
-  font-size: 14px;
+  color: rgba(232, 242, 255, 0.85);
+  font-family: 'Bebas Neue', 'Rajdhani', sans-serif;
+  letter-spacing: 0.04em;
 }
 
-.paytable-symbol-image {
-  width: 28px;
-  height: 28px;
-  object-fit: contain;
-  border-radius: 8px;
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  background: rgba(255, 255, 255, 0.08);
+.pt-rules-stat-value--vol {
+  color: #f6be57;
 }
 
-.paytable-symbol-swatch {
-  width: 12px;
-  height: 12px;
-  border-radius: 3px;
-  border: 1px solid rgba(7, 16, 32, 0.8);
-}
-
-.paytable-table td strong {
-  display: block;
-  font-family: 'Rajdhani', sans-serif;
-  font-size: 16px;
-  color: #f8fbff;
-}
-
-.paytable-table td span {
-  display: block;
-  margin-top: 2px;
-  font-family: 'Manrope', sans-serif;
-  font-size: 12px;
-  color: rgba(210, 226, 255, 0.8);
-}
-
-.paytable-row-hit {
-  background: linear-gradient(90deg, rgba(58, 231, 170, 0.2), rgba(58, 231, 170, 0));
-}
-
-.paytable-note {
-  margin: 14px 18px 18px;
-  padding: 12px;
-  border-radius: 12px;
-  border: 1px solid rgba(255, 255, 255, 0.16);
-  background: rgba(6, 14, 28, 0.62);
-}
-
-.paytable-note h3 {
-  margin: 0 0 8px;
-  font-family: 'Rajdhani', sans-serif;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  font-size: 13px;
-}
-
-.paytable-note p {
+.pt-rules-list {
   margin: 0;
+  padding: 0 0 0 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.pt-rules-list li {
   font-family: 'Manrope', sans-serif;
-  font-size: 13px;
-  line-height: 1.45;
-  color: rgba(224, 235, 255, 0.9);
+  font-size: 14px;
+  line-height: 1.6;
+  color: rgba(200, 218, 240, 0.65);
 }
 
-.paytable-note p + p {
-  margin-top: 6px;
+/* ================================================================
+   Animations
+   ================================================================ */
+
+@keyframes pt-fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
 }
 
-@media (max-width: 900px) {
-  .paytable-dialog {
+@keyframes pt-scale-in {
+  from {
+    opacity: 0;
+    transform: scale(0.95) translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+@keyframes pt-page-enter {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes pt-slide-from-right {
+  from {
+    opacity: 0;
+    transform: translateX(40px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes pt-slide-from-left {
+  from {
+    opacity: 0;
+    transform: translateX(-40px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes pt-hit-pulse {
+  0%,
+  100% {
+    box-shadow: 0 0 20px rgba(58, 231, 170, 0.15);
+  }
+  50% {
+    box-shadow: 0 0 28px rgba(58, 231, 170, 0.3);
+  }
+}
+
+/* ================================================================
+   Responsive
+   ================================================================ */
+
+/* Wide screens: special cards side-by-side */
+@media (min-width: 720px) {
+  .pt-special-cards {
+    flex-direction: row;
+  }
+
+  .pt-special-card {
+    flex: 1;
+  }
+}
+
+/* Mobile: full-screen overlay */
+@media (max-width: 639px) {
+  .pt-container {
     width: 100%;
-    height: auto;
-    max-height: min(80vh, 700px);
-    align-self: flex-end;
-    border-left: none;
-    border-top: 1px solid rgba(255, 255, 255, 0.14);
-    border-radius: 20px 20px 0 0;
+    max-width: 100%;
+    max-height: 100%;
+    height: 100%;
+    border-radius: 0;
+  }
+
+  .pt-page {
+    padding: 16px;
+  }
+
+  .pt-sym-grid {
+    grid-template-columns: 1fr;
+    gap: 8px;
+  }
+
+  .pt-sym-card {
+    gap: 12px;
+    padding: 10px 14px 10px 12px;
+  }
+
+  .pt-sym-card-img {
+    width: 40px;
+    height: 40px;
+  }
+
+  .pt-special-head {
+    gap: 12px;
+  }
+
+  .pt-special-img {
+    width: 56px;
+    height: 56px;
+  }
+
+  .pt-payline-group {
+    grid-template-columns: 1fr;
+  }
+
+  .pt-rules-stats {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 8px;
+  }
+
+  .pt-rules-stat {
+    padding: 10px 12px;
+  }
+
+  .pt-rules-stat-value {
+    font-size: 17px;
   }
 }
 
-@media (max-width: 700px) {
-  .paytable-toggle {
-    top: calc(env(safe-area-inset-top) + 8px);
-    right: calc(10px + env(safe-area-inset-right));
-    min-height: 38px;
-    padding: 0 12px;
-    font-size: 13px;
-  }
-}
+/* ================================================================
+   Reduced Motion
+   ================================================================ */
 
 @media (prefers-reduced-motion: reduce) {
-  .paytable-toggle,
-  .paytable-backdrop,
-  .paytable-dialog {
-    transition: none;
+  .pt-backdrop {
     animation: none;
   }
-}
 
-@keyframes paytable-fade {
-  from {
-    opacity: 0;
+  .pt-container {
+    animation: none;
   }
-  to {
-    opacity: 1;
-  }
-}
 
-@keyframes paytable-slide {
-  from {
-    transform: translateX(24px);
-    opacity: 0;
+  .pt-page,
+  .pt-page--enter-right,
+  .pt-page--enter-left {
+    animation: none;
   }
-  to {
-    transform: translateX(0);
-    opacity: 1;
+
+  .pt-sym-card--hit {
+    animation: none;
+  }
+
+  .pt-nav-dot,
+  .pt-close,
+  .pt-nav-arrow {
+    transition: none;
   }
 }
