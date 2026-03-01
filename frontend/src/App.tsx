@@ -47,6 +47,7 @@ function App() {
   );
   const [ready, setReady] = useState(false);
   const [spinCooldown, setSpinCooldown] = useState(false);
+  const [payTableOpen, setPayTableOpen] = useState(false);
   const [selectedRoundId, setSelectedRoundId] = useState<string | null>(null);
   const spinCooldownRef = useRef<number | null>(null);
 
@@ -312,6 +313,7 @@ function App() {
     if (screen !== 'slots') return;
     const onKeyDown = (event: KeyboardEvent) => {
       if (event.code !== 'Space' || event.repeat) return;
+      if (payTableOpen) return;
       const target = event.target as HTMLElement | null;
       if (
         target?.isContentEditable ||
@@ -321,13 +323,12 @@ function App() {
         target?.tagName === 'BUTTON'
       )
         return;
-      if (document.getElementById('paytable-dialog')) return;
       event.preventDefault();
       handleSpin();
     };
     window.addEventListener('keydown', onKeyDown);
     return () => window.removeEventListener('keydown', onKeyDown);
-  }, [screen, handleSpin]);
+  }, [screen, handleSpin, payTableOpen]);
 
   // -------------------------------------------------------------------------
   // Error auto-dismiss
@@ -459,9 +460,13 @@ function App() {
     <div className="slots-shell">
       <SlotCanvas width={size.w} height={size.h} onAllReelsStopped={handleAllReelsStopped} />
       <HUD onLogout={handleLogout} onHistory={handleOpenHistory} />
-      <PayTable />
+      <PayTable open={payTableOpen} onClose={() => setPayTableOpen(false)} />
       <div className="slots-controls-dock">
-        <BetPanel onSpin={handleSpin} spinDisabled={spinCooldown} />
+        <BetPanel
+          onSpin={handleSpin}
+          spinDisabled={spinCooldown}
+          onInfoClick={() => setPayTableOpen(true)}
+        />
       </div>
       <WinOverlay />
       {error && (
