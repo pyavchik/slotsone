@@ -639,6 +639,7 @@ export interface components {
                 amount: number;
                 currency: string;
             };
+            idle_matrix: string[][];
             expires_at: string;
         };
         SpinRequest: {

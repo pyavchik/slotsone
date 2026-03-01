@@ -24,6 +24,7 @@ export function SlotCanvas({ width, height, onAllReelsStopped }: SlotCanvasProps
   const [announcement, setAnnouncement] = useState('Slot machine ready.');
 
   const config = useGameStore((s) => s.config);
+  const idleMatrix = useGameStore((s) => s.idleMatrix);
   const lastOutcome = useGameStore((s) => s.lastOutcome);
   const spinning = useGameStore((s) => s.spinning);
   const balance = useGameStore((s) => s.balance);
@@ -66,6 +67,7 @@ export function SlotCanvas({ width, height, onAllReelsStopped }: SlotCanvasProps
       width,
       height,
       lineDefs,
+      idleMatrix: idleMatrix ?? undefined,
       ...safeArea,
       onAllStopped: () => onAllReelsStopped?.(),
       onAssetsReady: () => {

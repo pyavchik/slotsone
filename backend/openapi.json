@@ -699,6 +699,15 @@
             ],
             "additionalProperties": false
           },
+          "idle_matrix": {
+            "type": "array",
+            "items": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          },
           "expires_at": {
             "type": "string"
           }
@@ -708,6 +717,7 @@
           "game_id",
           "config",
           "balance",
+          "idle_matrix",
           "expires_at"
         ],
         "additionalProperties": false

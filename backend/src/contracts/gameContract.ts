@@ -126,6 +126,7 @@ export const InitResponseSchema = z
     game_id: z.string(),
     config: GameConfigSchema,
     balance: BalanceSchema,
+    idle_matrix: z.array(z.array(z.string())),
     expires_at: z.string(),
   })
   .strict();

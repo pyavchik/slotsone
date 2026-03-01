@@ -19,6 +19,7 @@ interface GameState {
   lastWinAmount: number;
   pendingWinAmount: number | null;
   config: InitResponse['config'] | null;
+  idleMatrix: string[][] | null;
   error: string | null;
   // Actions
   setToken: (t: string) => void;
@@ -51,6 +52,7 @@ export const useGameStore = create<GameState>((set) => ({
   lastWinAmount: 0,
   pendingWinAmount: null,
   config: null,
+  idleMatrix: null,
   error: null,
 
   setToken: (t) => set({ token: t }),
@@ -73,6 +75,7 @@ export const useGameStore = create<GameState>((set) => ({
       maxLines,
       lines: defaultLines,
       config: data.config,
+      idleMatrix: data.idle_matrix,
       bet: Math.max(data.config.min_bet, Math.min(data.config.max_bet, 1)),
     });
   },
