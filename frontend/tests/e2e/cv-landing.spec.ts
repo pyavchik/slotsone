@@ -199,7 +199,7 @@ test.describe('CV Landing – actions bar', () => {
   });
 
   // -------------------------------------------------------------------------
-  // Action bar order: slots → requirements → test cases → postman → swagger → sql → pdf
+  // Action bar order: slots → requirements → test cases → postman → swagger → sql → bug report → pdf
   // -------------------------------------------------------------------------
 
   test('action bar items appear in correct order', async ({ page }) => {
@@ -210,6 +210,7 @@ test.describe('CV Landing – actions bar', () => {
     await expect(items.nth(3)).toHaveText('postman');
     await expect(items.nth(4)).toHaveText('swager');
     await expect(items.nth(5)).toHaveText('sql');
-    await expect(items.nth(6)).toHaveText('Download PDF CV');
+    await expect(items.nth(6)).toHaveText('bug report');
+    await expect(items.nth(7)).toHaveText('Download PDF CV');
   });
 });
