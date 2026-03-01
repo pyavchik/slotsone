@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>BUG-001 — Race Condition in Reel Display — pyavchik.space</title>
+    <title>BUG-001 — Reel Canvas Displays Previous Spin's Symbols — pyavchik.space</title>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
@@ -508,7 +508,7 @@
         <div class="bug-header">
           <div class="bug-header-main">
             <span class="bug-id">BUG-001</span>
-            <h1 class="bug-title">Slot reels display previous spin's symbols instead of current spin result</h1>
+            <h1 class="bug-title">Reel canvas on Slots page displays previous spin's symbols instead of current result on every spin after the first</h1>
             <p class="bug-desc">Race condition in React state management causes the PixiJS reel canvas to animate with stale outcome data. Every spin visually shows the prior round's reel_matrix while the HUD displays correct win amounts from the current round.</p>
             <div class="actions" style="margin-top:14px">
               <a href="/slots" class="btn btn-danger">&#9654; Reproduce Live</a>
