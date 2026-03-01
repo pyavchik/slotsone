@@ -463,6 +463,73 @@
         margin-top: 1px;
       }
 
+      /* ── Log blocks ────────────────────────────── */
+      .log-section-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 12px;
+      }
+      .log-card {
+        border-radius: 12px;
+        border: 1px solid rgba(255,255,255,.08);
+        background: rgba(10,12,20,.9);
+        overflow: hidden;
+      }
+      .log-card-header {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding: 10px 14px;
+        border-bottom: 1px solid rgba(255,255,255,.06);
+        font-size: 12px;
+        font-weight: 700;
+        letter-spacing: .06em;
+        color: #94a3b8;
+      }
+      .log-card-header .log-icon {
+        width: 20px; height: 20px;
+        border-radius: 5px;
+        display: flex; align-items: center; justify-content: center;
+        font-size: 10px; font-weight: 800;
+        flex-shrink: 0;
+      }
+      .log-icon-console {
+        background: rgba(250,204,21,.15);
+        color: #facc15;
+        border: 1px solid rgba(250,204,21,.25);
+      }
+      .log-icon-network {
+        background: rgba(99,102,241,.15);
+        color: #a5b4fc;
+        border: 1px solid rgba(99,102,241,.25);
+      }
+      .log-card-body {
+        padding: 12px 14px;
+        font-family: "JetBrains Mono", monospace;
+        font-size: 12px;
+        line-height: 1.7;
+        color: #cbd5e1;
+        overflow-x: auto;
+        white-space: pre;
+      }
+      .log-card-body .log-ok   { color: #4ade80; }
+      .log-card-body .log-dim  { color: #475569; }
+      .log-card-body .log-key  { color: #67e8f9; }
+      .log-card-body .log-str  { color: #86efac; }
+      .log-card-body .log-num  { color: #fcd34d; }
+      .log-card-body .log-note { color: #f87171; font-style: italic; }
+      .log-card-note {
+        padding: 8px 14px;
+        border-top: 1px solid rgba(255,255,255,.04);
+        font-size: 11px;
+        color: #64748b;
+        line-height: 1.5;
+      }
+
+      @media (max-width: 700px) {
+        .log-section-grid { grid-template-columns: 1fr; }
+      }
+
       /* ── Fix section ────────────────────────────── */
       .fix-card {
         border-color: rgba(74,222,128,.2);
@@ -644,6 +711,47 @@
             <img src="/bug-report/round-detail.png" alt="Round Detail page showing the correct reel matrix from server" onclick="openLightbox(this.src)" />
             <div class="screenshot-caption">Round Detail confirms the server generated a different reel result than what the canvas displayed.</div>
           </div>
+        </div>
+      </div>
+
+      <!-- ── Console & Network logs ─────────────── -->
+      <div class="card">
+        <h2>Console &amp; Network Logs</h2>
+        <div class="log-section-grid">
+
+          <div class="log-card">
+            <div class="log-card-header">
+              <span class="log-icon log-icon-console">C</span>
+              Browser Console
+            </div>
+            <div class="log-card-body"><span class="log-ok">&#10003; No JavaScript errors or warnings in console.</span>
+<span class="log-dim">// The bug is silent &mdash; no exceptions are thrown.</span>
+<span class="log-dim">// The stale data is valid JS; the race condition</span>
+<span class="log-dim">// produces incorrect but non-crashing behavior.</span></div>
+            <div class="log-card-note">Checked in Chrome DevTools &rarr; Console tab during 10 consecutive spins. Zero errors, zero warnings. This makes the bug harder to detect without comparing canvas to API response.</div>
+          </div>
+
+          <div class="log-card">
+            <div class="log-card-header">
+              <span class="log-icon log-icon-network">N</span>
+              Network &mdash; POST /api/v1/spin (current spin)
+            </div>
+            <div class="log-card-body"><span class="log-dim">// Response 200 OK &mdash; server returns CORRECT data</span>
+{
+  <span class="log-key">"outcome"</span>: {
+    <span class="log-key">"reel_matrix"</span>: [
+      [<span class="log-str">"K"</span>, <span class="log-str">"A"</span>, <span class="log-str">"10"</span>],   <span class="log-note">&larr; Reel 1: server truth</span>
+      [<span class="log-str">"A"</span>, <span class="log-str">"10"</span>, <span class="log-str">"J"</span>],
+      [<span class="log-str">"A"</span>, <span class="log-str">"10"</span>, <span class="log-str">"J"</span>],
+      [<span class="log-str">"J"</span>, <span class="log-str">"Q"</span>, <span class="log-str">"K"</span>],
+      [<span class="log-str">"A"</span>, <span class="log-str">"10"</span>, <span class="log-str">"J"</span>]
+    ],
+    <span class="log-key">"win"</span>: { <span class="log-key">"amount"</span>: <span class="log-num">0.04</span> }
+  }
+}</div>
+            <div class="log-card-note">Canvas ignored this response and displayed the previous spin's matrix instead. The API response is correct &mdash; the bug is frontend-only.</div>
+          </div>
+
         </div>
       </div>
 
