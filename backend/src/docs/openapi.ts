@@ -2,14 +2,22 @@ import { OpenAPIRegistry, OpenApiGeneratorV3 } from '@asteasolutions/zod-to-open
 import {
   BalanceSchema,
   BetSchema,
+  ClientSeedRequestSchema,
+  EnhancedHistoryResponseSchema,
   ErrorResponseSchema,
   GameConfigSchema,
-  HistoryResponseSchema,
+  HistorySummarySchema,
   InitRequestSchema,
   InitResponseSchema,
+  ProvablyFairSchema,
+  RoundDetailResponseSchema,
+  RoundDetailSchema,
+  SeedPairResponseSchema,
+  SeedRotationResponseSchema,
   SpinOutcomeSchema,
   SpinRequestSchema,
   SpinResponseSchema,
+  TransactionSchema,
   WinBreakdownItemSchema,
 } from '../contracts/gameContract.js';
 import {
@@ -40,7 +48,21 @@ const InitRequestRef = registry.register('InitRequest', InitRequestSchema);
 const InitResponseRef = registry.register('InitResponse', InitResponseSchema);
 const SpinRequestRef = registry.register('SpinRequest', SpinRequestSchema);
 const SpinResponseRef = registry.register('SpinResponse', SpinResponseSchema);
-const HistoryResponseRef = registry.register('HistoryResponse', HistoryResponseSchema);
+const EnhancedHistoryResponseRef = registry.register(
+  'EnhancedHistoryResponse',
+  EnhancedHistoryResponseSchema
+);
+registry.register('HistorySummary', HistorySummarySchema);
+registry.register('Transaction', TransactionSchema);
+registry.register('ProvablyFair', ProvablyFairSchema);
+registry.register('RoundDetail', RoundDetailSchema);
+const RoundDetailResponseRef = registry.register('RoundDetailResponse', RoundDetailResponseSchema);
+const SeedPairResponseRef = registry.register('SeedPairResponse', SeedPairResponseSchema);
+const SeedRotationResponseRef = registry.register(
+  'SeedRotationResponse',
+  SeedRotationResponseSchema
+);
+const ClientSeedRequestRef = registry.register('ClientSeedRequest', ClientSeedRequestSchema);
 
 registry.registerPath({
   method: 'post',
@@ -330,20 +352,25 @@ registry.registerPath({
   method: 'get',
   path: '/api/v1/history',
   tags: ['Game'],
-  summary: 'Get spin history for current user',
+  summary: 'Get spin history with filters and summary',
   security: [{ bearerAuth: [] }],
   request: {
     query: z.object({
       limit: z.number().int().min(1).max(100).optional(),
       offset: z.number().int().min(0).optional(),
+      date_from: z.string().optional(),
+      date_to: z.string().optional(),
+      result: z.enum(['win', 'loss', 'all']).optional(),
+      min_bet: z.number().optional(),
+      max_bet: z.number().optional(),
     }),
   },
   responses: {
     200: {
-      description: 'History response',
+      description: 'History response with summary',
       content: {
         'application/json': {
-          schema: HistoryResponseRef,
+          schema: EnhancedHistoryResponseRef,
         },
       },
     },
@@ -352,6 +379,187 @@ registry.registerPath({
       content: {
         'application/json': {
           schema: ErrorResponseRef,
+        },
+      },
+    },
+    401: {
+      description: 'Unauthorized',
+      content: {
+        'application/json': {
+          schema: ErrorResponseRef,
+        },
+      },
+    },
+  },
+});
+
+registry.registerPath({
+  method: 'get',
+  path: '/api/v1/history/summary',
+  tags: ['Game'],
+  summary: 'Get aggregated stats for the current user',
+  security: [{ bearerAuth: [] }],
+  request: {
+    query: z.object({
+      date_from: z.string().optional(),
+      date_to: z.string().optional(),
+      result: z.enum(['win', 'loss', 'all']).optional(),
+      min_bet: z.number().optional(),
+      max_bet: z.number().optional(),
+    }),
+  },
+  responses: {
+    200: {
+      description: 'Summary stats',
+      content: {
+        'application/json': {
+          schema: registry.register(
+            'HistorySummaryResponse',
+            z
+              .object({
+                total_rounds: z.number().int(),
+                total_wagered: z.number(),
+                total_won: z.number(),
+                net_result: z.number(),
+                biggest_win: z.number(),
+              })
+              .strict()
+          ),
+        },
+      },
+    },
+    401: {
+      description: 'Unauthorized',
+      content: {
+        'application/json': {
+          schema: ErrorResponseRef,
+        },
+      },
+    },
+  },
+});
+
+registry.registerPath({
+  method: 'get',
+  path: '/api/v1/history/{roundId}',
+  tags: ['Game'],
+  summary: 'Get round detail with provably fair data and transactions',
+  security: [{ bearerAuth: [] }],
+  request: {
+    params: z.object({
+      roundId: z.string(),
+    }),
+  },
+  responses: {
+    200: {
+      description: 'Round detail',
+      content: {
+        'application/json': {
+          schema: RoundDetailResponseRef,
+        },
+      },
+    },
+    404: {
+      description: 'Round not found',
+      content: {
+        'application/json': {
+          schema: ErrorResponseRef,
+        },
+      },
+    },
+    401: {
+      description: 'Unauthorized',
+      content: {
+        'application/json': {
+          schema: ErrorResponseRef,
+        },
+      },
+    },
+  },
+});
+
+registry.registerPath({
+  method: 'post',
+  path: '/api/v1/provably-fair/rotate',
+  tags: ['Provably Fair'],
+  summary: 'Rotate seed pair — reveals old server seed, creates new pair',
+  security: [{ bearerAuth: [] }],
+  responses: {
+    200: {
+      description: 'Seed rotation result',
+      content: {
+        'application/json': {
+          schema: SeedRotationResponseRef,
+        },
+      },
+    },
+    401: {
+      description: 'Unauthorized',
+      content: {
+        'application/json': {
+          schema: ErrorResponseRef,
+        },
+      },
+    },
+  },
+});
+
+registry.registerPath({
+  method: 'put',
+  path: '/api/v1/provably-fair/client-seed',
+  tags: ['Provably Fair'],
+  summary: 'Set the client seed for the active seed pair',
+  security: [{ bearerAuth: [] }],
+  request: {
+    body: {
+      required: true,
+      content: {
+        'application/json': {
+          schema: ClientSeedRequestRef,
+        },
+      },
+    },
+  },
+  responses: {
+    200: {
+      description: 'Updated seed pair',
+      content: {
+        'application/json': {
+          schema: SeedPairResponseRef,
+        },
+      },
+    },
+    400: {
+      description: 'Invalid client seed',
+      content: {
+        'application/json': {
+          schema: ErrorResponseRef,
+        },
+      },
+    },
+    401: {
+      description: 'Unauthorized',
+      content: {
+        'application/json': {
+          schema: ErrorResponseRef,
+        },
+      },
+    },
+  },
+});
+
+registry.registerPath({
+  method: 'get',
+  path: '/api/v1/provably-fair/current',
+  tags: ['Provably Fair'],
+  summary: 'Get the current active seed pair info',
+  security: [{ bearerAuth: [] }],
+  responses: {
+    200: {
+      description: 'Current seed pair',
+      content: {
+        'application/json': {
+          schema: SeedPairResponseRef,
         },
       },
     },
@@ -391,5 +599,5 @@ export const openApiSpec = generator.generateDocument({
       description: 'Local development',
     },
   ],
-  tags: [{ name: 'Auth' }, { name: 'Game' }, { name: 'System' }],
+  tags: [{ name: 'Auth' }, { name: 'Game' }, { name: 'Provably Fair' }, { name: 'System' }],
 });

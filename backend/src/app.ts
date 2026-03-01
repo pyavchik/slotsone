@@ -30,7 +30,7 @@ const corsOptions: cors.CorsOptions = {
         }
         callback(null, corsOrigins.includes(origin));
       },
-  methods: ['GET', 'POST', 'OPTIONS'],
+  methods: ['GET', 'POST', 'PUT', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization', 'Idempotency-Key'],
   optionsSuccessStatus: 204,
 };

@@ -160,6 +160,28 @@ export const HistoryQuerySchema = z
   })
   .passthrough();
 
+export const EnhancedHistoryQuerySchema = z
+  .object({
+    limit: z.coerce.number().int().optional(),
+    offset: z.coerce.number().int().optional(),
+    date_from: z.string().optional(),
+    date_to: z.string().optional(),
+    result: z.enum(['win', 'loss', 'all']).optional(),
+    min_bet: z.coerce.number().optional(),
+    max_bet: z.coerce.number().optional(),
+  })
+  .passthrough();
+
+export const HistorySummarySchema = z
+  .object({
+    total_rounds: z.number().int(),
+    total_wagered: z.number(),
+    total_won: z.number(),
+    net_result: z.number(),
+    biggest_win: z.number(),
+  })
+  .strict();
+
 export const HistoryResponseSchema = z
   .object({
     items: z.array(SpinResponseSchema),
@@ -169,8 +191,108 @@ export const HistoryResponseSchema = z
   })
   .strict();
 
+export const EnhancedHistoryResponseSchema = z
+  .object({
+    items: z.array(SpinResponseSchema),
+    total: z.number().int(),
+    limit: z.number().int(),
+    offset: z.number().int(),
+    summary: HistorySummarySchema,
+  })
+  .strict();
+
+export const TransactionSchema = z
+  .object({
+    id: z.string(),
+    type: z.enum(['bet', 'win']),
+    amount: z.number(),
+    balance_after: z.number(),
+    created_at: z.string(),
+  })
+  .strict();
+
+export const ProvablyFairSchema = z
+  .object({
+    seed_pair_id: z.string(),
+    server_seed_hash: z.string(),
+    server_seed: z.string().nullable(),
+    client_seed: z.string(),
+    nonce: z.number().int().nullable(),
+    revealed: z.boolean(),
+  })
+  .strict();
+
+export const RoundDetailSchema = z
+  .object({
+    id: z.string(),
+    session_id: z.string(),
+    game_id: z.string(),
+    bet: z.number(),
+    win: z.number(),
+    currency: z.string(),
+    lines: z.number().int(),
+    balance_before: z.number(),
+    balance_after: z.number(),
+    reel_matrix: z.array(z.array(z.string())),
+    win_breakdown: z.array(z.unknown()),
+    bonus_triggered: z.unknown().nullable(),
+    outcome_hash: z.string().nullable(),
+    created_at: z.string(),
+  })
+  .strict();
+
+export const RoundDetailResponseSchema = z
+  .object({
+    round: RoundDetailSchema,
+    provably_fair: ProvablyFairSchema.nullable(),
+    transactions: z.array(TransactionSchema),
+  })
+  .strict();
+
+export const SeedPairResponseSchema = z
+  .object({
+    seed_pair_id: z.string(),
+    server_seed_hash: z.string(),
+    client_seed: z.string(),
+    nonce: z.number().int(),
+    active: z.boolean().optional(),
+  })
+  .strict();
+
+export const SeedRotationResponseSchema = z
+  .object({
+    previous: z
+      .object({
+        seed_pair_id: z.string(),
+        server_seed: z.string(),
+        server_seed_hash: z.string(),
+        client_seed: z.string(),
+        nonce: z.number().int(),
+      })
+      .strict()
+      .nullable(),
+    current: z
+      .object({
+        seed_pair_id: z.string(),
+        server_seed_hash: z.string(),
+        client_seed: z.string(),
+        nonce: z.number().int(),
+      })
+      .strict(),
+  })
+  .strict();
+
+export const ClientSeedRequestSchema = z
+  .object({
+    client_seed: z.string().min(1).max(64),
+  })
+  .strict();
+
 export type InitRequest = z.infer<typeof InitRequestSchema>;
 export type SpinRequest = z.infer<typeof SpinRequestSchema>;
 export type InitResponse = z.infer<typeof InitResponseSchema>;
 export type SpinResponse = z.infer<typeof SpinResponseSchema>;
 export type HistoryResponse = z.infer<typeof HistoryResponseSchema>;
+export type EnhancedHistoryResponse = z.infer<typeof EnhancedHistoryResponseSchema>;
+export type HistorySummary = z.infer<typeof HistorySummarySchema>;
+export type RoundDetailResponse = z.infer<typeof RoundDetailResponseSchema>;

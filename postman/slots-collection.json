@@ -1353,6 +1353,395 @@
           ]
         }
       ]
+    },
+    {
+      "name": "History & Provably Fair",
+      "description": "Game history queries with filters, round detail inspection, and provably fair seed management.",
+      "item": [
+        {
+          "name": "TC-24: GET /history with date filter",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwt_token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/v1/game/history?date_from=2020-01-01T00:00:00Z&date_to=2030-12-31T23:59:59Z",
+              "query": [
+                {
+                  "key": "date_from",
+                  "value": "2020-01-01T00:00:00Z"
+                },
+                {
+                  "key": "date_to",
+                  "value": "2030-12-31T23:59:59Z"
+                }
+              ]
+            },
+            "description": "Fetch game history filtered by date range. Expects 200 with items array and pagination metadata."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"TC-24: Status 200\", () => pm.response.to.have.status(200));",
+                  "pm.test(\"TC-24: Has items array\", () => {",
+                  "  const json = pm.response.json();",
+                  "  pm.expect(json).to.have.property(\"items\");",
+                  "  pm.expect(json.items).to.be.an(\"array\");",
+                  "});",
+                  "pm.test(\"TC-24: Has pagination fields\", () => {",
+                  "  const json = pm.response.json();",
+                  "  pm.expect(json).to.have.property(\"total\");",
+                  "  pm.expect(json).to.have.property(\"limit\");",
+                  "  pm.expect(json).to.have.property(\"offset\");",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "TC-25: GET /history with result=win",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwt_token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/v1/game/history?result=win",
+              "query": [
+                {
+                  "key": "result",
+                  "value": "win"
+                }
+              ]
+            },
+            "description": "Fetch game history filtered by result=win. Expects 200 with items array containing only winning rounds."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"TC-25: Status 200\", () => pm.response.to.have.status(200));",
+                  "pm.test(\"TC-25: Has items array\", () => {",
+                  "  const json = pm.response.json();",
+                  "  pm.expect(json).to.have.property(\"items\");",
+                  "  pm.expect(json.items).to.be.an(\"array\");",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "TC-26: GET /history with min_bet/max_bet",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwt_token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/v1/game/history?min_bet=0.10&max_bet=100",
+              "query": [
+                {
+                  "key": "min_bet",
+                  "value": "0.10"
+                },
+                {
+                  "key": "max_bet",
+                  "value": "100"
+                }
+              ]
+            },
+            "description": "Fetch game history filtered by bet amount range. Expects 200 with items within the specified bet range."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"TC-26: Status 200\", () => pm.response.to.have.status(200));",
+                  "pm.test(\"TC-26: Has items array\", () => {",
+                  "  const json = pm.response.json();",
+                  "  pm.expect(json).to.have.property(\"items\");",
+                  "  pm.expect(json.items).to.be.an(\"array\");",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "TC-27: GET /history/summary",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwt_token}}",
+                "type": "text"
+              }
+            ],
+            "url": "{{base_url}}/api/v1/game/history/summary",
+            "description": "Fetch aggregate summary of the user's game history. Expects 200 with total_rounds, total_wagered, total_won, net_result, biggest_win."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"TC-27: Status 200\", () => pm.response.to.have.status(200));",
+                  "pm.test(\"TC-27: Has summary fields\", () => {",
+                  "  const json = pm.response.json();",
+                  "  pm.expect(json).to.have.property(\"total_rounds\");",
+                  "  pm.expect(json).to.have.property(\"total_wagered\");",
+                  "  pm.expect(json).to.have.property(\"total_won\");",
+                  "  pm.expect(json).to.have.property(\"net_result\");",
+                  "  pm.expect(json).to.have.property(\"biggest_win\");",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "TC-28: GET /history/:roundId",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwt_token}}",
+                "type": "text"
+              }
+            ],
+            "url": "{{base_url}}/api/v1/game/history/{{round_id}}",
+            "description": "Fetch detail for a specific round. Requires round_id variable (set from a prior spin's spin_id). Expects 200 with reel_matrix, transactions, and outcome_hash."
+          },
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "exec": [
+                  "// round_id must be set from a prior spin response (spin_id = round UUID).",
+                  "// If not set, fall back to last_spin_id from TC-02.",
+                  "if (!pm.environment.get('round_id')) {",
+                  "  const lastSpinId = pm.environment.get('last_spin_id');",
+                  "  if (lastSpinId) pm.environment.set('round_id', lastSpinId);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"TC-28: Status 200\", () => pm.response.to.have.status(200));",
+                  "pm.test(\"TC-28: Has reel_matrix\", () => {",
+                  "  const json = pm.response.json();",
+                  "  pm.expect(json).to.have.property(\"reel_matrix\");",
+                  "});",
+                  "pm.test(\"TC-28: Has transactions\", () => {",
+                  "  const json = pm.response.json();",
+                  "  pm.expect(json).to.have.property(\"transactions\");",
+                  "});",
+                  "pm.test(\"TC-28: Has outcome_hash\", () => {",
+                  "  const json = pm.response.json();",
+                  "  pm.expect(json).to.have.property(\"outcome_hash\");",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "TC-29: GET /history/:roundId invalid UUID",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwt_token}}",
+                "type": "text"
+              }
+            ],
+            "url": "{{base_url}}/api/v1/game/history/not-a-valid-uuid",
+            "description": "Fetch round detail with an invalid UUID. Expects 404 Not Found."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"TC-29: Status 404\", () => pm.response.to.have.status(404));"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "TC-30: GET /provably-fair/current",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwt_token}}",
+                "type": "text"
+              }
+            ],
+            "url": "{{base_url}}/api/v1/game/provably-fair/current",
+            "description": "Fetch the current provably fair seed pair. Expects 200 with server_seed_hash present and server_seed absent (not revealed until rotation)."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"TC-30: Status 200\", () => pm.response.to.have.status(200));",
+                  "pm.test(\"TC-30: Has server_seed_hash\", () => {",
+                  "  const json = pm.response.json();",
+                  "  pm.expect(json).to.have.property(\"server_seed_hash\");",
+                  "});",
+                  "pm.test(\"TC-30: server_seed is not revealed\", () => {",
+                  "  const json = pm.response.json();",
+                  "  pm.expect(json).to.not.have.property(\"server_seed\");",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "TC-31: POST /provably-fair/rotate",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwt_token}}",
+                "type": "text"
+              }
+            ],
+            "url": "{{base_url}}/api/v1/game/provably-fair/rotate",
+            "description": "Rotate seed pair. Expects 200 with previous.server_seed revealed and current.server_seed_hash for the new pair."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"TC-31: Status 200\", () => pm.response.to.have.status(200));",
+                  "pm.test(\"TC-31: Previous server_seed revealed\", () => {",
+                  "  const json = pm.response.json();",
+                  "  pm.expect(json).to.have.property(\"previous\");",
+                  "  pm.expect(json.previous).to.have.property(\"server_seed\");",
+                  "});",
+                  "pm.test(\"TC-31: Current has server_seed_hash\", () => {",
+                  "  const json = pm.response.json();",
+                  "  pm.expect(json).to.have.property(\"current\");",
+                  "  pm.expect(json.current).to.have.property(\"server_seed_hash\");",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "TC-32: PUT /provably-fair/client-seed (valid)",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwt_token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"client_seed\": \"my-test-seed-123\"\n}"
+            },
+            "url": "{{base_url}}/api/v1/game/provably-fair/client-seed",
+            "description": "Set a valid client seed. Expects 200 confirming the seed was updated."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"TC-32: Status 200\", () => pm.response.to.have.status(200));"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "TC-33: PUT /provably-fair/client-seed (invalid)",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwt_token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"client_seed\": \"\"\n}"
+            },
+            "url": "{{base_url}}/api/v1/game/provably-fair/client-seed",
+            "description": "Set an empty client seed. Expects 400 validation error."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"TC-33: Status 400\", () => pm.response.to.have.status(400));"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        }
+      ]
     }
   ]
 }
