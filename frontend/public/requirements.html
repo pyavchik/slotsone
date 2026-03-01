@@ -1031,6 +1031,221 @@
         tests: ['TC-SQL-12'],
       },
 
+      // ── API: Game History & Provably Fair ────────────────────────────────
+      {
+        id: 'FR-API-08', module: 'api', prio: 'must',
+        title: 'Game history with filtering and pagination',
+        desc: 'The system shall provide a GET /api/v1/game/history endpoint that returns paginated game rounds with optional filters: date range (date_from, date_to), result type (win/loss/all), and bet range (min_bet, max_bet).',
+        bdd: [
+          { kw: 'Given', text: 'an authenticated user with spin history' },
+          { kw: 'When', text: 'they call GET /api/v1/game/history with optional filters' },
+          { kw: 'Then', text: 'paginated results are returned with total count, limit, and offset metadata' },
+        ],
+        tests: ['GAME-19', 'GAME-20', 'GAME-21'],
+      },
+      {
+        id: 'FR-API-09', module: 'api', prio: 'must',
+        title: 'Game history summary endpoint',
+        desc: 'The system shall provide a GET /api/v1/game/history/summary endpoint that returns aggregate statistics: total rounds, total wagered, total won, net result, and biggest win.',
+        bdd: [
+          { kw: 'Given', text: 'an authenticated user with spin history' },
+          { kw: 'When', text: 'they call GET /api/v1/game/history/summary' },
+          { kw: 'Then', text: 'aggregate statistics are returned matching the applied filters' },
+        ],
+        tests: ['GAME-22'],
+      },
+      {
+        id: 'FR-API-10', module: 'api', prio: 'must',
+        title: 'Round detail endpoint',
+        desc: 'The system shall provide a GET /api/v1/game/history/:roundId endpoint that returns full round details including reel matrix, win breakdown, transactions, and outcome hash. Results are scoped to the authenticated user.',
+        bdd: [
+          { kw: 'Given', text: 'an authenticated user who owns the round' },
+          { kw: 'When', text: 'they call GET /api/v1/game/history/:roundId' },
+          { kw: 'Then', text: 'full round details with transactions are returned' },
+        ],
+        tests: ['GAME-23', 'GAME-24', 'GAME-25'],
+      },
+      {
+        id: 'FR-API-11', module: 'api', prio: 'must',
+        title: 'UUID path parameter validation',
+        desc: 'The system shall validate that path parameters expected to be UUIDs (e.g. roundId) conform to UUID v4 format. Invalid UUIDs return a 404 error.',
+        bdd: [
+          { kw: 'Given', text: 'a request with an invalid UUID in the path' },
+          { kw: 'When', text: 'the server processes the request' },
+          { kw: 'Then', text: 'a 404 error is returned without querying the database' },
+        ],
+        tests: ['GAME-24'],
+      },
+      {
+        id: 'FR-API-12', module: 'api', prio: 'must',
+        title: 'Provably fair current seed pair endpoint',
+        desc: 'The system shall provide a GET /api/v1/game/provably-fair/current endpoint that returns the active seed pair with server_seed_hash, client_seed, and nonce. The server_seed itself is never exposed while the pair is active.',
+        bdd: [
+          { kw: 'Given', text: 'an authenticated user' },
+          { kw: 'When', text: 'they call GET /api/v1/game/provably-fair/current' },
+          { kw: 'Then', text: 'the active seed pair is returned with server_seed_hash visible but server_seed hidden' },
+        ],
+        tests: ['GAME-26', 'SEC-07'],
+      },
+      {
+        id: 'FR-API-13', module: 'api', prio: 'must',
+        title: 'Provably fair seed rotation endpoint',
+        desc: 'The system shall provide a POST /api/v1/game/provably-fair/rotate endpoint that deactivates the current seed pair (revealing the server_seed) and creates a new active pair.',
+        bdd: [
+          { kw: 'Given', text: 'an authenticated user with an active seed pair' },
+          { kw: 'When', text: 'they call POST /api/v1/game/provably-fair/rotate' },
+          { kw: 'Then', text: 'the old seed pair is revealed and a new active pair is created' },
+        ],
+        tests: ['GAME-27'],
+      },
+      {
+        id: 'FR-API-14', module: 'api', prio: 'should',
+        title: 'Client seed update endpoint',
+        desc: 'The system should provide a PUT /api/v1/game/provably-fair/client-seed endpoint that allows the user to set a custom client seed on their active seed pair.',
+        bdd: [
+          { kw: 'Given', text: 'an authenticated user with an active seed pair' },
+          { kw: 'When', text: 'they call PUT /api/v1/game/provably-fair/client-seed with a valid seed' },
+          { kw: 'Then', text: 'the client seed is updated on the active pair' },
+        ],
+        tests: ['GAME-28', 'GAME-29'],
+      },
+
+      // ── Game Engine: Provably Fair ──────────────────────────────────────
+      {
+        id: 'FR-GAME-12', module: 'game', prio: 'must',
+        title: 'Provably fair HMAC-SHA256 seed derivation',
+        desc: 'Each spin outcome shall be derived using HMAC-SHA256(server_seed, client_seed:nonce). The first 4 bytes of the HMAC are read as a big-endian uint32 seed for the Mulberry32 PRNG.',
+        bdd: [
+          { kw: 'Given', text: 'an active seed pair with server_seed, client_seed, and nonce' },
+          { kw: 'When', text: 'a spin is processed' },
+          { kw: 'Then', text: 'the PRNG seed is derived via HMAC-SHA256 and the nonce is incremented' },
+        ],
+        tests: ['GAME-27'],
+      },
+      {
+        id: 'FR-GAME-13', module: 'game', prio: 'must',
+        title: 'Outcome hashing with SHA-256',
+        desc: 'Each spin outcome shall be hashed with SHA-256 and the hash stored with the round record. This allows users to verify outcomes after seed rotation reveals the server_seed.',
+        bdd: [
+          { kw: 'Given', text: 'a completed spin with outcome data' },
+          { kw: 'When', text: 'the round is persisted' },
+          { kw: 'Then', text: 'the SHA-256 hash of the outcome is stored in the outcome_hash column' },
+        ],
+        tests: ['GAME-23'],
+      },
+
+      // ── SQL: Game History & Wallet ──────────────────────────────────────
+      {
+        id: 'FR-SQL-13', module: 'sql', prio: 'must',
+        title: 'Wallets table with BIGINT cents and optimistic locking',
+        desc: 'The wallets table shall store balances as BIGINT cents to avoid floating-point precision errors. A version column enables optimistic concurrency control for debit operations.',
+        bdd: [
+          { kw: 'Given', text: 'a new user initiating a game session' },
+          { kw: 'When', text: 'the wallet is created' },
+          { kw: 'Then', text: 'balance_cents defaults to 100000 (= $1000.00) and version starts at 1' },
+        ],
+        tests: ['GAME-30', 'GAME-31'],
+      },
+      {
+        id: 'FR-SQL-14', module: 'sql', prio: 'must',
+        title: 'Optimistic locking for wallet debits',
+        desc: 'Wallet debit operations shall use optimistic locking: the UPDATE WHERE clause checks both the expected version and sufficient balance. If either check fails, zero rows are updated and the operation is rejected.',
+        bdd: [
+          { kw: 'Given', text: 'a concurrent debit attempt with a stale version' },
+          { kw: 'When', text: 'the UPDATE is executed' },
+          { kw: 'Then', text: 'zero rows are affected and the function returns null, preventing lost updates' },
+        ],
+        tests: ['GAME-31'],
+      },
+      {
+        id: 'FR-SQL-15', module: 'sql', prio: 'must',
+        title: 'Seed pairs table for provably fair mechanics',
+        desc: 'The seed_pairs table shall store server seeds, their SHA-256 hashes, client seeds, nonces, and an active flag. Only one seed pair can be active per user at a time.',
+        bdd: [
+          { kw: 'Given', text: 'a user requesting their seed pair status' },
+          { kw: 'When', text: 'the active pair is queried' },
+          { kw: 'Then', text: 'exactly one row with active=TRUE is returned (or none if not yet created)' },
+        ],
+        tests: ['GAME-26'],
+      },
+      {
+        id: 'FR-SQL-16', module: 'sql', prio: 'must',
+        title: 'Game rounds table with JSONB columns',
+        desc: 'The game_rounds table shall use JSONB columns for reel_matrix, win_breakdown, and bonus_triggered to store variable-shape game data without schema migration.',
+        bdd: [
+          { kw: 'Given', text: 'a completed spin' },
+          { kw: 'When', text: 'the round is persisted' },
+          { kw: 'Then', text: 'reel_matrix and win_breakdown are stored as JSONB, queryable with PostgreSQL JSON operators' },
+        ],
+        tests: ['GAME-23'],
+      },
+      {
+        id: 'FR-SQL-17', module: 'sql', prio: 'must',
+        title: 'Transactions ledger table',
+        desc: 'The transactions table shall record every balance-affecting operation (bet debit, win credit) with a CHECK constraint ensuring type is always \'bet\' or \'win\'.',
+        bdd: [
+          { kw: 'Given', text: 'a spin with bet and win' },
+          { kw: 'When', text: 'transactions are recorded' },
+          { kw: 'Then', text: '1-2 rows are inserted: one for the bet, and optionally one for the win if win > 0' },
+        ],
+        tests: ['GAME-23'],
+      },
+      {
+        id: 'FR-SQL-18', module: 'sql', prio: 'must',
+        title: 'Transactional round creation (BEGIN/COMMIT)',
+        desc: 'Game round and transaction inserts shall be wrapped in an explicit database transaction (BEGIN/COMMIT). On failure, ROLLBACK ensures no orphaned records persist.',
+        bdd: [
+          { kw: 'Given', text: 'a spin is being recorded' },
+          { kw: 'When', text: 'the round and transactions are inserted' },
+          { kw: 'Then', text: 'either all inserts succeed (COMMIT) or none persist (ROLLBACK)' },
+        ],
+        tests: ['GAME-23'],
+      },
+      {
+        id: 'FR-SQL-19', module: 'sql', prio: 'must',
+        title: 'Dynamic filter query construction',
+        desc: 'History queries shall build WHERE clauses dynamically based on provided filters using parameterised placeholders. No raw string concatenation of user input.',
+        bdd: [
+          { kw: 'Given', text: 'a history request with date and bet range filters' },
+          { kw: 'When', text: 'the query is constructed' },
+          { kw: 'Then', text: 'conditions are added dynamically with $N placeholders, preventing SQL injection' },
+        ],
+        tests: ['GAME-19', 'GAME-20', 'GAME-21'],
+      },
+      {
+        id: 'FR-SQL-20', module: 'sql', prio: 'must',
+        title: 'User summary aggregation query',
+        desc: 'The system shall compute user statistics using COUNT, SUM, MAX aggregate functions with COALESCE for null-safe results. Values stored as BIGINT cents are converted to dollars at the application layer.',
+        bdd: [
+          { kw: 'Given', text: 'a user requests their game summary' },
+          { kw: 'When', text: 'the aggregate query executes' },
+          { kw: 'Then', text: 'total_rounds, total_wagered, total_won, net_result, and biggest_win are returned' },
+        ],
+        tests: ['GAME-22'],
+      },
+      {
+        id: 'FR-SQL-21', module: 'sql', prio: 'must',
+        title: 'Multi-migration scanner (initDb)',
+        desc: 'The initDb() function shall scan the migrations directory, sort files alphabetically, and execute each .sql file in order. This supports adding new migrations without modifying the init logic.',
+        bdd: [
+          { kw: 'Given', text: 'the server starts with migration files 001_init.sql and 002_game_history.sql' },
+          { kw: 'When', text: 'initDb() executes' },
+          { kw: 'Then', text: 'both migration files are executed in sorted order' },
+        ],
+        tests: ['GAME-30'],
+      },
+      {
+        id: 'FR-SQL-22', module: 'sql', prio: 'must',
+        title: 'Cascade deletion for game data',
+        desc: 'All game-related tables (wallets, seed_pairs, game_rounds, transactions) shall reference users(id) with ON DELETE CASCADE. Deleting a user automatically purges all associated game data.',
+        bdd: [
+          { kw: 'Given', text: 'a user account is deleted' },
+          { kw: 'When', text: 'the CASCADE fires' },
+          { kw: 'Then', text: 'all wallets, seed pairs, game rounds, and transactions for that user are automatically removed' },
+        ],
+        tests: ['GAME-30'],
+      },
+
       // ── Non-Functional ────────────────────────────────────────────────────
       {
         id: 'NFR-PERF-01', module: 'nfr', prio: 'must',

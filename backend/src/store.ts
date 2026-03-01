@@ -8,13 +8,16 @@ import {
   REELS,
   ROWS,
   CURRENCY,
-  DEFAULT_BALANCE,
   PAYTABLE,
   SYMBOLS,
   SCATTER_FREE_SPINS,
 } from './engine/gameConfig.js';
 import { runSpin } from './engine/spinEngine.js';
 import { randomUUID } from 'crypto';
+import { getOrCreateWallet, debitWallet, creditWallet } from './walletStore.js';
+import { getOrCreateActiveSeedPair, incrementNonce } from './seedStore.js';
+import { deriveSpinSeed, hashOutcome } from './provablyFair.js';
+import { createRound, getUserRounds, getUserSummary, type HistoryFilters } from './roundStore.js';
 
 export interface Session {
   session_id: string;
@@ -45,13 +48,10 @@ const CLEANUP_INTERVAL_MS = 5 * 60 * 1000;
 const RATE_LIMIT_SPINS_PER_SEC = 5;
 const MIN_ACTIVE_LINES = 1;
 const MAX_ACTIVE_LINES = PAYLINES;
-const MAX_HISTORY_ITEMS_PER_USER = 100;
 const rateCounts = new Map<string, { count: number; resetAt: number }>();
 
 const sessions = new Map<string, Session>();
-const balances = new Map<string, Balance>(); // key: `${user_id}:${currency}`
 const idempotency = new Map<string, IdempotencyEntry>();
-const historyByUser = new Map<string, SpinResult[]>();
 
 const lineWins = SYMBOLS.map((symbol, index) => {
   const [x3, x4, x5] = PAYTABLE[index] ?? [0, 0, 0];
@@ -72,10 +72,6 @@ const paytableConfig = {
   },
 } as const;
 
-function balanceKey(userId: string, currency: string): string {
-  return `${userId}:${currency}`;
-}
-
 function idempotencyKeyForUser(userId: string, key: string): string {
   return `${userId}:${key}`;
 }
@@ -88,16 +84,6 @@ function spinFingerprint(
   lines: number
 ): string {
   return `${sessionId}|${gameId}|${betAmount.toFixed(2)}|${currency}|${lines}`;
-}
-
-function ensureBalance(userId: string, currency: string): Balance {
-  const key = balanceKey(userId, currency);
-  let b = balances.get(key);
-  if (!b) {
-    b = { user_id: userId, currency, amount: DEFAULT_BALANCE };
-    balances.set(key, b);
-  }
-  return b;
 }
 
 function cleanupExpiredSessions(now = Date.now()) {
@@ -154,13 +140,6 @@ function rateLimit(
     };
   }
   return { limited: false };
-}
-
-function appendHistory(userId: string, result: SpinResult) {
-  const existing = historyByUser.get(userId) ?? [];
-  existing.unshift(result);
-  if (existing.length > MAX_HISTORY_ITEMS_PER_USER) existing.length = MAX_HISTORY_ITEMS_PER_USER;
-  historyByUser.set(userId, existing);
 }
 
 export function createSession(userId: string, gameId: string): Session {
@@ -222,7 +201,7 @@ export interface SpinResult {
   timestamp: number;
 }
 
-export function executeSpin(
+export async function executeSpin(
   userId: string,
   sessionId: string,
   gameId: string,
@@ -230,9 +209,10 @@ export function executeSpin(
   currency: string,
   lines: number,
   idempotencyKey?: string
-):
+): Promise<
   | { result: SpinResult; code: 200 }
-  | { error: string; code: 400 | 401 | 403 | 409 | 422 | 429; retry_after_seconds?: number } {
+  | { error: string; code: 400 | 401 | 403 | 409 | 422 | 429; retry_after_seconds?: number }
+> {
   const session = getSession(sessionId);
   if (!session) {
     return { error: 'Session not found or expired', code: 403 };
@@ -270,8 +250,10 @@ export function executeSpin(
     }
   }
 
-  const bal = ensureBalance(userId, currency);
-  if (bal.amount < betAmount) {
+  // Get wallet from DB
+  const wallet = await getOrCreateWallet(userId);
+  const betCents = Math.round(betAmount * 100);
+  if (wallet.balance_cents < betCents) {
     return { error: 'insufficient_balance', code: 422 };
   }
 
@@ -280,23 +262,62 @@ export function executeSpin(
     return { error: 'Too many requests', code: 429, retry_after_seconds: rate.retryAfterSeconds };
   }
 
-  const { outcome } = runSpin(betAmount, currency, lines);
-  bal.amount = Math.round((bal.amount - betAmount + outcome.win.amount) * 100) / 100;
+  // Provably fair: get seed pair, increment nonce, derive seed
+  const seedPair = await getOrCreateActiveSeedPair(userId);
+  const nonce = await incrementNonce(seedPair.id);
+  const spinSeed = deriveSpinSeed(seedPair.server_seed, seedPair.client_seed, nonce);
 
+  // Debit wallet (optimistic locking)
+  const balanceBeforeCents = wallet.balance_cents;
+  const debitedWallet = await debitWallet(userId, betCents, wallet.version);
+  if (!debitedWallet) {
+    return { error: 'insufficient_balance', code: 422 };
+  }
+
+  // Run spin with derived seed
+  const { outcome } = runSpin(betAmount, currency, lines, spinSeed);
+  const winCents = Math.round(outcome.win.amount * 100);
+  const outcomeHash = hashOutcome(outcome);
+
+  // Credit winnings
+  let finalWallet = debitedWallet;
+  if (winCents > 0) {
+    finalWallet = await creditWallet(userId, winCents);
+  }
+
+  const balanceAfterCents = finalWallet.balance_cents;
   const finishedAt = Date.now();
-  const spin_id = `spin_${randomUUID().slice(0, 12)}`;
+
+  // Persist round + transactions
+  const round = await createRound({
+    userId,
+    sessionId,
+    gameId,
+    seedPairId: seedPair.id,
+    nonce,
+    betCents,
+    winCents,
+    currency,
+    lines,
+    balanceBeforeCents,
+    balanceAfterCents,
+    reelMatrix: outcome.reel_matrix,
+    winBreakdown: outcome.win.breakdown,
+    bonusTriggered: outcome.bonus_triggered,
+    outcomeHash,
+    balanceAfterBetCents: debitedWallet.balance_cents,
+  });
+
   const result: SpinResult = {
-    spin_id,
+    spin_id: round.id,
     session_id: sessionId,
     game_id: gameId,
-    balance: { amount: bal.amount, currency: bal.currency },
+    balance: { amount: balanceAfterCents / 100, currency },
     bet: { amount: betAmount, currency, lines },
     outcome,
     next_state: outcome.bonus_triggered ? 'free_spins' : 'base_game',
     timestamp: finishedAt,
   };
-
-  appendHistory(userId, result);
 
   if (idempotencyKey) {
     const scopedKey = idempotencyKeyForUser(userId, idempotencyKey);
@@ -312,20 +333,41 @@ export function executeSpin(
   return { result, code: 200 };
 }
 
-export function getBalance(userId: string, currency: string): Balance {
-  return ensureBalance(userId, currency);
+export async function getBalance(userId: string, currency: string): Promise<Balance> {
+  const wallet = await getOrCreateWallet(userId);
+  return {
+    user_id: userId,
+    currency,
+    amount: wallet.balance_cents / 100,
+  };
 }
 
-export function getHistory(userId: string, limit = 50, offset = 0) {
-  const clampedLimit = Math.max(1, Math.min(100, Math.floor(limit)));
-  const clampedOffset = Math.max(0, Math.floor(offset));
-  const items = historyByUser.get(userId) ?? [];
-  return {
-    items: items.slice(clampedOffset, clampedOffset + clampedLimit),
-    total: items.length,
-    limit: clampedLimit,
-    offset: clampedOffset,
-  };
+export async function getHistory(userId: string, limit = 50, offset = 0, filters?: HistoryFilters) {
+  const result = await getUserRounds(userId, { ...filters, limit, offset });
+  // Convert DB rounds to the SpinResult shape for backward compat
+  const items: SpinResult[] = result.items.map((round) => ({
+    spin_id: round.id,
+    session_id: round.session_id,
+    game_id: round.game_id,
+    balance: { amount: round.balance_after_cents / 100, currency: round.currency },
+    bet: { amount: round.bet_cents / 100, currency: round.currency, lines: round.lines },
+    outcome: {
+      reel_matrix: round.reel_matrix,
+      win: {
+        amount: round.win_cents / 100,
+        currency: round.currency,
+        breakdown: round.win_breakdown as SpinOutcome['win']['breakdown'],
+      },
+      bonus_triggered: round.bonus_triggered as SpinOutcome['bonus_triggered'],
+    },
+    next_state: round.bonus_triggered ? 'free_spins' : 'base_game',
+    timestamp: new Date(round.created_at).getTime(),
+  }));
+  return { items, total: result.total, limit: result.limit, offset: result.offset };
+}
+
+export async function getHistorySummary(userId: string, filters?: HistoryFilters) {
+  return getUserSummary(userId, filters);
 }
 
 export function cleanupStoreForTests(now: number) {
@@ -335,17 +377,13 @@ export function cleanupStoreForTests(now: number) {
 export function getStoreDiagnosticsForTests() {
   return {
     sessions: sessions.size,
-    balances: balances.size,
     idempotency: idempotency.size,
-    historyUsers: historyByUser.size,
     rateCounts: rateCounts.size,
   };
 }
 
 export function resetStoreForTests() {
   sessions.clear();
-  balances.clear();
   idempotency.clear();
-  historyByUser.clear();
   rateCounts.clear();
 }

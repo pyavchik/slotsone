@@ -23,6 +23,9 @@
       "name": "Game"
     },
     {
+      "name": "Provably Fair"
+    },
+    {
       "name": "System"
     }
   ],
@@ -933,7 +936,7 @@
         ],
         "additionalProperties": false
       },
-      "HistoryResponse": {
+      "EnhancedHistoryResponse": {
         "type": "object",
         "properties": {
           "items": {
@@ -1114,13 +1117,495 @@
           },
           "offset": {
             "type": "integer"
+          },
+          "summary": {
+            "type": "object",
+            "properties": {
+              "total_rounds": {
+                "type": "integer"
+              },
+              "total_wagered": {
+                "type": "number"
+              },
+              "total_won": {
+                "type": "number"
+              },
+              "net_result": {
+                "type": "number"
+              },
+              "biggest_win": {
+                "type": "number"
+              }
+            },
+            "required": [
+              "total_rounds",
+              "total_wagered",
+              "total_won",
+              "net_result",
+              "biggest_win"
+            ],
+            "additionalProperties": false
           }
         },
         "required": [
           "items",
           "total",
           "limit",
-          "offset"
+          "offset",
+          "summary"
+        ],
+        "additionalProperties": false
+      },
+      "HistorySummary": {
+        "type": "object",
+        "properties": {
+          "total_rounds": {
+            "type": "integer"
+          },
+          "total_wagered": {
+            "type": "number"
+          },
+          "total_won": {
+            "type": "number"
+          },
+          "net_result": {
+            "type": "number"
+          },
+          "biggest_win": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "total_rounds",
+          "total_wagered",
+          "total_won",
+          "net_result",
+          "biggest_win"
+        ],
+        "additionalProperties": false
+      },
+      "Transaction": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "type": {
+            "type": "string",
+            "enum": [
+              "bet",
+              "win"
+            ]
+          },
+          "amount": {
+            "type": "number"
+          },
+          "balance_after": {
+            "type": "number"
+          },
+          "created_at": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "type",
+          "amount",
+          "balance_after",
+          "created_at"
+        ],
+        "additionalProperties": false
+      },
+      "ProvablyFair": {
+        "type": "object",
+        "properties": {
+          "seed_pair_id": {
+            "type": "string"
+          },
+          "server_seed_hash": {
+            "type": "string"
+          },
+          "server_seed": {
+            "type": "string",
+            "nullable": true
+          },
+          "client_seed": {
+            "type": "string"
+          },
+          "nonce": {
+            "type": "integer",
+            "nullable": true
+          },
+          "revealed": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "seed_pair_id",
+          "server_seed_hash",
+          "server_seed",
+          "client_seed",
+          "nonce",
+          "revealed"
+        ],
+        "additionalProperties": false
+      },
+      "RoundDetail": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "session_id": {
+            "type": "string"
+          },
+          "game_id": {
+            "type": "string"
+          },
+          "bet": {
+            "type": "number"
+          },
+          "win": {
+            "type": "number"
+          },
+          "currency": {
+            "type": "string"
+          },
+          "lines": {
+            "type": "integer"
+          },
+          "balance_before": {
+            "type": "number"
+          },
+          "balance_after": {
+            "type": "number"
+          },
+          "reel_matrix": {
+            "type": "array",
+            "items": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          },
+          "win_breakdown": {
+            "type": "array",
+            "items": {
+              "nullable": true
+            }
+          },
+          "bonus_triggered": {
+            "nullable": true
+          },
+          "outcome_hash": {
+            "type": "string",
+            "nullable": true
+          },
+          "created_at": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "session_id",
+          "game_id",
+          "bet",
+          "win",
+          "currency",
+          "lines",
+          "balance_before",
+          "balance_after",
+          "reel_matrix",
+          "win_breakdown",
+          "outcome_hash",
+          "created_at"
+        ],
+        "additionalProperties": false
+      },
+      "RoundDetailResponse": {
+        "type": "object",
+        "properties": {
+          "round": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string"
+              },
+              "session_id": {
+                "type": "string"
+              },
+              "game_id": {
+                "type": "string"
+              },
+              "bet": {
+                "type": "number"
+              },
+              "win": {
+                "type": "number"
+              },
+              "currency": {
+                "type": "string"
+              },
+              "lines": {
+                "type": "integer"
+              },
+              "balance_before": {
+                "type": "number"
+              },
+              "balance_after": {
+                "type": "number"
+              },
+              "reel_matrix": {
+                "type": "array",
+                "items": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              },
+              "win_breakdown": {
+                "type": "array",
+                "items": {
+                  "nullable": true
+                }
+              },
+              "bonus_triggered": {
+                "nullable": true
+              },
+              "outcome_hash": {
+                "type": "string",
+                "nullable": true
+              },
+              "created_at": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "id",
+              "session_id",
+              "game_id",
+              "bet",
+              "win",
+              "currency",
+              "lines",
+              "balance_before",
+              "balance_after",
+              "reel_matrix",
+              "win_breakdown",
+              "outcome_hash",
+              "created_at"
+            ],
+            "additionalProperties": false
+          },
+          "provably_fair": {
+            "type": "object",
+            "nullable": true,
+            "properties": {
+              "seed_pair_id": {
+                "type": "string"
+              },
+              "server_seed_hash": {
+                "type": "string"
+              },
+              "server_seed": {
+                "type": "string",
+                "nullable": true
+              },
+              "client_seed": {
+                "type": "string"
+              },
+              "nonce": {
+                "type": "integer",
+                "nullable": true
+              },
+              "revealed": {
+                "type": "boolean"
+              }
+            },
+            "required": [
+              "seed_pair_id",
+              "server_seed_hash",
+              "server_seed",
+              "client_seed",
+              "nonce",
+              "revealed"
+            ],
+            "additionalProperties": false
+          },
+          "transactions": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string"
+                },
+                "type": {
+                  "type": "string",
+                  "enum": [
+                    "bet",
+                    "win"
+                  ]
+                },
+                "amount": {
+                  "type": "number"
+                },
+                "balance_after": {
+                  "type": "number"
+                },
+                "created_at": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "id",
+                "type",
+                "amount",
+                "balance_after",
+                "created_at"
+              ],
+              "additionalProperties": false
+            }
+          }
+        },
+        "required": [
+          "round",
+          "provably_fair",
+          "transactions"
+        ],
+        "additionalProperties": false
+      },
+      "SeedPairResponse": {
+        "type": "object",
+        "properties": {
+          "seed_pair_id": {
+            "type": "string"
+          },
+          "server_seed_hash": {
+            "type": "string"
+          },
+          "client_seed": {
+            "type": "string"
+          },
+          "nonce": {
+            "type": "integer"
+          },
+          "active": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "seed_pair_id",
+          "server_seed_hash",
+          "client_seed",
+          "nonce"
+        ],
+        "additionalProperties": false
+      },
+      "SeedRotationResponse": {
+        "type": "object",
+        "properties": {
+          "previous": {
+            "type": "object",
+            "nullable": true,
+            "properties": {
+              "seed_pair_id": {
+                "type": "string"
+              },
+              "server_seed": {
+                "type": "string"
+              },
+              "server_seed_hash": {
+                "type": "string"
+              },
+              "client_seed": {
+                "type": "string"
+              },
+              "nonce": {
+                "type": "integer"
+              }
+            },
+            "required": [
+              "seed_pair_id",
+              "server_seed",
+              "server_seed_hash",
+              "client_seed",
+              "nonce"
+            ],
+            "additionalProperties": false
+          },
+          "current": {
+            "type": "object",
+            "properties": {
+              "seed_pair_id": {
+                "type": "string"
+              },
+              "server_seed_hash": {
+                "type": "string"
+              },
+              "client_seed": {
+                "type": "string"
+              },
+              "nonce": {
+                "type": "integer"
+              }
+            },
+            "required": [
+              "seed_pair_id",
+              "server_seed_hash",
+              "client_seed",
+              "nonce"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "required": [
+          "previous",
+          "current"
+        ],
+        "additionalProperties": false
+      },
+      "ClientSeedRequest": {
+        "type": "object",
+        "properties": {
+          "client_seed": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 64
+          }
+        },
+        "required": [
+          "client_seed"
+        ],
+        "additionalProperties": false
+      },
+      "HistorySummaryResponse": {
+        "type": "object",
+        "properties": {
+          "total_rounds": {
+            "type": "integer"
+          },
+          "total_wagered": {
+            "type": "number"
+          },
+          "total_won": {
+            "type": "number"
+          },
+          "net_result": {
+            "type": "number"
+          },
+          "biggest_win": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "total_rounds",
+          "total_wagered",
+          "total_won",
+          "net_result",
+          "biggest_win"
         ],
         "additionalProperties": false
       }
@@ -1482,7 +1967,7 @@
         "tags": [
           "Game"
         ],
-        "summary": "Get spin history for current user",
+        "summary": "Get spin history with filters and summary",
         "security": [
           {
             "bearerAuth": []
@@ -1507,15 +1992,60 @@
             "required": false,
             "name": "offset",
             "in": "query"
+          },
+          {
+            "schema": {
+              "type": "string"
+            },
+            "required": false,
+            "name": "date_from",
+            "in": "query"
+          },
+          {
+            "schema": {
+              "type": "string"
+            },
+            "required": false,
+            "name": "date_to",
+            "in": "query"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "enum": [
+                "win",
+                "loss",
+                "all"
+              ]
+            },
+            "required": false,
+            "name": "result",
+            "in": "query"
+          },
+          {
+            "schema": {
+              "type": "number"
+            },
+            "required": false,
+            "name": "min_bet",
+            "in": "query"
+          },
+          {
+            "schema": {
+              "type": "number"
+            },
+            "required": false,
+            "name": "max_bet",
+            "in": "query"
           }
         ],
         "responses": {
           "200": {
-            "description": "History response",
+            "description": "History response with summary",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/HistoryResponse"
+                  "$ref": "#/components/schemas/EnhancedHistoryResponse"
                 }
               }
             }
@@ -1526,6 +2056,268 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/history/summary": {
+      "get": {
+        "tags": [
+          "Game"
+        ],
+        "summary": "Get aggregated stats for the current user",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "string"
+            },
+            "required": false,
+            "name": "date_from",
+            "in": "query"
+          },
+          {
+            "schema": {
+              "type": "string"
+            },
+            "required": false,
+            "name": "date_to",
+            "in": "query"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "enum": [
+                "win",
+                "loss",
+                "all"
+              ]
+            },
+            "required": false,
+            "name": "result",
+            "in": "query"
+          },
+          {
+            "schema": {
+              "type": "number"
+            },
+            "required": false,
+            "name": "min_bet",
+            "in": "query"
+          },
+          {
+            "schema": {
+              "type": "number"
+            },
+            "required": false,
+            "name": "max_bet",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Summary stats",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HistorySummaryResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/history/{roundId}": {
+      "get": {
+        "tags": [
+          "Game"
+        ],
+        "summary": "Get round detail with provably fair data and transactions",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "string"
+            },
+            "required": true,
+            "name": "roundId",
+            "in": "path"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Round detail",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RoundDetailResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Round not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/provably-fair/rotate": {
+      "post": {
+        "tags": [
+          "Provably Fair"
+        ],
+        "summary": "Rotate seed pair — reveals old server seed, creates new pair",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Seed rotation result",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SeedRotationResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/provably-fair/client-seed": {
+      "put": {
+        "tags": [
+          "Provably Fair"
+        ],
+        "summary": "Set the client seed for the active seed pair",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ClientSeedRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Updated seed pair",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SeedPairResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid client seed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/provably-fair/current": {
+      "get": {
+        "tags": [
+          "Provably Fair"
+        ],
+        "summary": "Get the current active seed pair info",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Current seed pair",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SeedPairResponse"
                 }
               }
             }

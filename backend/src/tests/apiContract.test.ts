@@ -4,7 +4,7 @@ import { generateKeyPairSync, sign as signJwt } from 'node:crypto';
 import test from 'node:test';
 import request from 'supertest';
 import { resetStoreForTests } from '../store.js';
-import { resetUserStoreForTests } from '../userStore.js';
+import { createUser, resetUserStoreForTests } from '../userStore.js';
 import { resetRefreshTokenStoreForTests } from '../auth/refreshTokenStore.js';
 import { initDb } from '../db.js';
 
@@ -87,8 +87,10 @@ if (!supportsSockets) {
   });
 
   test('frontend init request contract is accepted via Authorization header', async () => {
+    await resetUserStoreForTests();
     resetStoreForTests();
-    const token = createRs256Token('contract-init-user');
+    const user = await createUser('contract-init@test.com', 'test-hash');
+    const token = createRs256Token(user.id);
 
     const response = await request(app)
       .post('/api/v1/game/init')
@@ -109,8 +111,10 @@ if (!supportsSockets) {
   });
 
   test('frontend spin request contract returns frontend response shape', async () => {
+    await resetUserStoreForTests();
     resetStoreForTests();
-    const token = createRs256Token('contract-spin-user');
+    const user = await createUser('contract-spin@test.com', 'test-hash');
+    const token = createRs256Token(user.id);
 
     const init = await request(app)
       .post('/api/v1/game/init')
@@ -160,8 +164,10 @@ if (!supportsSockets) {
   });
 
   test('spin rejects body that does not match documented schema', async () => {
+    await resetUserStoreForTests();
     resetStoreForTests();
-    const token = createRs256Token('contract-spin-validation-user');
+    const user = await createUser('contract-validation@test.com', 'test-hash');
+    const token = createRs256Token(user.id);
 
     const init = await request(app)
       .post('/api/v1/game/init')
@@ -203,8 +209,10 @@ if (!supportsSockets) {
   });
 
   test('idempotency key is taken from header and replays return the same spin', async () => {
+    await resetUserStoreForTests();
     resetStoreForTests();
-    const token = createRs256Token('contract-idempotency-user');
+    const user = await createUser('contract-idempotency@test.com', 'test-hash');
+    const token = createRs256Token(user.id);
 
     const init = await request(app)
       .post('/api/v1/game/init')
@@ -243,10 +251,13 @@ if (!supportsSockets) {
   });
 
   test('history returns paginated per-user items with documented response shape', async () => {
+    await resetUserStoreForTests();
     resetStoreForTests();
 
-    const tokenA = createRs256Token('contract-history-user-a');
-    const tokenB = createRs256Token('contract-history-user-b');
+    const userA = await createUser('contract-history-a@test.com', 'test-hash');
+    const userB = await createUser('contract-history-b@test.com', 'test-hash');
+    const tokenA = createRs256Token(userA.id);
+    const tokenB = createRs256Token(userB.id);
 
     const initA = await request(app)
       .post('/api/v1/game/init')

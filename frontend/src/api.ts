@@ -85,6 +85,10 @@ export async function logout(): Promise<void> {
 // Game API — access token in Authorization header, no cookies needed
 // ---------------------------------------------------------------------------
 
+function authHeaders(token: string): Record<string, string> {
+  return { Authorization: `Bearer ${token}` };
+}
+
 export async function initGame(token: string, gameId: string): Promise<InitResponse> {
   const body: InitRequestBody = {
     game_id: gameId,
@@ -95,7 +99,7 @@ export async function initGame(token: string, gameId: string): Promise<InitRespo
 
   const res = await fetch(`${API_BASE}/game/init`, {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+    headers: { 'Content-Type': 'application/json', ...authHeaders(token) },
     body: JSON.stringify(body),
   });
   if (!res.ok) throw new ApiError(await res.text(), res.status);
@@ -118,7 +122,7 @@ export async function spin(
 
   const headers: Record<string, string> = {
     'Content-Type': 'application/json',
-    Authorization: `Bearer ${token}`,
+    ...authHeaders(token),
   };
   if (idempotencyKey) headers['Idempotency-Key'] = idempotencyKey;
 
@@ -132,4 +136,156 @@ export async function spin(
     throw new ApiError(err.error ?? err.code ?? res.statusText, res.status);
   }
   return (await res.json()) as SpinResponse;
+}
+
+// ---------------------------------------------------------------------------
+// History API
+// ---------------------------------------------------------------------------
+
+export interface HistoryFilters {
+  date_from?: string;
+  date_to?: string;
+  result?: 'win' | 'loss' | 'all';
+  min_bet?: number;
+  max_bet?: number;
+  limit?: number;
+  offset?: number;
+}
+
+export interface HistorySummary {
+  total_rounds: number;
+  total_wagered: number;
+  total_won: number;
+  net_result: number;
+  biggest_win: number;
+}
+
+export interface HistoryItem {
+  spin_id: string;
+  session_id: string;
+  game_id: string;
+  balance: { amount: number; currency: string };
+  bet: { amount: number; currency: string; lines: number };
+  outcome: {
+    reel_matrix: string[][];
+    win: { amount: number; currency: string; breakdown: unknown[] };
+    bonus_triggered: unknown | null;
+  };
+  next_state: string;
+  timestamp: number;
+}
+
+export interface HistoryResponse {
+  items: HistoryItem[];
+  total: number;
+  limit: number;
+  offset: number;
+  summary: HistorySummary;
+}
+
+export async function fetchHistory(
+  token: string,
+  filters: HistoryFilters = {}
+): Promise<HistoryResponse> {
+  const params = new URLSearchParams();
+  if (filters.limit != null) params.set('limit', String(filters.limit));
+  if (filters.offset != null) params.set('offset', String(filters.offset));
+  if (filters.date_from) params.set('date_from', filters.date_from);
+  if (filters.date_to) params.set('date_to', filters.date_to);
+  if (filters.result && filters.result !== 'all') params.set('result', filters.result);
+  if (filters.min_bet != null) params.set('min_bet', String(filters.min_bet));
+  if (filters.max_bet != null) params.set('max_bet', String(filters.max_bet));
+
+  const qs = params.toString();
+  const res = await fetch(`${API_BASE}/history${qs ? `?${qs}` : ''}`, {
+    headers: authHeaders(token),
+  });
+  if (!res.ok) throw new ApiError(await res.text(), res.status);
+  return (await res.json()) as HistoryResponse;
+}
+
+export interface RoundTransaction {
+  id: string;
+  type: 'bet' | 'win';
+  amount: number;
+  balance_after: number;
+  created_at: string;
+}
+
+export interface ProvablyFairData {
+  seed_pair_id: string;
+  server_seed_hash: string;
+  server_seed: string | null;
+  client_seed: string;
+  nonce: number | null;
+  revealed: boolean;
+}
+
+export interface RoundDetail {
+  id: string;
+  session_id: string;
+  game_id: string;
+  bet: number;
+  win: number;
+  currency: string;
+  lines: number;
+  balance_before: number;
+  balance_after: number;
+  reel_matrix: string[][];
+  win_breakdown: unknown[];
+  bonus_triggered: unknown | null;
+  outcome_hash: string | null;
+  created_at: string;
+}
+
+export interface RoundDetailResponse {
+  round: RoundDetail;
+  provably_fair: ProvablyFairData | null;
+  transactions: RoundTransaction[];
+}
+
+export async function fetchRoundDetail(
+  token: string,
+  roundId: string
+): Promise<RoundDetailResponse> {
+  const res = await fetch(`${API_BASE}/history/${encodeURIComponent(roundId)}`, {
+    headers: authHeaders(token),
+  });
+  if (!res.ok) {
+    const err = (await res.json().catch(() => ({}))) as Partial<ErrorResponse>;
+    throw new ApiError(err.error ?? res.statusText, res.status);
+  }
+  return (await res.json()) as RoundDetailResponse;
+}
+
+export interface SeedPairInfo {
+  seed_pair_id: string;
+  server_seed_hash: string;
+  server_seed?: string;
+  client_seed: string;
+  nonce: number;
+}
+
+export interface SeedRotationResult {
+  previous: (SeedPairInfo & { server_seed: string }) | null;
+  current: SeedPairInfo;
+}
+
+export async function rotateSeedPair(token: string): Promise<SeedRotationResult> {
+  const res = await fetch(`${API_BASE}/provably-fair/rotate`, {
+    method: 'POST',
+    headers: authHeaders(token),
+  });
+  if (!res.ok) throw new ApiError(await res.text(), res.status);
+  return (await res.json()) as SeedRotationResult;
+}
+
+export async function setClientSeed(token: string, clientSeed: string): Promise<SeedPairInfo> {
+  const res = await fetch(`${API_BASE}/provably-fair/client-seed`, {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json', ...authHeaders(token) },
+    body: JSON.stringify({ client_seed: clientSeed }),
+  });
+  if (!res.ok) throw new ApiError(await res.text(), res.status);
+  return (await res.json()) as SeedPairInfo;
 }

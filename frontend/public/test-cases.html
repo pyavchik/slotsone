@@ -1015,6 +1015,224 @@
           ],
           testData: 'Idempotency-Key: "replay-test-001" (reused). Identical headers and body for both requests.',
           expected: 'spin_id_2 = spin_id_1, or the second request returns HTTP 409. Balance is debited exactly once — balance_after_1 = balance_after_2.'
+        },
+
+        /* ═══════════════════  GAME — History & Provably Fair  ══════════════ */
+        {
+          id: 'GAME-19', module: 'GAME', priority: 'HIGH',
+          title: 'GET history with date_from and date_to filters returns matching rounds',
+          preconditions: 'At least 3 spins performed on different dates. Valid access_token.',
+          steps: [
+            'Perform 3 spins at different times (record timestamps).',
+            'Send GET /api/v1/game/history?date_from=<earliest>&date_to=<latest>.',
+            'Set header Authorization: Bearer <access_token>.',
+            'Check that returned items fall within the date range.',
+            'Send another request with a narrow date range that excludes some spins.',
+            'Verify fewer items are returned.'
+          ],
+          testData: 'Query params: date_from=<ISO timestamp>, date_to=<ISO timestamp>.',
+          expected: 'HTTP 200. All items have created_at within the specified date range. Narrowing the range reduces the item count.'
+        },
+        {
+          id: 'GAME-20', module: 'GAME', priority: 'HIGH',
+          title: 'GET history with result=win filter returns only winning rounds',
+          preconditions: 'Multiple spins performed — at least one win and one loss. Valid access_token.',
+          steps: [
+            'Send GET /api/v1/game/history?result=win.',
+            'Set header Authorization: Bearer <access_token>.',
+            'Inspect all returned items.',
+            'For each item verify that win_cents > bet_cents (win condition).'
+          ],
+          testData: 'Query params: result=win.',
+          expected: 'HTTP 200. Every item in items[] has outcome.win.amount > bet.amount (win > bet). No losing rounds are included.'
+        },
+        {
+          id: 'GAME-21', module: 'GAME', priority: 'MED',
+          title: 'GET history with min_bet and max_bet filters returns correctly bounded rounds',
+          preconditions: 'Spins performed with varying bet amounts (e.g. $0.50, $1.00, $5.00). Valid access_token.',
+          steps: [
+            'Send GET /api/v1/game/history?min_bet=1&max_bet=5.',
+            'Set header Authorization: Bearer <access_token>.',
+            'Inspect all returned items.',
+            'Verify that each item bet.amount is >= 1 and <= 5.'
+          ],
+          testData: 'Query params: min_bet=1, max_bet=5.',
+          expected: 'HTTP 200. Every item has 1.00 <= bet.amount <= 5.00. Rounds with bets outside this range are excluded.'
+        },
+        {
+          id: 'GAME-22', module: 'GAME', priority: 'HIGH',
+          title: 'GET history/summary returns correct aggregate statistics',
+          preconditions: 'At least 5 spins performed. Valid access_token. Known expected totals from spin history.',
+          steps: [
+            'Send GET /api/v1/game/history/summary.',
+            'Set header Authorization: Bearer <access_token>.',
+            'Check the HTTP response status code.',
+            'Validate total_rounds matches the number of spins performed.',
+            'Validate total_wagered matches sum of all bet amounts.',
+            'Validate total_won matches sum of all win amounts.',
+            'Validate net_result = total_won - total_wagered.',
+            'Validate biggest_win matches the maximum single win amount.'
+          ],
+          testData: 'Authorization: Bearer <valid access_token>.',
+          expected: 'HTTP 200. Body: { total_rounds: <number>, total_wagered: <number>, total_won: <number>, net_result: <number>, biggest_win: <number> }. All values are consistent with actual spin history.'
+        },
+        {
+          id: 'GAME-23', module: 'GAME', priority: 'HIGH',
+          title: 'GET history/:roundId returns full round detail with reel matrix and transactions',
+          preconditions: 'At least 1 spin performed. Valid access_token. roundId known from spin response (spin_id field).',
+          steps: [
+            'Send a spin request and record the spin_id from the response.',
+            'Send GET /api/v1/game/history/<spin_id>.',
+            'Set header Authorization: Bearer <access_token>.',
+            'Validate the response contains reel_matrix (5x3 grid).',
+            'Validate the response contains transactions array (1-2 entries).',
+            'Validate outcome_hash is a 64-character hex string.',
+            'Validate bet and win amounts match the original spin.'
+          ],
+          testData: 'roundId: <spin_id from previous spin response>.',
+          expected: 'HTTP 200. Body includes: reel_matrix (5 columns, 3 rows), win_breakdown array, transactions (bet + optional win), outcome_hash (64-char hex), balance_before, balance_after.'
+        },
+        {
+          id: 'GAME-24', module: 'GAME', priority: 'HIGH',
+          title: 'GET history/:roundId with invalid UUID returns 404',
+          preconditions: 'Valid access_token.',
+          steps: [
+            'Send GET /api/v1/game/history/not-a-valid-uuid.',
+            'Set header Authorization: Bearer <access_token>.',
+            'Check the HTTP response status code and body.'
+          ],
+          testData: 'roundId: "not-a-valid-uuid" (invalid UUID format).',
+          expected: 'HTTP 404. Body: { error: "...", code: "round_not_found" }.'
+        },
+        {
+          id: 'GAME-25', module: 'GAME', priority: 'HIGH',
+          title: 'GET history/:roundId for another user\'s round returns 404 (IDOR prevention)',
+          preconditions: 'Two registered accounts. User A has a spin with known spin_id. User B is authenticated.',
+          steps: [
+            'Login as User A and perform a spin. Record spin_id_A.',
+            'Login as User B and obtain access_token_B.',
+            'Send GET /api/v1/game/history/<spin_id_A> with Authorization: Bearer <access_token_B>.',
+            'Check the HTTP response status code.'
+          ],
+          testData: 'roundId belongs to User A. Authorization token belongs to User B.',
+          expected: 'HTTP 404. User B cannot access User A\'s round details. No data leakage.'
+        },
+        {
+          id: 'GAME-26', module: 'GAME', priority: 'HIGH',
+          title: 'GET provably-fair/current returns active seed pair with hash but no server_seed',
+          preconditions: 'Valid access_token. At least one game init performed (seed pair auto-created).',
+          steps: [
+            'Send GET /api/v1/game/provably-fair/current.',
+            'Set header Authorization: Bearer <access_token>.',
+            'Check the HTTP response status code.',
+            'Verify server_seed_hash is a 64-character hex string.',
+            'Verify client_seed and nonce are present.',
+            'Verify server_seed is NOT in the response body.'
+          ],
+          testData: 'Authorization: Bearer <valid access_token>.',
+          expected: 'HTTP 200. Body includes: server_seed_hash (64-char hex), client_seed, nonce. server_seed field is absent or null while pair is active.'
+        },
+        {
+          id: 'GAME-27', module: 'GAME', priority: 'HIGH',
+          title: 'POST provably-fair/rotate reveals old server_seed and creates new pair',
+          preconditions: 'Valid access_token. Active seed pair exists (from game init).',
+          steps: [
+            'Record the current server_seed_hash from GET provably-fair/current.',
+            'Send POST /api/v1/game/provably-fair/rotate.',
+            'Set header Authorization: Bearer <access_token>.',
+            'Check the HTTP response status code.',
+            'Verify previous.server_seed is now visible (64-char hex).',
+            'Compute SHA-256 of previous.server_seed and compare with the hash recorded in step 1.',
+            'Verify current.server_seed_hash is a new hash (different from step 1).'
+          ],
+          testData: 'Authorization: Bearer <valid access_token>.',
+          expected: 'HTTP 200. Body: { previous: { server_seed: <revealed>, server_seed_hash: <matches step 1> }, current: { server_seed_hash: <new hash>, client_seed: "default", nonce: 0 } }. SHA-256(previous.server_seed) === previous.server_seed_hash.'
+        },
+        {
+          id: 'GAME-28', module: 'GAME', priority: 'MED',
+          title: 'PUT provably-fair/client-seed updates the client seed successfully',
+          preconditions: 'Valid access_token. Active seed pair exists.',
+          steps: [
+            'Send PUT /api/v1/game/provably-fair/client-seed.',
+            'Set header Authorization: Bearer <access_token>.',
+            'Set body: { "client_seed": "my-custom-seed-123" }.',
+            'Check the HTTP response status code.',
+            'Verify the returned client_seed matches the submitted value.',
+            'Call GET provably-fair/current and confirm the seed was persisted.'
+          ],
+          testData: 'Body: { "client_seed": "my-custom-seed-123" }.',
+          expected: 'HTTP 200. Returned seed pair has client_seed = "my-custom-seed-123". Subsequent GET confirms persistence.'
+        },
+        {
+          id: 'GAME-29', module: 'GAME', priority: 'MED',
+          title: 'PUT provably-fair/client-seed with invalid seed returns 400',
+          preconditions: 'Valid access_token. Active seed pair exists.',
+          steps: [
+            'Send PUT /api/v1/game/provably-fair/client-seed.',
+            'Set header Authorization: Bearer <access_token>.',
+            'Set body: { "client_seed": "" } (empty string).',
+            'Check the HTTP response status code and body.'
+          ],
+          testData: 'Body: { "client_seed": "" } (empty string — invalid).',
+          expected: 'HTTP 400. Body: { error: "...", code: "invalid_body" }. The client seed is not updated.'
+        },
+        {
+          id: 'GAME-30', module: 'GAME', priority: 'HIGH',
+          title: 'Wallet auto-creation with 1000 USD default balance',
+          preconditions: 'Fresh user account with no prior game activity. Valid access_token.',
+          steps: [
+            'Register a new user account.',
+            'Login and obtain access_token.',
+            'Send POST /api/v1/game/init.',
+            'Set header Authorization: Bearer <access_token>.',
+            'Check the balance in the init response.'
+          ],
+          testData: 'Fresh user account, no prior wallet or game history.',
+          expected: 'HTTP 200. balance.amount = 1000 (or 1000.00). balance.currency = "USD". Wallet was auto-created with BIGINT 100000 cents = $1000.00.'
+        },
+        {
+          id: 'GAME-31', module: 'GAME', priority: 'HIGH',
+          title: 'BIGINT cents storage prevents floating-point precision errors',
+          preconditions: 'Active session. Balance known.',
+          steps: [
+            'Record current balance (e.g. 999.90 USD).',
+            'Send a spin with bet.amount = 0.10.',
+            'Record balance_after from the response.',
+            'Calculate expected: 999.90 - 0.10 + win = expected.',
+            'Verify balance_after matches expected without floating-point drift.',
+            'Repeat 10 times with small fractional bets.',
+            'Verify final balance has no accumulated rounding error.'
+          ],
+          testData: 'Multiple spins with fractional bet amounts (e.g. 0.10, 0.20, 0.50).',
+          expected: 'All balance calculations are exact to 2 decimal places. No accumulated floating-point drift (e.g. 0.1 + 0.2 = 0.30, not 0.30000000000000004). BIGINT cents internally avoids IEEE 754 issues.'
+        },
+
+        /* ═══════════════════  SECURITY — Provably Fair  ═══════════════════ */
+        {
+          id: 'SEC-07', module: 'SEC', priority: 'HIGH',
+          title: 'server_seed is never exposed while seed pair is active',
+          preconditions: 'Valid access_token. Active seed pair exists.',
+          steps: [
+            'Send GET /api/v1/game/provably-fair/current.',
+            'Inspect the response body for any field containing the raw server_seed.',
+            'Perform several spins and inspect each response for server_seed leakage.',
+            'Check the history/:roundId response for server_seed in the seed pair data.'
+          ],
+          testData: 'Authorization: Bearer <valid access_token>. Active seed pair.',
+          expected: 'The server_seed is never present in any API response while the seed pair is active. Only server_seed_hash is visible. server_seed is only revealed after POST provably-fair/rotate.'
+        },
+        {
+          id: 'SEC-08', module: 'SEC', priority: 'HIGH',
+          title: 'Round detail is scoped to authenticated user (IDOR prevention)',
+          preconditions: 'Two user accounts (User A and User B). User A has at least one spin. User B is authenticated.',
+          steps: [
+            'Login as User A, perform a spin, record the spin_id.',
+            'Login as User B, obtain access_token_B.',
+            'Send GET /api/v1/game/history/<User A spin_id> with access_token_B.',
+            'Verify the response does not contain User A\'s round data.'
+          ],
+          testData: 'spin_id belongs to User A. Authorization token belongs to User B.',
+          expected: 'HTTP 404 — User B cannot retrieve User A\'s round. The query uses both id AND user_id in the WHERE clause, preventing IDOR attacks.'
         }
       ];
 

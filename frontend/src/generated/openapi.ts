@@ -416,12 +416,17 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** Get spin history for current user */
+        /** Get spin history with filters and summary */
         get: {
             parameters: {
                 query?: {
                     limit?: number;
                     offset?: number;
+                    date_from?: string;
+                    date_to?: string;
+                    result?: "win" | "loss" | "all";
+                    min_bet?: number;
+                    max_bet?: number;
                 };
                 header?: never;
                 path?: never;
@@ -429,13 +434,13 @@ export interface paths {
             };
             requestBody?: never;
             responses: {
-                /** @description History response */
+                /** @description History response with summary */
                 200: {
                     headers: {
                         [name: string]: unknown;
                     };
                     content: {
-                        "application/json": components["schemas"]["HistoryResponse"];
+                        "application/json": components["schemas"]["EnhancedHistoryResponse"];
                     };
                 };
                 /** @description Invalid query params */
@@ -445,6 +450,261 @@ export interface paths {
                     };
                     content: {
                         "application/json": components["schemas"]["ErrorResponse"];
+                    };
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/history/summary": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get aggregated stats for the current user */
+        get: {
+            parameters: {
+                query?: {
+                    date_from?: string;
+                    date_to?: string;
+                    result?: "win" | "loss" | "all";
+                    min_bet?: number;
+                    max_bet?: number;
+                };
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Summary stats */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["HistorySummaryResponse"];
+                    };
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/history/{roundId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get round detail with provably fair data and transactions */
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    roundId: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Round detail */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["RoundDetailResponse"];
+                    };
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
+                };
+                /** @description Round not found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/provably-fair/rotate": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Rotate seed pair — reveals old server seed, creates new pair */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Seed rotation result */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["SeedRotationResponse"];
+                    };
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/provably-fair/client-seed": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /** Set the client seed for the active seed pair */
+        put: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": components["schemas"]["ClientSeedRequest"];
+                };
+            };
+            responses: {
+                /** @description Updated seed pair */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["SeedPairResponse"];
+                    };
+                };
+                /** @description Invalid client seed */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
+                };
+            };
+        };
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/provably-fair/current": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get the current active seed pair info */
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Current seed pair */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["SeedPairResponse"];
                     };
                 };
                 /** @description Unauthorized */
@@ -690,7 +950,7 @@ export interface components {
             next_state: string;
             timestamp: number;
         };
-        HistoryResponse: {
+        EnhancedHistoryResponse: {
             items: {
                 spin_id: string;
                 session_id: string;
@@ -732,6 +992,118 @@ export interface components {
             total: number;
             limit: number;
             offset: number;
+            summary: {
+                total_rounds: number;
+                total_wagered: number;
+                total_won: number;
+                net_result: number;
+                biggest_win: number;
+            };
+        };
+        HistorySummary: {
+            total_rounds: number;
+            total_wagered: number;
+            total_won: number;
+            net_result: number;
+            biggest_win: number;
+        };
+        Transaction: {
+            id: string;
+            /** @enum {string} */
+            type: "bet" | "win";
+            amount: number;
+            balance_after: number;
+            created_at: string;
+        };
+        ProvablyFair: {
+            seed_pair_id: string;
+            server_seed_hash: string;
+            server_seed: string | null;
+            client_seed: string;
+            nonce: number | null;
+            revealed: boolean;
+        };
+        RoundDetail: {
+            id: string;
+            session_id: string;
+            game_id: string;
+            bet: number;
+            win: number;
+            currency: string;
+            lines: number;
+            balance_before: number;
+            balance_after: number;
+            reel_matrix: string[][];
+            win_breakdown: unknown[];
+            bonus_triggered?: unknown;
+            outcome_hash: string | null;
+            created_at: string;
+        };
+        RoundDetailResponse: {
+            round: {
+                id: string;
+                session_id: string;
+                game_id: string;
+                bet: number;
+                win: number;
+                currency: string;
+                lines: number;
+                balance_before: number;
+                balance_after: number;
+                reel_matrix: string[][];
+                win_breakdown: unknown[];
+                bonus_triggered?: unknown;
+                outcome_hash: string | null;
+                created_at: string;
+            };
+            provably_fair: {
+                seed_pair_id: string;
+                server_seed_hash: string;
+                server_seed: string | null;
+                client_seed: string;
+                nonce: number | null;
+                revealed: boolean;
+            } | null;
+            transactions: {
+                id: string;
+                /** @enum {string} */
+                type: "bet" | "win";
+                amount: number;
+                balance_after: number;
+                created_at: string;
+            }[];
+        };
+        SeedPairResponse: {
+            seed_pair_id: string;
+            server_seed_hash: string;
+            client_seed: string;
+            nonce: number;
+            active?: boolean;
+        };
+        SeedRotationResponse: {
+            previous: {
+                seed_pair_id: string;
+                server_seed: string;
+                server_seed_hash: string;
+                client_seed: string;
+                nonce: number;
+            } | null;
+            current: {
+                seed_pair_id: string;
+                server_seed_hash: string;
+                client_seed: string;
+                nonce: number;
+            };
+        };
+        ClientSeedRequest: {
+            client_seed: string;
+        };
+        HistorySummaryResponse: {
+            total_rounds: number;
+            total_wagered: number;
+            total_won: number;
+            net_result: number;
+            biggest_win: number;
         };
     };
     responses: never;

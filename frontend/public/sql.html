@@ -89,6 +89,10 @@
       }
       .erd-tbl-users .tbl-icon { background: rgba(56,189,248,.2); color: #38bdf8; }
       .erd-tbl-tokens .tbl-icon { background: rgba(245,208,106,.2); color: #f5d06a; }
+      .erd-tbl-wallets .tbl-icon { background: rgba(62,224,169,.2); color: #3ee0a9; }
+      .erd-tbl-seeds .tbl-icon { background: rgba(167,139,250,.2); color: #a78bfa; }
+      .erd-tbl-rounds .tbl-icon { background: rgba(251,146,60,.2); color: #fb923c; }
+      .erd-tbl-txns .tbl-icon { background: rgba(248,113,113,.2); color: #f87171; }
 
       .erd-cols { width: 100%; border-collapse: collapse; }
       .erd-cols td {
@@ -482,7 +486,7 @@
       <!-- ────────────────────────────────────────────────────────────────────── -->
       <div class="card">
         <h2>Database Schema (ERD)</h2>
-        <p>Two tables managed by <code>001_init.sql</code>, executed on every server startup via <code>initDb()</code>.
+        <p>Six tables across two migrations (<code>001_init.sql</code>, <code>002_game_history.sql</code>), executed on every server startup via <code>initDb()</code>.
            All DDL uses <code>IF NOT EXISTS</code> for idempotency.</p>
 
         <div class="erd-wrap">
@@ -561,6 +565,301 @@
             <div class="erd-indexes">
               <code>idx_refresh_tokens_user_id</code> B-tree on <code>user_id</code><br>
               <code>idx_refresh_tokens_expires_at</code> B-tree on <code>expires_at</code>
+            </div>
+          </div>
+        </div>
+
+        <!-- wallets ↔ seed_pairs -->
+        <div class="erd-wrap">
+          <div class="erd-table erd-tbl-wallets">
+            <div class="erd-table-head">
+              <span class="tbl-icon">W</span>
+              wallets
+            </div>
+            <table class="erd-cols">
+              <tr>
+                <td><span class="erd-col-name">id</span></td>
+                <td><span class="erd-col-type">UUID</span></td>
+                <td><span class="erd-col-constraint erd-pk">PK</span></td>
+                <td><span class="erd-def">gen_random_uuid()</span></td>
+              </tr>
+              <tr>
+                <td><span class="erd-col-name">user_id</span></td>
+                <td><span class="erd-col-type">UUID</span></td>
+                <td><span class="erd-col-constraint erd-fk">FK</span> <span class="erd-col-constraint erd-uq">UNIQUE</span> <span class="erd-col-constraint erd-nn">NOT NULL</span></td>
+                <td><span class="erd-def">&rarr; users(id)</span></td>
+              </tr>
+              <tr>
+                <td><span class="erd-col-name">balance_cents</span></td>
+                <td><span class="erd-col-type">BIGINT</span></td>
+                <td><span class="erd-col-constraint erd-nn">NOT NULL</span></td>
+                <td><span class="erd-def">100000</span></td>
+              </tr>
+              <tr>
+                <td><span class="erd-col-name">version</span></td>
+                <td><span class="erd-col-type">INTEGER</span></td>
+                <td><span class="erd-col-constraint erd-nn">NOT NULL</span></td>
+                <td><span class="erd-def">1</span></td>
+              </tr>
+              <tr>
+                <td><span class="erd-col-name">created_at</span></td>
+                <td><span class="erd-col-type">TIMESTAMPTZ</span></td>
+                <td><span class="erd-col-constraint erd-nn">NOT NULL</span></td>
+                <td><span class="erd-def">NOW()</span></td>
+              </tr>
+              <tr>
+                <td><span class="erd-col-name">updated_at</span></td>
+                <td><span class="erd-col-type">TIMESTAMPTZ</span></td>
+                <td><span class="erd-col-constraint erd-nn">NOT NULL</span></td>
+                <td><span class="erd-def">NOW()</span></td>
+              </tr>
+            </table>
+          </div>
+
+          <div class="erd-rel">
+            <div class="erd-rel-line"></div>
+            <div class="erd-rel-label">ON DELETE CASCADE</div>
+          </div>
+
+          <div class="erd-table erd-tbl-seeds">
+            <div class="erd-table-head">
+              <span class="tbl-icon">S</span>
+              seed_pairs
+            </div>
+            <table class="erd-cols">
+              <tr>
+                <td><span class="erd-col-name">id</span></td>
+                <td><span class="erd-col-type">UUID</span></td>
+                <td><span class="erd-col-constraint erd-pk">PK</span></td>
+                <td><span class="erd-def">gen_random_uuid()</span></td>
+              </tr>
+              <tr>
+                <td><span class="erd-col-name">user_id</span></td>
+                <td><span class="erd-col-type">UUID</span></td>
+                <td><span class="erd-col-constraint erd-fk">FK</span> <span class="erd-col-constraint erd-nn">NOT NULL</span></td>
+                <td><span class="erd-def">&rarr; users(id)</span></td>
+              </tr>
+              <tr>
+                <td><span class="erd-col-name">server_seed</span></td>
+                <td><span class="erd-col-type">TEXT</span></td>
+                <td><span class="erd-col-constraint erd-nn">NOT NULL</span></td>
+                <td></td>
+              </tr>
+              <tr>
+                <td><span class="erd-col-name">server_seed_hash</span></td>
+                <td><span class="erd-col-type">TEXT</span></td>
+                <td><span class="erd-col-constraint erd-nn">NOT NULL</span></td>
+                <td></td>
+              </tr>
+              <tr>
+                <td><span class="erd-col-name">client_seed</span></td>
+                <td><span class="erd-col-type">TEXT</span></td>
+                <td><span class="erd-col-constraint erd-nn">NOT NULL</span></td>
+                <td><span class="erd-def">'default'</span></td>
+              </tr>
+              <tr>
+                <td><span class="erd-col-name">nonce</span></td>
+                <td><span class="erd-col-type">INTEGER</span></td>
+                <td><span class="erd-col-constraint erd-nn">NOT NULL</span></td>
+                <td><span class="erd-def">0</span></td>
+              </tr>
+              <tr>
+                <td><span class="erd-col-name">active</span></td>
+                <td><span class="erd-col-type">BOOLEAN</span></td>
+                <td><span class="erd-col-constraint erd-nn">NOT NULL</span></td>
+                <td><span class="erd-def">TRUE</span></td>
+              </tr>
+              <tr>
+                <td><span class="erd-col-name">revealed_at</span></td>
+                <td><span class="erd-col-type">TIMESTAMPTZ</span></td>
+                <td></td>
+                <td></td>
+              </tr>
+              <tr>
+                <td><span class="erd-col-name">created_at</span></td>
+                <td><span class="erd-col-type">TIMESTAMPTZ</span></td>
+                <td><span class="erd-col-constraint erd-nn">NOT NULL</span></td>
+                <td><span class="erd-def">NOW()</span></td>
+              </tr>
+            </table>
+            <div class="erd-indexes">
+              <code>idx_seed_pairs_user_active</code> B-tree on <code>(user_id, active)</code>
+            </div>
+          </div>
+        </div>
+
+        <!-- game_rounds ↔ transactions -->
+        <div class="erd-wrap">
+          <div class="erd-table erd-tbl-rounds">
+            <div class="erd-table-head">
+              <span class="tbl-icon">R</span>
+              game_rounds
+            </div>
+            <table class="erd-cols">
+              <tr>
+                <td><span class="erd-col-name">id</span></td>
+                <td><span class="erd-col-type">UUID</span></td>
+                <td><span class="erd-col-constraint erd-pk">PK</span></td>
+                <td><span class="erd-def">gen_random_uuid()</span></td>
+              </tr>
+              <tr>
+                <td><span class="erd-col-name">user_id</span></td>
+                <td><span class="erd-col-type">UUID</span></td>
+                <td><span class="erd-col-constraint erd-fk">FK</span> <span class="erd-col-constraint erd-nn">NOT NULL</span></td>
+                <td><span class="erd-def">&rarr; users(id)</span></td>
+              </tr>
+              <tr>
+                <td><span class="erd-col-name">session_id</span></td>
+                <td><span class="erd-col-type">TEXT</span></td>
+                <td><span class="erd-col-constraint erd-nn">NOT NULL</span></td>
+                <td></td>
+              </tr>
+              <tr>
+                <td><span class="erd-col-name">game_id</span></td>
+                <td><span class="erd-col-type">TEXT</span></td>
+                <td><span class="erd-col-constraint erd-nn">NOT NULL</span></td>
+                <td></td>
+              </tr>
+              <tr>
+                <td><span class="erd-col-name">seed_pair_id</span></td>
+                <td><span class="erd-col-type">UUID</span></td>
+                <td><span class="erd-col-constraint erd-fk">FK</span></td>
+                <td><span class="erd-def">&rarr; seed_pairs(id)</span></td>
+              </tr>
+              <tr>
+                <td><span class="erd-col-name">nonce</span></td>
+                <td><span class="erd-col-type">INTEGER</span></td>
+                <td></td>
+                <td></td>
+              </tr>
+              <tr>
+                <td><span class="erd-col-name">bet_cents</span></td>
+                <td><span class="erd-col-type">BIGINT</span></td>
+                <td><span class="erd-col-constraint erd-nn">NOT NULL</span></td>
+                <td></td>
+              </tr>
+              <tr>
+                <td><span class="erd-col-name">win_cents</span></td>
+                <td><span class="erd-col-type">BIGINT</span></td>
+                <td><span class="erd-col-constraint erd-nn">NOT NULL</span></td>
+                <td><span class="erd-def">0</span></td>
+              </tr>
+              <tr>
+                <td><span class="erd-col-name">currency</span></td>
+                <td><span class="erd-col-type">TEXT</span></td>
+                <td><span class="erd-col-constraint erd-nn">NOT NULL</span></td>
+                <td><span class="erd-def">'USD'</span></td>
+              </tr>
+              <tr>
+                <td><span class="erd-col-name">lines</span></td>
+                <td><span class="erd-col-type">INTEGER</span></td>
+                <td><span class="erd-col-constraint erd-nn">NOT NULL</span></td>
+                <td></td>
+              </tr>
+              <tr>
+                <td><span class="erd-col-name">balance_before_cents</span></td>
+                <td><span class="erd-col-type">BIGINT</span></td>
+                <td><span class="erd-col-constraint erd-nn">NOT NULL</span></td>
+                <td></td>
+              </tr>
+              <tr>
+                <td><span class="erd-col-name">balance_after_cents</span></td>
+                <td><span class="erd-col-type">BIGINT</span></td>
+                <td><span class="erd-col-constraint erd-nn">NOT NULL</span></td>
+                <td></td>
+              </tr>
+              <tr>
+                <td><span class="erd-col-name">reel_matrix</span></td>
+                <td><span class="erd-col-type">JSONB</span></td>
+                <td><span class="erd-col-constraint erd-nn">NOT NULL</span></td>
+                <td></td>
+              </tr>
+              <tr>
+                <td><span class="erd-col-name">win_breakdown</span></td>
+                <td><span class="erd-col-type">JSONB</span></td>
+                <td><span class="erd-col-constraint erd-nn">NOT NULL</span></td>
+                <td><span class="erd-def">'[]'::jsonb</span></td>
+              </tr>
+              <tr>
+                <td><span class="erd-col-name">bonus_triggered</span></td>
+                <td><span class="erd-col-type">JSONB</span></td>
+                <td></td>
+                <td></td>
+              </tr>
+              <tr>
+                <td><span class="erd-col-name">outcome_hash</span></td>
+                <td><span class="erd-col-type">TEXT</span></td>
+                <td></td>
+                <td></td>
+              </tr>
+              <tr>
+                <td><span class="erd-col-name">created_at</span></td>
+                <td><span class="erd-col-type">TIMESTAMPTZ</span></td>
+                <td><span class="erd-col-constraint erd-nn">NOT NULL</span></td>
+                <td><span class="erd-def">NOW()</span></td>
+              </tr>
+            </table>
+            <div class="erd-indexes">
+              <code>idx_game_rounds_user_created</code> B-tree on <code>(user_id, created_at DESC)</code>
+            </div>
+          </div>
+
+          <div class="erd-rel">
+            <div class="erd-rel-line"></div>
+            <div class="erd-rel-label">ON DELETE CASCADE</div>
+          </div>
+
+          <div class="erd-table erd-tbl-txns">
+            <div class="erd-table-head">
+              <span class="tbl-icon">X</span>
+              transactions
+            </div>
+            <table class="erd-cols">
+              <tr>
+                <td><span class="erd-col-name">id</span></td>
+                <td><span class="erd-col-type">UUID</span></td>
+                <td><span class="erd-col-constraint erd-pk">PK</span></td>
+                <td><span class="erd-def">gen_random_uuid()</span></td>
+              </tr>
+              <tr>
+                <td><span class="erd-col-name">round_id</span></td>
+                <td><span class="erd-col-type">UUID</span></td>
+                <td><span class="erd-col-constraint erd-fk">FK</span> <span class="erd-col-constraint erd-nn">NOT NULL</span></td>
+                <td><span class="erd-def">&rarr; game_rounds(id)</span></td>
+              </tr>
+              <tr>
+                <td><span class="erd-col-name">user_id</span></td>
+                <td><span class="erd-col-type">UUID</span></td>
+                <td><span class="erd-col-constraint erd-fk">FK</span> <span class="erd-col-constraint erd-nn">NOT NULL</span></td>
+                <td><span class="erd-def">&rarr; users(id)</span></td>
+              </tr>
+              <tr>
+                <td><span class="erd-col-name">type</span></td>
+                <td><span class="erd-col-type">TEXT</span></td>
+                <td><span class="erd-col-constraint erd-nn">NOT NULL</span></td>
+                <td><span class="erd-def">CHECK ('bet','win')</span></td>
+              </tr>
+              <tr>
+                <td><span class="erd-col-name">amount_cents</span></td>
+                <td><span class="erd-col-type">BIGINT</span></td>
+                <td><span class="erd-col-constraint erd-nn">NOT NULL</span></td>
+                <td></td>
+              </tr>
+              <tr>
+                <td><span class="erd-col-name">balance_after_cents</span></td>
+                <td><span class="erd-col-type">BIGINT</span></td>
+                <td><span class="erd-col-constraint erd-nn">NOT NULL</span></td>
+                <td></td>
+              </tr>
+              <tr>
+                <td><span class="erd-col-name">created_at</span></td>
+                <td><span class="erd-col-type">TIMESTAMPTZ</span></td>
+                <td><span class="erd-col-constraint erd-nn">NOT NULL</span></td>
+                <td><span class="erd-def">NOW()</span></td>
+              </tr>
+            </table>
+            <div class="erd-indexes">
+              <code>idx_transactions_user_created</code> B-tree on <code>(user_id, created_at DESC)</code>
             </div>
           </div>
         </div>
@@ -649,6 +948,26 @@
             <dt>Graceful Shutdown</dt>
             <dd><code>closePool()</code> drains active connections and resets the singleton reference, preventing connection leaks on restart.</dd>
           </div>
+          <div class="info-item">
+            <dt>Optimistic Locking</dt>
+            <dd>Wallet debits use a <code>version</code> column check in the WHERE clause. If a concurrent request modifies the wallet between read and update, the version mismatch causes 0 rows affected &mdash; preventing lost updates without SELECT FOR UPDATE locks.</dd>
+          </div>
+          <div class="info-item">
+            <dt>BIGINT Cents</dt>
+            <dd>All monetary values are stored as <code>BIGINT</code> in cents (1 USD = 100 cents). This eliminates IEEE 754 floating-point rounding errors that occur with <code>DECIMAL</code> or <code>FLOAT</code> in JavaScript.</dd>
+          </div>
+          <div class="info-item">
+            <dt>Transactional Round Creation</dt>
+            <dd>Game round + transaction inserts are wrapped in <code>BEGIN/COMMIT</code> using <code>pool.connect()</code>. On failure, <code>ROLLBACK</code> ensures no orphaned records persist.</dd>
+          </div>
+          <div class="info-item">
+            <dt>HMAC-SHA256 Seeds</dt>
+            <dd>Provably fair seeds use <code>HMAC-SHA256(server_seed, client_seed:nonce)</code> for spin derivation and <code>SHA-256</code> for server seed hashing. The server seed is never exposed while the pair is active.</dd>
+          </div>
+          <div class="info-item">
+            <dt>Composite Indexes</dt>
+            <dd>Composite B-tree indexes on <code>(user_id, created_at DESC)</code> and <code>(user_id, active)</code> eliminate sort steps and heap filters for the most frequent query patterns.</dd>
+          </div>
         </dl>
       </div>
 
@@ -658,10 +977,15 @@
       <div class="card">
         <h2>Source Files</h2>
         <dl class="info-grid">
-          <div class="info-item"><dt>Migration</dt><dd><code>backend/src/migrations/001_init.sql</code></dd></div>
+          <div class="info-item"><dt>Migration (Auth)</dt><dd><code>backend/src/migrations/001_init.sql</code></dd></div>
+          <div class="info-item"><dt>Migration (Game)</dt><dd><code>backend/src/migrations/002_game_history.sql</code></dd></div>
           <div class="info-item"><dt>Connection Pool</dt><dd><code>backend/src/db.ts</code></dd></div>
           <div class="info-item"><dt>User Store</dt><dd><code>backend/src/userStore.ts</code></dd></div>
           <div class="info-item"><dt>Token Store</dt><dd><code>backend/src/auth/refreshTokenStore.ts</code></dd></div>
+          <div class="info-item"><dt>Wallet Store</dt><dd><code>backend/src/walletStore.ts</code></dd></div>
+          <div class="info-item"><dt>Seed Store</dt><dd><code>backend/src/seedStore.ts</code></dd></div>
+          <div class="info-item"><dt>Round Store</dt><dd><code>backend/src/roundStore.ts</code></dd></div>
+          <div class="info-item"><dt>Provably Fair</dt><dd><code>backend/src/provablyFair.ts</code></dd></div>
         </dl>
       </div>
 
@@ -855,6 +1179,294 @@
           { code: '\u2014', type: 'app', label: 'rows.length === 0', text: 'User not found. Function returns <code>undefined</code> \u2192 route returns <strong>HTTP 401</strong> { error: "Invalid credentials", code: "invalid_credentials" }. Error intentionally does not reveal whether email or password was wrong.' },
         ],
       },
+
+      // ── DDL: Game History (002_game_history.sql) ──────────────────────────
+      {
+        id: 'DDL-06', category: 'ddl', op: 'CREATE TABLE',
+        title: 'Create wallets table (BIGINT cents, optimistic locking)',
+        desc: 'Creates the wallets table storing user balances as BIGINT cents to avoid floating-point precision issues. Includes a version column for optimistic concurrency control on debits. Default balance is 100000 (= 1000.00 USD).',
+        sql: 'CREATE TABLE IF NOT EXISTS wallets (\n  id            UUID        PRIMARY KEY DEFAULT gen_random_uuid(),\n  user_id       UUID        UNIQUE NOT NULL REFERENCES users(id) ON DELETE CASCADE,\n  balance_cents BIGINT      NOT NULL DEFAULT 100000,\n  version       INTEGER     NOT NULL DEFAULT 1,\n  created_at    TIMESTAMPTZ NOT NULL DEFAULT NOW(),\n  updated_at    TIMESTAMPTZ NOT NULL DEFAULT NOW()\n);',
+        params: [],
+        source: 'backend/src/migrations/002_game_history.sql',
+        returns: 'Table created or no-op if exists',
+        explain: 'DDL statement \u2014 no query plan.\n1. Creates heap file + PK btree on id\n2. Creates UNIQUE index on user_id\n3. Registers FK constraint \u2192 users(id) with CASCADE\n4. BIGINT stores money as integer cents \u2014\n   avoids IEEE 754 rounding errors',
+        errors: [
+          { code: '42P07', type: 'pg', label: 'duplicate_table', text: 'Suppressed by IF NOT EXISTS.' },
+          { code: '42830', type: 'pg', label: 'invalid_foreign_key', text: 'users table must exist. Guaranteed by migration order.' },
+        ],
+      },
+      {
+        id: 'DDL-07', category: 'ddl', op: 'CREATE TABLE',
+        title: 'Create seed_pairs table (provably fair)',
+        desc: 'Creates the seed_pairs table for provably fair mechanics. Each pair has a server_seed (hidden while active), its SHA-256 hash (visible to user), a client_seed, and a nonce counter. The active flag ensures only one pair is active per user at a time.',
+        sql: 'CREATE TABLE IF NOT EXISTS seed_pairs (\n  id               UUID        PRIMARY KEY DEFAULT gen_random_uuid(),\n  user_id          UUID        NOT NULL REFERENCES users(id) ON DELETE CASCADE,\n  server_seed      TEXT        NOT NULL,\n  server_seed_hash TEXT        NOT NULL,\n  client_seed      TEXT        NOT NULL DEFAULT \'default\',\n  nonce            INTEGER     NOT NULL DEFAULT 0,\n  active           BOOLEAN     NOT NULL DEFAULT TRUE,\n  revealed_at      TIMESTAMPTZ,\n  created_at       TIMESTAMPTZ NOT NULL DEFAULT NOW()\n);',
+        params: [],
+        source: 'backend/src/migrations/002_game_history.sql',
+        returns: 'Table created or no-op if exists',
+        explain: 'DDL statement \u2014 no query plan.\n1. Creates heap + PK btree on id\n2. FK on user_id \u2192 users(id) with CASCADE\n3. BOOLEAN active flag for seed rotation logic\n4. revealed_at is NULL while active (server_seed hidden)',
+        errors: [
+          { code: '42P07', type: 'pg', label: 'duplicate_table', text: 'Suppressed by IF NOT EXISTS.' },
+        ],
+      },
+      {
+        id: 'DDL-08', category: 'ddl', op: 'CREATE INDEX',
+        title: 'Composite index on seed_pairs(user_id, active)',
+        desc: 'Composite B-tree index optimising the frequent query "find the active seed pair for a user". Both columns in the index eliminate the need for a heap filter.',
+        sql: 'CREATE INDEX IF NOT EXISTS idx_seed_pairs_user_active\n  ON seed_pairs(user_id, active);',
+        params: [],
+        source: 'backend/src/migrations/002_game_history.sql',
+        returns: 'Index created or no-op if exists',
+        explain: 'Creates a composite B-tree index.\nUsed by: DQL-06 (getActiveSeedPair)\nPlan: Index Scan using idx_seed_pairs_user_active\n  Index Cond: (user_id = $1 AND active = TRUE)\nComplexity: O(log n) \u2014 direct lookup, no filter step',
+        errors: [
+          { code: '42P07', type: 'pg', label: 'duplicate_table', text: 'Suppressed by IF NOT EXISTS.' },
+        ],
+      },
+      {
+        id: 'DDL-09', category: 'ddl', op: 'CREATE TABLE',
+        title: 'Create game_rounds table (JSONB reel_matrix/win_breakdown)',
+        desc: 'Creates the game_rounds table storing every spin result. Uses JSONB for reel_matrix and win_breakdown to preserve variable-shape game data without schema changes. Links to seed_pairs for provably fair verification.',
+        sql: 'CREATE TABLE IF NOT EXISTS game_rounds (\n  id                  UUID        PRIMARY KEY DEFAULT gen_random_uuid(),\n  user_id             UUID        NOT NULL REFERENCES users(id) ON DELETE CASCADE,\n  session_id          TEXT        NOT NULL,\n  game_id             TEXT        NOT NULL,\n  seed_pair_id        UUID        REFERENCES seed_pairs(id),\n  nonce               INTEGER,\n  bet_cents           BIGINT      NOT NULL,\n  win_cents           BIGINT      NOT NULL DEFAULT 0,\n  currency            TEXT        NOT NULL DEFAULT \'USD\',\n  lines               INTEGER     NOT NULL,\n  balance_before_cents BIGINT     NOT NULL,\n  balance_after_cents  BIGINT     NOT NULL,\n  reel_matrix         JSONB       NOT NULL,\n  win_breakdown       JSONB       NOT NULL DEFAULT \'[]\'::jsonb,\n  bonus_triggered     JSONB,\n  outcome_hash        TEXT,\n  created_at          TIMESTAMPTZ NOT NULL DEFAULT NOW()\n);',
+        params: [],
+        source: 'backend/src/migrations/002_game_history.sql',
+        returns: 'Table created or no-op if exists',
+        explain: 'DDL statement \u2014 no query plan.\n1. 17 columns including 3 JSONB fields\n2. FK to users(id) with CASCADE\n3. Optional FK to seed_pairs(id) (nullable)\n4. JSONB columns use TOAST for large payloads\n5. outcome_hash enables provably fair verification',
+        errors: [
+          { code: '42P07', type: 'pg', label: 'duplicate_table', text: 'Suppressed by IF NOT EXISTS.' },
+        ],
+      },
+      {
+        id: 'DDL-10', category: 'ddl', op: 'CREATE INDEX',
+        title: 'Composite index on game_rounds(user_id, created_at DESC)',
+        desc: 'Composite B-tree index with descending created_at for efficient history pagination. Supports ORDER BY created_at DESC with LIMIT/OFFSET without a sort step.',
+        sql: 'CREATE INDEX IF NOT EXISTS idx_game_rounds_user_created\n  ON game_rounds(user_id, created_at DESC);',
+        params: [],
+        source: 'backend/src/migrations/002_game_history.sql',
+        returns: 'Index created or no-op if exists',
+        explain: 'Creates a composite B-tree with DESC ordering.\nUsed by: DQL-02 (getUserRounds)\nPlan: Index Scan Backward using idx_game_rounds_user_created\n  Index Cond: (user_id = $1)\n  \u2192 No Sort step needed for ORDER BY created_at DESC\nComplexity: O(log n + k) where k = LIMIT',
+        errors: [
+          { code: '42P07', type: 'pg', label: 'duplicate_table', text: 'Suppressed by IF NOT EXISTS.' },
+        ],
+      },
+      {
+        id: 'DDL-11', category: 'ddl', op: 'CREATE TABLE',
+        title: 'Create transactions table (CHECK constraint on type)',
+        desc: 'Creates the transactions ledger table. Each transaction records a bet debit or win credit. The CHECK constraint ensures type is always \'bet\' or \'win\'. Foreign keys link to game_rounds and users with CASCADE.',
+        sql: "CREATE TABLE IF NOT EXISTS transactions (\n  id                  UUID        PRIMARY KEY DEFAULT gen_random_uuid(),\n  round_id            UUID        NOT NULL REFERENCES game_rounds(id) ON DELETE CASCADE,\n  user_id             UUID        NOT NULL REFERENCES users(id) ON DELETE CASCADE,\n  type                TEXT        NOT NULL CHECK (type IN ('bet', 'win')),\n  amount_cents        BIGINT      NOT NULL,\n  balance_after_cents BIGINT      NOT NULL,\n  created_at          TIMESTAMPTZ NOT NULL DEFAULT NOW()\n);",
+        params: [],
+        source: 'backend/src/migrations/002_game_history.sql',
+        returns: 'Table created or no-op if exists',
+        explain: 'DDL statement \u2014 no query plan.\n1. Creates heap + PK btree on id\n2. FK on round_id \u2192 game_rounds(id) with CASCADE\n3. FK on user_id \u2192 users(id) with CASCADE\n4. CHECK constraint enforces type domain\n5. Must be created AFTER game_rounds (FK dependency)',
+        errors: [
+          { code: '42P07', type: 'pg', label: 'duplicate_table', text: 'Suppressed by IF NOT EXISTS.' },
+          { code: '42830', type: 'pg', label: 'invalid_foreign_key', text: 'game_rounds table must exist first. Guaranteed by SQL ordering in migration file.' },
+        ],
+      },
+      {
+        id: 'DDL-12', category: 'ddl', op: 'CREATE INDEX',
+        title: 'Composite index on transactions(user_id, created_at DESC)',
+        desc: 'Composite B-tree index for efficient transaction history queries per user. Mirrors the game_rounds index pattern for consistent query performance.',
+        sql: 'CREATE INDEX IF NOT EXISTS idx_transactions_user_created\n  ON transactions(user_id, created_at DESC);',
+        params: [],
+        source: 'backend/src/migrations/002_game_history.sql',
+        returns: 'Index created or no-op if exists',
+        explain: 'Creates a composite B-tree with DESC ordering.\nUsed by: DQL-05 (getRoundTransactions)\nSupports future per-user transaction history queries.\nComplexity: O(log n) lookups',
+        errors: [
+          { code: '42P07', type: 'pg', label: 'duplicate_table', text: 'Suppressed by IF NOT EXISTS.' },
+        ],
+      },
+
+      // ── DML: Wallet Operations ────────────────────────────────────────────
+      {
+        id: 'DML-07', category: 'dml', op: 'INSERT/UPDATE',
+        title: 'Upsert wallet (getOrCreateWallet)',
+        desc: 'Creates a wallet for the user if one does not exist, or touches updated_at if it does. Uses INSERT ON CONFLICT (user_id) DO UPDATE as an atomic upsert. Returns the wallet row in either case.',
+        sql: 'INSERT INTO wallets (user_id) VALUES ($1)\nON CONFLICT (user_id) DO UPDATE SET updated_at = NOW()\nRETURNING id, user_id, balance_cents, version;',
+        params: [
+          { idx: '$1', name: 'userId', type: 'UUID', desc: 'User UUID from JWT sub claim' },
+        ],
+        source: 'backend/src/walletStore.ts \u2192 getOrCreateWallet()',
+        returns: '{ id: UUID, user_id: UUID, balance_cents: BIGINT, version: INTEGER }',
+        explain: 'Plan: Insert on Conflict\n  \u2192 Check unique constraint on user_id\n  \u2192 If no conflict: insert new row (balance_cents=100000, version=1)\n  \u2192 If conflict: UPDATE updated_at = NOW()\n  \u2192 RETURNING avoids a second SELECT\n\nCost: O(1) \u2014 single index probe on user_id UNIQUE constraint.\nAtomicity: ON CONFLICT handles the race condition where\ntwo concurrent requests try to create the same wallet.',
+        errors: [
+          { code: '23503', type: 'pg', label: 'foreign_key_violation', text: 'user_id does not exist in users table. Prevented by auth middleware: JWT must be valid.' },
+        ],
+      },
+      {
+        id: 'DML-08', category: 'dml', op: 'UPDATE',
+        title: 'Debit wallet with optimistic locking',
+        desc: 'Atomically debits the wallet balance. The WHERE clause checks both the expected version (optimistic lock) and sufficient balance. If either check fails, zero rows are updated and the function returns null.',
+        sql: 'UPDATE wallets\nSET balance_cents = balance_cents - $2,\n    version = version + 1,\n    updated_at = NOW()\nWHERE user_id = $1\n  AND version = $3\n  AND balance_cents >= $2\nRETURNING id, user_id, balance_cents, version;',
+        params: [
+          { idx: '$1', name: 'userId', type: 'UUID', desc: 'User UUID' },
+          { idx: '$2', name: 'amountCents', type: 'BIGINT', desc: 'Debit amount in cents (e.g. 100 = $1.00)' },
+          { idx: '$3', name: 'expectedVersion', type: 'INTEGER', desc: 'Current version from last read \u2014 prevents lost updates' },
+        ],
+        source: 'backend/src/walletStore.ts \u2192 debitWallet()',
+        returns: '{ id, user_id, balance_cents, version } or empty rowset (version mismatch / insufficient balance)',
+        explain: 'Plan: Update on wallets\n  \u2192 Index Scan using wallets_user_id_key (UNIQUE)\n        Index Cond: (user_id = $1)\n  \u2192 Filter: (version = $3 AND balance_cents >= $2)\n  \u2192 If passes: update heap tuple, increment version\n  \u2192 If fails: 0 rows affected \u2192 function returns null\n\nOptimistic locking: no SELECT FOR UPDATE needed.\nThe version check prevents lost updates from concurrent requests.\nbalance_cents check prevents negative balance in one atomic step.',
+        errors: [
+          { code: '\u2014', type: 'app', label: 'rows.length === 0', text: 'Version mismatch (concurrent modification) or insufficient balance. The spin route retries or returns HTTP 422 { error: "Insufficient balance", code: "insufficient_balance" }.' },
+        ],
+      },
+      {
+        id: 'DML-09', category: 'dml', op: 'UPDATE',
+        title: 'Credit wallet (win payout)',
+        desc: 'Adds winnings to the wallet balance. No version check is needed because credits are always additive and cannot cause an invalid state. Version is still incremented for consistency.',
+        sql: 'UPDATE wallets\nSET balance_cents = balance_cents + $2,\n    version = version + 1,\n    updated_at = NOW()\nWHERE user_id = $1\nRETURNING id, user_id, balance_cents, version;',
+        params: [
+          { idx: '$1', name: 'userId', type: 'UUID', desc: 'User UUID' },
+          { idx: '$2', name: 'amountCents', type: 'BIGINT', desc: 'Credit amount in cents' },
+        ],
+        source: 'backend/src/walletStore.ts \u2192 creditWallet()',
+        returns: '{ id, user_id, balance_cents, version }',
+        explain: 'Plan: Update on wallets\n  \u2192 Index Scan using wallets_user_id_key (UNIQUE)\n        Index Cond: (user_id = $1)\n  \u2192 Update heap tuple, increment version\n\nNo version check needed \u2014 additive operations are safe\neven with concurrent access (no risk of negative balance).\nCost: O(1) single index probe.',
+        errors: [
+          { code: '\u2014', type: 'app', label: 'rows.length === 0', text: 'Wallet does not exist. Should never happen because getOrCreateWallet() is called first during game init.' },
+        ],
+      },
+      {
+        id: 'DML-10', category: 'dml', op: 'INSERT',
+        title: 'Insert new seed pair (createSeedPair)',
+        desc: 'Creates a new provably fair seed pair with a crypto-random server_seed and its SHA-256 hash. The client_seed defaults to "default" and nonce starts at 0.',
+        sql: 'INSERT INTO seed_pairs (user_id, server_seed, server_seed_hash)\nVALUES ($1, $2, $3)\nRETURNING *;',
+        params: [
+          { idx: '$1', name: 'userId', type: 'UUID', desc: 'User UUID' },
+          { idx: '$2', name: 'serverSeed', type: 'TEXT', desc: '64-char hex from crypto.randomBytes(32)' },
+          { idx: '$3', name: 'serverSeedHash', type: 'TEXT', desc: 'SHA-256 hash of the server seed' },
+        ],
+        source: 'backend/src/seedStore.ts \u2192 createSeedPair()',
+        returns: 'Full seed_pairs row (all columns)',
+        explain: 'Plan: Insert on seed_pairs\n  \u2192 Result (generates UUID, sets defaults)\n  \u2192 FK check: users_pkey (verifies user_id exists)\n  \u2192 Insert heap tuple, update PK + composite indexes\n\nDefaults applied: client_seed=\'default\', nonce=0,\nactive=TRUE, revealed_at=NULL.\nCost: O(1) heap insert + index updates.',
+        errors: [
+          { code: '23503', type: 'pg', label: 'foreign_key_violation', text: 'user_id does not exist. Prevented by auth middleware.' },
+        ],
+      },
+      {
+        id: 'DML-11', category: 'dml', op: 'UPDATE',
+        title: 'Rotate seed pair (deactivate + reveal)',
+        desc: 'Deactivates the current active seed pair, revealing the server_seed by setting revealed_at to NOW(). After this, a new seed pair is created (DML-10). This enables users to verify past spins were fair.',
+        sql: 'UPDATE seed_pairs\nSET active = FALSE, revealed_at = NOW()\nWHERE user_id = $1 AND active = TRUE\nRETURNING *;',
+        params: [
+          { idx: '$1', name: 'userId', type: 'UUID', desc: 'User UUID' },
+        ],
+        source: 'backend/src/seedStore.ts \u2192 rotateSeedPair()',
+        returns: 'Deactivated seed pair row (with server_seed now visible) or empty rowset',
+        explain: 'Plan: Update on seed_pairs\n  \u2192 Index Scan using idx_seed_pairs_user_active\n        Index Cond: (user_id = $1 AND active = TRUE)\n  \u2192 Update: active=FALSE, revealed_at=NOW()\n  \u2192 RETURNING reveals the previously hidden server_seed\n\nCost: O(log n) via composite index.\nAfter rotation, the old server_seed is visible\nfor HMAC verification against recorded outcomes.',
+        errors: [
+          { code: '\u2014', type: 'app', label: 'rows.length === 0', text: 'No active seed pair found. Function returns null for the previous field. A new pair is still created.' },
+        ],
+      },
+      {
+        id: 'DML-12', category: 'dml', op: 'BEGIN/COMMIT',
+        title: 'Create round + transactions in a transaction (createRound)',
+        desc: 'Inserts a game_rounds row and 1\u20132 transaction rows (bet + optional win) inside a BEGIN/COMMIT block. If any insert fails, the entire operation is rolled back to maintain consistency between rounds and their transactions.',
+        sql: 'BEGIN;\n\nINSERT INTO game_rounds\n  (user_id, session_id, game_id, seed_pair_id, nonce,\n   bet_cents, win_cents, currency, lines,\n   balance_before_cents, balance_after_cents,\n   reel_matrix, win_breakdown, bonus_triggered, outcome_hash)\nVALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15)\nRETURNING *;\n\nINSERT INTO transactions\n  (round_id, user_id, type, amount_cents, balance_after_cents)\nVALUES ($16, $17, \'bet\', $18, $19);\n\n-- Only if win > 0:\nINSERT INTO transactions\n  (round_id, user_id, type, amount_cents, balance_after_cents)\nVALUES ($16, $17, \'win\', $20, $21);\n\nCOMMIT;',
+        params: [
+          { idx: '$1', name: 'userId', type: 'UUID', desc: 'User UUID' },
+          { idx: '$2', name: 'sessionId', type: 'TEXT', desc: 'Game session identifier' },
+          { idx: '$3', name: 'gameId', type: 'TEXT', desc: 'Game type identifier' },
+          { idx: '$4', name: 'seedPairId', type: 'UUID', desc: 'Seed pair used for this spin (nullable)' },
+          { idx: '$5', name: 'nonce', type: 'INTEGER', desc: 'Nonce at time of spin (nullable)' },
+          { idx: '$6', name: 'betCents', type: 'BIGINT', desc: 'Bet amount in cents' },
+          { idx: '$7', name: 'winCents', type: 'BIGINT', desc: 'Win amount in cents' },
+          { idx: '$8', name: 'currency', type: 'TEXT', desc: 'Currency code' },
+          { idx: '$9', name: 'lines', type: 'INTEGER', desc: 'Number of active paylines' },
+          { idx: '$10', name: 'balanceBeforeCents', type: 'BIGINT', desc: 'Balance before spin' },
+          { idx: '$11', name: 'balanceAfterCents', type: 'BIGINT', desc: 'Balance after spin' },
+          { idx: '$12', name: 'reelMatrix', type: 'JSONB', desc: 'JSON-stringified 5x3 symbol grid' },
+          { idx: '$13', name: 'winBreakdown', type: 'JSONB', desc: 'JSON array of winning paylines' },
+          { idx: '$14', name: 'bonusTriggered', type: 'JSONB', desc: 'Bonus info or null' },
+          { idx: '$15', name: 'outcomeHash', type: 'TEXT', desc: 'SHA-256 hash of outcome for verification' },
+        ],
+        source: 'backend/src/roundStore.ts \u2192 createRound()',
+        returns: 'Full game_rounds row from RETURNING *',
+        explain: 'Explicit transaction with pool.connect():\n  1. BEGIN \u2014 starts transaction\n  2. INSERT game_rounds \u2192 returns round with UUID\n  3. INSERT transactions (bet) \u2192 debit record\n  4. INSERT transactions (win) \u2192 credit record (if win > 0)\n  5. COMMIT \u2014 makes all changes visible\n  6. On error: ROLLBACK + re-throw\n\nAtomicity guarantees: either all 2\u20133 inserts succeed\nor none persist. Prevents orphaned transactions.',
+        errors: [
+          { code: '23503', type: 'pg', label: 'foreign_key_violation', text: 'user_id or seed_pair_id does not exist. Prevented by prior validation.' },
+          { code: '23514', type: 'pg', label: 'check_violation', text: 'transactions.type is not \'bet\' or \'win\'. Prevented by hardcoded string literals in the code.' },
+          { code: '40001', type: 'pg', label: 'serialization_failure', text: 'Rare under default READ COMMITTED isolation. Would trigger ROLLBACK and the error is re-thrown to the caller.' },
+        ],
+      },
+
+      // ── DQL: Game History Queries ─────────────────────────────────────────
+      {
+        id: 'DQL-02', category: 'dql', op: 'SELECT',
+        title: 'Get user rounds with dynamic filters (getUserRounds)',
+        desc: 'Retrieves paginated game history for a user with optional filters: date range, win/loss result, min/max bet. Builds the WHERE clause dynamically based on provided filters. Includes a COUNT(*) for total pagination metadata.',
+        sql: 'SELECT COUNT(*)::text AS count\nFROM game_rounds\nWHERE user_id = $1\n  AND created_at >= $2   -- if dateFrom\n  AND created_at <= $3   -- if dateTo\n  AND win_cents > bet_cents  -- if result=win\n  AND bet_cents >= $4    -- if minBet\n  AND bet_cents <= $5;   -- if maxBet\n\nSELECT * FROM game_rounds\nWHERE <same conditions>\nORDER BY created_at DESC\nLIMIT $N OFFSET $N+1;',
+        params: [
+          { idx: '$1', name: 'userId', type: 'UUID', desc: 'User UUID from JWT sub claim' },
+          { idx: '$2', name: 'dateFrom', type: 'TEXT', desc: 'ISO 8601 start date (optional filter)' },
+          { idx: '$3', name: 'dateTo', type: 'TEXT', desc: 'ISO 8601 end date (optional filter)' },
+          { idx: '$N', name: 'limit', type: 'INTEGER', desc: 'Page size (default 50, max 100)' },
+          { idx: '$N+1', name: 'offset', type: 'INTEGER', desc: 'Pagination offset (default 0)' },
+        ],
+        source: 'backend/src/roundStore.ts \u2192 getUserRounds()',
+        returns: '{ items: GameRound[], total: number, limit: number, offset: number }',
+        explain: 'Two queries: COUNT for total, SELECT for page.\nPlan: Index Scan using idx_game_rounds_user_created\n  Index Cond: (user_id = $1)\n  Filter: dynamic conditions (date, result, bet range)\n  Sort: created_at DESC (satisfied by index)\n  Limit: $N rows, Offset: $N+1 rows\n\nDynamic WHERE construction uses parameterised\nplaceholders \u2014 never string concatenation.\nCost: O(log n + k) where k = matching rows.',
+        errors: [
+          { code: '\u2014', type: 'app', label: 'empty result', text: 'No rounds match the filters. Returns { items: [], total: 0, limit, offset }. This is a valid response, not an error.' },
+        ],
+      },
+      {
+        id: 'DQL-03', category: 'dql', op: 'SELECT',
+        title: 'Get round by ID with user scoping (getRoundById)',
+        desc: 'Retrieves a single game round by its UUID, scoped to the authenticated user. The user_id check prevents IDOR (insecure direct object reference) attacks.',
+        sql: 'SELECT * FROM game_rounds\nWHERE id = $1 AND user_id = $2;',
+        params: [
+          { idx: '$1', name: 'roundId', type: 'UUID', desc: 'Game round UUID from the URL path parameter' },
+          { idx: '$2', name: 'userId', type: 'UUID', desc: 'Authenticated user UUID from JWT' },
+        ],
+        source: 'backend/src/roundStore.ts \u2192 getRoundById()',
+        returns: 'Full game_rounds row or empty rowset (not found / not owned)',
+        explain: 'Plan: Index Scan using game_rounds_pkey\n  Index Cond: (id = $1)\n  Filter: (user_id = $2)\n\nThe PK index lookup is O(1). The user_id filter\nis applied post-lookup on the single heap tuple.\nIDOR prevention: even if an attacker guesses\na valid round UUID, they cannot access it without\nmatching the user_id from their JWT.',
+        errors: [
+          { code: '\u2014', type: 'app', label: 'rows.length === 0', text: 'Round not found or belongs to another user. Function returns null \u2192 route returns HTTP 404 { error: "Round not found", code: "round_not_found" }.' },
+        ],
+      },
+      {
+        id: 'DQL-04', category: 'dql', op: 'SELECT',
+        title: 'Aggregate user summary (getUserSummary)',
+        desc: 'Computes aggregate statistics for a user\'s game history: total rounds, total wagered, total won, and biggest single win. Uses COUNT, SUM, MAX, and COALESCE for null-safe aggregation. Supports the same dynamic filters as DQL-02.',
+        sql: 'SELECT\n  COUNT(*)::text AS total_rounds,\n  COALESCE(SUM(bet_cents), 0)::text AS total_wagered,\n  COALESCE(SUM(win_cents), 0)::text AS total_won,\n  COALESCE(MAX(win_cents), 0)::text AS biggest_win\nFROM game_rounds\nWHERE user_id = $1;',
+        params: [
+          { idx: '$1', name: 'userId', type: 'UUID', desc: 'User UUID from JWT' },
+        ],
+        source: 'backend/src/roundStore.ts \u2192 getUserSummary()',
+        returns: '{ total_rounds, total_wagered, total_won, biggest_win } \u2014 cents converted to dollars at the application layer',
+        explain: 'Plan: Aggregate\n  \u2192 Index Scan using idx_game_rounds_user_created\n        Index Cond: (user_id = $1)\n  \u2192 COUNT(*) counts all matching rows\n  \u2192 SUM(bet_cents) / SUM(win_cents) for totals\n  \u2192 MAX(win_cents) for biggest win\n  \u2192 COALESCE handles NULL when no rows match\n  \u2192 ::text cast avoids JS integer overflow for large sums\n\nnet_result = (total_won - total_wagered) / 100\ncomputed in application code.',
+        errors: [
+          { code: '\u2014', type: 'app', label: 'no rows', text: 'If user has no rounds, COUNT returns 0 and SUM/MAX return NULL. COALESCE converts NULL to 0 \u2014 no error case.' },
+        ],
+      },
+      {
+        id: 'DQL-05', category: 'dql', op: 'SELECT',
+        title: 'Get transactions for a round (getRoundTransactions)',
+        desc: 'Retrieves all transactions (bet and win) for a specific round, ordered chronologically. Typically returns 1\u20132 rows.',
+        sql: 'SELECT * FROM transactions\nWHERE round_id = $1\nORDER BY created_at ASC;',
+        params: [
+          { idx: '$1', name: 'roundId', type: 'UUID', desc: 'Game round UUID' },
+        ],
+        source: 'backend/src/roundStore.ts \u2192 getRoundTransactions()',
+        returns: 'Transaction[] \u2014 array of { id, round_id, user_id, type, amount_cents, balance_after_cents, created_at }',
+        explain: 'Plan: Index Scan on transactions\n  \u2192 Filter: (round_id = $1)\n  \u2192 Sort: created_at ASC\n\nTypically returns 1 (loss) or 2 (bet + win) rows.\nSmall result set makes sort negligible.\nCost: O(log n) index probe + sequential read of matching rows.',
+        errors: [],
+      },
+      {
+        id: 'DQL-06', category: 'dql', op: 'SELECT',
+        title: 'Get active seed pair (getActiveSeedPair)',
+        desc: 'Retrieves the currently active seed pair for a user. At most one seed pair is active per user at any time. Returns the server_seed_hash (visible) but the server_seed itself is only returned after rotation.',
+        sql: 'SELECT * FROM seed_pairs\nWHERE user_id = $1 AND active = TRUE\nLIMIT 1;',
+        params: [
+          { idx: '$1', name: 'userId', type: 'UUID', desc: 'User UUID from JWT' },
+        ],
+        source: 'backend/src/seedStore.ts \u2192 getActiveSeedPair()',
+        returns: 'Full seed_pairs row or null (no active pair)',
+        explain: 'Plan: Index Scan using idx_seed_pairs_user_active\n  Index Cond: (user_id = $1 AND active = TRUE)\n  Limit: 1 row\n\nCost: O(log n) single composite index probe.\nThe LIMIT 1 stops after the first match.\nNote: server_seed is in the row but the API layer\nstrips it from the response while the pair is active.',
+        errors: [
+          { code: '\u2014', type: 'app', label: 'rows.length === 0', text: 'No active seed pair. Function returns null. getOrCreateActiveSeedPair() will then create a new pair via DML-10.' },
+        ],
+      },
     ];
 
     /* ======================================================================= */
@@ -870,8 +1482,10 @@
     const CAT_BADGE  = { ddl: 'badge-ddl', dml: 'badge-dml', dql: 'badge-dql' };
     const OP_CLASS   = {
       SELECT: 'op-select', INSERT: 'op-insert', DELETE: 'op-delete',
+      UPDATE: 'op-insert',
       'CREATE TABLE': 'op-create', 'CREATE INDEX': 'op-create',
       BATCH: 'op-create', TRUNCATE: 'op-truncate',
+      'INSERT/UPDATE': 'op-insert', 'BEGIN/COMMIT': 'op-create',
     };
     const ERR_TYPE_CLASS = { pg: 'error-code-pg', http: 'error-code-http', app: 'error-code-app' };
 
@@ -895,19 +1509,19 @@
     function hl(raw) {
       return raw
         .replace(/(--[^\n]*)/g, '<span class="cmt">$1</span>')
-        .replace(/\b(CREATE TABLE|CREATE INDEX|IF NOT EXISTS|PRIMARY KEY|DEFAULT|UNIQUE|NOT NULL|REFERENCES|ON DELETE CASCADE|INSERT INTO|VALUES|RETURNING|DELETE FROM|WHERE|SELECT|FROM|TRUNCATE TABLE|CASCADE|AND|OR|SET|BATCH)\b/gi, '<span class="kw">$1</span>')
+        .replace(/\b(CREATE TABLE|CREATE INDEX|IF NOT EXISTS|PRIMARY KEY|DEFAULT|UNIQUE|NOT NULL|REFERENCES|ON DELETE CASCADE|INSERT INTO|VALUES|RETURNING|DELETE FROM|WHERE|SELECT|FROM|TRUNCATE TABLE|CASCADE|AND|OR|SET|BATCH|UPDATE|BEGIN|COMMIT|ROLLBACK|LIMIT|OFFSET|ORDER BY|ON CONFLICT|DO UPDATE|CHECK|COUNT|SUM|MAX|COALESCE)\b/gi, '<span class="kw">$1</span>')
         .replace(/\b(gen_random_uuid|NOW|interval)\b/gi, '<span class="fn">$1</span>')
-        .replace(/\b(UUID|TEXT|TIMESTAMPTZ|BOOLEAN|INTEGER)\b/g, '<span class="type">$1</span>')
-        .replace(/\b(users|refresh_tokens)\b/g, '<span class="tbl">$1</span>')
+        .replace(/\b(UUID|TEXT|TIMESTAMPTZ|BOOLEAN|INTEGER|BIGINT|JSONB)\b/g, '<span class="type">$1</span>')
+        .replace(/\b(users|refresh_tokens|wallets|seed_pairs|game_rounds|transactions)\b/g, '<span class="tbl">$1</span>')
         .replace(/'([^']*)'/g, "'<span class=\"str\">$1</span>'")
         .replace(/(\$\d+)/g, '<span class="param">$1</span>');
     }
 
     function hlExplain(raw) {
       return raw
-        .replace(/\b(Index Scan|Seq Scan|Insert|Delete|Result|Filter|Index Cond|Constraint check|Plan|Cost|FK check)\b/g, '<span class="ex-node">$1</span>')
+        .replace(/\b(Index Scan|Index Scan Backward|Seq Scan|Insert|Delete|Update|Aggregate|Result|Filter|Index Cond|Constraint check|Plan|Cost|FK check|Sort|Limit|Offset)\b/g, '<span class="ex-node">$1</span>')
         .replace(/(O\([^)]+\))/g, '<span class="ex-cost">$1</span>')
-        .replace(/\b(idx_\w+|users_email_key|refresh_tokens_pkey)\b/g, '<span class="ex-note">$1</span>');
+        .replace(/\b(idx_\w+|users_email_key|refresh_tokens_pkey|wallets_user_id_key|game_rounds_pkey)\b/g, '<span class="ex-note">$1</span>');
     }
 
     // ── Query Index ───────────────────────────────────────────────────────────

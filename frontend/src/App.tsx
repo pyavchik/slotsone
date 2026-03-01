@@ -8,15 +8,18 @@ import { WinOverlay } from './WinOverlay';
 import { PayTable } from './PayTable';
 import { CVLanding } from './CVLanding';
 import { AuthScreen } from './AuthScreen';
+import { GameHistory } from './GameHistory';
+import { RoundDetail } from './RoundDetail';
 import { playSpinSound, playWinSound } from './audio';
 import './app.css';
 
-type Screen = 'cv' | 'auth' | 'slots';
+type Screen = 'cv' | 'auth' | 'slots' | 'history' | 'round-detail';
 
 const DEMO_TOKEN = import.meta.env.VITE_DEMO_JWT;
 
 function getScreenFromPath(pathname: string): Screen {
-  return pathname === '/slots' || pathname.startsWith('/slots/') ? 'slots' : 'cv';
+  if (pathname === '/slots' || pathname.startsWith('/slots/')) return 'slots';
+  return 'cv';
 }
 
 function App() {
@@ -44,6 +47,7 @@ function App() {
   );
   const [ready, setReady] = useState(false);
   const [spinCooldown, setSpinCooldown] = useState(false);
+  const [selectedRoundId, setSelectedRoundId] = useState<string | null>(null);
   const spinCooldownRef = useRef<number | null>(null);
 
   // Prevents the game-init effect from running twice in the same session.
@@ -107,7 +111,10 @@ function App() {
 
   useEffect(() => {
     if (screen !== 'slots') {
-      initDoneRef.current = false;
+      // Don't reset init when viewing history/round-detail (sub-screens of slots)
+      if (screen !== 'history' && screen !== 'round-detail') {
+        initDoneRef.current = false;
+      }
       return;
     }
 
@@ -279,6 +286,24 @@ function App() {
     setScreen('slots');
   }, []);
 
+  const handleOpenHistory = useCallback(() => {
+    setScreen('history');
+  }, []);
+
+  const handleViewRound = useCallback((roundId: string) => {
+    setSelectedRoundId(roundId);
+    setScreen('round-detail');
+  }, []);
+
+  const handleBackFromRound = useCallback(() => {
+    setSelectedRoundId(null);
+    setScreen('history');
+  }, []);
+
+  const handleBackFromHistory = useCallback(() => {
+    setScreen('slots');
+  }, []);
+
   // -------------------------------------------------------------------------
   // Spacebar to spin
   // -------------------------------------------------------------------------
@@ -330,6 +355,22 @@ function App() {
 
   if (screen === 'cv') {
     return <CVLanding onOpenSlots={handleOpenSlots} />;
+  }
+
+  if (screen === 'history') {
+    if (!token) {
+      setScreen('auth');
+      return null;
+    }
+    return <GameHistory onBack={handleBackFromHistory} onViewRound={handleViewRound} />;
+  }
+
+  if (screen === 'round-detail' && selectedRoundId) {
+    if (!token) {
+      setScreen('auth');
+      return null;
+    }
+    return <RoundDetail roundId={selectedRoundId} onBack={handleBackFromRound} />;
   }
 
   if (screen === 'auth') {
@@ -417,7 +458,7 @@ function App() {
   return (
     <div className="slots-shell">
       <SlotCanvas width={size.w} height={size.h} onAllReelsStopped={handleAllReelsStopped} />
-      <HUD onLogout={handleLogout} />
+      <HUD onLogout={handleLogout} onHistory={handleOpenHistory} />
       <PayTable />
       <div className="slots-controls-dock">
         <BetPanel onSpin={handleSpin} spinDisabled={spinCooldown} />
