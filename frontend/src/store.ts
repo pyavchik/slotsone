@@ -87,6 +87,9 @@ export const useGameStore = create<GameState>((set) => ({
   setSpinning: (v) =>
     set((s) => ({
       spinning: v,
+      // Clear stale outcome when starting a new spin so the SlotCanvas
+      // effect doesn't re-trigger spinThenStop with the previous result.
+      lastOutcome: v ? null : s.lastOutcome,
       lastWinAmount: v ? 0 : (s.pendingWinAmount ?? 0),
       pendingWinAmount: null,
     })),
