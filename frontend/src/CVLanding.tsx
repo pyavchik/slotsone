@@ -6,6 +6,7 @@ const TEST_CASES_PATH = '/test-cases.html';
 const POSTMAN_TESTS_PATH = '/postman-tests.html';
 const SWAGER_PATH = '/api-docs';
 const SQL_PATH = '/sql.html';
+const BUG_REPORT_PATH = '/bug-report.html';
 
 const SKILLS = [
   'Java',
@@ -132,6 +133,14 @@ export function CVLanding({ onOpenSlots }: { onOpenSlots: () => void }) {
             data-testid="cv-sql"
           >
             sql
+          </a>
+          <a
+            className="cv-link cv-link--bug"
+            href={BUG_REPORT_PATH}
+            target="_blank"
+            rel="noreferrer"
+          >
+            bug report
           </a>
           <a className="cv-link" href={CV_PDF_PATH} target="_blank" rel="noreferrer">
             Download PDF CV

@@ -98,6 +98,15 @@
   border-color: rgba(226, 232, 240, 0.8);
 }
 
+.cv-link--bug {
+  border-color: rgba(248, 113, 113, 0.4);
+  color: #fca5a5;
+}
+
+.cv-link--bug:hover {
+  border-color: rgba(248, 113, 113, 0.7);
+}
+
 .cv-open-slots {
   min-height: 48px;
   padding: 12px 20px;

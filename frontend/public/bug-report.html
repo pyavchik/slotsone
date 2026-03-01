@@ -1,0 +1,789 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>BUG-001 — Race Condition in Reel Display — pyavchik.space</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
+    <style>
+      *, *::before, *::after { box-sizing: border-box; }
+
+      body {
+        margin: 0;
+        font-family: "DM Sans", "Segoe UI", sans-serif;
+        background: linear-gradient(180deg, #0f1118 0%, #0b0d13 100%);
+        color: #f8fafc;
+        min-height: 100vh;
+        font-size: 14px;
+        -webkit-font-smoothing: antialiased;
+      }
+
+      .wrap {
+        max-width: 1080px;
+        margin: 0 auto;
+        padding: 28px 18px 56px;
+        display: flex;
+        flex-direction: column;
+        gap: 14px;
+      }
+
+      /* ── Cards ───────────────────────────────────── */
+      .card {
+        border: 1px solid rgba(255,255,255,0.13);
+        border-radius: 14px;
+        background: rgba(17,20,30,0.78);
+        padding: 20px 22px;
+      }
+
+      h1 { margin: 0 0 3px; font-size: 26px; letter-spacing: -.3px; }
+      .subtitle { margin: 0 0 14px; color: #94a3b8; font-size: 13px; }
+      h2 { margin: 0 0 14px; font-size: 16px; color: #f1f5f9; }
+      h3 { margin: 0 0 10px; font-size: 14px; color: #e2e8f0; }
+      p  { margin: 0 0 10px; color: #dbe2ec; line-height: 1.55; }
+
+      /* ── Back link ───────────────────────────────── */
+      .back {
+        display: inline-flex; align-items: center; gap: 6px;
+        font-size: 13px; font-weight: 600; color: #94a3b8;
+        text-decoration: none;
+        border: 1px solid rgba(148,163,184,.3);
+        padding: 6px 12px; border-radius: 8px;
+        background: rgba(15,23,42,.5);
+        width: fit-content;
+      }
+      .back:hover { color: #f8fafc; border-color: rgba(148,163,184,.7); }
+
+      /* ── Bug header ─────────────────────────────── */
+      .bug-header {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 18px;
+        align-items: flex-start;
+      }
+      .bug-header-main { flex: 1; min-width: 280px; }
+      .bug-id {
+        display: inline-block;
+        font-family: "JetBrains Mono", monospace;
+        font-size: 12px; font-weight: 700;
+        letter-spacing: .06em;
+        color: #f87171;
+        background: rgba(248,113,113,.1);
+        border: 1px solid rgba(248,113,113,.25);
+        padding: 3px 10px;
+        border-radius: 6px;
+        margin-bottom: 10px;
+      }
+      .bug-title {
+        margin: 0 0 6px;
+        font-size: 22px;
+        font-weight: 700;
+        color: #f8fafc;
+        line-height: 1.25;
+      }
+      .bug-desc {
+        margin: 0;
+        color: #94a3b8;
+        font-size: 13px;
+        line-height: 1.5;
+      }
+
+      /* ── Metadata sidebar ───────────────────────── */
+      .meta-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 10px;
+        min-width: 260px;
+        max-width: 320px;
+      }
+      .meta-cell {
+        padding: 10px 12px;
+        border-radius: 10px;
+        background: rgba(15,23,42,.65);
+        border: 1px solid rgba(148,163,184,.15);
+      }
+      .meta-label {
+        display: block;
+        font-size: 10px;
+        font-weight: 700;
+        letter-spacing: .1em;
+        text-transform: uppercase;
+        color: #64748b;
+        margin-bottom: 4px;
+      }
+      .meta-value {
+        font-size: 14px;
+        font-weight: 600;
+        color: #e2e8f0;
+      }
+      .meta-cell.full { grid-column: 1 / -1; }
+
+      /* severity / priority badges */
+      .sev-critical {
+        color: #fca5a5;
+        background: rgba(248,113,113,.12);
+        border-color: rgba(248,113,113,.25);
+      }
+      .sev-critical .meta-value { color: #f87171; }
+      .sev-critical .meta-label { color: #f87171; opacity: .7; }
+
+      .pri-p1 {
+        color: #fed7aa;
+        background: rgba(251,146,60,.1);
+        border-color: rgba(251,146,60,.2);
+      }
+      .pri-p1 .meta-value { color: #fb923c; }
+      .pri-p1 .meta-label { color: #fb923c; opacity: .7; }
+
+      .status-open {
+        color: #fde68a;
+        background: rgba(250,204,21,.08);
+        border-color: rgba(250,204,21,.2);
+      }
+      .status-open .meta-value { color: #facc15; }
+      .status-open .meta-label { color: #facc15; opacity: .7; }
+
+      /* ── Action buttons ─────────────────────────── */
+      .actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 6px; }
+      .btn {
+        display: inline-flex; align-items: center; gap: 6px;
+        padding: 8px 16px; border-radius: 8px;
+        font-size: 13px; font-weight: 600;
+        text-decoration: none;
+        cursor: pointer;
+        border: 1px solid;
+        transition: filter .15s, transform .1s;
+      }
+      .btn:hover { filter: brightness(1.1); }
+      .btn:active { transform: scale(.98); }
+      .btn-danger {
+        color: #fca5a5; background: rgba(248,113,113,.12);
+        border-color: rgba(248,113,113,.3);
+      }
+      .btn-green {
+        color: #86efac; background: rgba(74,222,128,.1);
+        border-color: rgba(74,222,128,.25);
+      }
+
+      /* ── Preconditions ──────────────────────────── */
+      .preconditions {
+        display: flex; flex-wrap: wrap; gap: 8px;
+        padding: 0; margin: 0; list-style: none;
+      }
+      .preconditions li {
+        padding: 6px 14px; border-radius: 8px;
+        background: rgba(15,23,42,.65);
+        border: 1px solid rgba(148,163,184,.15);
+        font-size: 13px; color: #cbd5e1;
+      }
+      .preconditions li::before {
+        content: "\2713  ";
+        color: #4ade80;
+        font-weight: 700;
+      }
+
+      /* ── Steps to reproduce ─────────────────────── */
+      .steps { display: flex; flex-direction: column; gap: 0; }
+      .step {
+        display: flex; gap: 14px;
+        padding: 14px 0;
+        border-bottom: 1px solid rgba(255,255,255,.05);
+      }
+      .step:last-child { border-bottom: none; }
+      .step-num {
+        width: 30px; height: 30px;
+        border-radius: 8px;
+        background: rgba(99,102,241,.15);
+        border: 1px solid rgba(99,102,241,.3);
+        color: #a5b4fc;
+        font-family: "JetBrains Mono", monospace;
+        font-size: 13px; font-weight: 700;
+        display: flex; align-items: center; justify-content: center;
+        flex-shrink: 0;
+      }
+      .step-body { flex: 1; }
+      .step-text { color: #dbe2ec; line-height: 1.5; margin: 0; }
+      .step-note {
+        margin: 4px 0 0;
+        font-size: 12px;
+        color: #64748b;
+        font-style: italic;
+      }
+
+      /* ── Expected vs Actual ─────────────────────── */
+      .compare-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 12px;
+      }
+      .compare-card {
+        padding: 16px;
+        border-radius: 12px;
+        border: 1px solid;
+      }
+      .compare-card.expected {
+        background: rgba(74,222,128,.06);
+        border-color: rgba(74,222,128,.2);
+      }
+      .compare-card.actual {
+        background: rgba(248,113,113,.06);
+        border-color: rgba(248,113,113,.2);
+      }
+      .compare-label {
+        font-size: 11px; font-weight: 700;
+        letter-spacing: .1em; text-transform: uppercase;
+        margin-bottom: 8px;
+      }
+      .expected .compare-label { color: #4ade80; }
+      .actual .compare-label   { color: #f87171; }
+      .compare-text { margin: 0; color: #dbe2ec; line-height: 1.5; font-size: 13px; }
+
+      /* ── Screenshots ────────────────────────────── */
+      .screenshots {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 12px;
+      }
+      .screenshot-wrap {
+        position: relative;
+        border-radius: 12px;
+        overflow: hidden;
+        border: 1px solid rgba(255,255,255,.1);
+        background: #0a0c14;
+      }
+      .screenshot-wrap img {
+        width: 100%;
+        display: block;
+        cursor: pointer;
+        transition: transform .2s;
+      }
+      .screenshot-wrap img:hover { transform: scale(1.02); }
+      .screenshot-caption {
+        padding: 10px 14px;
+        font-size: 12px;
+        color: #94a3b8;
+        background: rgba(10,12,20,.9);
+        border-top: 1px solid rgba(255,255,255,.06);
+      }
+      .screenshot-badge {
+        position: absolute;
+        top: 10px; left: 10px;
+        padding: 3px 8px;
+        border-radius: 5px;
+        font-size: 10px; font-weight: 700;
+        letter-spacing: .06em;
+      }
+      .badge-bug {
+        background: rgba(248,113,113,.85);
+        color: #fff;
+      }
+      .badge-truth {
+        background: rgba(74,222,128,.85);
+        color: #052e16;
+      }
+
+      /* ── Lightbox ───────────────────────────────── */
+      .lightbox {
+        display: none;
+        position: fixed;
+        inset: 0;
+        z-index: 9999;
+        background: rgba(2,6,14,.92);
+        backdrop-filter: blur(8px);
+        align-items: center;
+        justify-content: center;
+        cursor: zoom-out;
+        padding: 24px;
+      }
+      .lightbox.open { display: flex; }
+      .lightbox img {
+        max-width: 95vw;
+        max-height: 92vh;
+        border-radius: 10px;
+        box-shadow: 0 12px 48px rgba(0,0,0,.6);
+      }
+
+      /* ── Race condition timeline ─────────────────── */
+      .timeline {
+        display: flex;
+        flex-direction: column;
+        gap: 0;
+        position: relative;
+        padding-left: 24px;
+      }
+      .timeline::before {
+        content: "";
+        position: absolute;
+        left: 10px; top: 6px; bottom: 6px;
+        width: 2px;
+        background: rgba(148,163,184,.15);
+        border-radius: 2px;
+      }
+      .tl-item {
+        position: relative;
+        padding: 8px 0 8px 20px;
+      }
+      .tl-item::before {
+        content: "";
+        position: absolute;
+        left: -18px; top: 15px;
+        width: 10px; height: 10px;
+        border-radius: 50%;
+        border: 2px solid;
+      }
+      .tl-item.tl-ok::before { border-color: #4ade80; background: rgba(74,222,128,.15); }
+      .tl-item.tl-warn::before { border-color: #facc15; background: rgba(250,204,21,.15); }
+      .tl-item.tl-bad::before { border-color: #f87171; background: rgba(248,113,113,.15); }
+
+      .tl-num {
+        font-family: "JetBrains Mono", monospace;
+        font-size: 11px; font-weight: 700;
+        color: #64748b;
+        margin-right: 6px;
+      }
+      .tl-desc {
+        font-size: 13px;
+        color: #dbe2ec;
+        line-height: 1.45;
+      }
+      .tl-code {
+        font-family: "JetBrains Mono", monospace;
+        font-size: 12px;
+        color: #a5b4fc;
+        background: rgba(99,102,241,.08);
+        padding: 1px 6px;
+        border-radius: 4px;
+      }
+      .tl-annotation {
+        display: inline-block;
+        margin-left: 6px;
+        font-size: 11px;
+        font-weight: 700;
+        letter-spacing: .04em;
+        padding: 1px 7px;
+        border-radius: 4px;
+      }
+      .ann-stale {
+        background: rgba(248,113,113,.15);
+        color: #f87171;
+      }
+      .ann-rejected {
+        background: rgba(251,146,60,.12);
+        color: #fb923c;
+      }
+      .ann-bug {
+        background: rgba(248,113,113,.2);
+        color: #fca5a5;
+      }
+
+      /* ── Code blocks ────────────────────────────── */
+      .code-block {
+        padding: 16px 18px;
+        border-radius: 10px;
+        background: rgba(10,12,20,.9);
+        border: 1px solid rgba(255,255,255,.08);
+        overflow-x: auto;
+        font-family: "JetBrains Mono", monospace;
+        font-size: 13px;
+        line-height: 1.65;
+        color: #cbd5e1;
+        tab-size: 2;
+      }
+      .code-block .kw  { color: #c084fc; }
+      .code-block .fn  { color: #93c5fd; }
+      .code-block .str { color: #86efac; }
+      .code-block .cmt { color: #4b5563; font-style: italic; }
+      .code-block .op  { color: #f9a8d4; }
+      .code-block .num { color: #fcd34d; }
+      .code-block .prop { color: #67e8f9; }
+
+      .diff-add {
+        background: rgba(74,222,128,.1);
+        border-left: 3px solid #4ade80;
+        margin: 0 -18px;
+        padding: 0 18px 0 15px;
+        display: block;
+      }
+      .diff-context {
+        display: block;
+        color: #64748b;
+      }
+
+      /* ── File pills ─────────────────────────────── */
+      .file-list {
+        display: flex; flex-direction: column; gap: 8px;
+        padding: 0; margin: 0; list-style: none;
+      }
+      .file-item {
+        display: flex; align-items: center; gap: 10px;
+        padding: 10px 14px;
+        border-radius: 10px;
+        background: rgba(15,23,42,.65);
+        border: 1px solid rgba(148,163,184,.12);
+      }
+      .file-icon {
+        width: 28px; height: 28px;
+        border-radius: 6px;
+        background: rgba(99,102,241,.15);
+        border: 1px solid rgba(99,102,241,.2);
+        display: flex; align-items: center; justify-content: center;
+        font-size: 12px; flex-shrink: 0;
+      }
+      .file-path {
+        font-family: "JetBrains Mono", monospace;
+        font-size: 12px; color: #a5b4fc;
+      }
+      .file-note {
+        font-size: 12px; color: #64748b;
+        margin-left: auto;
+      }
+
+      /* ── Impact items ───────────────────────────── */
+      .impact-list {
+        display: grid; gap: 8px;
+        padding: 0; margin: 0; list-style: none;
+      }
+      .impact-item {
+        display: flex; align-items: flex-start; gap: 10px;
+        padding: 12px 14px;
+        border-radius: 10px;
+        background: rgba(248,113,113,.04);
+        border: 1px solid rgba(248,113,113,.12);
+        font-size: 13px; color: #dbe2ec;
+        line-height: 1.45;
+      }
+      .impact-icon {
+        flex-shrink: 0;
+        width: 22px; height: 22px;
+        border-radius: 50%;
+        background: rgba(248,113,113,.15);
+        display: flex; align-items: center; justify-content: center;
+        font-size: 11px;
+        margin-top: 1px;
+      }
+
+      /* ── Fix section ────────────────────────────── */
+      .fix-card {
+        border-color: rgba(74,222,128,.2);
+        background: rgba(17,20,30,.78);
+        position: relative;
+        overflow: hidden;
+      }
+      .fix-card::before {
+        content: "";
+        position: absolute;
+        top: 0; left: 0; right: 0;
+        height: 3px;
+        background: linear-gradient(90deg, #4ade80, #22d3ee);
+      }
+      .fix-badge {
+        display: inline-block;
+        font-size: 11px; font-weight: 700;
+        letter-spacing: .08em;
+        color: #052e16;
+        background: #4ade80;
+        padding: 3px 10px;
+        border-radius: 5px;
+        margin-bottom: 10px;
+      }
+
+      /* ── Responsive ─────────────────────────────── */
+      @media (max-width: 700px) {
+        .bug-header { flex-direction: column; }
+        .meta-grid { max-width: 100%; }
+        .compare-grid { grid-template-columns: 1fr; }
+        .screenshots { grid-template-columns: 1fr; }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="wrap">
+
+      <!-- ── Back nav ─────────────────────────────── -->
+      <a href="/" class="back">&larr; Back to CV</a>
+
+      <!-- ── Header card ──────────────────────────── -->
+      <div class="card">
+        <div class="bug-header">
+          <div class="bug-header-main">
+            <span class="bug-id">BUG-001</span>
+            <h1 class="bug-title">Slot reels display previous spin's symbols instead of current spin result</h1>
+            <p class="bug-desc">Race condition in React state management causes the PixiJS reel canvas to animate with stale outcome data. Every spin visually shows the prior round's reel_matrix while the HUD displays correct win amounts from the current round.</p>
+            <div class="actions" style="margin-top:14px">
+              <a href="/slots" class="btn btn-danger">&#9654; Reproduce Live</a>
+              <a href="https://github.com/pyavchik/slotsone/pull/40" target="_blank" rel="noreferrer" class="btn btn-green">&#10003; View Fix (PR #40)</a>
+            </div>
+          </div>
+          <div class="meta-grid">
+            <div class="meta-cell sev-critical">
+              <span class="meta-label">Severity</span>
+              <span class="meta-value">S1 &mdash; Critical</span>
+            </div>
+            <div class="meta-cell pri-p1">
+              <span class="meta-label">Priority</span>
+              <span class="meta-value">P1</span>
+            </div>
+            <div class="meta-cell status-open">
+              <span class="meta-label">Status</span>
+              <span class="meta-value">Open</span>
+            </div>
+            <div class="meta-cell">
+              <span class="meta-label">Component</span>
+              <span class="meta-value">SlotCanvas</span>
+            </div>
+            <div class="meta-cell full">
+              <span class="meta-label">Environment</span>
+              <span class="meta-value" style="font-size:12px">SlotsOne v1.0 &middot; React 19 + PixiJS 8 + Zustand &middot; Chrome 145+ &middot; Linux</span>
+            </div>
+            <div class="meta-cell">
+              <span class="meta-label">Reporter</span>
+              <span class="meta-value">O. Pyavchik</span>
+            </div>
+            <div class="meta-cell">
+              <span class="meta-label">Date</span>
+              <span class="meta-value">2026-03-01</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── Preconditions ────────────────────────── -->
+      <div class="card">
+        <h2>Preconditions</h2>
+        <ul class="preconditions">
+          <li>User is authenticated</li>
+          <li>Sufficient balance for at least 2 spins</li>
+          <li>At least one previous spin completed (<code style="color:#a5b4fc;font-size:12px">lastOutcome</code> exists in state)</li>
+        </ul>
+      </div>
+
+      <!-- ── Steps to reproduce ───────────────────── -->
+      <div class="card">
+        <h2>Steps to Reproduce</h2>
+        <div class="steps">
+          <div class="step">
+            <span class="step-num">1</span>
+            <div class="step-body">
+              <p class="step-text">Open the slots game at <a href="/slots" style="color:#a5b4fc">pyavchik.space/slots</a></p>
+            </div>
+          </div>
+          <div class="step">
+            <span class="step-num">2</span>
+            <div class="step-body">
+              <p class="step-text">Place a bet and click <strong>SPIN</strong></p>
+              <p class="step-note">Wait for reels to stop. Note the symbols displayed on the canvas.</p>
+            </div>
+          </div>
+          <div class="step">
+            <span class="step-num">3</span>
+            <div class="step-body">
+              <p class="step-text">Click <strong>SPIN</strong> again &mdash; wait for reels to stop</p>
+              <p class="step-note">The symbols now shown on the canvas are from step 2, not the current spin.</p>
+            </div>
+          </div>
+          <div class="step">
+            <span class="step-num">4</span>
+            <div class="step-body">
+              <p class="step-text">Open DevTools &rarr; <strong>Network</strong> tab &rarr; inspect the latest <code style="color:#a5b4fc;font-size:12px">/spin</code> response body</p>
+              <p class="step-note">Look at <code style="color:#a5b4fc;font-size:12px">outcome.reel_matrix</code> in the JSON response.</p>
+            </div>
+          </div>
+          <div class="step">
+            <span class="step-num">5</span>
+            <div class="step-body">
+              <p class="step-text">Compare the canvas symbols to the API response's <code style="color:#a5b4fc;font-size:12px">reel_matrix</code></p>
+              <p class="step-note">The symbols do NOT match &mdash; the canvas shows the prior spin's matrix.</p>
+            </div>
+          </div>
+          <div class="step">
+            <span class="step-num">6</span>
+            <div class="step-body">
+              <p class="step-text">Navigate to <strong>Game History</strong> &rarr; click the latest round &rarr; compare the Round Detail reel grid</p>
+              <p class="step-note">Round Detail shows the correct (server-side) symbols, confirming the mismatch is frontend-only.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── Expected vs Actual ───────────────────── -->
+      <div class="card">
+        <h2>Expected vs Actual Result</h2>
+        <div class="compare-grid">
+          <div class="compare-card expected">
+            <div class="compare-label">&#10003; Expected</div>
+            <p class="compare-text">Canvas reel symbols match the <code style="color:#86efac;font-size:12px">reel_matrix</code> from the <strong>current</strong> spin's API response. Displayed symbols, win highlights, and payout amounts are all consistent.</p>
+          </div>
+          <div class="compare-card actual">
+            <div class="compare-label">&#10007; Actual</div>
+            <p class="compare-text">Canvas displays the <strong>previous</strong> spin's <code style="color:#fca5a5;font-size:12px">reel_matrix</code>. Every spin result is visually one spin behind the server. Win amounts in the HUD are correct (from API), but displayed symbols belong to the prior round.</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── Screenshots ──────────────────────────── -->
+      <div class="card">
+        <h2>Evidence</h2>
+        <div class="screenshots">
+          <div class="screenshot-wrap">
+            <span class="screenshot-badge badge-bug">CANVAS &mdash; WRONG SYMBOLS</span>
+            <img src="/bug-report/canvas-mismatch.png" alt="Canvas showing wrong symbols with API response visible in DevTools" onclick="openLightbox(this.src)" />
+            <div class="screenshot-caption">Canvas displays symbols from the <em>previous</em> spin. Network tab shows the current API response with different <code>reel_matrix</code> values.</div>
+          </div>
+          <div class="screenshot-wrap">
+            <span class="screenshot-badge badge-truth">ROUND DETAIL &mdash; SERVER TRUTH</span>
+            <img src="/bug-report/round-detail.png" alt="Round Detail page showing the correct reel matrix from server" onclick="openLightbox(this.src)" />
+            <div class="screenshot-caption">Round Detail confirms the server generated a different reel result than what the canvas displayed.</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── Root cause analysis ──────────────────── -->
+      <div class="card">
+        <h2>Root Cause Analysis</h2>
+        <p style="margin-bottom:16px">The bug is a <strong>React state race condition</strong> in the spin flow. The <code style="color:#a5b4fc;font-size:12px">useEffect</code> in SlotCanvas depends on both <code style="color:#a5b4fc;font-size:12px">spinning</code> and <code style="color:#a5b4fc;font-size:12px">lastOutcome</code>. When <code style="color:#a5b4fc;font-size:12px">setSpinning(true)</code> is called, the effect fires <em>before</em> the API responds &mdash; using the stale outcome from the previous round.</p>
+
+        <div class="timeline">
+          <div class="tl-item tl-ok">
+            <span class="tl-num">1.</span>
+            <span class="tl-desc">User clicks <strong>SPIN</strong></span>
+          </div>
+          <div class="tl-item tl-ok">
+            <span class="tl-num">2.</span>
+            <span class="tl-desc">App calls <span class="tl-code">setSpinning(true)</span> &rarr; <code style="font-family:'JetBrains Mono',monospace;font-size:12px;color:#cbd5e1">spinning: false &rarr; true</code></span>
+          </div>
+          <div class="tl-item tl-warn">
+            <span class="tl-num">3.</span>
+            <span class="tl-desc"><span class="tl-code">useEffect([lastOutcome, spinning])</span> triggers because <code style="font-family:'JetBrains Mono',monospace;font-size:12px;color:#cbd5e1">spinning</code> changed</span>
+          </div>
+          <div class="tl-item tl-bad">
+            <span class="tl-num">4.</span>
+            <span class="tl-desc"><span class="tl-code">lastOutcome</span> still holds <strong>previous spin's data</strong> <span class="tl-annotation ann-stale">STALE</span></span>
+          </div>
+          <div class="tl-item tl-bad">
+            <span class="tl-num">5.</span>
+            <span class="tl-desc"><span class="tl-code">spinThenStop(oldMatrix)</span> starts animation with <strong>wrong symbols</strong></span>
+          </div>
+          <div class="tl-item tl-ok">
+            <span class="tl-num">6.</span>
+            <span class="tl-desc">API responds &rarr; <span class="tl-code">setSpinResult(newOutcome)</span></span>
+          </div>
+          <div class="tl-item tl-warn">
+            <span class="tl-num">7.</span>
+            <span class="tl-desc"><span class="tl-code">useEffect</span> triggers again with correct data</span>
+          </div>
+          <div class="tl-item tl-bad">
+            <span class="tl-num">8.</span>
+            <span class="tl-desc"><span class="tl-code">spinThenStop(newMatrix)</span> <strong>REJECTED</strong> at line 595 &mdash; reels already animating <span class="tl-annotation ann-rejected">REJECTED</span></span>
+          </div>
+          <div class="tl-item tl-bad">
+            <span class="tl-num">9.</span>
+            <span class="tl-desc">Reels stop showing <strong>old symbols</strong> <span class="tl-annotation ann-bug">BUG</span></span>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── Affected files ───────────────────────── -->
+      <div class="card">
+        <h2>Affected Files</h2>
+        <ul class="file-list">
+          <li class="file-item">
+            <span class="file-icon">TS</span>
+            <span class="file-path">frontend/src/store.ts</span>
+            <span class="file-note">setSpinning doesn't clear lastOutcome</span>
+          </li>
+          <li class="file-item">
+            <span class="file-icon">TX</span>
+            <span class="file-path">frontend/src/SlotCanvas.tsx:113-136</span>
+            <span class="file-note">useEffect fires on both spinning &amp; lastOutcome</span>
+          </li>
+          <li class="file-item">
+            <span class="file-icon">TS</span>
+            <span class="file-path">frontend/src/reel/PixiReelGrid.ts:595</span>
+            <span class="file-note">spinThenStop guard rejects concurrent calls</span>
+          </li>
+        </ul>
+      </div>
+
+      <!-- ── Impact assessment ────────────────────── -->
+      <div class="card">
+        <h2>Impact Assessment</h2>
+        <ul class="impact-list">
+          <li class="impact-item">
+            <span class="impact-icon">!</span>
+            <span>Every spin after the first displays incorrect symbols on the reel canvas</span>
+          </li>
+          <li class="impact-item">
+            <span class="impact-icon">!</span>
+            <span>Win amounts in HUD are correct (from API) but don't match the displayed symbol configuration</span>
+          </li>
+          <li class="impact-item">
+            <span class="impact-icon">!</span>
+            <span>Provably fair verification fails &mdash; users see different symbols than what the server generated</span>
+          </li>
+          <li class="impact-item">
+            <span class="impact-icon">!</span>
+            <span>Game integrity violation &mdash; regulatory compliance failure in licensed markets</span>
+          </li>
+        </ul>
+      </div>
+
+      <!-- ── Proposed fix ─────────────────────────── -->
+      <div class="card fix-card">
+        <span class="fix-badge">PROPOSED FIX</span>
+        <h2 style="margin-top:4px">Clear stale outcome on spin start</h2>
+        <p>Null out <code style="color:#86efac;font-size:12px">lastOutcome</code> when <code style="color:#86efac;font-size:12px">setSpinning(true)</code> is called. The effect sees <code style="color:#86efac;font-size:12px">lastOutcome === null</code> and exits early. When the fresh API response arrives, the effect fires with correct data &mdash; no stale state, no rejected calls.</p>
+
+        <h3 style="margin-top:16px">Diff &mdash; <code style="color:#67e8f9;font-size:12px">frontend/src/store.ts</code></h3>
+        <pre class="code-block"><span class="diff-context">  <span class="prop">setSpinning</span>: (<span class="fn">v</span>) <span class="op">=></span></span>
+<span class="diff-context">    <span class="fn">set</span>((<span class="fn">s</span>) <span class="op">=></span> ({</span>
+<span class="diff-context">      <span class="prop">spinning</span>: v,</span>
+<span class="diff-add"><span style="color:#4ade80">+</span>     <span class="cmt">// Clear stale outcome when starting a new spin so the SlotCanvas</span></span>
+<span class="diff-add"><span style="color:#4ade80">+</span>     <span class="cmt">// effect doesn't re-trigger spinThenStop with the previous result.</span></span>
+<span class="diff-add"><span style="color:#4ade80">+</span>     <span class="prop">lastOutcome</span>: v <span class="op">?</span> <span class="num">null</span> <span class="op">:</span> s.<span class="prop">lastOutcome</span>,</span>
+<span class="diff-context">      <span class="prop">lastWinAmount</span>: v <span class="op">?</span> <span class="num">0</span> <span class="op">:</span> (s.<span class="prop">pendingWinAmount</span> <span class="op">??</span> <span class="num">0</span>),</span>
+<span class="diff-context">      <span class="prop">pendingWinAmount</span>: <span class="num">null</span>,</span>
+<span class="diff-context">    })),</span></pre>
+
+        <h3 style="margin-top:16px">Fixed flow</h3>
+        <div class="timeline" style="margin-bottom:4px">
+          <div class="tl-item tl-ok">
+            <span class="tl-num">1.</span>
+            <span class="tl-desc"><span class="tl-code">setSpinning(true)</span> &rarr; <code style="font-family:'JetBrains Mono',monospace;font-size:12px;color:#cbd5e1">spinning: true, lastOutcome: null</code></span>
+          </div>
+          <div class="tl-item tl-ok">
+            <span class="tl-num">2.</span>
+            <span class="tl-desc"><span class="tl-code">useEffect</span> fires &rarr; <code style="font-family:'JetBrains Mono',monospace;font-size:12px;color:#cbd5e1">!lastOutcome</code> is <code style="font-family:'JetBrains Mono',monospace;font-size:12px;color:#4ade80">true</code> &rarr; <strong>early return</strong> (no stale animation)</span>
+          </div>
+          <div class="tl-item tl-ok">
+            <span class="tl-num">3.</span>
+            <span class="tl-desc">API responds &rarr; <span class="tl-code">setSpinResult(newOutcome)</span></span>
+          </div>
+          <div class="tl-item tl-ok">
+            <span class="tl-num">4.</span>
+            <span class="tl-desc"><span class="tl-code">useEffect</span> fires with <strong>fresh data</strong> &rarr; <span class="tl-code">spinThenStop(newMatrix)</span> &rarr; correct symbols</span>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- ── Lightbox ─────────────────────────────── -->
+    <div class="lightbox" id="lightbox" onclick="closeLightbox()">
+      <img id="lightbox-img" src="" alt="Enlarged screenshot" />
+    </div>
+
+    <script>
+      function openLightbox(src) {
+        document.getElementById('lightbox-img').src = src;
+        document.getElementById('lightbox').classList.add('open');
+      }
+      function closeLightbox() {
+        document.getElementById('lightbox').classList.remove('open');
+      }
+      document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape') closeLightbox();
+      });
+    </script>
+  </body>
+</html>
