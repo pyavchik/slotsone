@@ -101,6 +101,25 @@ function getFreeSpinsForScatters(count: number): number {
 
 const WILD_INDEX = SYMBOLS.indexOf('Wild');
 
+/**
+ * Build a cosmetic idle matrix using Math.random() (not seeded RNG).
+ * Each reel picks a random stop position on its strip and returns 3 consecutive symbols.
+ */
+export function buildIdleMatrix(): ReelMatrix {
+  const matrix: ReelMatrix = [];
+  for (let r = 0; r < REELS; r++) {
+    const strip = REEL_STRIPS[r]!;
+    const pos = Math.floor(Math.random() * strip.length);
+    const col: string[] = [];
+    for (let row = 0; row < ROWS; row++) {
+      const idx = (pos + row) % strip.length;
+      col.push(getSymbolId(strip[idx]!));
+    }
+    matrix.push(col);
+  }
+  return matrix;
+}
+
 export function runSpin(
   betAmount: number,
   currency: string,

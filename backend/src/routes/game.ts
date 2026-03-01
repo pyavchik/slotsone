@@ -2,6 +2,7 @@ import { Router } from 'express';
 import { authMiddleware } from '../middleware/auth.js';
 import { createSession, getConfig, executeSpin, getBalance, getHistory } from '../store.js';
 import { GAME_ID } from '../engine/gameConfig.js';
+import { buildIdleMatrix } from '../engine/spinEngine.js';
 import {
   HistoryQuerySchema,
   InitRequestSchema,
@@ -50,6 +51,7 @@ router.post('/game/init', authMiddleware, (req, res) => {
     game_id: session.game_id,
     config: getConfig(),
     balance: { amount: balance.amount, currency: balance.currency },
+    idle_matrix: buildIdleMatrix(),
     expires_at: new Date(session.expires_at).toISOString(),
   });
 });

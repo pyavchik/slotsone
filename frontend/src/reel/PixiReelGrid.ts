@@ -104,6 +104,7 @@ export interface ReelGridOptions extends ReelGridSafeArea {
   width: number;
   height: number;
   lineDefs?: number[][];
+  idleMatrix?: string[][];
   onReelStopped?: (reelIndex: number) => void;
   onAllStopped?: () => void;
   onAssetsReady?: () => void;
@@ -546,7 +547,7 @@ export class ReelGrid {
     // Keep first paint fast with fallback textures, but notify UI when symbol
     // image warm-up finishes so it can reveal only real symbols.
     void grid.symbolTextures.warm().finally(() => {
-      grid.setIdleSymbols([]);
+      grid.setIdleSymbols(options.idleMatrix ?? []);
       options.onAssetsReady?.();
     });
     return grid;
