@@ -134,12 +134,7 @@ export function CVLanding({ onOpenSlots }: { onOpenSlots: () => void }) {
           >
             sql
           </a>
-          <a
-            className="cv-link cv-link--bug"
-            href={BUG_REPORT_PATH}
-            target="_blank"
-            rel="noreferrer"
-          >
+          <a className="cv-link" href={BUG_REPORT_PATH} target="_blank" rel="noreferrer">
             bug report
           </a>
           <a className="cv-link" href={CV_PDF_PATH} target="_blank" rel="noreferrer">
