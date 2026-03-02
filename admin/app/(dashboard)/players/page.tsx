@@ -173,7 +173,7 @@ export default function PlayersPage() {
     cell: (props: any) => (
       <div
         className="cursor-pointer"
-        onClick={() => router.push(`/admin/players/${props.row.original.id}`)}
+        onClick={() => router.push(`/players/${props.row.original.id}`)}
       >
         {(col as any).cell ? (col as any).cell(props) : props.getValue()}
       </div>
