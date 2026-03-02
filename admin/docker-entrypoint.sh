@@ -1,9 +1,9 @@
 #!/bin/sh
 set -e
 
-# Run Prisma migrations
+# Run Prisma migrations using the copied prisma CLI
 echo "Running Prisma migrations..."
-npx prisma migrate deploy
+node ./node_modules/prisma/build/index.js migrate deploy
 
 # Execute the main command
 exec "$@"
