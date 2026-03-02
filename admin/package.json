@@ -12,7 +12,10 @@
     "db:migrate": "npx prisma migrate dev",
     "db:seed": "npx tsx prisma/seed.ts",
     "db:reset": "npx prisma migrate reset --force && npx tsx prisma/seed.ts",
-    "postinstall": "npx prisma generate"
+    "postinstall": "npx prisma generate",
+    "test:e2e": "npx playwright test",
+    "test:e2e:ui": "npx playwright test --ui",
+    "test:e2e:report": "npx playwright show-report"
   },
   "prisma": {
     "seed": "npx tsx prisma/seed.ts"
@@ -49,6 +52,7 @@
     "lucide-react": "^0.575.0",
     "next": "14.2.35",
     "next-auth": "^5.0.0-beta.25",
+    "pg": "^8.19.0",
     "prisma": "^5.22.0",
     "react": "^18",
     "react-dom": "^18",
@@ -60,8 +64,10 @@
   },
   "devDependencies": {
     "@faker-js/faker": "^10.3.0",
+    "@playwright/test": "^1.58.2",
     "@types/bcryptjs": "^2.4.6",
     "@types/node": "^20",
+    "@types/pg": "^8.18.0",
     "@types/react": "^18",
     "@types/react-dom": "^18",
     "eslint": "^8",

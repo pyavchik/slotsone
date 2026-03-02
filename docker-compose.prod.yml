@@ -82,6 +82,8 @@ services:
     depends_on:
       postgres-admin:
         condition: service_healthy
+      postgres:
+        condition: service_healthy
     networks:
       - slotsone
 
