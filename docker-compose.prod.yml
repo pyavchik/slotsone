@@ -77,6 +77,8 @@ services:
     restart: unless-stopped
     env_file:
       - ./admin/.env.production
+    environment:
+      BACKEND_DATABASE_URL: "postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB}"
     expose:
       - "3002"
     depends_on:
