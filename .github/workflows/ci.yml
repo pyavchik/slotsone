@@ -38,6 +38,7 @@ jobs:
           cache-dependency-path: |
             backend/package-lock.json
             frontend/package-lock.json
+            admin/package-lock.json
 
       - name: Backend install
         working-directory: backend
@@ -90,3 +91,15 @@ jobs:
       - name: Frontend E2E tests
         working-directory: frontend
         run: npm run test:e2e
+
+      - name: Admin install
+        working-directory: admin
+        run: npm ci
+
+      - name: Admin lint
+        working-directory: admin
+        run: npm run lint
+
+      - name: Admin build
+        working-directory: admin
+        run: npx prisma generate && npm run build

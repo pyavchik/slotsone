@@ -53,12 +53,45 @@ services:
     networks:
       - slotsone
 
+  postgres-admin:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: ${ADMIN_POSTGRES_DB:-slotsone_admin}
+      POSTGRES_USER: ${ADMIN_POSTGRES_USER:-slotsone_admin}
+      POSTGRES_PASSWORD: ${ADMIN_POSTGRES_PASSWORD}
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${ADMIN_POSTGRES_USER:-slotsone_admin}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    volumes:
+      - postgres_admin_data:/var/lib/postgresql/data
+    networks:
+      - slotsone
+
+  admin:
+    build:
+      context: ./admin
+      dockerfile: Dockerfile
+    container_name: slotsone-admin
+    restart: unless-stopped
+    env_file:
+      - ./admin/.env.production
+    expose:
+      - "3002"
+    depends_on:
+      postgres-admin:
+        condition: service_healthy
+    networks:
+      - slotsone
+
   caddy:
     image: caddy:2.10-alpine
     container_name: slotsone-caddy
     restart: unless-stopped
     depends_on:
       - frontend
+      - admin
     environment:
       TLS_DOMAIN: ${TLS_DOMAIN}
       ACME_EMAIL: ${ACME_EMAIL}
@@ -80,3 +113,4 @@ volumes:
   caddy_data:
   caddy_config:
   postgres_data:
+  postgres_admin_data:

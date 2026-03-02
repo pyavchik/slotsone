@@ -28,6 +28,7 @@ jobs:
           cache-dependency-path: |
             backend/package-lock.json
             frontend/package-lock.json
+            admin/package-lock.json
 
       - name: Build backend
         working-directory: backend
@@ -39,6 +40,13 @@ jobs:
         working-directory: frontend
         run: |
           npm ci
+          npm run build
+
+      - name: Build admin
+        working-directory: admin
+        run: |
+          npm ci
+          npx prisma generate
           npm run build
 
   deploy:
@@ -102,6 +110,7 @@ jobs:
             --exclude '.playwright-mcp/' \
             --exclude 'backend/.env.production' \
             --exclude 'backend/.env.development' \
+            --exclude 'admin/.env.production' \
             --exclude '.env' \
             --exclude '.env.production' \
             --exclude 'frontend/.env.production' \
@@ -114,6 +123,7 @@ jobs:
           ssh -p "${DEPLOY_PORT:-22}" "${DEPLOY_USER}@${DEPLOY_HOST}" "set -euo pipefail; \
             cd '${DEPLOY_PATH}'; \
             test -f backend/.env.production || { echo 'Missing backend/.env.production on server'; exit 1; }; \
+            test -f admin/.env.production || { echo 'Missing admin/.env.production on server'; exit 1; }; \
             test -f .env.production || { echo 'Missing .env.production on server'; exit 1; }; \
             TLS_DOMAIN=\$(grep '^TLS_DOMAIN=' .env.production | cut -d= -f2- || true); \
             ACME_EMAIL=\$(grep '^ACME_EMAIL=' .env.production | cut -d= -f2- || true); \
