@@ -29,15 +29,15 @@ const icons: Record<string, React.ElementType> = {
 };
 
 const NAV_ITEMS = [
-  { label: "Dashboard", href: "/admin", icon: "LayoutDashboard" },
-  { label: "Players", href: "/admin/players", icon: "Users" },
-  { label: "Transactions", href: "/admin/transactions", icon: "ArrowLeftRight" },
-  { label: "Games", href: "/admin/games", icon: "Gamepad2" },
-  { label: "Bonuses", href: "/admin/bonuses", icon: "Gift" },
-  { label: "KYC", href: "/admin/kyc", icon: "ShieldCheck" },
-  { label: "Risk", href: "/admin/risk", icon: "AlertTriangle" },
-  { label: "Reports", href: "/admin/reports", icon: "BarChart3" },
-  { label: "Settings", href: "/admin/settings", icon: "Settings" },
+  { label: "Dashboard", href: "/", icon: "LayoutDashboard" },
+  { label: "Players", href: "/players", icon: "Users" },
+  { label: "Transactions", href: "/transactions", icon: "ArrowLeftRight" },
+  { label: "Games", href: "/games", icon: "Gamepad2" },
+  { label: "Bonuses", href: "/bonuses", icon: "Gift" },
+  { label: "KYC", href: "/kyc", icon: "ShieldCheck" },
+  { label: "Risk", href: "/risk", icon: "AlertTriangle" },
+  { label: "Reports", href: "/reports", icon: "BarChart3" },
+  { label: "Settings", href: "/settings", icon: "Settings" },
 ] as const;
 
 export function Sidebar() {
@@ -55,8 +55,7 @@ export function Sidebar() {
         <nav className="space-y-1 px-3">
           {NAV_ITEMS.map((item) => {
             const Icon = icons[item.icon];
-            const isActive =
-              item.href === "/admin" ? pathname === "/admin" : pathname.startsWith(item.href);
+            const isActive = item.href === "/" ? pathname === "/" : pathname.startsWith(item.href);
 
             return (
               <Link
