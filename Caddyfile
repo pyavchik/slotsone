@@ -4,5 +4,12 @@
 
 {$TLS_DOMAIN} {
   encode gzip zstd
-  reverse_proxy frontend:80
+
+  handle /admin* {
+    reverse_proxy admin:3002
+  }
+
+  handle {
+    reverse_proxy frontend:80
+  }
 }

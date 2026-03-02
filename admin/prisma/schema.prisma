@@ -1,0 +1,358 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("ADMIN_DATABASE_URL")
+}
+
+// ─── Enums ───────────────────────────────────────────────
+
+enum UserStatus {
+  ACTIVE
+  SUSPENDED
+  BANNED
+  SELF_EXCLUDED
+  PENDING_VERIFICATION
+}
+
+enum UserRole {
+  PLAYER
+  VIP
+  TESTER
+}
+
+enum RiskLevel {
+  LOW
+  MEDIUM
+  HIGH
+  CRITICAL
+}
+
+enum TransactionType {
+  DEPOSIT
+  WITHDRAWAL
+  BET
+  WIN
+  BONUS_CREDIT
+  ADJUSTMENT
+  REFUND
+}
+
+enum TransactionStatus {
+  PENDING
+  COMPLETED
+  FAILED
+  CANCELLED
+  REVERSED
+}
+
+enum GameCategory {
+  SLOTS
+  TABLE
+  LIVE
+  INSTANT
+}
+
+enum BonusType {
+  WELCOME
+  DEPOSIT_MATCH
+  FREE_SPINS
+  CASHBACK
+  LOYALTY
+  CUSTOM
+}
+
+enum BonusStatus {
+  ACTIVE
+  COMPLETED
+  EXPIRED
+  CANCELLED
+  FORFEITED
+}
+
+enum KYCDocType {
+  PASSPORT
+  DRIVERS_LICENSE
+  NATIONAL_ID
+  PROOF_OF_ADDRESS
+  BANK_STATEMENT
+  SELFIE
+}
+
+enum KYCStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+enum AdminRole {
+  ADMIN
+  SUPERADMIN
+}
+
+enum AuditAction {
+  USER_STATUS_CHANGE
+  USER_ROLE_CHANGE
+  BALANCE_ADJUSTMENT
+  BONUS_GRANT
+  BONUS_CANCEL
+  KYC_APPROVE
+  KYC_REJECT
+  TRANSACTION_APPROVE
+  TRANSACTION_REJECT
+  GAME_TOGGLE
+  PROMOTION_CREATE
+  PROMOTION_UPDATE
+  ADMIN_CREATE
+  ADMIN_UPDATE
+  SETTINGS_UPDATE
+  NOTE_CREATE
+  RISK_FLAG
+}
+
+// ─── Models ──────────────────────────────────────────────
+
+model User {
+  id              String        @id @default(cuid())
+  email           String        @unique
+  username        String        @unique
+  firstName       String?
+  lastName        String?
+  status          UserStatus    @default(ACTIVE)
+  role            UserRole      @default(PLAYER)
+  balanceReal     Decimal       @default(0) @db.Decimal(15, 2)
+  balanceBonus    Decimal       @default(0) @db.Decimal(15, 2)
+  currency        String        @default("EUR")
+  country         String?
+  kycVerified     Boolean       @default(false)
+  riskLevel       RiskLevel     @default(LOW)
+  totalDeposited  Decimal       @default(0) @db.Decimal(15, 2)
+  totalWithdrawn  Decimal       @default(0) @db.Decimal(15, 2)
+  totalWagered    Decimal       @default(0) @db.Decimal(15, 2)
+  totalWon        Decimal       @default(0) @db.Decimal(15, 2)
+  tags            Json          @default("[]")
+  lastLoginAt     DateTime?
+  registeredAt    DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+
+  transactions    Transaction[]
+  gameSessions    GameSession[]
+  gameRounds      GameRound[]
+  bonuses         Bonus[]
+  kycDocuments    KYCDocument[]
+  notes           AdminNote[]
+
+  @@index([status])
+  @@index([riskLevel])
+  @@index([country])
+  @@index([registeredAt])
+  @@map("users")
+}
+
+model Transaction {
+  id            String            @id @default(cuid())
+  userId        String
+  type          TransactionType
+  amount        Decimal           @db.Decimal(15, 2)
+  status        TransactionStatus @default(COMPLETED)
+  balanceBefore Decimal           @db.Decimal(15, 2)
+  balanceAfter  Decimal           @db.Decimal(15, 2)
+  currency      String            @default("EUR")
+  roundId       String?
+  bonusId       String?
+  description   String?
+  metadata      Json?
+  createdAt     DateTime          @default(now())
+  updatedAt     DateTime          @updatedAt
+
+  user          User              @relation(fields: [userId], references: [id])
+  bonus         Bonus?            @relation(fields: [bonusId], references: [id])
+
+  @@index([userId])
+  @@index([type])
+  @@index([status])
+  @@index([createdAt])
+  @@map("transactions")
+}
+
+model GameSession {
+  id           String      @id @default(cuid())
+  userId       String
+  gameId       String
+  startedAt    DateTime    @default(now())
+  endedAt      DateTime?
+  totalBet     Decimal     @default(0) @db.Decimal(15, 2)
+  totalWin     Decimal     @default(0) @db.Decimal(15, 2)
+  roundsPlayed Int         @default(0)
+
+  user         User        @relation(fields: [userId], references: [id])
+  game         Game        @relation(fields: [gameId], references: [id])
+  rounds       GameRound[]
+
+  @@index([userId])
+  @@index([gameId])
+  @@index([startedAt])
+  @@map("game_sessions")
+}
+
+model GameRound {
+  id        String      @id @default(cuid())
+  sessionId String
+  userId    String
+  gameId    String
+  betAmount Decimal     @db.Decimal(15, 2)
+  winAmount Decimal     @default(0) @db.Decimal(15, 2)
+  roundData Json?
+  createdAt DateTime    @default(now())
+
+  session   GameSession @relation(fields: [sessionId], references: [id])
+  user      User        @relation(fields: [userId], references: [id])
+  game      Game        @relation(fields: [gameId], references: [id])
+
+  @@index([sessionId])
+  @@index([userId])
+  @@index([gameId])
+  @@index([createdAt])
+  @@map("game_rounds")
+}
+
+model Game {
+  id          String       @id @default(cuid())
+  slug        String       @unique
+  name        String
+  provider    String
+  category    GameCategory @default(SLOTS)
+  rtp         Decimal      @db.Decimal(5, 2)
+  isActive    Boolean      @default(true)
+  isFeatured  Boolean      @default(false)
+  minBet      Decimal      @default(0.10) @db.Decimal(15, 2)
+  maxBet      Decimal      @default(100) @db.Decimal(15, 2)
+  thumbnail   String?
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+
+  sessions    GameSession[]
+  rounds      GameRound[]
+
+  @@index([category])
+  @@index([provider])
+  @@map("games")
+}
+
+model Bonus {
+  id               String      @id @default(cuid())
+  userId           String
+  promotionId      String?
+  type             BonusType
+  status           BonusStatus @default(ACTIVE)
+  amount           Decimal     @db.Decimal(15, 2)
+  wagerRequirement Decimal     @default(0) @db.Decimal(15, 2)
+  wagered          Decimal     @default(0) @db.Decimal(15, 2)
+  expiresAt        DateTime?
+  createdAt        DateTime    @default(now())
+  updatedAt        DateTime    @updatedAt
+
+  user             User        @relation(fields: [userId], references: [id])
+  promotion        Promotion?  @relation(fields: [promotionId], references: [id])
+  transactions     Transaction[]
+
+  @@index([userId])
+  @@index([status])
+  @@map("bonuses")
+}
+
+model KYCDocument {
+  id              String    @id @default(cuid())
+  userId          String
+  docType         KYCDocType
+  status          KYCStatus @default(PENDING)
+  fileUrl         String
+  reviewedBy      String?
+  rejectionReason String?
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  user            User      @relation(fields: [userId], references: [id])
+  reviewer        AdminUser? @relation(fields: [reviewedBy], references: [id])
+
+  @@index([userId])
+  @@index([status])
+  @@map("kyc_documents")
+}
+
+model AdminNote {
+  id        String   @id @default(cuid())
+  userId    String
+  authorId  String
+  content   String
+  isPinned  Boolean  @default(false)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user      User      @relation(fields: [userId], references: [id])
+  author    AdminUser @relation(fields: [authorId], references: [id])
+
+  @@index([userId])
+  @@map("admin_notes")
+}
+
+model AuditLog {
+  id         String      @id @default(cuid())
+  adminId    String
+  action     AuditAction
+  targetType String
+  targetId   String
+  before     Json?
+  after      Json?
+  ipAddress  String?
+  createdAt  DateTime    @default(now())
+
+  admin      AdminUser   @relation(fields: [adminId], references: [id])
+
+  @@index([adminId])
+  @@index([action])
+  @@index([targetType, targetId])
+  @@index([createdAt])
+  @@map("audit_logs")
+}
+
+model Promotion {
+  id               String    @id @default(cuid())
+  name             String
+  description      String?
+  type             BonusType
+  amount           Decimal   @db.Decimal(15, 2)
+  wagerRequirement Decimal   @default(0) @db.Decimal(15, 2)
+  isActive         Boolean   @default(true)
+  startsAt         DateTime
+  endsAt           DateTime?
+  targetSegment    Json?
+  maxRedemptions   Int?
+  redemptions      Int       @default(0)
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
+
+  bonuses          Bonus[]
+
+  @@map("promotions")
+}
+
+model AdminUser {
+  id           String       @id @default(cuid())
+  email        String       @unique
+  passwordHash String
+  name         String
+  role         AdminRole    @default(ADMIN)
+  isActive     Boolean      @default(true)
+  lastLoginAt  DateTime?
+  createdAt    DateTime     @default(now())
+  updatedAt    DateTime     @updatedAt
+
+  notes        AdminNote[]
+  auditLogs    AuditLog[]
+  kycReviews   KYCDocument[]
+
+  @@map("admin_users")
+}

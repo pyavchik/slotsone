@@ -62,9 +62,48 @@ services:
     networks:
       - slotsone
 
+  postgres-admin:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: slotsone_admin
+      POSTGRES_USER: slotsone_admin
+      POSTGRES_PASSWORD: slotsone_admin
+    ports:
+      - "5433:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U slotsone_admin"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    volumes:
+      - postgres_admin_data:/var/lib/postgresql/data
+    networks:
+      - slotsone
+
+  admin:
+    build:
+      context: ./admin
+      dockerfile: Dockerfile
+    container_name: slotsone-admin-local
+    restart: unless-stopped
+    environment:
+      NODE_ENV: production
+      PORT: 3002
+      ADMIN_DATABASE_URL: postgres://slotsone_admin:slotsone_admin@postgres-admin:5432/slotsone_admin
+      NEXTAUTH_URL: http://localhost:3002/admin
+      NEXTAUTH_SECRET: dev-secret-change-in-production
+    ports:
+      - "3002:3002"
+    depends_on:
+      postgres-admin:
+        condition: service_healthy
+    networks:
+      - slotsone
+
 networks:
   slotsone:
     driver: bridge
 
 volumes:
   postgres_data:
+  postgres_admin_data:

@@ -3,6 +3,7 @@
 
 # Build artifacts
 **/dist/
+**/.next/
 **/*.tsbuildinfo
 coverage/
 .nyc_output/

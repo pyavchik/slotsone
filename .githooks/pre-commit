@@ -4,7 +4,7 @@ set -euo pipefail
 root="$(git rev-parse --show-toplevel)"
 failed=0
 
-for dir in frontend backend; do
+for dir in frontend backend admin; do
   pkg="$root/$dir"
   if [ ! -f "$pkg/package.json" ]; then
     continue
