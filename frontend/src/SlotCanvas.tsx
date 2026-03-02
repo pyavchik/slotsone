@@ -97,7 +97,7 @@ export function SlotCanvas({ width, height, onAllReelsStopped }: SlotCanvasProps
         hasCreatedRef.current = false;
       }
     };
-  }, [width, height, lineDefs, safeArea, onAllReelsStopped]);
+  }, [width, height, lineDefs, safeArea, onAllReelsStopped, idleMatrix]);
 
   useEffect(() => {
     return () => {
