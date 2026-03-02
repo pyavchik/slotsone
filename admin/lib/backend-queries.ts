@@ -6,6 +6,17 @@ function centsToFixed(cents: string | number | bigint): string {
   return (Number(cents) / 100).toFixed(2);
 }
 
+function isBackendAvailable(): boolean {
+  return backendPool !== null;
+}
+
+const EMPTY_PAGINATION = (page: number, pageSize: number) => ({
+  page,
+  pageSize,
+  total: 0,
+  totalPages: 0,
+});
+
 // Whitelist of allowed sort columns to prevent SQL injection
 const PLAYER_SORT_COLUMNS: Record<string, string> = {
   registeredAt: "u.created_at",
@@ -32,6 +43,9 @@ export interface PlayerListOptions {
 }
 
 export async function getPlayers(opts: PlayerListOptions) {
+  if (!isBackendAvailable()) {
+    return { data: [], pagination: EMPTY_PAGINATION(opts.page, opts.pageSize) };
+  }
   const { page, pageSize, search, sortBy = "registeredAt", sortDir = "desc" } = opts;
   const offset = (page - 1) * pageSize;
   const params: unknown[] = [];
@@ -69,8 +83,8 @@ export async function getPlayers(opts: PlayerListOptions) {
   params.push(pageSize, offset);
 
   const [dataResult, countResult] = await Promise.all([
-    backendPool.query(query, params),
-    backendPool.query(
+    backendPool!.query(query, params),
+    backendPool!.query(
       `SELECT COUNT(*)::int AS total FROM users u ${whereClause}`,
       search ? [`%${search}%`] : []
     ),
@@ -109,7 +123,8 @@ export async function getPlayers(opts: PlayerListOptions) {
 // --- Single Player ---
 
 export async function getPlayerById(id: string) {
-  const { rows } = await backendPool.query(
+  if (!isBackendAvailable()) return null;
+  const { rows } = await backendPool!.query(
     `
     SELECT
       u.id,
@@ -164,7 +179,8 @@ export async function getPlayerById(id: string) {
 // --- Player Transactions ---
 
 export async function getPlayerTransactions(userId: string, limit = 50) {
-  const { rows } = await backendPool.query(
+  if (!isBackendAvailable()) return [];
+  const { rows } = await backendPool!.query(
     `
     SELECT
       t.id,
@@ -209,7 +225,8 @@ export async function getPlayerTransactions(userId: string, limit = 50) {
 // --- Player Game Rounds ---
 
 export async function getPlayerGameRounds(userId: string, limit = 50) {
-  const { rows } = await backendPool.query(
+  if (!isBackendAvailable()) return [];
+  const { rows } = await backendPool!.query(
     `
     SELECT
       gr.id,
@@ -250,6 +267,9 @@ export interface TransactionListOptions {
 }
 
 export async function getAllTransactions(opts: TransactionListOptions) {
+  if (!isBackendAvailable()) {
+    return { data: [], pagination: EMPTY_PAGINATION(opts.page, opts.pageSize) };
+  }
   const { page, pageSize, type, search, sortBy = "createdAt", sortDir = "desc" } = opts;
   const offset = (page - 1) * pageSize;
   const conditions: string[] = [];
@@ -293,8 +313,8 @@ export async function getAllTransactions(opts: TransactionListOptions) {
   `;
 
   const [dataResult, countResult] = await Promise.all([
-    backendPool.query(dataQuery, dataParams),
-    backendPool.query(countQuery, params),
+    backendPool!.query(dataQuery, dataParams),
+    backendPool!.query(countQuery, params),
   ]);
 
   const total: number = countResult.rows[0].total;
@@ -331,6 +351,22 @@ export async function getAllTransactions(opts: TransactionListOptions) {
 // --- Dashboard KPIs ---
 
 export async function getDashboardKPIs() {
+  if (!isBackendAvailable()) {
+    return {
+      totalPlayers: 0,
+      activePlayers: 0,
+      betTotal: 0,
+      winTotal: 0,
+      ggr: 0,
+      pendingKYC: 0,
+      highRiskPlayers: 0,
+      recentTransactions: [],
+      topGames: [],
+      revenueData: [],
+    };
+  }
+
+  const pool = backendPool!;
   const [
     playersResult,
     betsResult,
@@ -339,14 +375,14 @@ export async function getDashboardKPIs() {
     topGamesResult,
     dailyRevenueResult,
   ] = await Promise.all([
-    backendPool.query(`SELECT COUNT(*)::int AS total FROM users`),
-    backendPool.query(
+    pool.query(`SELECT COUNT(*)::int AS total FROM users`),
+    pool.query(
       `SELECT COALESCE(SUM(amount_cents), 0) AS total FROM transactions WHERE type = 'bet'`
     ),
-    backendPool.query(
+    pool.query(
       `SELECT COALESCE(SUM(amount_cents), 0) AS total FROM transactions WHERE type = 'win'`
     ),
-    backendPool.query(`
+    pool.query(`
       SELECT t.id, u.email, t.type, t.amount_cents, t.created_at
       FROM transactions t
       JOIN users u ON u.id = t.user_id
@@ -354,7 +390,7 @@ export async function getDashboardKPIs() {
       ORDER BY t.created_at DESC
       LIMIT 10
     `),
-    backendPool.query(`
+    pool.query(`
       SELECT
         game_id,
         SUM(bet_cents) AS total_bets,
@@ -365,7 +401,7 @@ export async function getDashboardKPIs() {
       ORDER BY total_bets DESC
       LIMIT 8
     `),
-    backendPool.query(`
+    pool.query(`
       SELECT
         DATE(created_at) AS date,
         SUM(CASE WHEN type = 'bet' THEN amount_cents ELSE 0 END) AS bets,
@@ -424,11 +460,12 @@ export async function getDashboardKPIs() {
 // --- Reports ---
 
 export async function getFinancialReport(days: number) {
+  if (!isBackendAvailable()) return { summary: [], daily: [] };
   const startDate = new Date();
   startDate.setDate(startDate.getDate() - days);
 
   const [summaryResult, dailyResult] = await Promise.all([
-    backendPool.query(
+    backendPool!.query(
       `
       SELECT type, COALESCE(SUM(amount_cents), 0) AS total, COUNT(*)::int AS count
       FROM transactions
@@ -437,7 +474,7 @@ export async function getFinancialReport(days: number) {
       `,
       [startDate]
     ),
-    backendPool.query(
+    backendPool!.query(
       `
       SELECT
         DATE(created_at) AS date,
@@ -469,11 +506,18 @@ export async function getFinancialReport(days: number) {
 }
 
 export async function getPlayersReport(days: number) {
+  if (!isBackendAvailable()) {
+    return {
+      newPlayers: [],
+      statusBreakdown: [{ status: "ACTIVE", count: 0 }],
+      countryBreakdown: [],
+    };
+  }
   const startDate = new Date();
   startDate.setDate(startDate.getDate() - days);
 
   const [newPlayersResult] = await Promise.all([
-    backendPool.query(
+    backendPool!.query(
       `
       SELECT DATE(created_at) AS date, COUNT(*)::int AS count
       FROM users
@@ -496,10 +540,11 @@ export async function getPlayersReport(days: number) {
 }
 
 export async function getGamesReport(days: number) {
+  if (!isBackendAvailable()) return { games: [] };
   const startDate = new Date();
   startDate.setDate(startDate.getDate() - days);
 
-  const { rows } = await backendPool.query(
+  const { rows } = await backendPool!.query(
     `
     SELECT
       game_id,
@@ -544,6 +589,9 @@ export interface GameListOptions {
 }
 
 export async function getGames(opts: GameListOptions) {
+  if (!isBackendAvailable()) {
+    return { data: [], pagination: EMPTY_PAGINATION(opts.page, opts.pageSize) };
+  }
   const { page, pageSize, search } = opts;
   const offset = (page - 1) * pageSize;
   const params: unknown[] = [];
@@ -584,8 +632,8 @@ export async function getGames(opts: GameListOptions) {
   `;
 
   const [dataResult, countResult] = await Promise.all([
-    backendPool.query(dataQuery, params),
-    backendPool.query(countQuery, countParams),
+    backendPool!.query(dataQuery, params),
+    backendPool!.query(countQuery, countParams),
   ]);
 
   const total: number = countResult.rows[0].total;
