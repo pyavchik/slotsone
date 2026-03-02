@@ -1,6 +1,6 @@
 export const dynamic = "force-dynamic";
 
-import { prisma } from "@/lib/prisma";
+import { getDashboardKPIs } from "@/lib/backend-queries";
 import { formatCurrency, formatNumber } from "@/lib/utils";
 import { DashboardCharts } from "./dashboard-charts";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -14,124 +14,8 @@ import {
   ShieldCheck,
 } from "lucide-react";
 
-async function getKPIs() {
-  const [
-    totalPlayers,
-    activePlayers,
-    deposits,
-    withdrawals,
-    totalBets,
-    totalWins,
-    pendingKYC,
-    highRiskPlayers,
-    recentTransactions,
-    topGames,
-    dailyRevenue,
-  ] = await Promise.all([
-    prisma.user.count(),
-    prisma.user.count({ where: { status: "ACTIVE" } }),
-    prisma.transaction.aggregate({
-      where: { type: "DEPOSIT", status: "COMPLETED" },
-      _sum: { amount: true },
-      _count: true,
-    }),
-    prisma.transaction.aggregate({
-      where: { type: "WITHDRAWAL", status: "COMPLETED" },
-      _sum: { amount: true },
-      _count: true,
-    }),
-    prisma.transaction.aggregate({
-      where: { type: "BET", status: "COMPLETED" },
-      _sum: { amount: true },
-    }),
-    prisma.transaction.aggregate({
-      where: { type: "WIN", status: "COMPLETED" },
-      _sum: { amount: true },
-    }),
-    prisma.kYCDocument.count({ where: { status: "PENDING" } }),
-    prisma.user.count({ where: { riskLevel: { in: ["HIGH", "CRITICAL"] } } }),
-    prisma.transaction.findMany({
-      where: { amount: { gte: 1000 } },
-      orderBy: { createdAt: "desc" },
-      take: 10,
-      include: { user: { select: { username: true, email: true } } },
-    }),
-    prisma.gameRound.groupBy({
-      by: ["gameId"],
-      _sum: { betAmount: true, winAmount: true },
-      _count: true,
-      orderBy: { _sum: { betAmount: "desc" } },
-      take: 8,
-    }),
-    prisma.$queryRaw`
-      SELECT
-        DATE("createdAt") as date,
-        SUM(CASE WHEN type = 'BET' THEN amount ELSE 0 END) as bets,
-        SUM(CASE WHEN type = 'WIN' THEN amount ELSE 0 END) as wins,
-        SUM(CASE WHEN type = 'DEPOSIT' THEN amount ELSE 0 END) as deposits
-      FROM transactions
-      WHERE "createdAt" >= NOW() - INTERVAL '30 days'
-        AND status = 'COMPLETED'
-      GROUP BY DATE("createdAt")
-      ORDER BY date ASC
-    `,
-  ]);
-
-  const depositTotal = Number(deposits._sum.amount || 0);
-  const withdrawalTotal = Number(withdrawals._sum.amount || 0);
-  const betTotal = Number(totalBets._sum.amount || 0);
-  const winTotal = Number(totalWins._sum.amount || 0);
-  const ggr = betTotal - winTotal;
-
-  // Resolve game names for top games
-  const gameIds = topGames.map((g) => g.gameId);
-  const games = await prisma.game.findMany({
-    where: { id: { in: gameIds } },
-    select: { id: true, name: true },
-  });
-  const gameMap = new Map(games.map((g) => [g.id, g.name]));
-
-  const topGamesWithNames = topGames.map((g) => ({
-    name: gameMap.get(g.gameId) || g.gameId,
-    bets: Number(g._sum.betAmount || 0),
-    wins: Number(g._sum.winAmount || 0),
-    rounds: g._count,
-    ggr: Number(g._sum.betAmount || 0) - Number(g._sum.winAmount || 0),
-  }));
-
-  const revenueData = (dailyRevenue as any[]).map((row) => ({
-    date: new Date(row.date).toLocaleDateString("en-US", { month: "short", day: "numeric" }),
-    bets: Number(row.bets),
-    wins: Number(row.wins),
-    deposits: Number(row.deposits),
-    ggr: Number(row.bets) - Number(row.wins),
-  }));
-
-  return {
-    totalPlayers,
-    activePlayers,
-    depositTotal,
-    depositCount: deposits._count,
-    withdrawalTotal,
-    withdrawalCount: withdrawals._count,
-    ggr,
-    pendingKYC,
-    highRiskPlayers,
-    recentTransactions: recentTransactions.map((t) => ({
-      id: t.id,
-      username: t.user.username,
-      type: t.type,
-      amount: Number(t.amount),
-      status: t.status,
-      createdAt: t.createdAt.toISOString(),
-    })),
-    topGames: topGamesWithNames,
-    revenueData,
-  };
-}
-
 export default async function DashboardPage() {
-  const kpis = await getKPIs();
+  const kpis = await getDashboardKPIs();
 
   return (
     <div className="space-y-6">
@@ -156,26 +40,22 @@ export default async function DashboardPage() {
         </Card>
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Deposits</CardTitle>
+            <CardTitle className="text-sm font-medium">Total Bets</CardTitle>
             <ArrowDownCircle className="h-4 w-4 text-emerald-600" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{formatCurrency(kpis.depositTotal)}</div>
-            <p className="text-xs text-muted-foreground">
-              {formatNumber(kpis.depositCount)} transactions
-            </p>
+            <div className="text-2xl font-bold">{formatCurrency(kpis.betTotal)}</div>
+            <p className="text-xs text-muted-foreground">Total wagered</p>
           </CardContent>
         </Card>
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Withdrawals</CardTitle>
+            <CardTitle className="text-sm font-medium">Total Wins</CardTitle>
             <ArrowUpCircle className="h-4 w-4 text-red-600" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{formatCurrency(kpis.withdrawalTotal)}</div>
-            <p className="text-xs text-muted-foreground">
-              {formatNumber(kpis.withdrawalCount)} transactions
-            </p>
+            <div className="text-2xl font-bold">{formatCurrency(kpis.winTotal)}</div>
+            <p className="text-xs text-muted-foreground">Paid out to players</p>
           </CardContent>
         </Card>
         <Card>

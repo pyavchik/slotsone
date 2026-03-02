@@ -141,8 +141,9 @@ test.describe('Slots app', () => {
 
     await expect.poll(() => spinRequests).toBe(1);
 
+    // Win badge only appears after the reel spin animation completes
     const winBadge = slotsPage.getByTestId('hud-win-badge');
-    await expect(winBadge).toBeVisible();
+    await expect(winBadge).toBeVisible({ timeout: 15000 });
     await expect(winBadge).toContainText('WIN');
     await expect(winBadge).toContainText('+0.20');
 
