@@ -223,7 +223,10 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** Health check */
+        /**
+         * Liveness probe
+         * @description Lightweight check that the process is alive. Does not verify dependencies.
+         */
         get: {
             parameters: {
                 query?: never;
@@ -233,7 +236,7 @@ export interface paths {
             };
             requestBody?: never;
             responses: {
-                /** @description Service is healthy */
+                /** @description Process is alive */
                 200: {
                     headers: {
                         [name: string]: unknown;
@@ -242,6 +245,78 @@ export interface paths {
                         "application/json": {
                             /** @example ok */
                             status: string;
+                        };
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/ready": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Readiness probe
+         * @description Verifies that the service and its dependencies (database) are ready to accept traffic. Returns 503 when any check fails.
+         */
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description All dependencies ready */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            /** @example ready */
+                            status: string;
+                            checks: {
+                                database?: {
+                                    /** @enum {string} */
+                                    status: "ok" | "fail";
+                                    /** @example 1.2 */
+                                    latency_ms?: number;
+                                    error?: string;
+                                };
+                            };
+                        };
+                    };
+                };
+                /** @description One or more dependencies unavailable */
+                503: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            /** @example degraded */
+                            status: string;
+                            checks: {
+                                database?: {
+                                    /** @enum {string} */
+                                    status: "ok" | "fail";
+                                    /** @example 1.2 */
+                                    latency_ms?: number;
+                                    error?: string;
+                                };
+                            };
                         };
                     };
                 };
