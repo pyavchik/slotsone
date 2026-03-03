@@ -616,6 +616,7 @@
   backdrop-filter: blur(8px);
 }
 
+/* Desktop: full overlay on hover */
 .game-card-overlay {
   position: absolute;
   inset: 0;
@@ -652,6 +653,30 @@
 .game-card-play-btn:hover {
   transform: scale(1.05) !important;
   box-shadow: 0 0 20px rgba(246, 190, 87, 0.25) !important;
+}
+
+/* Mobile/touch: persistent bottom gradient strip with always-visible CTA */
+@media (hover: none), (max-width: 768px) {
+  .game-card-overlay {
+    inset: auto 0 0 0;
+    align-items: flex-end;
+    background: linear-gradient(
+      to top,
+      rgba(4, 11, 22, 0.92) 0%,
+      rgba(4, 11, 22, 0.6) 60%,
+      transparent 100%
+    );
+    opacity: 1;
+    padding: 24px 10px 10px;
+  }
+
+  .game-card-play-btn {
+    width: 100% !important;
+    padding: 7px 12px !important;
+    font-size: 0.7rem !important;
+    border-radius: 8px !important;
+    backdrop-filter: blur(6px);
+  }
 }
 
 .game-card-info {
