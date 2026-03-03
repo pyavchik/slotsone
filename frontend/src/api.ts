@@ -3,9 +3,17 @@ import type { components, paths } from './generated/openapi';
 const API_BASE = (import.meta.env.VITE_API_BASE ?? '/api/v1').replace(/\/$/, '');
 const AUTH_BASE = `${API_BASE}/auth`;
 
+// ---------------------------------------------------------------------------
+// Internal request/error types — used only inside this module
+// ---------------------------------------------------------------------------
+
 type InitRequestBody = components['schemas']['InitRequest'];
 type SpinRequestBody = components['schemas']['SpinRequest'];
 type ErrorResponse = components['schemas']['ErrorResponse'];
+
+// ---------------------------------------------------------------------------
+// Re-exported type aliases — replace hand-maintained duplicates with generated
+// ---------------------------------------------------------------------------
 
 export type GameConfig = components['schemas']['GameConfig'];
 export type GamePaytable = GameConfig['paytable'];
@@ -13,6 +21,25 @@ export type InitResponse =
   paths['/api/v1/game/init']['post']['responses'][200]['content']['application/json'];
 export type SpinResponse =
   paths['/api/v1/spin']['post']['responses'][200]['content']['application/json'];
+
+export type AuthResult = components['schemas']['AuthResponse'];
+
+export type HistoryFilters = NonNullable<paths['/api/v1/history']['get']['parameters']['query']>;
+
+export type HistorySummary = components['schemas']['HistorySummary'];
+export type HistoryItem = components['schemas']['SpinResponse'];
+export type HistoryResponse = components['schemas']['EnhancedHistoryResponse'];
+
+export type RoundTransaction = components['schemas']['Transaction'];
+export type ProvablyFairData = components['schemas']['ProvablyFair'];
+export type RoundDetail = components['schemas']['RoundDetail'];
+export type RoundDetailResponse = components['schemas']['RoundDetailResponse'];
+
+export type SeedPairInfo = components['schemas']['SeedPairResponse'];
+export type SeedRotationResult = components['schemas']['SeedRotationResponse'];
+
+type ThumbnailRequest = components['schemas']['ImageGenerateRequest'];
+type ThumbnailResponse = components['schemas']['ImageJobResponse'];
 
 // ---------------------------------------------------------------------------
 // Typed error — carries HTTP status so callers can branch on 401 etc.
@@ -32,12 +59,6 @@ export class ApiError extends Error {
 // Auth — credentials:'include' so the browser sends/receives the httpOnly
 // refresh_token cookie automatically. The access token is never stored in JS.
 // ---------------------------------------------------------------------------
-
-interface AuthResult {
-  access_token: string;
-  token_type: 'Bearer';
-  expires_in: number;
-}
 
 async function authPost(path: string, body?: Record<string, string>): Promise<AuthResult> {
   const res = await fetch(`${AUTH_BASE}/${path}`, {
@@ -142,47 +163,6 @@ export async function spin(
 // History API
 // ---------------------------------------------------------------------------
 
-export interface HistoryFilters {
-  date_from?: string;
-  date_to?: string;
-  result?: 'win' | 'loss' | 'all';
-  min_bet?: number;
-  max_bet?: number;
-  limit?: number;
-  offset?: number;
-}
-
-export interface HistorySummary {
-  total_rounds: number;
-  total_wagered: number;
-  total_won: number;
-  net_result: number;
-  biggest_win: number;
-}
-
-export interface HistoryItem {
-  spin_id: string;
-  session_id: string;
-  game_id: string;
-  balance: { amount: number; currency: string };
-  bet: { amount: number; currency: string; lines: number };
-  outcome: {
-    reel_matrix: string[][];
-    win: { amount: number; currency: string; breakdown: unknown[] };
-    bonus_triggered: unknown | null;
-  };
-  next_state: string;
-  timestamp: number;
-}
-
-export interface HistoryResponse {
-  items: HistoryItem[];
-  total: number;
-  limit: number;
-  offset: number;
-  summary: HistorySummary;
-}
-
 export async function fetchHistory(
   token: string,
   filters: HistoryFilters = {}
@@ -204,46 +184,6 @@ export async function fetchHistory(
   return (await res.json()) as HistoryResponse;
 }
 
-export interface RoundTransaction {
-  id: string;
-  type: 'bet' | 'win';
-  amount: number;
-  balance_after: number;
-  created_at: string;
-}
-
-export interface ProvablyFairData {
-  seed_pair_id: string;
-  server_seed_hash: string;
-  server_seed: string | null;
-  client_seed: string;
-  nonce: number | null;
-  revealed: boolean;
-}
-
-export interface RoundDetail {
-  id: string;
-  session_id: string;
-  game_id: string;
-  bet: number;
-  win: number;
-  currency: string;
-  lines: number;
-  balance_before: number;
-  balance_after: number;
-  reel_matrix: string[][];
-  win_breakdown: unknown[];
-  bonus_triggered: unknown | null;
-  outcome_hash: string | null;
-  created_at: string;
-}
-
-export interface RoundDetailResponse {
-  round: RoundDetail;
-  provably_fair: ProvablyFairData | null;
-  transactions: RoundTransaction[];
-}
-
 export async function fetchRoundDetail(
   token: string,
   roundId: string
@@ -258,19 +198,6 @@ export async function fetchRoundDetail(
   return (await res.json()) as RoundDetailResponse;
 }
 
-export interface SeedPairInfo {
-  seed_pair_id: string;
-  server_seed_hash: string;
-  server_seed?: string;
-  client_seed: string;
-  nonce: number;
-}
-
-export interface SeedRotationResult {
-  previous: (SeedPairInfo & { server_seed: string }) | null;
-  current: SeedPairInfo;
-}
-
 export async function rotateSeedPair(token: string): Promise<SeedRotationResult> {
   const res = await fetch(`${API_BASE}/provably-fair/rotate`, {
     method: 'POST',
@@ -278,6 +205,23 @@ export async function rotateSeedPair(token: string): Promise<SeedRotationResult>
   });
   if (!res.ok) throw new ApiError(await res.text(), res.status);
   return (await res.json()) as SeedRotationResult;
+}
+
+// ---------------------------------------------------------------------------
+// Image generation API
+// ---------------------------------------------------------------------------
+
+export async function generateThumbnail(
+  token: string,
+  req: ThumbnailRequest
+): Promise<ThumbnailResponse> {
+  const res = await fetch(`${API_BASE}/images/generate`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...authHeaders(token) },
+    body: JSON.stringify(req),
+  });
+  if (!res.ok) throw new ApiError(await res.text(), res.status);
+  return (await res.json()) as ThumbnailResponse;
 }
 
 export async function setClientSeed(token: string, clientSeed: string): Promise<SeedPairInfo> {

@@ -3,7 +3,7 @@
 import { useState, useCallback } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
-import { ColumnDef, SortingState } from "@tanstack/react-table";
+import { ColumnDef, CellContext, SortingState } from "@tanstack/react-table";
 import { DataTable } from "@/components/data-table";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -42,7 +42,7 @@ interface Player {
   lastLoginAt: string | null;
 }
 
-const columns: ColumnDef<Player, any>[] = [
+const columns: ColumnDef<Player>[] = [
   {
     accessorKey: "username",
     header: "Player",
@@ -168,17 +168,20 @@ export default function PlayersPage() {
   };
 
   // Make rows clickable to go to player detail
-  const clickableColumns: ColumnDef<Player, any>[] = columns.map((col) => ({
-    ...col,
-    cell: (props: any) => (
-      <div
-        className="cursor-pointer"
-        onClick={() => router.push(`/players/${props.row.original.id}`)}
-      >
-        {(col as any).cell ? (col as any).cell(props) : props.getValue()}
-      </div>
-    ),
-  }));
+  const clickableColumns: ColumnDef<Player>[] = columns.map((col) => {
+    const originalCell = col.cell;
+    return {
+      ...col,
+      cell: (props: CellContext<Player, unknown>) => (
+        <div
+          className="cursor-pointer"
+          onClick={() => router.push(`/players/${props.row.original.id}`)}
+        >
+          {typeof originalCell === "function" ? originalCell(props) : props.getValue()}
+        </div>
+      ),
+    };
+  });
 
   return (
     <div className="space-y-6">

@@ -26,10 +26,10 @@ async function createTestUser(email: string): Promise<string> {
 
 test('executeSpin applies bet and win delta to user balance and history', async () => {
   await resetUserStoreForTests();
-  resetStoreForTests();
+  await resetStoreForTests();
 
   const userId = await createTestUser('test-balance@test.com');
-  const session = createSession(userId, GAME_ID);
+  const session = await createSession(userId, GAME_ID);
   const initialBalance = (await getBalance(userId, CURRENCY)).amount;
 
   const response = await executeSpin(
@@ -57,10 +57,10 @@ test('executeSpin applies bet and win delta to user balance and history', async 
 
 test('executeSpin idempotency returns original result and avoids duplicate history writes', async () => {
   await resetUserStoreForTests();
-  resetStoreForTests();
+  await resetStoreForTests();
 
   const userId = await createTestUser('test-idempotency@test.com');
-  const session = createSession(userId, GAME_ID);
+  const session = await createSession(userId, GAME_ID);
   const key = 'fixed-idempotency-key-1';
 
   const first = await executeSpin(userId, session.session_id, GAME_ID, 1, CURRENCY, 20, key);
@@ -81,10 +81,10 @@ test('executeSpin idempotency returns original result and avoids duplicate histo
 
 test('executeSpin rate limit returns 429 and retry metadata after threshold', async () => {
   await resetUserStoreForTests();
-  resetStoreForTests();
+  await resetStoreForTests();
 
   const userId = await createTestUser('test-ratelimit@test.com');
-  const session = createSession(userId, GAME_ID);
+  const session = await createSession(userId, GAME_ID);
 
   for (let i = 0; i < 5; i++) {
     const result = await executeSpin(
@@ -121,7 +121,7 @@ test('executeSpin rate limit returns 429 and retry metadata after threshold', as
 
 test('periodic cleanup removes stale rate-limit, session, and idempotency entries', async () => {
   await resetUserStoreForTests();
-  resetStoreForTests();
+  await resetStoreForTests();
 
   const originalDateNow = Date.now;
   let now = 1_700_000_000_000;
@@ -132,7 +132,7 @@ test('periodic cleanup removes stale rate-limit, session, and idempotency entrie
     for (let i = 0; i < 3; i++) {
       const userId = await createTestUser(`cleanup-user-${i}@test.com`);
       userIds.push(userId);
-      const session = createSession(userId, GAME_ID);
+      const session = await createSession(userId, GAME_ID);
       const result = await executeSpin(
         userId,
         session.session_id,
@@ -148,21 +148,21 @@ test('periodic cleanup removes stale rate-limit, session, and idempotency entrie
       }
     }
 
-    const before = getStoreDiagnosticsForTests();
+    const before = await getStoreDiagnosticsForTests();
     assert.equal(before.sessions, 3);
     assert.equal(before.idempotency, 3);
     assert.equal(before.rateCounts, 3);
 
     now += 1001;
-    cleanupStoreForTests(now);
-    const afterRateWindow = getStoreDiagnosticsForTests();
+    await cleanupStoreForTests(now);
+    const afterRateWindow = await getStoreDiagnosticsForTests();
     assert.equal(afterRateWindow.rateCounts, 0);
     assert.equal(afterRateWindow.idempotency, 3);
     assert.equal(afterRateWindow.sessions, 3);
 
     now += 24 * 60 * 60 * 1000 + 1;
-    cleanupStoreForTests(now);
-    const afterLongTtl = getStoreDiagnosticsForTests();
+    await cleanupStoreForTests(now);
+    const afterLongTtl = await getStoreDiagnosticsForTests();
     assert.equal(afterLongTtl.sessions, 0);
     assert.equal(afterLongTtl.idempotency, 0);
   } finally {

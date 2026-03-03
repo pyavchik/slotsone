@@ -1,14 +1,10 @@
 import { useState, useEffect, useCallback } from 'react';
+import { useParams, useNavigate } from 'react-router-dom';
 import { useGameStore } from './store';
 import { fetchRoundDetail, ApiError } from './api';
 import type { RoundDetailResponse } from './api';
 import { symbolLabel, symbolColorCss } from './symbols';
 import './roundDetail.css';
-
-interface Props {
-  roundId: string;
-  onBack: () => void;
-}
 
 interface WinBreakdownItem {
   type: string;
@@ -18,7 +14,9 @@ interface WinBreakdownItem {
   payout: number;
 }
 
-export function RoundDetail({ roundId, onBack }: Props) {
+export default function RoundDetail() {
+  const { id: roundId } = useParams<{ id: string }>();
+  const navigate = useNavigate();
   const token = useGameStore((s) => s.token);
   const [data, setData] = useState<RoundDetailResponse | null>(null);
   const [loading, setLoading] = useState(true);
@@ -26,21 +24,23 @@ export function RoundDetail({ roundId, onBack }: Props) {
   const [pfOpen, setPfOpen] = useState(false);
   const [verifyResult, setVerifyResult] = useState<'pass' | 'fail' | null>(null);
 
+  const handleBack = useCallback(() => navigate('/history'), [navigate]);
+
   useEffect(() => {
-    if (!token) return;
+    if (!token || !roundId) return;
     setLoading(true);
     setError(null);
     fetchRoundDetail(token, roundId)
       .then((result) => setData(result))
       .catch((e) => {
         if (e instanceof ApiError && e.status === 401) {
-          onBack();
+          handleBack();
           return;
         }
         setError(e instanceof Error ? e.message : 'Failed to load round');
       })
       .finally(() => setLoading(false));
-  }, [token, roundId, onBack]);
+  }, [token, roundId, handleBack]);
 
   const handleVerify = useCallback(async () => {
     if (!data?.provably_fair?.server_seed) return;
@@ -76,13 +76,8 @@ export function RoundDetail({ roundId, onBack }: Props) {
   const net = round.win - round.bet;
   const breakdown = (round.win_breakdown ?? []) as WinBreakdownItem[];
 
-  // Build a set of winning cell positions for highlighting
   const winningCells = new Set<string>();
-  // Not all line definitions are available here, so just highlight entire rows that had wins
-  // We mark cells based on breakdown line info if we can
-  // For simplicity, highlight winning symbol positions from breakdown
 
-  // Transpose reel_matrix: API gives [reel][row], display needs [row][reel]
   const reelMatrix = round.reel_matrix;
   const rows = reelMatrix[0]?.length ?? 3;
   const cols = reelMatrix.length;
@@ -90,7 +85,7 @@ export function RoundDetail({ roundId, onBack }: Props) {
   return (
     <div className="rd-page">
       <div className="rd-header">
-        <button className="rd-back-btn" onClick={onBack} type="button">
+        <button className="rd-back-btn" onClick={handleBack} type="button">
           Back
         </button>
         <h1 className="rd-title">Round Detail</h1>

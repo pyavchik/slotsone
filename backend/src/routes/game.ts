@@ -63,7 +63,7 @@ router.post(
       return;
     }
     const game_id = parsed.data.game_id ?? GAME_ID;
-    const session = createSession(userId, game_id);
+    const session = await createSession(userId, game_id);
     const balance = await getBalance(userId, 'USD');
     res.json({
       session_id: session.session_id,

@@ -44,8 +44,8 @@ interface AuditEntry {
   action: string;
   targetType: string;
   targetId: string;
-  before: any;
-  after: any;
+  before: Record<string, unknown> | null;
+  after: Record<string, unknown> | null;
   ipAddress: string | null;
   createdAt: string;
 }
@@ -107,7 +107,7 @@ export default function SettingsPage() {
     },
   });
 
-  const adminColumns: ColumnDef<AdminUser, any>[] = [
+  const adminColumns: ColumnDef<AdminUser>[] = [
     {
       accessorKey: "name",
       header: "Name",
@@ -152,7 +152,7 @@ export default function SettingsPage() {
     },
   ];
 
-  const auditColumns: ColumnDef<AuditEntry, any>[] = [
+  const auditColumns: ColumnDef<AuditEntry>[] = [
     {
       accessorKey: "adminName",
       header: "Admin",

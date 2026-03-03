@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { Prisma } from "@prisma/client";
+import { Prisma, KYCStatus, KYCDocType } from "@prisma/client";
 
 export async function GET(request: NextRequest) {
   const sp = request.nextUrl.searchParams;
@@ -10,8 +10,8 @@ export async function GET(request: NextRequest) {
   const docType = sp.get("docType") || "";
 
   const where: Prisma.KYCDocumentWhereInput = {};
-  if (status) where.status = status as any;
-  if (docType) where.docType = docType as any;
+  if (status) where.status = status as KYCStatus;
+  if (docType) where.docType = docType as KYCDocType;
 
   const [data, total] = await Promise.all([
     prisma.kYCDocument.findMany({

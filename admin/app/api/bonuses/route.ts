@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { Prisma } from "@prisma/client";
+import { Prisma, BonusType, BonusStatus } from "@prisma/client";
 
 export async function GET(request: NextRequest) {
   const sp = request.nextUrl.searchParams;
@@ -38,8 +38,8 @@ export async function GET(request: NextRequest) {
   }
 
   const where: Prisma.BonusWhereInput = {};
-  if (type) where.type = type as any;
-  if (status) where.status = status as any;
+  if (type) where.type = type as BonusType;
+  if (status) where.status = status as BonusStatus;
 
   const [data, total] = await Promise.all([
     prisma.bonus.findMany({

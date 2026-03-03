@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { ColumnDef } from "@tanstack/react-table";
+import { ColumnDef, CellContext } from "@tanstack/react-table";
 import { DataTable } from "@/components/data-table";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
@@ -38,7 +38,18 @@ interface AMLAlert {
   createdAt: string;
 }
 
-const flaggedColumns: ColumnDef<FlaggedPlayer, any>[] = [
+interface DuplicatePlayer {
+  id: string;
+  username: string;
+  email: string;
+  country: string | null;
+  riskLevel: string;
+  balanceReal: string;
+  registeredAt: string;
+  domain_count: number;
+}
+
+const flaggedColumns: ColumnDef<FlaggedPlayer>[] = [
   {
     accessorKey: "username",
     header: "Player",
@@ -105,7 +116,7 @@ const flaggedColumns: ColumnDef<FlaggedPlayer, any>[] = [
   },
 ];
 
-const amlColumns: ColumnDef<AMLAlert, any>[] = [
+const amlColumns: ColumnDef<AMLAlert>[] = [
   {
     accessorKey: "username",
     header: "Player",
@@ -155,6 +166,38 @@ const amlColumns: ColumnDef<AMLAlert, any>[] = [
   },
 ];
 
+const duplicateColumns: ColumnDef<DuplicatePlayer>[] = [
+  { accessorKey: "username", header: "Username" },
+  { accessorKey: "email", header: "Email" },
+  {
+    accessorKey: "country",
+    header: "Country",
+    cell: ({ row }) => row.original.country || "—",
+  },
+  {
+    accessorKey: "riskLevel",
+    header: "Risk",
+    cell: ({ row }) => (
+      <Badge className={RISK_COLORS[row.original.riskLevel]} variant="outline">
+        {row.original.riskLevel}
+      </Badge>
+    ),
+  },
+  {
+    accessorKey: "balanceReal",
+    header: "Balance",
+    cell: ({ row }) => (
+      <span className="font-mono">{formatCurrency(row.original.balanceReal)}</span>
+    ),
+  },
+  { accessorKey: "domain_count", header: "Shared Domain Users" },
+  {
+    accessorKey: "registeredAt",
+    header: "Registered",
+    cell: ({ row }) => formatDate(row.original.registeredAt),
+  },
+];
+
 export default function RiskPage() {
   const router = useRouter();
   const [tab, setTab] = useState("flagged");
@@ -173,17 +216,20 @@ export default function RiskPage() {
     },
   });
 
-  const clickableFlagged: ColumnDef<FlaggedPlayer, any>[] = flaggedColumns.map((col) => ({
-    ...col,
-    cell: (props: any) => (
-      <div
-        className="cursor-pointer"
-        onClick={() => router.push(`/players/${props.row.original.id}`)}
-      >
-        {(col as any).cell ? (col as any).cell(props) : props.getValue()}
-      </div>
-    ),
-  }));
+  const clickableFlagged: ColumnDef<FlaggedPlayer>[] = flaggedColumns.map((col) => {
+    const originalCell = col.cell;
+    return {
+      ...col,
+      cell: (props: CellContext<FlaggedPlayer, unknown>) => (
+        <div
+          className="cursor-pointer"
+          onClick={() => router.push(`/players/${props.row.original.id}`)}
+        >
+          {typeof originalCell === "function" ? originalCell(props) : props.getValue()}
+        </div>
+      ),
+    };
+  });
 
   return (
     <div className="space-y-6">
@@ -256,37 +302,7 @@ export default function RiskPage() {
             </Card>
           ) : (
             <DataTable
-              columns={[
-                { accessorKey: "username", header: "Username" },
-                { accessorKey: "email", header: "Email" },
-                {
-                  accessorKey: "country",
-                  header: "Country",
-                  cell: ({ row }: any) => row.original.country || "—",
-                },
-                {
-                  accessorKey: "riskLevel",
-                  header: "Risk",
-                  cell: ({ row }: any) => (
-                    <Badge className={RISK_COLORS[row.original.riskLevel]} variant="outline">
-                      {row.original.riskLevel}
-                    </Badge>
-                  ),
-                },
-                {
-                  accessorKey: "balanceReal",
-                  header: "Balance",
-                  cell: ({ row }: any) => (
-                    <span className="font-mono">{formatCurrency(row.original.balanceReal)}</span>
-                  ),
-                },
-                { accessorKey: "domain_count", header: "Shared Domain Users" },
-                {
-                  accessorKey: "registeredAt",
-                  header: "Registered",
-                  cell: ({ row }: any) => formatDate(row.original.registeredAt),
-                },
-              ]}
+              columns={duplicateColumns}
               data={data?.data || []}
               pageCount={data?.pagination?.totalPages || 1}
               page={page}

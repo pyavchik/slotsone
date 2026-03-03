@@ -7,8 +7,11 @@ import { loadEnvironmentFiles } from './config/loadEnv.js';
 import { validateAuthEnvironment } from './config/validateAuthEnv.js';
 import { openApiSpec } from './docs/openapi.js';
 import { logger } from './logger.js';
+import { join } from 'path';
 import gameRoutes from './routes/game.js';
 import authRoutes from './routes/auth.js';
+import imageRoutes from './routes/images.js';
+import { getPool } from './db.js';
 
 loadEnvironmentFiles();
 validateAuthEnvironment();
@@ -74,14 +77,53 @@ app.use(
   })
 );
 
+// Serve generated images
+app.use('/generated', express.static(join(process.cwd(), 'public', 'generated')));
+
 // POST /api/v1/auth/register, POST /api/v1/auth/login
 app.use('/api/v1/auth', authRoutes);
+
+// POST /api/v1/images/generate
+app.use('/api/v1', imageRoutes);
 
 // POST /api/v1/game/init, POST /api/v1/spin, GET /api/v1/history
 app.use('/api/v1', gameRoutes);
 
+// ---------------------------------------------------------------------------
+// Probes: /health (liveness) and /ready (readiness)
+// ---------------------------------------------------------------------------
+
 app.get('/health', (_req, res) => {
   res.json({ status: 'ok' });
+});
+
+app.get('/ready', async (_req, res) => {
+  const checks: Record<string, { status: 'ok' | 'fail'; latency_ms?: number; error?: string }> = {};
+
+  // --- PostgreSQL ---
+  const dbStart = process.hrtime.bigint();
+  try {
+    const { rows } = await getPool().query<{ now: Date }>('SELECT NOW() AS now');
+    const dbMs = Number(process.hrtime.bigint() - dbStart) / 1_000_000;
+    checks.database = { status: 'ok', latency_ms: Math.round(dbMs * 10) / 10 };
+    if (!rows[0]?.now) {
+      checks.database = {
+        status: 'fail',
+        latency_ms: Math.round(dbMs * 10) / 10,
+        error: 'unexpected empty result',
+      };
+    }
+  } catch (err) {
+    const dbMs = Number(process.hrtime.bigint() - dbStart) / 1_000_000;
+    checks.database = {
+      status: 'fail',
+      latency_ms: Math.round(dbMs * 10) / 10,
+      error: err instanceof Error ? err.message : 'unknown',
+    };
+  }
+
+  const allOk = Object.values(checks).every((c) => c.status === 'ok');
+  res.status(allOk ? 200 : 503).json({ status: allOk ? 'ready' : 'degraded', checks });
 });
 
 app.use((req: Request, res: Response) => {

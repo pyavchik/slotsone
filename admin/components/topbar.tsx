@@ -56,7 +56,7 @@ export function Topbar() {
               <p className="text-sm font-medium">{session?.user?.name}</p>
               <p className="text-xs text-muted-foreground">{session?.user?.email}</p>
               <Badge variant="secondary" className="w-fit text-[10px]">
-                {(session?.user as any)?.role || "ADMIN"}
+                {session?.user?.role || "ADMIN"}
               </Badge>
             </div>
           </DropdownMenuLabel>

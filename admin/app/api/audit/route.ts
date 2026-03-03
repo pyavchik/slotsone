@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { Prisma } from "@prisma/client";
+import { Prisma, AuditAction } from "@prisma/client";
 
 export async function GET(request: NextRequest) {
   const sp = request.nextUrl.searchParams;
@@ -9,7 +9,7 @@ export async function GET(request: NextRequest) {
   const action = sp.get("action") || "";
 
   const where: Prisma.AuditLogWhereInput = {};
-  if (action) where.action = action as any;
+  if (action) where.action = action as AuditAction;
 
   const [data, total] = await Promise.all([
     prisma.auditLog.findMany({

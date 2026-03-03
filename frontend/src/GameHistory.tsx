@@ -1,17 +1,14 @@
 import { useState, useEffect, useCallback } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useGameStore } from './store';
 import { fetchHistory, ApiError } from './api';
 import type { HistoryResponse, HistoryFilters, HistoryItem } from './api';
 import './gameHistory.css';
 
-interface Props {
-  onBack: () => void;
-  onViewRound: (roundId: string) => void;
-}
-
 const PAGE_SIZE = 20;
 
-export function GameHistory({ onBack, onViewRound }: Props) {
+export default function GameHistory() {
+  const navigate = useNavigate();
   const token = useGameStore((s) => s.token);
   const [data, setData] = useState<HistoryResponse | null>(null);
   const [loading, setLoading] = useState(true);
@@ -29,6 +26,8 @@ export function GameHistory({ onBack, onViewRound }: Props) {
   // Applied filters (only sent on "Apply")
   const [appliedFilters, setAppliedFilters] = useState<HistoryFilters>({});
 
+  const handleBack = useCallback(() => navigate('/slots/mega-fortune'), [navigate]);
+
   const load = useCallback(
     async (pageNum: number, filters: HistoryFilters) => {
       if (!token) return;
@@ -43,7 +42,7 @@ export function GameHistory({ onBack, onViewRound }: Props) {
         setData(result);
       } catch (e) {
         if (e instanceof ApiError && e.status === 401) {
-          onBack();
+          handleBack();
           return;
         }
         setError(e instanceof Error ? e.message : 'Failed to load history');
@@ -51,7 +50,7 @@ export function GameHistory({ onBack, onViewRound }: Props) {
         setLoading(false);
       }
     },
-    [token, onBack]
+    [token, handleBack]
   );
 
   useEffect(() => {
@@ -97,7 +96,7 @@ export function GameHistory({ onBack, onViewRound }: Props) {
   return (
     <div className="gh-page">
       <div className="gh-header">
-        <button className="gh-back-btn" onClick={onBack} type="button">
+        <button className="gh-back-btn" onClick={handleBack} type="button">
           Back
         </button>
         <h1 className="gh-title">Game History</h1>
@@ -255,7 +254,7 @@ export function GameHistory({ onBack, onViewRound }: Props) {
                       <td>
                         <button
                           className="gh-detail-link"
-                          onClick={() => onViewRound(item.spin_id)}
+                          onClick={() => navigate(`/round/${item.spin_id}`)}
                           type="button"
                         >
                           Details

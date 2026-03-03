@@ -1,0 +1,909 @@
+/* ═══════════════════════════════════════════════════════
+   Lobby Page — Dark Luxe Casino
+   Aesthetic: Deep space noir meets Monte Carlo opulence.
+   Cyan glow + gold accents on abyssal dark foundations.
+   ═══════════════════════════════════════════════════════ */
+
+/* ── Page Shell ── */
+.lobby-page {
+  min-height: 100vh;
+  color: var(--ui-text-main, #f4f8ff);
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  overflow-x: hidden;
+  font-family: 'Manrope', sans-serif;
+  background:
+    radial-gradient(ellipse 90% 50% at 15% 0%, rgba(98, 215, 255, 0.06), transparent 50%),
+    radial-gradient(ellipse 80% 60% at 90% 100%, rgba(246, 190, 87, 0.04), transparent 50%),
+    linear-gradient(180deg, #040b16 0%, #06101e 40%, #040b16 100%);
+}
+
+/* Ambient noise overlay for texture */
+.lobby-page::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  opacity: 0.025;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  background-size: 128px 128px;
+}
+
+/* ── Header ── */
+.lobby-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 2rem;
+  height: 64px;
+  border-bottom: 1px solid rgba(98, 215, 255, 0.08);
+  background: rgba(4, 11, 22, 0.85);
+  backdrop-filter: blur(20px) saturate(1.4);
+  position: sticky;
+  top: 0;
+  z-index: 40;
+  box-shadow: 0 1px 24px rgba(0, 0, 0, 0.3);
+}
+
+.lobby-header-left {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.lobby-brand {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 1.75rem;
+  letter-spacing: 0.12em;
+  line-height: 1;
+  margin: 0;
+  display: flex;
+  align-items: baseline;
+  gap: 0.35rem;
+}
+
+.lobby-brand-main {
+  background: linear-gradient(135deg, #62d7ff 20%, #a8edff 80%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  filter: drop-shadow(0 0 10px rgba(98, 215, 255, 0.3));
+}
+
+.lobby-brand-accent {
+  background: linear-gradient(135deg, #f6be57 20%, #ffd98a 80%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  filter: drop-shadow(0 0 8px rgba(246, 190, 87, 0.25));
+}
+
+.lobby-header-right {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.lobby-balance-pill {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  padding: 6px 14px;
+  background: rgba(11, 26, 50, 0.7);
+  border-radius: 10px;
+  border: 1px solid rgba(98, 215, 255, 0.1);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.04),
+    0 2px 8px rgba(0, 0, 0, 0.2);
+}
+
+.lobby-balance-label {
+  font-family: 'Rajdhani', monospace;
+  font-size: 0.6rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  color: rgba(98, 215, 255, 0.5);
+}
+
+.lobby-balance-value {
+  font-family: 'Rajdhani', monospace;
+  font-size: 1rem;
+  font-weight: 700;
+  color: #f6be57;
+  text-shadow: 0 0 12px rgba(246, 190, 87, 0.3);
+}
+
+.lobby-deposit-btn {
+  border-color: rgba(246, 190, 87, 0.3) !important;
+  color: #f6be57 !important;
+  font-family: 'Rajdhani', monospace !important;
+  font-weight: 600 !important;
+  letter-spacing: 0.06em !important;
+  text-transform: uppercase !important;
+  font-size: 0.75rem !important;
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1) !important;
+}
+
+.lobby-deposit-btn:hover:not(:disabled) {
+  border-color: rgba(246, 190, 87, 0.6) !important;
+  box-shadow: 0 0 16px rgba(246, 190, 87, 0.15) !important;
+}
+
+.lobby-user-btn {
+  color: var(--ui-text-sub, #c2d4f0) !important;
+  transition: color 0.2s !important;
+}
+
+.lobby-user-btn:hover {
+  color: #62d7ff !important;
+}
+
+/* ── Main Content ── */
+.lobby-main {
+  flex: 1;
+  max-width: 1340px;
+  width: 100%;
+  margin: 0 auto;
+  padding: 1.5rem 2rem 3rem;
+  position: relative;
+  z-index: 1;
+}
+
+/* ── Category Nav ── */
+.lobby-nav {
+  display: inline-flex;
+  gap: 2px;
+  background: rgba(11, 26, 50, 0.5);
+  border: 1px solid rgba(98, 215, 255, 0.08);
+  border-radius: 12px;
+  padding: 4px;
+  backdrop-filter: blur(8px);
+  overflow-x: auto;
+  flex-wrap: nowrap;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+}
+
+.lobby-nav::-webkit-scrollbar {
+  display: none;
+}
+
+.lobby-nav-tab {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-family: 'Rajdhani', monospace;
+  font-weight: 600;
+  font-size: 0.85rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  padding: 8px 18px;
+  border-radius: 8px;
+  border: none;
+  background: transparent;
+  color: var(--ui-text-sub, #c2d4f0);
+  cursor: pointer;
+  white-space: nowrap;
+  transition:
+    color 0.2s cubic-bezier(0.4, 0, 0.2, 1),
+    background 0.2s cubic-bezier(0.4, 0, 0.2, 1),
+    box-shadow 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.lobby-nav-tab:focus-visible {
+  outline: 2px solid rgba(98, 215, 255, 0.5);
+  outline-offset: -2px;
+}
+
+.lobby-nav-tab--active {
+  background: linear-gradient(135deg, rgba(98, 215, 255, 0.15), rgba(98, 215, 255, 0.05));
+  color: #62d7ff;
+  box-shadow:
+    0 0 12px rgba(98, 215, 255, 0.1),
+    inset 0 1px 0 rgba(98, 215, 255, 0.15);
+}
+
+.lobby-nav-tab:hover:not(.lobby-nav-tab--active) {
+  color: #f4f8ff;
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.lobby-nav-icon {
+  display: inline-flex;
+  align-items: center;
+  opacity: 0.7;
+}
+
+.lobby-nav-tab--active .lobby-nav-icon {
+  opacity: 1;
+}
+
+.lobby-nav-icon svg {
+  width: 15px;
+  height: 15px;
+}
+
+.lobby-nav-label {
+  line-height: 1;
+}
+
+.lobby-nav-count {
+  font-size: 0.65rem;
+  font-weight: 700;
+  min-width: 18px;
+  height: 18px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 9px;
+  background: rgba(255, 255, 255, 0.06);
+  color: inherit;
+  opacity: 0.5;
+  line-height: 1;
+}
+
+.lobby-nav-tab--active .lobby-nav-count {
+  background: rgba(98, 215, 255, 0.15);
+  opacity: 0.8;
+}
+
+/* ── Filters ── */
+.filters-bar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.625rem;
+  margin: 1.25rem 0;
+  align-items: center;
+}
+
+/* Search */
+.filters-search {
+  position: relative;
+  flex: 1 1 260px;
+  min-width: 200px;
+}
+
+.filters-search-icon {
+  position: absolute;
+  left: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 15px;
+  height: 15px;
+  color: rgba(98, 215, 255, 0.4);
+  pointer-events: none;
+  z-index: 1;
+}
+
+.filters-search-input {
+  width: 100%;
+  height: 40px;
+  padding: 0 2.25rem 0 2.5rem;
+  background: rgba(11, 26, 50, 0.5);
+  border: 1px solid rgba(98, 215, 255, 0.1);
+  border-radius: 10px;
+  color: var(--ui-text-main, #f4f8ff);
+  font-family: 'Manrope', sans-serif;
+  font-size: 0.8125rem;
+  outline: none;
+  transition:
+    border-color 0.2s,
+    box-shadow 0.2s;
+  /* Reset native search styling */
+  -webkit-appearance: none;
+  appearance: none;
+}
+
+.filters-search-input::placeholder {
+  color: rgba(194, 212, 240, 0.35);
+}
+
+.filters-search-input:focus {
+  border-color: rgba(98, 215, 255, 0.25);
+  box-shadow: 0 0 0 3px rgba(98, 215, 255, 0.06);
+}
+
+/* Hide native search cancel button (we have our own) */
+.filters-search-input::-webkit-search-cancel-button {
+  -webkit-appearance: none;
+  display: none;
+}
+
+.filters-search-clear {
+  position: absolute;
+  right: 8px;
+  top: 50%;
+  transform: translateY(-50%);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  padding: 0;
+  border: none;
+  border-radius: 6px;
+  background: rgba(255, 255, 255, 0.06);
+  color: var(--ui-text-sub, #c2d4f0);
+  cursor: pointer;
+  transition:
+    background 0.15s,
+    color 0.15s;
+}
+
+.filters-search-clear svg {
+  width: 13px;
+  height: 13px;
+}
+
+.filters-search-clear:hover {
+  background: rgba(255, 255, 255, 0.1);
+  color: #f4f8ff;
+}
+
+/* Dropdowns row */
+.filters-dropdowns {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+/* Select wrapper — container for icon + active indicator */
+.filters-select-wrap {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+}
+
+.filters-select-icon {
+  position: absolute;
+  left: 11px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 13px;
+  height: 13px;
+  color: rgba(98, 215, 255, 0.35);
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* Active filter indicator dot */
+.filters-select-wrap--active::after {
+  content: '';
+  position: absolute;
+  top: 7px;
+  right: 7px;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #62d7ff;
+  box-shadow: 0 0 6px rgba(98, 215, 255, 0.5);
+  z-index: 1;
+  pointer-events: none;
+}
+
+.filters-select {
+  height: 40px;
+  min-width: 130px;
+  padding: 0 12px;
+  background: rgba(11, 26, 50, 0.5);
+  border: 1px solid rgba(98, 215, 255, 0.1);
+  border-radius: 10px;
+  color: var(--ui-text-sub, #c2d4f0);
+  font-family: 'Manrope', sans-serif;
+  font-size: 0.8125rem;
+  cursor: pointer;
+  outline: none;
+  -webkit-appearance: none;
+  appearance: none;
+  /* Custom dropdown arrow */
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23627a9a' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 10px center;
+  padding-right: 28px;
+  transition:
+    border-color 0.2s,
+    box-shadow 0.2s,
+    color 0.2s;
+}
+
+/* First select has a leading icon */
+.filters-select-icon + .filters-select {
+  padding-left: 30px;
+}
+
+.filters-select:focus {
+  border-color: rgba(98, 215, 255, 0.25);
+  box-shadow: 0 0 0 3px rgba(98, 215, 255, 0.06);
+}
+
+.filters-select-wrap--active .filters-select {
+  border-color: rgba(98, 215, 255, 0.2);
+  color: #f4f8ff;
+}
+
+.filters-select option {
+  background: #0b1a32;
+  color: #c2d4f0;
+}
+
+/* Clear all button */
+.filters-clear-all {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 6px 12px;
+  border: 1px solid rgba(255, 107, 107, 0.2);
+  border-radius: 8px;
+  background: rgba(255, 107, 107, 0.06);
+  color: rgba(255, 107, 107, 0.7);
+  font-family: 'Rajdhani', monospace;
+  font-weight: 600;
+  font-size: 0.7rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  cursor: pointer;
+  white-space: nowrap;
+  transition:
+    background 0.15s,
+    border-color 0.15s,
+    color 0.15s;
+}
+
+.filters-clear-all svg {
+  width: 12px;
+  height: 12px;
+}
+
+.filters-clear-all:hover {
+  background: rgba(255, 107, 107, 0.12);
+  border-color: rgba(255, 107, 107, 0.35);
+  color: #ff6b6b;
+}
+
+/* ── Game Grid ── */
+.game-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(210px, 1fr));
+  gap: 1.125rem;
+  margin-top: 0.75rem;
+}
+
+.game-grid-empty {
+  text-align: center;
+  padding: 4rem 1rem;
+  color: var(--ui-text-sub, #c2d4f0);
+  font-size: 0.9rem;
+  opacity: 0.6;
+}
+
+/* ── Game Card ── */
+.game-card {
+  --card-glow: rgba(98, 215, 255, 0.08);
+  position: relative;
+  border-radius: 14px;
+  overflow: hidden;
+  background: rgba(11, 26, 50, 0.5);
+  border: 1px solid rgba(98, 215, 255, 0.06);
+  cursor: pointer;
+  transition:
+    transform 0.35s cubic-bezier(0.22, 1, 0.36, 1),
+    box-shadow 0.35s cubic-bezier(0.22, 1, 0.36, 1),
+    border-color 0.35s cubic-bezier(0.22, 1, 0.36, 1);
+  animation: card-appear 0.5s cubic-bezier(0.22, 1, 0.36, 1) both;
+  animation-delay: calc(var(--card-index, 0) * 40ms);
+}
+
+@keyframes card-appear {
+  from {
+    opacity: 0;
+    transform: translateY(16px) scale(0.97);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.game-card:hover {
+  transform: translateY(-6px) scale(1.02);
+  border-color: rgba(98, 215, 255, 0.2);
+  box-shadow:
+    0 8px 32px rgba(0, 0, 0, 0.35),
+    0 0 20px var(--card-glow),
+    inset 0 1px 0 rgba(255, 255, 255, 0.05);
+}
+
+.game-card:focus-visible {
+  outline: 2px solid rgba(98, 215, 255, 0.5);
+  outline-offset: 2px;
+}
+
+/* Available card gets gold glow on hover */
+.game-card[data-available='true']:hover {
+  --card-glow: rgba(246, 190, 87, 0.12);
+  border-color: rgba(246, 190, 87, 0.25);
+}
+
+.game-card-thumb {
+  position: relative;
+  aspect-ratio: 4/3;
+  overflow: hidden;
+}
+
+/* Ambient gradient behind thumbnails */
+.game-card-thumb::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to bottom, transparent 40%, rgba(4, 11, 22, 0.7) 100%);
+  pointer-events: none;
+  z-index: 1;
+}
+
+.game-card-skeleton {
+  width: 100%;
+  height: 100%;
+  border-radius: 0;
+  background: linear-gradient(
+    110deg,
+    rgba(11, 26, 50, 0.6) 0%,
+    rgba(11, 26, 50, 0.6) 40%,
+    rgba(98, 215, 255, 0.05) 50%,
+    rgba(11, 26, 50, 0.6) 60%,
+    rgba(11, 26, 50, 0.6) 100%
+  );
+  background-size: 200% 100%;
+  animation: skeleton-shimmer 1.5s linear infinite;
+}
+
+@keyframes skeleton-shimmer {
+  to {
+    background-position: -200% 0;
+  }
+}
+
+.game-card-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.4s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.game-card:hover .game-card-img {
+  transform: scale(1.08);
+}
+
+.game-card-fallback {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background:
+    radial-gradient(circle at 50% 40%, rgba(98, 215, 255, 0.06), transparent 60%),
+    linear-gradient(135deg, #070e1c, #0b1a32);
+}
+
+.game-card-fallback-icon {
+  font-size: 3.5rem;
+  filter: grayscale(0.15) brightness(0.85);
+  transition:
+    transform 0.3s,
+    filter 0.3s;
+}
+
+.game-card:hover .game-card-fallback-icon {
+  transform: scale(1.15) rotate(-3deg);
+  filter: grayscale(0) brightness(1.1);
+}
+
+.game-card-badge {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  z-index: 3;
+  font-family: 'Rajdhani', monospace;
+  font-weight: 700;
+  font-size: 0.65rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  padding: 3px 10px !important;
+  border-radius: 6px !important;
+  backdrop-filter: blur(8px);
+}
+
+.game-card-overlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2;
+  background: radial-gradient(
+    ellipse at center,
+    rgba(4, 11, 22, 0.85) 0%,
+    rgba(4, 11, 22, 0.6) 100%
+  );
+  opacity: 0;
+  transition: opacity 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.game-card:hover .game-card-overlay {
+  opacity: 1;
+}
+
+.game-card-play-btn {
+  font-family: 'Rajdhani', monospace !important;
+  font-weight: 700 !important;
+  font-size: 0.8rem !important;
+  letter-spacing: 0.08em !important;
+  text-transform: uppercase !important;
+  padding: 10px 24px !important;
+  border-radius: 10px !important;
+  transition:
+    transform 0.2s,
+    box-shadow 0.2s !important;
+}
+
+.game-card-play-btn:hover {
+  transform: scale(1.05) !important;
+  box-shadow: 0 0 20px rgba(246, 190, 87, 0.25) !important;
+}
+
+.game-card-info {
+  padding: 12px 14px 14px;
+  position: relative;
+}
+
+.game-card-title {
+  font-family: 'Manrope', sans-serif;
+  font-size: 0.85rem;
+  font-weight: 700;
+  margin: 0 0 4px;
+  color: #f4f8ff;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  letter-spacing: -0.01em;
+}
+
+.game-card-meta {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.7rem;
+  color: var(--ui-text-sub, #c2d4f0);
+  opacity: 0.6;
+}
+
+.game-card-provider {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  font-weight: 500;
+}
+
+.game-card-rtp {
+  flex-shrink: 0;
+  margin-left: 0.5rem;
+  font-family: 'Rajdhani', monospace;
+  font-weight: 600;
+  color: rgba(62, 224, 169, 0.7);
+}
+
+/* ── Profile Tab ── */
+.profile-tab {
+  max-width: 640px;
+  margin: 0 auto;
+  padding: 1.5rem 0;
+}
+
+.profile-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.profile-grid > div {
+  background: rgba(11, 26, 50, 0.5) !important;
+  border-color: rgba(98, 215, 255, 0.08) !important;
+  border-radius: 14px !important;
+}
+
+.profile-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.profile-label {
+  font-size: 0.875rem;
+  color: var(--ui-text-sub, #c2d4f0);
+  opacity: 0.7;
+}
+
+.profile-value {
+  font-family: 'Rajdhani', monospace;
+  font-weight: 700;
+  font-size: 1.1rem;
+  color: #f6be57;
+  text-shadow: 0 0 10px rgba(246, 190, 87, 0.2);
+}
+
+.profile-actions {
+  margin-top: 2rem;
+  display: flex;
+  justify-content: center;
+}
+
+/* ── Footer ── */
+.lobby-footer {
+  border-top: 1px solid rgba(98, 215, 255, 0.06);
+  padding: 2rem 2rem 1.5rem;
+  text-align: center;
+  position: relative;
+  z-index: 1;
+}
+
+.lobby-footer::before {
+  content: '';
+  position: absolute;
+  top: -1px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 200px;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(98, 215, 255, 0.2), transparent);
+}
+
+.lobby-footer-links {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 2rem;
+  margin-bottom: 1.25rem;
+}
+
+.lobby-footer-link {
+  font-family: 'Rajdhani', monospace;
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--ui-text-sub, #c2d4f0);
+  opacity: 0.35;
+  cursor: default;
+  transition: opacity 0.2s;
+}
+
+.lobby-footer-link:hover {
+  opacity: 0.6;
+}
+
+.lobby-footer-disclaimer {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  font-size: 0.7rem;
+  color: var(--ui-text-sub, #c2d4f0);
+  opacity: 0.3;
+  max-width: 500px;
+  margin: 0 auto;
+  line-height: 1.5;
+}
+
+.lobby-footer-18 {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  border: 2px solid rgba(255, 63, 63, 0.5);
+  color: rgba(255, 63, 63, 0.6);
+  font-family: 'Rajdhani', monospace;
+  font-weight: 700;
+  font-size: 0.7rem;
+  flex-shrink: 0;
+}
+
+/* ── Responsive ── */
+@media (max-width: 768px) {
+  .lobby-header {
+    padding: 0 1rem;
+    height: 56px;
+  }
+
+  .lobby-main {
+    padding: 1rem;
+  }
+
+  .lobby-brand {
+    font-size: 1.35rem;
+  }
+
+  .game-grid {
+    grid-template-columns: repeat(auto-fill, minmax(155px, 1fr));
+    gap: 0.75rem;
+  }
+
+  .game-card {
+    border-radius: 10px;
+  }
+
+  .lobby-nav {
+    border-radius: 10px;
+  }
+
+  .lobby-nav-tab {
+    padding: 7px 12px;
+    font-size: 0.75rem;
+    gap: 4px;
+  }
+
+  .lobby-nav-icon svg {
+    width: 13px;
+    height: 13px;
+  }
+
+  .lobby-nav-count {
+    font-size: 0.6rem;
+    min-width: 16px;
+    height: 16px;
+  }
+
+  .filters-bar {
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .filters-search {
+    width: 100%;
+    flex: none;
+  }
+
+  .filters-dropdowns {
+    width: 100%;
+    flex-direction: column;
+  }
+
+  .filters-select-wrap {
+    width: 100%;
+  }
+
+  .filters-select {
+    width: 100%;
+  }
+
+  .lobby-balance-pill {
+    display: none;
+  }
+
+  .lobby-deposit-btn {
+    display: none !important;
+  }
+}
+
+@media (max-width: 480px) {
+  .game-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0.5rem;
+  }
+
+  .game-card-info {
+    padding: 8px 10px 10px;
+  }
+
+  .game-card-title {
+    font-size: 0.75rem;
+  }
+
+  .game-card-meta {
+    font-size: 0.625rem;
+  }
+}
