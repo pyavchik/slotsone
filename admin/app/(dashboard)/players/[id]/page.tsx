@@ -11,12 +11,96 @@ import { formatCurrency, formatDate } from "@/lib/utils";
 import { STATUS_COLORS, RISK_COLORS, TRANSACTION_TYPE_COLORS } from "@/lib/constants";
 import { ArrowLeft } from "lucide-react";
 
+interface PlayerTransaction {
+  id: string;
+  type: string;
+  amount: string;
+  balanceAfter: string;
+  status: string;
+  description: string | null;
+  createdAt: string;
+}
+
+interface GameSession {
+  id: string;
+  gameId: string;
+  game?: { name: string; slug: string };
+  totalBet: string;
+  totalWin: string;
+  roundsPlayed: number;
+  startedAt: string;
+  endedAt: string | null;
+}
+
+interface PlayerBonus {
+  id: string;
+  type: string;
+  amount: string;
+  status: string;
+  promotion?: { name: string } | null;
+  wagered: string;
+  wagerRequirement: string;
+  expiresAt: string | null;
+}
+
+interface KYCDocument {
+  id: string;
+  docType: string;
+  status: string;
+  rejectionReason: string | null;
+  createdAt: string;
+}
+
+interface AdminNote {
+  id: string;
+  content: string;
+  isPinned: boolean;
+  author?: { name: string };
+  createdAt: string;
+}
+
+interface AuditLogEntry {
+  id: string;
+  action: string;
+  admin?: { name: string };
+  after: Record<string, unknown> | null;
+  createdAt: string;
+}
+
+interface PlayerDetail {
+  id: string;
+  email: string;
+  username: string;
+  firstName: string | null;
+  lastName: string | null;
+  status: string;
+  role: string;
+  balanceReal: string;
+  balanceBonus: string;
+  currency: string;
+  country: string | null;
+  kycVerified: boolean;
+  riskLevel: string;
+  totalDeposited: string;
+  totalWithdrawn: string;
+  totalWagered: string;
+  totalWon: string;
+  registeredAt: string;
+  lastLoginAt: string | null;
+  transactions?: PlayerTransaction[];
+  gameSessions?: GameSession[];
+  bonuses?: PlayerBonus[];
+  kycDocuments?: KYCDocument[];
+  notes?: AdminNote[];
+  auditLogs?: AuditLogEntry[];
+}
+
 export default function PlayerDetailPage() {
   const params = useParams();
   const router = useRouter();
   const playerId = params.id as string;
 
-  const { data: player, isLoading } = useQuery({
+  const { data: player, isLoading } = useQuery<PlayerDetail>({
     queryKey: ["player", playerId],
     queryFn: async () => {
       const res = await fetch(`/admin/api/players/${playerId}`);
@@ -209,7 +293,7 @@ export default function PlayerDetailPage() {
                     </tr>
                   </thead>
                   <tbody>
-                    {player.transactions?.map((tx: any) => (
+                    {player.transactions?.map((tx: PlayerTransaction) => (
                       <tr key={tx.id} className="border-b">
                         <td className="p-4">
                           <span className={TRANSACTION_TYPE_COLORS[tx.type] || ""}>{tx.type}</span>
@@ -270,7 +354,7 @@ export default function PlayerDetailPage() {
                     </tr>
                   </thead>
                   <tbody>
-                    {player.gameSessions?.map((s: any) => {
+                    {player.gameSessions?.map((s: GameSession) => {
                       const pl = parseFloat(s.totalWin) - parseFloat(s.totalBet);
                       return (
                         <tr key={s.id} className="border-b">
@@ -330,7 +414,7 @@ export default function PlayerDetailPage() {
                     </tr>
                   </thead>
                   <tbody>
-                    {player.bonuses?.map((b: any) => (
+                    {player.bonuses?.map((b: PlayerBonus) => (
                       <tr key={b.id} className="border-b">
                         <td className="p-4">{b.type}</td>
                         <td className="p-4 text-right font-mono">{formatCurrency(b.amount)}</td>
@@ -385,7 +469,7 @@ export default function PlayerDetailPage() {
                     </tr>
                   </thead>
                   <tbody>
-                    {player.kycDocuments?.map((d: any) => (
+                    {player.kycDocuments?.map((d: KYCDocument) => (
                       <tr key={d.id} className="border-b">
                         <td className="p-4 font-medium">{d.docType.replace(/_/g, " ")}</td>
                         <td className="p-4">
@@ -415,7 +499,7 @@ export default function PlayerDetailPage() {
         <TabsContent value="notes">
           <Card>
             <CardContent className="pt-6 space-y-4">
-              {player.notes?.map((n: any) => (
+              {player.notes?.map((n: AdminNote) => (
                 <div
                   key={n.id}
                   className={`rounded-lg border p-4 ${n.isPinned ? "border-amber-300 bg-amber-50/50" : ""}`}
@@ -517,7 +601,7 @@ export default function PlayerDetailPage() {
                     </tr>
                   </thead>
                   <tbody>
-                    {player.auditLogs?.map((a: any) => (
+                    {player.auditLogs?.map((a: AuditLogEntry) => (
                       <tr key={a.id} className="border-b">
                         <td className="p-4">
                           <Badge variant="outline">{a.action}</Badge>

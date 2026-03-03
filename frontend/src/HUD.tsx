@@ -5,9 +5,10 @@ import './hud.css';
 interface HUDProps {
   onLogout?: () => void;
   onHistory?: () => void;
+  onLobby?: () => void;
 }
 
-export function HUD({ onLogout, onHistory }: HUDProps) {
+export function HUD({ onLogout, onHistory, onLobby }: HUDProps) {
   const balance = useGameStore((s) => s.balance);
   const bet = useGameStore((s) => s.bet);
   const lines = useGameStore((s) => s.lines);
@@ -131,6 +132,16 @@ export function HUD({ onLogout, onHistory }: HUDProps) {
           {lines} lines • {lineBet.toFixed(2)} / line
         </span>
         <div className="hud-actions">
+          {onLobby && (
+            <button
+              type="button"
+              className="hud-action-btn"
+              onClick={onLobby}
+              aria-label="Back to Lobby"
+            >
+              Lobby
+            </button>
+          )}
           {onHistory && (
             <button
               type="button"

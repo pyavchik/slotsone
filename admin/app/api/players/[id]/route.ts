@@ -15,8 +15,8 @@ export async function GET(request: NextRequest, { params }: { params: { id: stri
   ]);
 
   // Admin-only data from Prisma (keyed by backend user UUID)
-  let notes: any[] = [];
-  let auditLogs: any[] = [];
+  let notes: Array<Record<string, unknown>> = [];
+  let auditLogs: Array<Record<string, unknown>> = [];
   try {
     const adminNotes = await prisma.adminNote.findMany({
       where: { userId: params.id },

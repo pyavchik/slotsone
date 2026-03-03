@@ -1,0 +1,353 @@
+export type GameCategory = 'slots' | 'roulette' | 'blackjack' | 'baccarat';
+export type GameStatus = 'available' | 'soon';
+export type GameBadge = 'TOP' | 'HOT' | 'NEW' | 'SOON' | null;
+export type Volatility = 'low' | 'medium' | 'high';
+
+export interface GameItem {
+  slug: string;
+  title: string;
+  category: GameCategory;
+  provider: string;
+  rtp: number;
+  volatility: Volatility;
+  status: GameStatus;
+  badge: GameBadge;
+  thumbnail?: string;
+}
+
+export const CATEGORIES: { value: GameCategory; label: string }[] = [
+  { value: 'slots', label: 'Slots' },
+  { value: 'roulette', label: 'Roulette' },
+  { value: 'blackjack', label: 'Blackjack' },
+  { value: 'baccarat', label: 'Baccarat' },
+];
+
+const GAMES: GameItem[] = [
+  // Slots
+  {
+    slug: 'mega-fortune',
+    title: 'Mega Fortune',
+    category: 'slots',
+    provider: 'SlotsOne',
+    rtp: 96.4,
+    volatility: 'medium',
+    status: 'available',
+    badge: 'TOP',
+    thumbnail: '/games/mega-fortune.png',
+  },
+  {
+    slug: 'book-of-dead',
+    title: 'Book of Dead',
+    category: 'slots',
+    provider: "Play'n GO",
+    rtp: 96.21,
+    volatility: 'high',
+    status: 'soon',
+    badge: 'HOT',
+    thumbnail: '/games/book-of-dead.png',
+  },
+  {
+    slug: 'sweet-bonanza',
+    title: 'Sweet Bonanza',
+    category: 'slots',
+    provider: 'Pragmatic Play',
+    rtp: 96.51,
+    volatility: 'high',
+    status: 'soon',
+    badge: 'HOT',
+    thumbnail: '/games/sweet-bonanza.png',
+  },
+  {
+    slug: 'gates-of-olympus',
+    title: 'Gates of Olympus',
+    category: 'slots',
+    provider: 'Pragmatic Play',
+    rtp: 96.5,
+    volatility: 'high',
+    status: 'soon',
+    badge: 'NEW',
+    thumbnail: '/games/gates-of-olympus.png',
+  },
+  {
+    slug: 'starburst',
+    title: 'Starburst',
+    category: 'slots',
+    provider: 'NetEnt',
+    rtp: 96.09,
+    volatility: 'low',
+    status: 'soon',
+    badge: null,
+    thumbnail: '/games/starburst.png',
+  },
+  {
+    slug: 'gonzos-quest',
+    title: "Gonzo's Quest",
+    category: 'slots',
+    provider: 'NetEnt',
+    rtp: 95.97,
+    volatility: 'medium',
+    status: 'soon',
+    badge: null,
+    thumbnail: '/games/gonzos-quest.png',
+  },
+  {
+    slug: 'dead-or-alive-2',
+    title: 'Dead or Alive 2',
+    category: 'slots',
+    provider: 'NetEnt',
+    rtp: 96.82,
+    volatility: 'high',
+    status: 'soon',
+    badge: 'HOT',
+    thumbnail: '/games/dead-or-alive-2.png',
+  },
+  {
+    slug: 'reactoonz',
+    title: 'Reactoonz',
+    category: 'slots',
+    provider: "Play'n GO",
+    rtp: 96.51,
+    volatility: 'high',
+    status: 'soon',
+    badge: null,
+    thumbnail: '/games/reactoonz.png',
+  },
+  {
+    slug: 'jammin-jars',
+    title: "Jammin' Jars",
+    category: 'slots',
+    provider: 'Push Gaming',
+    rtp: 96.83,
+    volatility: 'high',
+    status: 'soon',
+    badge: 'NEW',
+    thumbnail: '/games/jammin-jars.png',
+  },
+  {
+    slug: 'big-bass-bonanza',
+    title: 'Big Bass Bonanza',
+    category: 'slots',
+    provider: 'Pragmatic Play',
+    rtp: 96.71,
+    volatility: 'high',
+    status: 'soon',
+    badge: null,
+    thumbnail: '/games/big-bass-bonanza.png',
+  },
+  {
+    slug: 'wolf-gold',
+    title: 'Wolf Gold',
+    category: 'slots',
+    provider: 'Pragmatic Play',
+    rtp: 96.01,
+    volatility: 'medium',
+    status: 'soon',
+    badge: null,
+    thumbnail: '/games/wolf-gold.png',
+  },
+  {
+    slug: 'fire-joker',
+    title: 'Fire Joker',
+    category: 'slots',
+    provider: "Play'n GO",
+    rtp: 96.15,
+    volatility: 'high',
+    status: 'soon',
+    badge: null,
+    thumbnail: '/games/fire-joker.png',
+  },
+
+  // Roulette
+  {
+    slug: 'european-roulette',
+    title: 'European Roulette',
+    category: 'roulette',
+    provider: 'Evolution',
+    rtp: 97.3,
+    volatility: 'medium',
+    status: 'soon',
+    badge: 'TOP',
+    thumbnail: '/games/european-roulette.png',
+  },
+  {
+    slug: 'american-roulette',
+    title: 'American Roulette',
+    category: 'roulette',
+    provider: 'Evolution',
+    rtp: 94.74,
+    volatility: 'medium',
+    status: 'soon',
+    badge: null,
+    thumbnail: '/games/american-roulette.png',
+  },
+  {
+    slug: 'french-roulette',
+    title: 'French Roulette',
+    category: 'roulette',
+    provider: 'Evolution',
+    rtp: 98.65,
+    volatility: 'low',
+    status: 'soon',
+    badge: null,
+    thumbnail: '/games/french-roulette.png',
+  },
+  {
+    slug: 'lightning-roulette',
+    title: 'Lightning Roulette',
+    category: 'roulette',
+    provider: 'Evolution',
+    rtp: 97.3,
+    volatility: 'high',
+    status: 'soon',
+    badge: 'HOT',
+    thumbnail: '/games/lightning-roulette.png',
+  },
+  {
+    slug: 'vip-roulette',
+    title: 'VIP Roulette',
+    category: 'roulette',
+    provider: 'Evolution',
+    rtp: 97.3,
+    volatility: 'medium',
+    status: 'soon',
+    badge: null,
+    thumbnail: '/games/vip-roulette.png',
+  },
+  {
+    slug: 'speed-roulette',
+    title: 'Speed Roulette',
+    category: 'roulette',
+    provider: 'Evolution',
+    rtp: 97.3,
+    volatility: 'medium',
+    status: 'soon',
+    badge: 'NEW',
+    thumbnail: '/games/speed-roulette.png',
+  },
+
+  // Blackjack
+  {
+    slug: 'classic-blackjack',
+    title: 'Classic Blackjack',
+    category: 'blackjack',
+    provider: 'Evolution',
+    rtp: 99.5,
+    volatility: 'low',
+    status: 'soon',
+    badge: 'TOP',
+    thumbnail: '/games/classic-blackjack.png',
+  },
+  {
+    slug: 'vip-blackjack',
+    title: 'VIP Blackjack',
+    category: 'blackjack',
+    provider: 'Evolution',
+    rtp: 99.5,
+    volatility: 'low',
+    status: 'soon',
+    badge: null,
+    thumbnail: '/games/vip-blackjack.png',
+  },
+  {
+    slug: 'infinite-blackjack',
+    title: 'Infinite Blackjack',
+    category: 'blackjack',
+    provider: 'Evolution',
+    rtp: 99.47,
+    volatility: 'low',
+    status: 'soon',
+    badge: 'HOT',
+    thumbnail: '/games/infinite-blackjack.png',
+  },
+  {
+    slug: 'multi-hand-blackjack',
+    title: 'Multi-Hand Blackjack',
+    category: 'blackjack',
+    provider: 'Pragmatic Play',
+    rtp: 99.4,
+    volatility: 'low',
+    status: 'soon',
+    badge: null,
+    thumbnail: '/games/multi-hand-blackjack.png',
+  },
+  {
+    slug: 'perfect-pairs-blackjack',
+    title: 'Perfect Pairs',
+    category: 'blackjack',
+    provider: 'Evolution',
+    rtp: 99.18,
+    volatility: 'medium',
+    status: 'soon',
+    badge: 'NEW',
+    thumbnail: '/games/perfect-pairs-blackjack.png',
+  },
+
+  // Baccarat
+  {
+    slug: 'classic-baccarat',
+    title: 'Classic Baccarat',
+    category: 'baccarat',
+    provider: 'Evolution',
+    rtp: 98.94,
+    volatility: 'low',
+    status: 'soon',
+    badge: 'TOP',
+    thumbnail: '/games/classic-baccarat.png',
+  },
+  {
+    slug: 'speed-baccarat',
+    title: 'Speed Baccarat',
+    category: 'baccarat',
+    provider: 'Evolution',
+    rtp: 98.94,
+    volatility: 'low',
+    status: 'soon',
+    badge: null,
+    thumbnail: '/games/speed-baccarat.png',
+  },
+  {
+    slug: 'vip-baccarat',
+    title: 'VIP Baccarat',
+    category: 'baccarat',
+    provider: 'Evolution',
+    rtp: 98.94,
+    volatility: 'low',
+    status: 'soon',
+    badge: null,
+    thumbnail: '/games/vip-baccarat.png',
+  },
+  {
+    slug: 'squeeze-baccarat',
+    title: 'Squeeze Baccarat',
+    category: 'baccarat',
+    provider: 'Evolution',
+    rtp: 98.94,
+    volatility: 'low',
+    status: 'soon',
+    badge: 'HOT',
+    thumbnail: '/games/squeeze-baccarat.png',
+  },
+  {
+    slug: 'no-commission-baccarat',
+    title: 'No Commission Baccarat',
+    category: 'baccarat',
+    provider: 'Evolution',
+    rtp: 98.76,
+    volatility: 'low',
+    status: 'soon',
+    badge: 'NEW',
+    thumbnail: '/games/no-commission-baccarat.png',
+  },
+];
+
+export function getGamesByCategory(category: GameCategory): GameItem[] {
+  return GAMES.filter((g) => g.category === category);
+}
+
+export function getGameBySlug(slug: string): GameItem | undefined {
+  return GAMES.find((g) => g.slug === slug);
+}
+
+export function getAllGames(): GameItem[] {
+  return GAMES;
+}

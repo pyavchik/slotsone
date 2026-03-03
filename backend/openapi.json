@@ -23,6 +23,9 @@
       "name": "Game"
     },
     {
+      "name": "Images"
+    },
+    {
       "name": "Provably Fair"
     },
     {
@@ -1581,6 +1584,75 @@
         ],
         "additionalProperties": false
       },
+      "ImageGenerateRequest": {
+        "type": "object",
+        "properties": {
+          "title": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 100,
+            "description": "Game title",
+            "example": "Mega Fortune"
+          },
+          "category": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 50,
+            "description": "Game category",
+            "example": "slots"
+          },
+          "provider": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 100,
+            "description": "Game provider",
+            "example": "SlotsOne"
+          }
+        },
+        "required": [
+          "title",
+          "category",
+          "provider"
+        ],
+        "additionalProperties": false
+      },
+      "ImageJobResponse": {
+        "type": "object",
+        "properties": {
+          "jobId": {
+            "type": "string",
+            "nullable": true,
+            "format": "uuid",
+            "description": "Job identifier, null for cache hits"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "pending",
+              "processing",
+              "completed",
+              "failed"
+            ]
+          },
+          "imageUrl": {
+            "type": "string",
+            "nullable": true,
+            "description": "URL when completed, null otherwise"
+          },
+          "error": {
+            "type": "string",
+            "nullable": true,
+            "description": "Error detail when failed, null otherwise"
+          }
+        },
+        "required": [
+          "jobId",
+          "status",
+          "imageUrl",
+          "error"
+        ],
+        "additionalProperties": false
+      },
       "HistorySummaryResponse": {
         "type": "object",
         "properties": {
@@ -1778,10 +1850,11 @@
         "tags": [
           "System"
         ],
-        "summary": "Health check",
+        "summary": "Liveness probe",
+        "description": "Lightweight check that the process is alive. Does not verify dependencies.",
         "responses": {
           "200": {
-            "description": "Service is healthy",
+            "description": "Process is alive",
             "content": {
               "application/json": {
                 "schema": {
@@ -1794,6 +1867,111 @@
                   },
                   "required": [
                     "status"
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/ready": {
+      "get": {
+        "tags": [
+          "System"
+        ],
+        "summary": "Readiness probe",
+        "description": "Verifies that the service and its dependencies (database) are ready to accept traffic. Returns 503 when any check fails.",
+        "responses": {
+          "200": {
+            "description": "All dependencies ready",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "example": "ready"
+                    },
+                    "checks": {
+                      "type": "object",
+                      "properties": {
+                        "database": {
+                          "type": "object",
+                          "properties": {
+                            "status": {
+                              "type": "string",
+                              "enum": [
+                                "ok",
+                                "fail"
+                              ]
+                            },
+                            "latency_ms": {
+                              "type": "number",
+                              "example": 1.2
+                            },
+                            "error": {
+                              "type": "string"
+                            }
+                          },
+                          "required": [
+                            "status"
+                          ]
+                        }
+                      }
+                    }
+                  },
+                  "required": [
+                    "status",
+                    "checks"
+                  ]
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "One or more dependencies unavailable",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "example": "degraded"
+                    },
+                    "checks": {
+                      "type": "object",
+                      "properties": {
+                        "database": {
+                          "type": "object",
+                          "properties": {
+                            "status": {
+                              "type": "string",
+                              "enum": [
+                                "ok",
+                                "fail"
+                              ]
+                            },
+                            "latency_ms": {
+                              "type": "number",
+                              "example": 1.2
+                            },
+                            "error": {
+                              "type": "string"
+                            }
+                          },
+                          "required": [
+                            "status"
+                          ]
+                        }
+                      }
+                    }
+                  },
+                  "required": [
+                    "status",
+                    "checks"
                   ]
                 }
               }
@@ -2324,6 +2502,159 @@
           },
           "401": {
             "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/images/generate": {
+      "post": {
+        "tags": [
+          "Images"
+        ],
+        "summary": "Request game thumbnail generation",
+        "description": "Returns immediately with a job reference.\n\n- **200** — image already cached (filesystem or completed job)\n- **202** — job accepted; poll `GET /images/jobs/{jobId}` for the result\n- **429** — daily per-user quota exceeded",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ImageGenerateRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Cache hit — image already available",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ImageJobResponse"
+                }
+              }
+            }
+          },
+          "202": {
+            "description": "Job accepted — generation in progress",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ImageJobResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request body",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Daily image quota exceeded",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Image generation service unavailable",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/images/jobs/{jobId}": {
+      "get": {
+        "tags": [
+          "Images"
+        ],
+        "summary": "Poll image generation job status",
+        "description": "Returns the current state of a previously submitted image generation job. When `status` is `completed`, `imageUrl` contains the path to the generated thumbnail.",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "required": true,
+            "name": "jobId",
+            "in": "path"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Job status",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ImageJobResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid job ID format",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Job not found",
             "content": {
               "application/json": {
                 "schema": {

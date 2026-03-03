@@ -17,6 +17,46 @@ import { formatCurrency, formatNumber } from "@/lib/utils";
 import { TRANSACTION_TYPE_COLORS } from "@/lib/constants";
 import { Download } from "lucide-react";
 
+interface FinancialSummary {
+  type: string;
+  total: string;
+  count: number;
+}
+
+interface DailyBreakdown {
+  date: string;
+  type: string;
+  total: string;
+  count: number;
+}
+
+interface NewPlayersRow {
+  date: string;
+  count: number;
+}
+
+interface StatusBreakdown {
+  status: string;
+  count: number;
+}
+
+interface CountryBreakdown {
+  country: string;
+  count: number;
+}
+
+interface GamePerformance {
+  gameId: string;
+  name: string;
+  provider: string;
+  category: string;
+  rtp: number;
+  rounds: number;
+  totalBets: string;
+  ggr: string;
+  margin: string;
+}
+
 export default function ReportsPage() {
   const [tab, setTab] = useState("financial");
   const [period, setPeriod] = useState("30");
@@ -29,7 +69,7 @@ export default function ReportsPage() {
     },
   });
 
-  const exportCSV = (rows: any[], filename: string) => {
+  const exportCSV = (rows: Record<string, unknown>[] | undefined, filename: string) => {
     if (!rows?.length) return;
     const keys = Object.keys(rows[0]);
     const csv = [keys.join(","), ...rows.map((r) => keys.map((k) => `"${r[k]}"`).join(","))].join(
@@ -81,7 +121,7 @@ export default function ReportsPage() {
           ) : (
             <>
               <div className="grid gap-4 md:grid-cols-3 lg:grid-cols-4">
-                {data?.summary?.map((s: any) => (
+                {data?.summary?.map((s: FinancialSummary) => (
                   <Card key={s.type}>
                     <CardContent className="pt-6">
                       <div
@@ -128,7 +168,7 @@ export default function ReportsPage() {
                         </tr>
                       </thead>
                       <tbody>
-                        {data?.daily?.map((d: any, i: number) => (
+                        {data?.daily?.map((d: DailyBreakdown, i: number) => (
                           <tr key={i} className="border-b">
                             <td className="p-4">{d.date}</td>
                             <td className="p-4">
@@ -182,7 +222,7 @@ export default function ReportsPage() {
                           </tr>
                         </thead>
                         <tbody>
-                          {data?.newPlayers?.map((d: any) => (
+                          {data?.newPlayers?.map((d: NewPlayersRow) => (
                             <tr key={d.date} className="border-b">
                               <td className="p-4">{d.date}</td>
                               <td className="p-4 text-right font-mono">{d.count}</td>
@@ -199,7 +239,7 @@ export default function ReportsPage() {
                   </CardHeader>
                   <CardContent>
                     <div className="space-y-3">
-                      {data?.statusBreakdown?.map((s: any) => (
+                      {data?.statusBreakdown?.map((s: StatusBreakdown) => (
                         <div key={s.status} className="flex items-center justify-between">
                           <Badge variant="outline">{s.status}</Badge>
                           <span className="font-mono">{formatNumber(s.count)}</span>
@@ -215,7 +255,7 @@ export default function ReportsPage() {
                 </CardHeader>
                 <CardContent>
                   <div className="grid gap-2 md:grid-cols-2 lg:grid-cols-4">
-                    {data?.countryBreakdown?.map((c: any) => (
+                    {data?.countryBreakdown?.map((c: CountryBreakdown) => (
                       <div
                         key={c.country}
                         className="flex items-center justify-between rounded-lg border p-3"
@@ -284,7 +324,7 @@ export default function ReportsPage() {
                       </tr>
                     </thead>
                     <tbody>
-                      {data?.games?.map((g: any) => (
+                      {data?.games?.map((g: GamePerformance) => (
                         <tr key={g.gameId} className="border-b">
                           <td className="p-4 font-medium">{g.name}</td>
                           <td className="p-4 text-muted-foreground">{g.provider}</td>

@@ -25,6 +25,7 @@ import {
   LoginRequestSchema,
   AuthResponseSchema,
 } from '../contracts/authContract.js';
+import { ImageGenerateRequestSchema, ImageJobResponseSchema } from '../contracts/imageContract.js';
 import { z } from '../contracts/zodOpenApi.js';
 
 const registry = new OpenAPIRegistry();
@@ -63,6 +64,11 @@ const SeedRotationResponseRef = registry.register(
   SeedRotationResponseSchema
 );
 const ClientSeedRequestRef = registry.register('ClientSeedRequest', ClientSeedRequestSchema);
+const ImageGenerateRequestRef = registry.register(
+  'ImageGenerateRequest',
+  ImageGenerateRequestSchema
+);
+const ImageJobResponseRef = registry.register('ImageJobResponse', ImageJobResponseSchema);
 
 registry.registerPath({
   method: 'post',
@@ -206,10 +212,11 @@ registry.registerPath({
   method: 'get',
   path: '/health',
   tags: ['System'],
-  summary: 'Health check',
+  summary: 'Liveness probe',
+  description: 'Lightweight check that the process is alive. Does not verify dependencies.',
   responses: {
     200: {
-      description: 'Service is healthy',
+      description: 'Process is alive',
       content: {
         'application/json': {
           schema: {
@@ -218,6 +225,68 @@ registry.registerPath({
               status: { type: 'string', example: 'ok' },
             },
             required: ['status'],
+          },
+        },
+      },
+    },
+  },
+});
+
+const readinessCheckSchema = {
+  type: 'object' as const,
+  properties: {
+    status: { type: 'string' as const, enum: ['ok', 'fail'] },
+    latency_ms: { type: 'number' as const, example: 1.2 },
+    error: { type: 'string' as const },
+  },
+  required: ['status'] as string[],
+};
+
+registry.registerPath({
+  method: 'get',
+  path: '/ready',
+  tags: ['System'],
+  summary: 'Readiness probe',
+  description:
+    'Verifies that the service and its dependencies (database) are ready to accept traffic. ' +
+    'Returns 503 when any check fails.',
+  responses: {
+    200: {
+      description: 'All dependencies ready',
+      content: {
+        'application/json': {
+          schema: {
+            type: 'object',
+            properties: {
+              status: { type: 'string', example: 'ready' },
+              checks: {
+                type: 'object',
+                properties: {
+                  database: readinessCheckSchema,
+                },
+              },
+            },
+            required: ['status', 'checks'],
+          },
+        },
+      },
+    },
+    503: {
+      description: 'One or more dependencies unavailable',
+      content: {
+        'application/json': {
+          schema: {
+            type: 'object',
+            properties: {
+              status: { type: 'string', example: 'degraded' },
+              checks: {
+                type: 'object',
+                properties: {
+                  database: readinessCheckSchema,
+                },
+              },
+            },
+            required: ['status', 'checks'],
           },
         },
       },
@@ -574,6 +643,131 @@ registry.registerPath({
   },
 });
 
+// ── Images ──
+
+registry.registerPath({
+  method: 'post',
+  path: '/api/v1/images/generate',
+  tags: ['Images'],
+  summary: 'Request game thumbnail generation',
+  description:
+    'Returns immediately with a job reference.\n\n' +
+    '- **200** — image already cached (filesystem or completed job)\n' +
+    '- **202** — job accepted; poll `GET /images/jobs/{jobId}` for the result\n' +
+    '- **429** — daily per-user quota exceeded',
+  security: [{ bearerAuth: [] }],
+  request: {
+    body: {
+      required: true,
+      content: {
+        'application/json': {
+          schema: ImageGenerateRequestRef,
+        },
+      },
+    },
+  },
+  responses: {
+    200: {
+      description: 'Cache hit — image already available',
+      content: {
+        'application/json': {
+          schema: ImageJobResponseRef,
+        },
+      },
+    },
+    202: {
+      description: 'Job accepted — generation in progress',
+      content: {
+        'application/json': {
+          schema: ImageJobResponseRef,
+        },
+      },
+    },
+    400: {
+      description: 'Invalid request body',
+      content: {
+        'application/json': {
+          schema: ErrorResponseRef,
+        },
+      },
+    },
+    401: {
+      description: 'Unauthorized',
+      content: {
+        'application/json': {
+          schema: ErrorResponseRef,
+        },
+      },
+    },
+    429: {
+      description: 'Daily image quota exceeded',
+      content: {
+        'application/json': {
+          schema: ErrorResponseRef,
+        },
+      },
+    },
+    503: {
+      description: 'Image generation service unavailable',
+      content: {
+        'application/json': {
+          schema: ErrorResponseRef,
+        },
+      },
+    },
+  },
+});
+
+registry.registerPath({
+  method: 'get',
+  path: '/api/v1/images/jobs/{jobId}',
+  tags: ['Images'],
+  summary: 'Poll image generation job status',
+  description:
+    'Returns the current state of a previously submitted image generation job. ' +
+    'When `status` is `completed`, `imageUrl` contains the path to the generated thumbnail.',
+  security: [{ bearerAuth: [] }],
+  request: {
+    params: z.object({
+      jobId: z.string().uuid(),
+    }),
+  },
+  responses: {
+    200: {
+      description: 'Job status',
+      content: {
+        'application/json': {
+          schema: ImageJobResponseRef,
+        },
+      },
+    },
+    400: {
+      description: 'Invalid job ID format',
+      content: {
+        'application/json': {
+          schema: ErrorResponseRef,
+        },
+      },
+    },
+    401: {
+      description: 'Unauthorized',
+      content: {
+        'application/json': {
+          schema: ErrorResponseRef,
+        },
+      },
+    },
+    404: {
+      description: 'Job not found',
+      content: {
+        'application/json': {
+          schema: ErrorResponseRef,
+        },
+      },
+    },
+  },
+});
+
 const generator = new OpenApiGeneratorV3(registry.definitions);
 
 export const openApiSpec = generator.generateDocument({
@@ -599,5 +793,11 @@ export const openApiSpec = generator.generateDocument({
       description: 'Local development',
     },
   ],
-  tags: [{ name: 'Auth' }, { name: 'Game' }, { name: 'Provably Fair' }, { name: 'System' }],
+  tags: [
+    { name: 'Auth' },
+    { name: 'Game' },
+    { name: 'Images' },
+    { name: 'Provably Fair' },
+    { name: 'System' },
+  ],
 });

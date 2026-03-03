@@ -1,5 +1,17 @@
 import { NextRequest, NextResponse } from "next/server";
+import { Decimal } from "@prisma/client/runtime/library";
 import { prisma } from "@/lib/prisma";
+
+interface DuplicateRow {
+  id: string;
+  username: string;
+  email: string;
+  country: string | null;
+  registeredAt: Date;
+  balanceReal: Decimal;
+  riskLevel: string;
+  domain_count: bigint;
+}
 
 export async function GET(request: NextRequest) {
   const sp = request.nextUrl.searchParams;
@@ -82,7 +94,7 @@ export async function GET(request: NextRequest) {
 
   // Duplicate detection: users with same email domain and similar registration times
   if (tab === "duplicates") {
-    const duplicates = (await prisma.$queryRaw`
+    const duplicates = await prisma.$queryRaw<DuplicateRow[]>`
       SELECT u1.id, u1.username, u1.email, u1.country, u1."registeredAt",
              u1."balanceReal", u1."riskLevel",
              COUNT(*) OVER (PARTITION BY SPLIT_PART(u1.email, '@', 2)) as domain_count
@@ -93,13 +105,18 @@ export async function GET(request: NextRequest) {
       ) > 1
       ORDER BY SPLIT_PART(u1.email, '@', 2), u1."registeredAt" DESC
       LIMIT ${pageSize} OFFSET ${(page - 1) * pageSize}
-    `) as any[];
+    `;
 
     return NextResponse.json({
       data: duplicates.map((u) => ({
-        ...u,
+        id: u.id,
+        username: u.username,
+        email: u.email,
+        country: u.country,
+        riskLevel: u.riskLevel,
         balanceReal: Number(u.balanceReal).toFixed(2),
         registeredAt: new Date(u.registeredAt).toISOString(),
+        domain_count: Number(u.domain_count),
       })),
       pagination: { page, pageSize, total: duplicates.length, totalPages: 1 },
     });

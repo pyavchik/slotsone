@@ -1,3 +1,4 @@
+import { Link } from 'react-router-dom';
 import './cvLanding.css';
 
 const CV_PDF_PATH = '/QA_Oleksander_Pyavchik_CV.pdf';
@@ -61,7 +62,7 @@ const EXPERIENCE = [
   },
 ];
 
-export function CVLanding({ onOpenSlots }: { onOpenSlots: () => void }) {
+export function CVLanding() {
   return (
     <main className="cv-page">
       <header className="cv-header-card">
@@ -93,14 +94,9 @@ export function CVLanding({ onOpenSlots }: { onOpenSlots: () => void }) {
         </div>
 
         <div className="cv-actions">
-          <button
-            type="button"
-            className="cv-open-slots"
-            onClick={onOpenSlots}
-            data-testid="cv-open-slots"
-          >
+          <Link to="/slots" className="cv-open-slots" data-testid="cv-open-slots">
             slots
-          </button>
+          </Link>
           <a
             className="cv-link"
             href={REQUIREMENTS_PATH}
@@ -195,14 +191,9 @@ export function CVLanding({ onOpenSlots }: { onOpenSlots: () => void }) {
       <section className="cv-section cv-final-cta">
         <h2>Project Demo</h2>
         <p>Use the button below to launch the interactive slots application.</p>
-        <button
-          type="button"
-          className="cv-open-slots"
-          onClick={onOpenSlots}
-          data-testid="cv-open-slots"
-        >
+        <Link to="/slots" className="cv-open-slots" data-testid="cv-open-slots">
           slots
-        </button>
+        </Link>
       </section>
     </main>
   );

@@ -18,6 +18,7 @@ import { getOrCreateWallet, debitWallet, creditWallet } from './walletStore.js';
 import { getOrCreateActiveSeedPair, incrementNonce } from './seedStore.js';
 import { deriveSpinSeed, hashOutcome } from './provablyFair.js';
 import { createRound, getUserRounds, getUserSummary, type HistoryFilters } from './roundStore.js';
+import { getPool } from './db.js';
 
 export interface Session {
   session_id: string;
@@ -48,10 +49,6 @@ const CLEANUP_INTERVAL_MS = 5 * 60 * 1000;
 const RATE_LIMIT_SPINS_PER_SEC = 5;
 const MIN_ACTIVE_LINES = 1;
 const MAX_ACTIVE_LINES = PAYLINES;
-const rateCounts = new Map<string, { count: number; resetAt: number }>();
-
-const sessions = new Map<string, Session>();
-const idempotency = new Map<string, IdempotencyEntry>();
 
 const lineWins = SYMBOLS.map((symbol, index) => {
   const [x3, x4, x5] = PAYTABLE[index] ?? [0, 0, 0];
@@ -86,64 +83,70 @@ function spinFingerprint(
   return `${sessionId}|${gameId}|${betAmount.toFixed(2)}|${currency}|${lines}`;
 }
 
-function cleanupExpiredSessions(now = Date.now()) {
-  sessions.forEach((session, key) => {
-    if (session.status !== 'active' || now > session.expires_at) sessions.delete(key);
-  });
+async function cleanupExpiredSessions(now = Date.now()) {
+  await getPool().query('DELETE FROM game_sessions WHERE status != $1 OR expires_at <= $2', [
+    'active',
+    now,
+  ]);
 }
 
-function cleanupExpiredRateCounts(now = Date.now()) {
-  rateCounts.forEach((entry, key) => {
-    if (now >= entry.resetAt) rateCounts.delete(key);
-  });
+async function cleanupExpiredRateCounts(now = Date.now()) {
+  await getPool().query('DELETE FROM rate_limits WHERE reset_at <= $1', [now]);
 }
 
-function isIdempotencyExpired(entry: IdempotencyEntry, now = Date.now()): boolean {
-  return now - entry.created_at >= TTL_IDEMPOTENCY_MS;
+async function cleanupExpiredIdempotency(now = Date.now()) {
+  const cutoff = now - TTL_IDEMPOTENCY_MS;
+  await getPool().query('DELETE FROM idempotency_keys WHERE created_at <= $1', [cutoff]);
 }
 
-function cleanupExpiredIdempotency(now = Date.now()) {
-  idempotency.forEach((entry, key) => {
-    if (isIdempotencyExpired(entry, now)) idempotency.delete(key);
-  });
+async function cleanupExpiredState(now = Date.now()) {
+  await Promise.all([
+    cleanupExpiredSessions(now),
+    cleanupExpiredRateCounts(now),
+    cleanupExpiredIdempotency(now),
+  ]);
 }
 
-function cleanupExpiredState(now = Date.now()) {
-  cleanupExpiredSessions(now);
-  cleanupExpiredRateCounts(now);
-  cleanupExpiredIdempotency(now);
-}
+const cleanupTimer = setInterval(() => {
+  cleanupExpiredState().catch(() => {});
+}, CLEANUP_INTERVAL_MS);
+cleanupTimer.unref();
 
-setInterval(() => {
-  cleanupExpiredState();
-}, CLEANUP_INTERVAL_MS).unref();
-
-function rateLimit(
+async function rateLimit(
   userId: string
-): { limited: false } | { limited: true; retryAfterSeconds: number } {
+): Promise<{ limited: false } | { limited: true; retryAfterSeconds: number }> {
   const now = Date.now();
-  let entry = rateCounts.get(userId);
-  if (!entry) {
-    rateCounts.set(userId, { count: 1, resetAt: now + 1000 });
-    return { limited: false };
-  }
-  if (now >= entry.resetAt) {
-    entry = { count: 1, resetAt: now + 1000 };
-    rateCounts.set(userId, entry);
-    return { limited: false };
-  }
-  entry.count++;
-  if (entry.count > RATE_LIMIT_SPINS_PER_SEC) {
+  const resetAt = now + 1000;
+
+  // Atomic upsert: if the window expired, reset to 1; otherwise increment.
+  const { rows } = await getPool().query<{ spin_count: number; reset_at: string }>(
+    `INSERT INTO rate_limits (user_id, spin_count, reset_at)
+     VALUES ($1, 1, $2)
+     ON CONFLICT (user_id) DO UPDATE
+     SET spin_count = CASE
+           WHEN rate_limits.reset_at <= $3 THEN 1
+           ELSE rate_limits.spin_count + 1
+         END,
+         reset_at = CASE
+           WHEN rate_limits.reset_at <= $3 THEN $2
+           ELSE rate_limits.reset_at
+         END
+     RETURNING spin_count, reset_at`,
+    [userId, resetAt, now]
+  );
+
+  const entry = rows[0];
+  if (entry.spin_count > RATE_LIMIT_SPINS_PER_SEC) {
+    const storedResetAt = Number(entry.reset_at);
     return {
       limited: true,
-      retryAfterSeconds: Math.max(1, Math.ceil((entry.resetAt - now) / 1000)),
+      retryAfterSeconds: Math.max(1, Math.ceil((storedResetAt - now) / 1000)),
     };
   }
   return { limited: false };
 }
 
-export function createSession(userId: string, gameId: string): Session {
-  cleanupExpiredState();
+export async function createSession(userId: string, gameId: string): Promise<Session> {
   const session_id = `sess_${randomUUID().slice(0, 12)}`;
   const now = Date.now();
   const session: Session = {
@@ -154,18 +157,50 @@ export function createSession(userId: string, gameId: string): Session {
     created_at: now,
     expires_at: now + TTL_SESSION_MS,
   };
-  sessions.set(session_id, session);
+
+  await getPool().query(
+    `INSERT INTO game_sessions (session_id, user_id, game_id, status, created_at, expires_at)
+     VALUES ($1, $2, $3, $4, $5, $6)`,
+    [
+      session.session_id,
+      session.user_id,
+      session.game_id,
+      session.status,
+      session.created_at,
+      session.expires_at,
+    ]
+  );
+
   return session;
 }
 
-export function getSession(sessionId: string): Session | undefined {
-  const s = sessions.get(sessionId);
-  if (!s) return undefined;
-  if (s.status !== 'active' || Date.now() > s.expires_at) {
-    sessions.delete(sessionId);
-    return undefined;
-  }
-  return s;
+export async function getSession(sessionId: string): Promise<Session | undefined> {
+  const now = Date.now();
+  const { rows } = await getPool().query<{
+    session_id: string;
+    user_id: string;
+    game_id: string;
+    status: string;
+    created_at: string;
+    expires_at: string;
+  }>(
+    `SELECT session_id, user_id, game_id, status, created_at, expires_at
+     FROM game_sessions
+     WHERE session_id = $1 AND status = 'active' AND expires_at > $2`,
+    [sessionId, now]
+  );
+
+  if (rows.length === 0) return undefined;
+
+  const row = rows[0];
+  return {
+    session_id: row.session_id,
+    user_id: row.user_id,
+    game_id: row.game_id,
+    status: row.status as 'active' | 'closed',
+    created_at: Number(row.created_at),
+    expires_at: Number(row.expires_at),
+  };
 }
 
 export function getConfig() {
@@ -213,7 +248,7 @@ export async function executeSpin(
   | { result: SpinResult; code: 200 }
   | { error: string; code: 400 | 401 | 403 | 409 | 422 | 429; retry_after_seconds?: number }
 > {
-  const session = getSession(sessionId);
+  const session = await getSession(sessionId);
   if (!session) {
     return { error: 'Session not found or expired', code: 403 };
   }
@@ -237,10 +272,25 @@ export async function executeSpin(
   const requestFingerprint = spinFingerprint(sessionId, gameId, betAmount, currency, lines);
   if (idempotencyKey) {
     const scopedKey = idempotencyKeyForUser(userId, idempotencyKey);
-    const existing = idempotency.get(scopedKey);
-    if (existing) {
-      if (isIdempotencyExpired(existing)) {
-        idempotency.delete(scopedKey);
+    const now = Date.now();
+    const cutoff = now - TTL_IDEMPOTENCY_MS;
+    const { rows } = await getPool().query<{
+      request_fingerprint: string;
+      response: unknown;
+      created_at: string;
+    }>(
+      `SELECT request_fingerprint, response, created_at
+       FROM idempotency_keys
+       WHERE scoped_key = $1`,
+      [scopedKey]
+    );
+
+    if (rows.length > 0) {
+      const existing = rows[0];
+      const createdAt = Number(existing.created_at);
+      if (createdAt <= cutoff) {
+        // Expired — remove it
+        await getPool().query('DELETE FROM idempotency_keys WHERE scoped_key = $1', [scopedKey]);
       } else {
         if (existing.request_fingerprint !== requestFingerprint) {
           return { error: 'Idempotency key reused with different request payload', code: 409 };
@@ -257,7 +307,7 @@ export async function executeSpin(
     return { error: 'insufficient_balance', code: 422 };
   }
 
-  const rate = rateLimit(userId);
+  const rate = await rateLimit(userId);
   if (rate.limited) {
     return { error: 'Too many requests', code: 429, retry_after_seconds: rate.retryAfterSeconds };
   }
@@ -321,13 +371,12 @@ export async function executeSpin(
 
   if (idempotencyKey) {
     const scopedKey = idempotencyKeyForUser(userId, idempotencyKey);
-    idempotency.set(scopedKey, {
-      key: idempotencyKey,
-      user_id: userId,
-      request_fingerprint: requestFingerprint,
-      response: result,
-      created_at: finishedAt,
-    });
+    await getPool().query(
+      `INSERT INTO idempotency_keys (scoped_key, user_id, request_fingerprint, response, created_at)
+       VALUES ($1, $2, $3, $4, $5)
+       ON CONFLICT (scoped_key) DO NOTHING`,
+      [scopedKey, userId, requestFingerprint, JSON.stringify(result), finishedAt]
+    );
   }
 
   return { result, code: 200 };
@@ -370,20 +419,25 @@ export async function getHistorySummary(userId: string, filters?: HistoryFilters
   return getUserSummary(userId, filters);
 }
 
-export function cleanupStoreForTests(now: number) {
-  cleanupExpiredState(now);
+export async function cleanupStoreForTests(now: number) {
+  await cleanupExpiredState(now);
 }
 
-export function getStoreDiagnosticsForTests() {
+export async function getStoreDiagnosticsForTests() {
+  const pool = getPool();
+  const [sessRes, idempRes, rateRes] = await Promise.all([
+    pool.query<{ count: string }>('SELECT COUNT(*) AS count FROM game_sessions'),
+    pool.query<{ count: string }>('SELECT COUNT(*) AS count FROM idempotency_keys'),
+    pool.query<{ count: string }>('SELECT COUNT(*) AS count FROM rate_limits'),
+  ]);
   return {
-    sessions: sessions.size,
-    idempotency: idempotency.size,
-    rateCounts: rateCounts.size,
+    sessions: Number(sessRes.rows[0].count),
+    idempotency: Number(idempRes.rows[0].count),
+    rateCounts: Number(rateRes.rows[0].count),
   };
 }
 
-export function resetStoreForTests() {
-  sessions.clear();
-  idempotency.clear();
-  rateCounts.clear();
+export async function resetStoreForTests() {
+  const pool = getPool();
+  await pool.query('TRUNCATE game_sessions, idempotency_keys, rate_limits');
 }

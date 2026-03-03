@@ -72,7 +72,7 @@ if (!supportsSockets) {
   });
 
   test('init rejects unauthenticated request even if user_id is supplied in body', async () => {
-    resetStoreForTests();
+    await resetStoreForTests();
 
     await request(app)
       .post('/api/v1/game/init')
@@ -88,7 +88,7 @@ if (!supportsSockets) {
 
   test('frontend init request contract is accepted via Authorization header', async () => {
     await resetUserStoreForTests();
-    resetStoreForTests();
+    await resetStoreForTests();
     const user = await createUser('contract-init@test.com', 'test-hash');
     const token = createRs256Token(user.id);
 
@@ -112,7 +112,7 @@ if (!supportsSockets) {
 
   test('frontend spin request contract returns frontend response shape', async () => {
     await resetUserStoreForTests();
-    resetStoreForTests();
+    await resetStoreForTests();
     const user = await createUser('contract-spin@test.com', 'test-hash');
     const token = createRs256Token(user.id);
 
@@ -165,7 +165,7 @@ if (!supportsSockets) {
 
   test('spin rejects body that does not match documented schema', async () => {
     await resetUserStoreForTests();
-    resetStoreForTests();
+    await resetStoreForTests();
     const user = await createUser('contract-validation@test.com', 'test-hash');
     const token = createRs256Token(user.id);
 
@@ -210,7 +210,7 @@ if (!supportsSockets) {
 
   test('idempotency key is taken from header and replays return the same spin', async () => {
     await resetUserStoreForTests();
-    resetStoreForTests();
+    await resetStoreForTests();
     const user = await createUser('contract-idempotency@test.com', 'test-hash');
     const token = createRs256Token(user.id);
 
@@ -252,7 +252,7 @@ if (!supportsSockets) {
 
   test('history returns paginated per-user items with documented response shape', async () => {
     await resetUserStoreForTests();
-    resetStoreForTests();
+    await resetStoreForTests();
 
     const userA = await createUser('contract-history-a@test.com', 'test-hash');
     const userB = await createUser('contract-history-b@test.com', 'test-hash');
@@ -532,7 +532,7 @@ if (!supportsSockets) {
   test('access token from /auth/register works for game init', async () => {
     await resetUserStoreForTests();
     await resetRefreshTokenStoreForTests();
-    resetStoreForTests();
+    await resetStoreForTests();
 
     const authRes = await request(app)
       .post('/api/v1/auth/register')

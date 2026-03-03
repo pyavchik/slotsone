@@ -43,7 +43,7 @@ const MOCK_CONFIG = {
 };
 
 test.describe('Slots app', () => {
-  test('opens from CV page and performs a spin', async ({ page, context }) => {
+  test('opens from CV page via lobby and performs a spin', async ({ page, context }) => {
     let spinRequests = 0;
     let balance = 1000;
 
@@ -122,6 +122,15 @@ test.describe('Slots app', () => {
       });
     });
 
+    // Stub thumbnail generation to avoid real API calls
+    await context.route('**/api/v1/images/generate', (route) =>
+      route.fulfill({
+        status: 503,
+        contentType: 'application/json',
+        body: '{"error":"unavailable"}',
+      })
+    );
+
     await page.goto('/');
 
     await expect(page.getByTestId('cv-title')).toBeVisible();
@@ -131,6 +140,13 @@ test.describe('Slots app', () => {
 
     await slotsButton.click();
     await expect(page).toHaveURL(/\/slots/);
+
+    // Now on the lobby — click Mega Fortune to launch the game
+    const megaFortuneCard = page.locator('.game-card-title', { hasText: 'Mega Fortune' });
+    await expect(megaFortuneCard).toBeVisible({ timeout: 5000 });
+    await megaFortuneCard.click();
+
+    await expect(page).toHaveURL(/\/slots\/mega-fortune/);
 
     const slotsPage = page;
     await slotsPage.waitForLoadState();
@@ -174,7 +190,17 @@ test.describe('Slots app', () => {
       await route.continue();
     });
 
-    await page.goto('/slots');
+    // Stub thumbnail generation
+    await context.route('**/api/v1/images/generate', (route) =>
+      route.fulfill({
+        status: 503,
+        contentType: 'application/json',
+        body: '{"error":"unavailable"}',
+      })
+    );
+
+    // Navigate directly to the game page
+    await page.goto('/slots/mega-fortune');
 
     await expect
       .poll(

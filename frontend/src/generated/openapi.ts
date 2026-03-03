@@ -726,6 +726,166 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/images/generate": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Request game thumbnail generation
+         * @description Returns immediately with a job reference.
+         *
+         *     - **200** — image already cached (filesystem or completed job)
+         *     - **202** — job accepted; poll `GET /images/jobs/{jobId}` for the result
+         *     - **429** — daily per-user quota exceeded
+         */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": components["schemas"]["ImageGenerateRequest"];
+                };
+            };
+            responses: {
+                /** @description Cache hit — image already available */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ImageJobResponse"];
+                    };
+                };
+                /** @description Job accepted — generation in progress */
+                202: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ImageJobResponse"];
+                    };
+                };
+                /** @description Invalid request body */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
+                };
+                /** @description Daily image quota exceeded */
+                429: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
+                };
+                /** @description Image generation service unavailable */
+                503: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/images/jobs/{jobId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Poll image generation job status
+         * @description Returns the current state of a previously submitted image generation job. When `status` is `completed`, `imageUrl` contains the path to the generated thumbnail.
+         */
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    jobId: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Job status */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ImageJobResponse"];
+                    };
+                };
+                /** @description Invalid job ID format */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
+                };
+                /** @description Job not found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -1097,6 +1257,36 @@ export interface components {
         };
         ClientSeedRequest: {
             client_seed: string;
+        };
+        ImageGenerateRequest: {
+            /**
+             * @description Game title
+             * @example Mega Fortune
+             */
+            title: string;
+            /**
+             * @description Game category
+             * @example slots
+             */
+            category: string;
+            /**
+             * @description Game provider
+             * @example SlotsOne
+             */
+            provider: string;
+        };
+        ImageJobResponse: {
+            /**
+             * Format: uuid
+             * @description Job identifier, null for cache hits
+             */
+            jobId: string | null;
+            /** @enum {string} */
+            status: "pending" | "processing" | "completed" | "failed";
+            /** @description URL when completed, null otherwise */
+            imageUrl: string | null;
+            /** @description Error detail when failed, null otherwise */
+            error: string | null;
         };
         HistorySummaryResponse: {
             total_rounds: number;

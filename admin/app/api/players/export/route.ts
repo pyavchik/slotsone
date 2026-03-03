@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { Prisma } from "@prisma/client";
+import { Prisma, UserStatus, RiskLevel } from "@prisma/client";
 
 export async function GET(request: NextRequest) {
   const searchParams = request.nextUrl.searchParams;
@@ -15,8 +15,8 @@ export async function GET(request: NextRequest) {
       { username: { contains: search, mode: "insensitive" } },
     ];
   }
-  if (status) where.status = status as any;
-  if (riskLevel) where.riskLevel = riskLevel as any;
+  if (status) where.status = status as UserStatus;
+  if (riskLevel) where.riskLevel = riskLevel as RiskLevel;
 
   const users = await prisma.user.findMany({ where, take: 10000 });
 
