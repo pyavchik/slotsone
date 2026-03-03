@@ -1,15 +1,16 @@
-import { useState, useEffect, type FormEvent } from 'react';
+import { useState, useEffect, useRef, type FormEvent } from 'react';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { register, login, refreshAccessToken } from './api';
 import { useGameStore } from './store';
 import './authScreen.css';
 
 type Tab = 'login' | 'register';
 
-interface Props {
-  onAuthenticated: () => void;
-}
+export function AuthScreen() {
+  const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const nextPath = searchParams.get('next') || '/slots';
 
-export function AuthScreen({ onAuthenticated }: Props) {
   const setToken = useGameStore((s) => s.setToken);
   const [tab, setTab] = useState<Tab>('login');
   const [email, setEmail] = useState('');
@@ -17,18 +18,18 @@ export function AuthScreen({ onAuthenticated }: Props) {
   const [ageConfirmed, setAgeConfirmed] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
-  // true while we try to silently re-issue via the httpOnly refresh cookie
   const [silentRefreshing, setSilentRefreshing] = useState(true);
+
+  const nextPathRef = useRef(nextPath);
 
   useEffect(() => {
     refreshAccessToken()
       .then((data) => {
         setToken(data.access_token);
-        onAuthenticated();
+        navigate(nextPathRef.current, { replace: true });
       })
       .catch(() => setSilentRefreshing(false));
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [setToken, navigate]);
 
   async function handleSubmit(e: FormEvent) {
     e.preventDefault();
@@ -38,7 +39,7 @@ export function AuthScreen({ onAuthenticated }: Props) {
       const fn = tab === 'register' ? register : login;
       const data = await fn(email, password);
       setToken(data.access_token);
-      onAuthenticated();
+      navigate(nextPath, { replace: true });
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Something went wrong');
     } finally {
