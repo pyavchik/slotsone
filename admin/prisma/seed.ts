@@ -1,5 +1,6 @@
 import { PrismaClient } from "@prisma/client";
 import bcrypt from "bcryptjs";
+import { GAME_CATALOG } from "../lib/game-catalog";
 
 const prisma = new PrismaClient();
 
@@ -27,6 +28,27 @@ async function main() {
       role: "SUPERADMIN",
     },
   });
+
+  // 2. Game Catalog
+  console.log("Seeding game catalog...");
+  for (const g of GAME_CATALOG) {
+    await prisma.game.upsert({
+      where: { slug: g.slug },
+      update: {},
+      create: {
+        slug: g.slug,
+        name: g.name,
+        provider: g.provider,
+        category: g.category,
+        rtp: g.rtp,
+        minBet: g.minBet,
+        maxBet: g.maxBet,
+        isActive: true,
+        isFeatured: false,
+      },
+    });
+  }
+  console.log(`Seeded ${GAME_CATALOG.length} games.`);
 
   console.log("Seeding complete!");
   console.log("Admin login: admin@slotsone.com / admin123");
