@@ -1,4 +1,6 @@
 import { backendPool } from "./backend-db";
+import { GAME_CATALOG } from "./game-catalog";
+import { prisma } from "./prisma";
 
 // --- Helpers ---
 
@@ -580,87 +582,105 @@ export async function getGamesReport(days: number) {
   };
 }
 
-// --- Games (aggregated from game_rounds) ---
+// --- Games (full catalog + backend stats + Prisma toggle state) ---
 
 export interface GameListOptions {
   page: number;
   pageSize: number;
   search?: string;
+  category?: string;
 }
 
 export async function getGames(opts: GameListOptions) {
-  if (!isBackendAvailable()) {
-    return { data: [], pagination: EMPTY_PAGINATION(opts.page, opts.pageSize) };
+  const { page, pageSize, search, category } = opts;
+
+  // 1. Start from full catalog, apply filters
+  let filtered = GAME_CATALOG;
+  if (search) {
+    const q = search.toLowerCase();
+    filtered = filtered.filter(
+      (g) =>
+        g.name.toLowerCase().includes(q) ||
+        g.slug.toLowerCase().includes(q) ||
+        g.provider.toLowerCase().includes(q)
+    );
   }
-  const { page, pageSize, search } = opts;
+  if (category) {
+    filtered = filtered.filter((g) => g.category === category);
+  }
+
+  const total = filtered.length;
   const offset = (page - 1) * pageSize;
-  const params: unknown[] = [];
-  let havingClause = "";
+  const pageItems = filtered.slice(offset, offset + pageSize);
+  const slugs = pageItems.map((g) => g.slug);
 
-  if (search) {
-    params.push(`%${search}%`);
-    havingClause = `HAVING game_id ILIKE $${params.length}`;
+  // 2. Query backend stats for these slugs (if backend available)
+  type Stats = { rounds: number; sessions: number; totalBets: number; totalWins: number };
+  const statsMap = new Map<string, Stats>();
+
+  if (isBackendAvailable() && slugs.length > 0) {
+    const placeholders = slugs.map((_, i) => `$${i + 1}`).join(", ");
+    const { rows } = await backendPool!.query(
+      `SELECT game_id,
+              COUNT(*)::int AS rounds,
+              COUNT(DISTINCT session_id)::int AS sessions,
+              COALESCE(SUM(bet_cents), 0) AS total_bets,
+              COALESCE(SUM(win_cents), 0) AS total_wins
+       FROM game_rounds
+       WHERE game_id IN (${placeholders})
+       GROUP BY game_id`,
+      slugs
+    );
+    for (const r of rows) {
+      statsMap.set(r.game_id, {
+        rounds: r.rounds,
+        sessions: r.sessions,
+        totalBets: Number(r.total_bets) / 100,
+        totalWins: Number(r.total_wins) / 100,
+      });
+    }
   }
 
-  const dataQuery = `
-    SELECT
-      game_id,
-      COUNT(*)::int AS rounds,
-      COUNT(DISTINCT session_id)::int AS sessions,
-      COALESCE(SUM(bet_cents), 0) AS total_bets,
-      COALESCE(SUM(win_cents), 0) AS total_wins,
-      MIN(created_at) AS first_played
-    FROM game_rounds
-    GROUP BY game_id
-    ${havingClause}
-    ORDER BY total_bets DESC
-    LIMIT $${params.length + 1} OFFSET $${params.length + 2}
-  `;
-  params.push(pageSize, offset);
+  // 3. Query Prisma for persisted toggle state
+  const prismaGames =
+    slugs.length > 0
+      ? await prisma.game.findMany({
+          where: { slug: { in: slugs } },
+          select: { slug: true, isActive: true, isFeatured: true },
+        })
+      : [];
+  const toggleMap = new Map(
+    prismaGames.map((g) => [g.slug, { isActive: g.isActive, isFeatured: g.isFeatured }])
+  );
 
-  const countParams: unknown[] = [];
-  let countHaving = "";
-  if (search) {
-    countParams.push(`%${search}%`);
-    countHaving = `HAVING game_id ILIKE $1`;
-  }
-
-  const countQuery = `
-    SELECT COUNT(*)::int AS total FROM (
-      SELECT game_id FROM game_rounds GROUP BY game_id ${countHaving}
-    ) sub
-  `;
-
-  const [dataResult, countResult] = await Promise.all([
-    backendPool!.query(dataQuery, params),
-    backendPool!.query(countQuery, countParams),
-  ]);
-
-  const total: number = countResult.rows[0].total;
+  // 4. Merge
+  const data = pageItems.map((g) => {
+    const stats = statsMap.get(g.slug);
+    const toggles = toggleMap.get(g.slug);
+    const bets = stats?.totalBets ?? 0;
+    const wins = stats?.totalWins ?? 0;
+    return {
+      id: g.slug,
+      slug: g.slug,
+      name: g.name,
+      provider: g.provider,
+      category: g.category,
+      rtp: String(g.rtp),
+      isActive: toggles?.isActive ?? true,
+      isFeatured: toggles?.isFeatured ?? false,
+      minBet: g.minBet.toFixed(2),
+      maxBet: g.maxBet.toFixed(2),
+      totalRounds: stats?.rounds ?? 0,
+      totalSessions: stats?.sessions ?? 0,
+      totalBets: bets.toFixed(2),
+      totalWins: wins.toFixed(2),
+      ggr: (bets - wins).toFixed(2),
+      createdAt: new Date().toISOString(),
+    };
+  });
 
   return {
-    data: dataResult.rows.map((g) => {
-      const bets = Number(g.total_bets) / 100;
-      const wins = Number(g.total_wins) / 100;
-      return {
-        id: g.game_id,
-        slug: g.game_id,
-        name: g.game_id,
-        provider: "-",
-        category: "SLOTS",
-        rtp: "-",
-        isActive: true,
-        isFeatured: false,
-        minBet: "0.00",
-        maxBet: "0.00",
-        totalRounds: g.rounds,
-        totalSessions: g.sessions,
-        totalBets: bets.toFixed(2),
-        totalWins: wins.toFixed(2),
-        ggr: (bets - wins).toFixed(2),
-        createdAt: new Date(g.first_played).toISOString(),
-      };
-    }),
+    data,
     pagination: {
       page,
       pageSize,
