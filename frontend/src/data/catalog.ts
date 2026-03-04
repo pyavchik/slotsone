@@ -351,3 +351,15 @@ export function getGameBySlug(slug: string): GameItem | undefined {
 export function getAllGames(): GameItem[] {
   return GAMES;
 }
+
+export async function fetchInactiveGames(): Promise<Set<string> | null> {
+  try {
+    const base = import.meta.env.VITE_ADMIN_URL || '';
+    const res = await fetch(`${base}/admin/api/public/games`);
+    if (!res.ok) return null;
+    const data: { inactive: string[] } = await res.json();
+    return new Set(data.inactive);
+  } catch {
+    return null;
+  }
+}
