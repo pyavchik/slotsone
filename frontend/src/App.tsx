@@ -8,6 +8,7 @@ const LobbyPage = lazy(() => import('./pages/LobbyPage'));
 const GamePage = lazy(() => import('./pages/GamePage'));
 const GameHistory = lazy(() => import('./GameHistory'));
 const RoundDetail = lazy(() => import('./RoundDetail'));
+const RoulettePage = lazy(() => import('./roulette/RoulettePage'));
 
 function RouteSpinner() {
   return (
@@ -34,6 +35,7 @@ function App() {
           <Route path="/login" element={<AuthScreen />} />
           <Route element={<ProtectedRoute />}>
             <Route path="/slots" element={<LobbyPage />} />
+            <Route path="/slots/european-roulette" element={<RoulettePage />} />
             <Route path="/slots/:slug" element={<GamePage />} />
             <Route path="/history" element={<GameHistory />} />
             <Route path="/round/:id" element={<RoundDetail />} />

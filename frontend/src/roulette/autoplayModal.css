@@ -1,0 +1,155 @@
+/* ---- autoplayModal.css — Autoplay config modal ---- */
+
+.am-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.8);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 100;
+  backdrop-filter: blur(4px);
+  animation: am-fade-in 0.2s ease-out;
+}
+
+@keyframes am-fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.am-modal {
+  background: #0d0704;
+  border: 1px solid rgba(200, 160, 78, 0.3);
+  border-radius: 16px;
+  padding: 24px;
+  width: 90%;
+  max-width: 400px;
+  color: #f4ead8;
+  animation: am-scale-in 0.25s ease-out;
+}
+
+@keyframes am-scale-in {
+  from {
+    transform: scale(0.9);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+.am-title {
+  font-size: 20px;
+  font-weight: 700;
+  margin: 0 0 16px;
+  background: linear-gradient(135deg, #f6be57, #c8a04e);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.am-section {
+  margin-bottom: 16px;
+}
+
+.am-label {
+  display: block;
+  font-size: 13px;
+  color: #c8a04e;
+  margin-bottom: 6px;
+}
+
+.am-rounds {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.am-round-btn {
+  padding: 6px 14px;
+  border-radius: 8px;
+  border: 1px solid rgba(200, 160, 78, 0.25);
+  background: rgba(200, 160, 78, 0.06);
+  color: #f4ead8;
+  cursor: pointer;
+  font-size: 14px;
+  transition: background 0.15s;
+}
+
+.am-round-btn:hover {
+  background: rgba(200, 160, 78, 0.15);
+}
+
+.am-round-btn--active {
+  background: linear-gradient(135deg, #c8a04e, #a67c30);
+  color: #1a0f08;
+  font-weight: 700;
+  border-color: #c8a04e;
+}
+
+.am-input {
+  width: 100%;
+  padding: 8px 12px;
+  border-radius: 8px;
+  border: 1px solid rgba(200, 160, 78, 0.2);
+  background: rgba(200, 160, 78, 0.06);
+  color: #f4ead8;
+  font-size: 14px;
+  box-sizing: border-box;
+}
+
+.am-input:focus {
+  outline: none;
+  border-color: rgba(200, 160, 78, 0.5);
+  box-shadow: 0 0 0 2px rgba(200, 160, 78, 0.15);
+}
+
+.am-footer {
+  display: flex;
+  gap: 8px;
+  margin-top: 20px;
+}
+
+.am-btn {
+  flex: 1;
+  padding: 10px;
+  border-radius: 10px;
+  border: none;
+  cursor: pointer;
+  font-weight: 700;
+  font-size: 15px;
+  transition: transform 0.1s;
+}
+
+.am-btn:active {
+  transform: scale(0.97);
+}
+
+.am-btn--start {
+  background: linear-gradient(135deg, #d4a44a, #a67c30);
+  color: #1a0f08;
+}
+
+.am-btn--cancel {
+  background: rgba(200, 160, 78, 0.06);
+  color: #c8a04e;
+  border: 1px solid rgba(200, 160, 78, 0.25);
+}
+
+.am-note {
+  font-size: 11px;
+  color: #8b7355;
+  margin-top: 8px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .am-overlay,
+  .am-modal {
+    animation: none;
+  }
+}

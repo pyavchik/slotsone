@@ -1,0 +1,182 @@
+/* ---- winOverlay.css — 4-tier win celebration ---- */
+
+.wo-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  background: radial-gradient(circle at center, rgba(200, 160, 78, 0.15), rgba(0, 0, 0, 0.85));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  animation: wo-fade-in 0.4s ease-out;
+  overflow: hidden;
+}
+
+@keyframes wo-fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.wo-content {
+  text-align: center;
+  animation: wo-scale-in 0.5s ease-out;
+}
+
+@keyframes wo-scale-in {
+  0% {
+    transform: scale(0.3);
+    opacity: 0;
+  }
+  60% {
+    transform: scale(1.1);
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+/* ---- Tier labels ---- */
+.wo-label {
+  font-weight: 900;
+  letter-spacing: 8px;
+  background: linear-gradient(180deg, #ffd700 0%, #f6be57 40%, #d4a44a 70%, #a67c30 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  filter: drop-shadow(0 4px 12px rgba(246, 190, 87, 0.5));
+}
+
+.wo-label--small {
+  font-size: 36px;
+  animation: wo-subtle-glow 1.5s ease-in-out;
+}
+
+.wo-label--medium {
+  font-size: 44px;
+  animation: wo-pulse 1s ease-in-out infinite;
+}
+
+.wo-label--big {
+  font-size: 52px;
+  animation: wo-pulse 0.8s ease-in-out infinite;
+}
+
+.wo-label--mega {
+  font-size: 60px;
+  letter-spacing: 12px;
+  animation: wo-mega-pulse 0.6s ease-in-out infinite;
+}
+
+@keyframes wo-subtle-glow {
+  0% {
+    filter: drop-shadow(0 4px 12px rgba(246, 190, 87, 0.5));
+  }
+  50% {
+    filter: drop-shadow(0 4px 20px rgba(246, 190, 87, 0.7));
+  }
+  100% {
+    filter: drop-shadow(0 4px 12px rgba(246, 190, 87, 0.5));
+  }
+}
+
+@keyframes wo-pulse {
+  0%,
+  100% {
+    filter: drop-shadow(0 4px 12px rgba(246, 190, 87, 0.5));
+  }
+  50% {
+    filter: drop-shadow(0 4px 24px rgba(246, 190, 87, 0.8));
+  }
+}
+
+@keyframes wo-mega-pulse {
+  0%,
+  100% {
+    filter: drop-shadow(0 4px 12px rgba(246, 190, 87, 0.5));
+    transform: scale(1);
+  }
+  50% {
+    filter: drop-shadow(0 4px 32px rgba(246, 190, 87, 0.9));
+    transform: scale(1.05);
+  }
+}
+
+/* ---- Amount ---- */
+.wo-amount {
+  font-size: 40px;
+  font-weight: 800;
+  color: #ffd700;
+  margin-top: 8px;
+  text-shadow: 0 0 20px rgba(246, 190, 87, 0.5);
+}
+
+.wo-amount--mega {
+  font-size: 48px;
+}
+
+/* ---- Confetti particles ---- */
+.wo-particle {
+  position: absolute;
+  top: -10px;
+  border-radius: 2px;
+  animation: wo-confetti-fall linear forwards;
+  pointer-events: none;
+}
+
+@keyframes wo-confetti-fall {
+  0% {
+    transform: translateY(-10px) rotate(0deg);
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(100vh) rotate(720deg);
+    opacity: 0.3;
+  }
+}
+
+/* ---- Gold flash (big/mega) ---- */
+.wo-flash {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at center, rgba(246, 190, 87, 0.3), transparent 70%);
+  animation: wo-flash-anim 0.6s ease-out forwards;
+  pointer-events: none;
+}
+
+@keyframes wo-flash-anim {
+  0% {
+    opacity: 0.8;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+
+/* ---- Dismiss hint (mega only) ---- */
+.wo-dismiss-hint {
+  margin-top: 24px;
+  font-size: 13px;
+  color: rgba(200, 160, 78, 0.6);
+  letter-spacing: 1px;
+  text-transform: uppercase;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .wo-overlay,
+  .wo-content,
+  .wo-label,
+  .wo-label--small,
+  .wo-label--medium,
+  .wo-label--big,
+  .wo-label--mega,
+  .wo-particle,
+  .wo-flash {
+    animation: none;
+  }
+}

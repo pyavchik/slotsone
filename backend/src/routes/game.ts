@@ -17,6 +17,8 @@ import {
 } from '../contracts/gameContract.js';
 import { getRoundById, getRoundTransactions } from '../roundStore.js';
 import { rotateSeedPair, setClientSeed, getOrCreateActiveSeedPair } from '../seedStore.js';
+import { getRouletteBets } from '../rouletteStore.js';
+import { getLogger, setUserId, setSessionId } from '../logger.js';
 
 const router = Router();
 
@@ -57,6 +59,9 @@ router.post(
   authMiddleware,
   asyncHandler(async (req, res) => {
     const userId = (req as unknown as { userId: string }).userId;
+    setUserId(userId);
+    const log = getLogger();
+
     const parsed = InitRequestSchema.safeParse(req.body ?? {});
     if (!parsed.success) {
       res.status(400).json({ error: 'Invalid request', code: 'invalid_body' });
@@ -65,6 +70,9 @@ router.post(
     const game_id = parsed.data.game_id ?? GAME_ID;
     const session = await createSession(userId, game_id);
     const balance = await getBalance(userId, 'USD');
+
+    log.info({ userId, gameId: game_id, sessionId: session.session_id }, 'game_session_created');
+
     res.json({
       session_id: session.session_id,
       game_id: session.game_id,
@@ -81,6 +89,9 @@ router.post(
   authMiddleware,
   asyncHandler(async (req, res) => {
     const userId = (req as unknown as { userId: string }).userId;
+    setUserId(userId);
+    const log = getLogger();
+
     const idempotencyKey = req.headers['idempotency-key'] as string | undefined;
     const parsed = SpinRequestSchema.safeParse(req.body);
     if (!parsed.success) {
@@ -94,7 +105,13 @@ router.post(
     const lines = parsed.data.bet.lines;
     const currency = parsed.data.bet.currency;
 
+    setSessionId(session_id);
+
     if (betAmount < 0) {
+      log.warn(
+        { userId, sessionId: session_id, errorCode: 'invalid_bet' },
+        'spin_request_rejected'
+      );
       res.status(400).json({ error: 'Invalid bet amount', code: 'invalid_bet' });
       return;
     }
@@ -110,6 +127,10 @@ router.post(
     );
 
     if ('error' in result) {
+      log.warn(
+        { userId, sessionId: session_id, errorCode: toErrorCode(result.error) },
+        'spin_request_rejected'
+      );
       if (result.code === 429 && typeof result.retry_after_seconds === 'number') {
         res.setHeader('Retry-After', String(result.retry_after_seconds));
       }
@@ -207,6 +228,9 @@ router.get(
     }
 
     const transactions = await getRoundTransactions(roundId);
+    const rouletteBets = round.game_id.startsWith('roulette_')
+      ? await getRouletteBets(roundId)
+      : [];
 
     // Include seed pair info if available
     let provablyFair = null;
@@ -256,6 +280,15 @@ router.get(
         balance_after: t.balance_after_cents / 100,
         created_at: t.created_at,
       })),
+      roulette_bets: rouletteBets.map((b) => ({
+        id: b.id,
+        bet_type: b.bet_type,
+        numbers: b.numbers,
+        amount: b.amount_cents / 100,
+        payout: b.payout_cents / 100,
+        la_partage: b.la_partage,
+        created_at: b.created_at,
+      })),
     });
   })
 );
@@ -265,7 +298,19 @@ router.post(
   authMiddleware,
   asyncHandler(async (req, res) => {
     const userId = (req as unknown as { userId: string }).userId;
+    setUserId(userId);
+    const log = getLogger();
+
     const { previous, current } = await rotateSeedPair(userId);
+
+    log.info(
+      {
+        userId,
+        previousSeedPairId: previous?.id ?? null,
+        newSeedPairId: current.id,
+      },
+      'seed_pair_rotated'
+    );
 
     res.json({
       previous: previous
@@ -292,6 +337,9 @@ router.put(
   authMiddleware,
   asyncHandler(async (req, res) => {
     const userId = (req as unknown as { userId: string }).userId;
+    setUserId(userId);
+    const log = getLogger();
+
     const { client_seed } = req.body ?? {};
     if (!client_seed || typeof client_seed !== 'string' || client_seed.length > 64) {
       res.status(400).json({ error: 'Invalid client seed', code: 'invalid_body' });
@@ -303,6 +351,8 @@ router.put(
       res.status(404).json({ error: 'No active seed pair', code: 'not_found' });
       return;
     }
+
+    log.info({ userId, seedPairId: pair.id }, 'client_seed_updated');
 
     res.json({
       seed_pair_id: pair.id,

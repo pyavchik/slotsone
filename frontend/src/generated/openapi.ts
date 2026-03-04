@@ -893,6 +893,129 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/roulette/init": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Initialize a roulette session */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Session created */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["RouletteInitResponse"];
+                    };
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/roulette/spin": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Place roulette bets and spin the wheel */
+        post: {
+            parameters: {
+                query?: never;
+                header?: {
+                    "Idempotency-Key"?: string;
+                };
+                path?: never;
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": components["schemas"]["RouletteSpinRequest"];
+                };
+            };
+            responses: {
+                /** @description Spin resolved */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["RouletteSpinResponse"];
+                    };
+                };
+                /** @description Invalid payload */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
+                };
+                /** @description Idempotency conflict */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
+                };
+                /** @description Validation or balance error */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/images/jobs/{jobId}": {
         parameters: {
             query?: never;
@@ -1268,7 +1391,7 @@ export interface components {
             lines: number;
             balance_before: number;
             balance_after: number;
-            reel_matrix: string[][];
+            reel_matrix?: unknown;
             win_breakdown: unknown[];
             bonus_triggered?: unknown;
             outcome_hash: string | null;
@@ -1285,7 +1408,7 @@ export interface components {
                 lines: number;
                 balance_before: number;
                 balance_after: number;
-                reel_matrix: string[][];
+                reel_matrix?: unknown;
                 win_breakdown: unknown[];
                 bonus_triggered?: unknown;
                 outcome_hash: string | null;
@@ -1305,6 +1428,15 @@ export interface components {
                 type: "bet" | "win";
                 amount: number;
                 balance_after: number;
+                created_at: string;
+            }[];
+            roulette_bets?: {
+                id: string;
+                bet_type: string;
+                numbers: number[];
+                amount: number;
+                payout: number;
+                la_partage: boolean;
                 created_at: string;
             }[];
         };
@@ -1362,6 +1494,165 @@ export interface components {
             imageUrl: string | null;
             /** @description Error detail when failed, null otherwise */
             error: string | null;
+        };
+        RouletteBet: {
+            /** @enum {string} */
+            type: "straight" | "split" | "street" | "trio" | "corner" | "basket" | "sixLine" | "column" | "dozen" | "red" | "black" | "even" | "odd" | "high" | "low";
+            numbers: number[];
+            amount: number;
+        };
+        BetResult: {
+            /** @enum {string} */
+            bet_type: "straight" | "split" | "street" | "trio" | "corner" | "basket" | "sixLine" | "column" | "dozen" | "red" | "black" | "even" | "odd" | "high" | "low";
+            numbers: number[];
+            bet_amount: number;
+            payout: number;
+            profit: number;
+            la_partage: boolean;
+            won: boolean;
+        };
+        RouletteOutcome: {
+            winning_number: number;
+            /** @enum {string} */
+            winning_color: "red" | "black" | "green";
+            wheel_position: number;
+            win: {
+                amount: number;
+                currency: string;
+                breakdown: {
+                    /** @enum {string} */
+                    bet_type: "straight" | "split" | "street" | "trio" | "corner" | "basket" | "sixLine" | "column" | "dozen" | "red" | "black" | "even" | "odd" | "high" | "low";
+                    numbers: number[];
+                    bet_amount: number;
+                    payout: number;
+                    profit: number;
+                    la_partage: boolean;
+                    won: boolean;
+                }[];
+            };
+            total_bet: number;
+            total_return: number;
+        };
+        RouletteSpinRequest: {
+            session_id: string;
+            /** @default roulette_european_001 */
+            game_id: string;
+            bets: {
+                /** @enum {string} */
+                type: "straight" | "split" | "street" | "trio" | "corner" | "basket" | "sixLine" | "column" | "dozen" | "red" | "black" | "even" | "odd" | "high" | "low";
+                numbers: number[];
+                amount: number;
+            }[];
+            client_timestamp?: number;
+        };
+        RouletteSpinResponse: {
+            spin_id: string;
+            session_id: string;
+            game_id: string;
+            balance: {
+                amount: number;
+                currency: string;
+            };
+            outcome: {
+                winning_number: number;
+                /** @enum {string} */
+                winning_color: "red" | "black" | "green";
+                wheel_position: number;
+                win: {
+                    amount: number;
+                    currency: string;
+                    breakdown: {
+                        /** @enum {string} */
+                        bet_type: "straight" | "split" | "street" | "trio" | "corner" | "basket" | "sixLine" | "column" | "dozen" | "red" | "black" | "even" | "odd" | "high" | "low";
+                        numbers: number[];
+                        bet_amount: number;
+                        payout: number;
+                        profit: number;
+                        la_partage: boolean;
+                        won: boolean;
+                    }[];
+                };
+                total_bet: number;
+                total_return: number;
+            };
+            timestamp: number;
+        };
+        RouletteInitResponse: {
+            session_id: string;
+            /** @default roulette_european_001 */
+            game_id: string;
+            config: {
+                /** @default roulette_european_001 */
+                game_id: string;
+                /** @enum {string} */
+                type: "roulette";
+                /** @enum {string} */
+                variant: "european";
+                /** @default 37 */
+                numbers: number;
+                min_bet: number;
+                max_total_bet: number;
+                bet_levels: number[];
+                bet_types: {
+                    [key: string]: {
+                        payout: number;
+                        size: number;
+                        maxBet: number;
+                    };
+                };
+                currencies: string[];
+                rtp: number;
+                features: string[];
+                wheel_order: number[];
+                number_colors: {
+                    [key: string]: "red" | "black" | "green";
+                };
+            };
+            balance: {
+                amount: number;
+                currency: string;
+            };
+            recent_numbers: number[];
+            expires_at: string;
+        };
+        RouletteConfig: {
+            /** @default roulette_european_001 */
+            game_id: string;
+            /** @enum {string} */
+            type: "roulette";
+            /** @enum {string} */
+            variant: "european";
+            /** @default 37 */
+            numbers: number;
+            min_bet: number;
+            max_total_bet: number;
+            bet_levels: number[];
+            bet_types: {
+                [key: string]: {
+                    payout: number;
+                    size: number;
+                    maxBet: number;
+                };
+            };
+            currencies: string[];
+            rtp: number;
+            features: string[];
+            wheel_order: number[];
+            number_colors: {
+                [key: string]: "red" | "black" | "green";
+            };
+        };
+        RouletteBetRow: {
+            id: string;
+            /** @enum {string} */
+            bet_type: "straight" | "split" | "street" | "trio" | "corner" | "basket" | "sixLine" | "column" | "dozen" | "red" | "black" | "even" | "odd" | "high" | "low";
+            numbers: number[];
+            amount: number;
+            payout: number;
+            profit: number;
+            la_partage: boolean;
+            won: boolean;
+            created_at: string;
         };
         HistorySummaryResponse: {
             total_rounds: number;

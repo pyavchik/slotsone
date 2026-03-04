@@ -1,0 +1,141 @@
+/* ---- ambientLayer.css — Floating particles, parallax, vignette ---- */
+
+.al-layer {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 1;
+  overflow: hidden;
+}
+
+/* ---- Vignette overlay ---- */
+.al-vignette {
+  position: absolute;
+  inset: 0;
+  box-shadow: inset 0 0 200px 80px rgba(0, 0, 0, 0.6);
+  z-index: 2;
+}
+
+/* ---- Particle container ---- */
+.al-particles {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+}
+
+.al-particle {
+  position: absolute;
+  bottom: -20px;
+  width: 3px;
+  height: 3px;
+  border-radius: 50%;
+  background: rgba(200, 160, 78, 0.3);
+  animation: al-float-up linear infinite;
+  opacity: 0;
+}
+
+@keyframes al-float-up {
+  0% {
+    transform: translateY(0) translateX(0);
+    opacity: 0;
+  }
+  10% {
+    opacity: var(--al-max-opacity, 0.25);
+  }
+  90% {
+    opacity: var(--al-max-opacity, 0.25);
+  }
+  100% {
+    transform: translateY(calc(-100vh - 40px)) translateX(var(--al-sway, 30px));
+    opacity: 0;
+  }
+}
+
+/* ---- Spotlight breathing overlay ---- */
+.al-spotlight {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(
+    ellipse 60% 50% at 50% 40%,
+    rgba(200, 160, 78, 0.06) 0%,
+    transparent 70%
+  );
+  animation: al-spotlight-breathe 6s ease-in-out infinite;
+  z-index: 1;
+}
+
+@keyframes al-spotlight-breathe {
+  0%,
+  100% {
+    opacity: 0.4;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+/* ---- Bokeh light orbs ---- */
+.al-bokeh {
+  position: absolute;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(200, 160, 78, 0.08) 0%, transparent 70%);
+  filter: blur(20px);
+  animation: al-bokeh-drift linear infinite;
+  z-index: 1;
+}
+
+@keyframes al-bokeh-drift {
+  0% {
+    transform: translate(0, 0) scale(1);
+    opacity: var(--al-bokeh-opacity, 0.06);
+  }
+  25% {
+    transform: translate(var(--al-bokeh-dx, 20px), var(--al-bokeh-dy, -15px)) scale(1.1);
+    opacity: calc(var(--al-bokeh-opacity, 0.06) * 1.4);
+  }
+  50% {
+    transform: translate(
+        calc(var(--al-bokeh-dx, 20px) * -0.5),
+        calc(var(--al-bokeh-dy, -15px) * 1.2)
+      )
+      scale(0.95);
+    opacity: var(--al-bokeh-opacity, 0.06);
+  }
+  75% {
+    transform: translate(
+        calc(var(--al-bokeh-dx, 20px) * -1),
+        calc(var(--al-bokeh-dy, -15px) * -0.5)
+      )
+      scale(1.05);
+    opacity: calc(var(--al-bokeh-opacity, 0.06) * 1.2);
+  }
+  100% {
+    transform: translate(0, 0) scale(1);
+    opacity: var(--al-bokeh-opacity, 0.06);
+  }
+}
+
+/* ---- Reduced motion ---- */
+@media (prefers-reduced-motion: reduce) {
+  .al-particle {
+    animation: none;
+    display: none;
+  }
+  .al-spotlight {
+    animation: none;
+    opacity: 0.6;
+  }
+  .al-bokeh {
+    animation: none;
+  }
+}
+
+/* ---- Touch devices: disable parallax particles for performance ---- */
+@media (pointer: coarse) {
+  .al-particle:nth-child(n + 10) {
+    display: none;
+  }
+  .al-bokeh {
+    display: none;
+  }
+}

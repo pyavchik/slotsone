@@ -1,0 +1,152 @@
+/* ---- racetrack.css — Oval racetrack for announced/neighbor bets ---- */
+
+.rt-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  padding: 12px;
+  user-select: none;
+  background: rgba(13, 7, 4, 0.7);
+  border: 1px solid rgba(200, 160, 78, 0.2);
+  border-radius: 12px;
+}
+
+.rt-labels {
+  display: flex;
+  justify-content: space-between;
+  width: 100%;
+  max-width: 580px;
+  padding: 0 24px;
+}
+
+.rt-label {
+  background: rgba(200, 160, 78, 0.08);
+  border: 1px solid rgba(200, 160, 78, 0.25);
+  border-radius: 8px;
+  padding: 6px 14px;
+  color: #c8a04e;
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  cursor: pointer;
+  transition:
+    background 0.15s,
+    color 0.15s;
+}
+
+.rt-label:hover {
+  background: rgba(200, 160, 78, 0.18);
+  color: #e0c675;
+}
+
+.rt-label:active {
+  background: rgba(200, 160, 78, 0.28);
+}
+
+.rt-label--voisins {
+  order: 1;
+  margin: 0 auto;
+}
+
+.rt-label--tiers {
+  order: 0;
+}
+
+.rt-label--orphelins {
+  order: 2;
+}
+
+.rt-oval {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  max-width: 600px;
+  width: 100%;
+}
+
+.rt-arc {
+  display: flex;
+  justify-content: center;
+  gap: 2px;
+  flex-wrap: nowrap;
+}
+
+.rt-num {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  border: 1px solid rgba(200, 160, 78, 0.3);
+  color: #fff;
+  font-size: 11px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition:
+    transform 0.12s,
+    box-shadow 0.12s,
+    filter 0.12s;
+  flex-shrink: 0;
+  padding: 0;
+  line-height: 1;
+}
+
+.rt-num:hover {
+  transform: scale(1.25);
+  box-shadow:
+    0 0 0 2px rgba(200, 160, 78, 0.6),
+    0 0 10px rgba(200, 160, 78, 0.3);
+  z-index: 2;
+  filter: brightness(1.2);
+}
+
+.rt-num:active {
+  transform: scale(1.1);
+  filter: brightness(0.85);
+}
+
+.rt-neighbors {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 4px;
+}
+
+.rt-neighbors__btn {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  border: 1px solid rgba(200, 160, 78, 0.25);
+  background: rgba(200, 160, 78, 0.08);
+  color: #c8a04e;
+  font-size: 16px;
+  font-weight: 700;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.12s;
+  padding: 0;
+  line-height: 1;
+}
+
+.rt-neighbors__btn:hover:not(:disabled) {
+  background: rgba(200, 160, 78, 0.18);
+}
+
+.rt-neighbors__btn:disabled {
+  opacity: 0.35;
+  cursor: default;
+}
+
+.rt-neighbors__label {
+  font-size: 13px;
+  font-weight: 600;
+  color: #c8a04e;
+  min-width: 110px;
+  text-align: center;
+}

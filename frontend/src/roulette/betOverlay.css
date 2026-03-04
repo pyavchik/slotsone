@@ -1,0 +1,60 @@
+/* ---- betOverlay.css — Inside bet hit zones ---- */
+
+/* Grid-placed overlay: covers only the 12 number columns x 3 number rows */
+.bo-overlay {
+  grid-column: 2 / 14;
+  grid-row: 1 / 4;
+  position: relative;
+  pointer-events: none;
+  z-index: 10;
+}
+
+.bo-zone {
+  position: absolute;
+  pointer-events: auto;
+  cursor: pointer;
+  border-radius: 3px;
+  transition:
+    background 0.12s,
+    box-shadow 0.12s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.bo-zone--hover {
+  background: rgba(246, 190, 87, 0.2);
+  box-shadow: 0 0 0 1px rgba(246, 190, 87, 0.5);
+}
+
+/* Chip stack on inside bets */
+.bo-chip-stack {
+  position: relative;
+  width: 18px;
+  height: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+}
+
+.bo-chip-img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.bo-chip-label {
+  position: relative;
+  z-index: 1;
+  font-size: 7px;
+  font-weight: 800;
+  color: #fff;
+  line-height: 1;
+  background: rgba(0, 0, 0, 0.75);
+  border-radius: 3px;
+  padding: 1px 2px;
+  letter-spacing: -0.3px;
+}

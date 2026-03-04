@@ -1,0 +1,148 @@
+/* ---- wheel.css — Enhanced PixiJS Wheel ---- */
+
+.wh-shell {
+  position: relative;
+  margin: 0 auto;
+}
+
+.wh-canvas {
+  display: block;
+  margin: 0 auto;
+  filter: drop-shadow(0 20px 30px rgba(0, 0, 0, 0.55));
+}
+
+.wh-result {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin-top: 10px;
+  font-weight: 700;
+}
+
+.wh-pill {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  font-weight: 800;
+  font-size: 16px;
+  border: 2px solid rgba(246, 190, 87, 0.75);
+  animation: wh-result-pop 0.4s ease-out;
+}
+
+.wh-pill--red {
+  background: #c0392b;
+  color: #fff;
+}
+.wh-pill--black {
+  background: #1a1a2e;
+  color: #fff;
+}
+.wh-pill--green {
+  background: #27ae60;
+  color: #fff;
+}
+
+@keyframes wh-result-pop {
+  0% {
+    transform: scale(0);
+    opacity: 0;
+  }
+  60% {
+    transform: scale(1.15);
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+.wh-loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  gap: 8px;
+  color: #c8a04e;
+  font-size: 14px;
+}
+
+@keyframes wh-spin-loader {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.wh-loader {
+  width: 24px;
+  height: 24px;
+  border: 3px solid rgba(200, 160, 78, 0.2);
+  border-top-color: #c8a04e;
+  border-radius: 50%;
+  animation: wh-spin-loader 0.8s linear infinite;
+}
+
+/* Screen shake for big/mega wins */
+@keyframes wh-shake {
+  0%,
+  100% {
+    transform: translate(0, 0);
+  }
+  10% {
+    transform: translate(-3px, 2px);
+  }
+  20% {
+    transform: translate(4px, -2px);
+  }
+  30% {
+    transform: translate(-4px, 3px);
+  }
+  40% {
+    transform: translate(3px, -3px);
+  }
+  50% {
+    transform: translate(-2px, 4px);
+  }
+  60% {
+    transform: translate(4px, -2px);
+  }
+  70% {
+    transform: translate(-3px, 3px);
+  }
+  80% {
+    transform: translate(2px, -4px);
+  }
+  90% {
+    transform: translate(-4px, 2px);
+  }
+}
+
+.wh-shake {
+  animation: wh-shake 0.6s ease-in-out;
+}
+
+/* ---- Pedestal shadow beneath wheel ---- */
+.wh-shell::after {
+  content: '';
+  position: absolute;
+  bottom: -8px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 70%;
+  height: 24px;
+  background: radial-gradient(ellipse at center, rgba(200, 160, 78, 0.15) 0%, transparent 70%);
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: 0;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .wh-pill,
+  .wh-loader,
+  .wh-shake {
+    animation: none;
+  }
+}

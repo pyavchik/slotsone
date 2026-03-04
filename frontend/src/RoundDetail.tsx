@@ -78,9 +78,10 @@ export default function RoundDetail() {
 
   const winningCells = new Set<string>();
 
-  const reelMatrix = round.reel_matrix;
-  const rows = reelMatrix[0]?.length ?? 3;
-  const cols = reelMatrix.length;
+  const reelMatrix = round.reel_matrix as string[][] | Record<string, unknown>;
+  const isSlotMatrix = Array.isArray(reelMatrix);
+  const rows = isSlotMatrix ? (reelMatrix[0]?.length ?? 3) : 0;
+  const cols = isSlotMatrix ? reelMatrix.length : 0;
 
   return (
     <div className="rd-page">
@@ -106,7 +107,7 @@ export default function RoundDetail() {
         <div className="rd-reel-grid">
           {Array.from({ length: rows }, (_, row) =>
             Array.from({ length: cols }, (_, col) => {
-              const sym = reelMatrix[col]?.[row] ?? '?';
+              const sym = isSlotMatrix ? (reelMatrix[col]?.[row] ?? '?') : '?';
               const isWin = winningCells.has(`${col},${row}`);
               return (
                 <div

@@ -1,0 +1,162 @@
+/* ---- statsPanel.css — Bottom-sheet drawer with stats ---- */
+
+.sp-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.sp-section {
+  background: rgba(13, 7, 4, 0.7);
+  border: 1px solid rgba(200, 160, 78, 0.2);
+  border-radius: 12px;
+  padding: 14px;
+}
+
+.sp-heading {
+  margin: 0 0 10px;
+  font-size: 13px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  color: #c8a04e;
+}
+
+.sp-empty {
+  font-size: 13px;
+  color: #8b7355;
+  font-style: italic;
+}
+
+.sp-number-row {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.sp-number-badge {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+}
+
+.sp-circle {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 13px;
+  font-weight: 700;
+  color: #fff;
+  box-shadow:
+    0 2px 8px rgba(0, 0, 0, 0.5),
+    0 0 0 1px rgba(200, 160, 78, 0.2);
+}
+
+.sp-circle--cold {
+  opacity: 0.65;
+}
+
+.sp-count {
+  font-size: 11px;
+  font-weight: 600;
+  color: #c8a04e;
+}
+
+.sp-distribution {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.sp-dist-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.sp-dist-label {
+  width: 42px;
+  font-size: 12px;
+  font-weight: 600;
+  flex-shrink: 0;
+}
+
+.sp-dist-label--red {
+  color: #ef4444;
+}
+.sp-dist-label--black {
+  color: #8b7355;
+}
+.sp-dist-label--green {
+  color: #22c55e;
+}
+
+.sp-bar-track {
+  flex: 1;
+  height: 10px;
+  background: rgba(200, 160, 78, 0.1);
+  border-radius: 5px;
+  overflow: hidden;
+}
+
+.sp-bar {
+  height: 100%;
+  border-radius: 5px;
+  transition: width 0.4s ease;
+  min-width: 2px;
+}
+
+.sp-bar--red {
+  background: #ef4444;
+}
+.sp-bar--black {
+  background: #475569;
+}
+.sp-bar--green {
+  background: #22c55e;
+}
+
+.sp-dist-value {
+  width: 80px;
+  text-align: right;
+  font-size: 12px;
+  color: #c8a04e;
+  flex-shrink: 0;
+}
+
+.sp-stats-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+.sp-stat {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.sp-stat-label {
+  font-size: 11px;
+  color: #8b7355;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.sp-stat-value {
+  font-size: 16px;
+  font-weight: 700;
+  color: #f4ead8;
+}
+
+.sp-positive {
+  color: #22c55e;
+}
+
+.sp-negative {
+  color: #ef4444;
+}
