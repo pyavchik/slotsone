@@ -1,0 +1,97 @@
+/* ---- chipRack.css — 6-chip selector with 3D feel ---- */
+
+.cr-rack {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 2px;
+  overflow-x: auto;
+  padding: 4px 0;
+  flex: 1;
+  min-width: 0;
+  scrollbar-width: none;
+}
+
+.cr-rack::-webkit-scrollbar {
+  display: none;
+}
+
+.cr-chip-btn {
+  position: relative;
+  width: 80px;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  transition:
+    transform 0.15s ease,
+    filter 0.15s ease;
+  flex-shrink: 0;
+}
+
+.cr-chip-btn:focus-visible {
+  outline: 2px solid rgba(246, 190, 87, 0.8);
+  outline-offset: 2px;
+  border-radius: 50%;
+}
+
+.cr-chip-img {
+  width: 80px;
+  height: auto;
+  display: block;
+  pointer-events: none;
+  filter: drop-shadow(0 4px 6px rgba(0, 0, 0, 0.5));
+}
+
+/* Selected chip: gold glow + lift + bounce */
+.cr-chip-btn--selected {
+  filter: drop-shadow(0 0 12px rgba(246, 190, 87, 0.85))
+    drop-shadow(0 0 24px rgba(246, 190, 87, 0.35));
+  transform: scale(1.14) translateY(-6px);
+  animation: cr-bounce 0.3s ease-out;
+}
+
+@keyframes cr-bounce {
+  0% {
+    transform: scale(1) translateY(0);
+  }
+  40% {
+    transform: scale(1.2) translateY(-8px);
+  }
+  70% {
+    transform: scale(1.1) translateY(-4px);
+  }
+  100% {
+    transform: scale(1.14) translateY(-6px);
+  }
+}
+
+/* Disabled: grayscale + dim */
+.cr-chip-btn--disabled {
+  opacity: 0.3;
+  filter: grayscale(0.8);
+  cursor: default;
+}
+
+.cr-chip-btn:hover:not(.cr-chip-btn--disabled):not(.cr-chip-btn--selected) {
+  transform: scale(1.08) translateY(-2px);
+}
+
+/* ---- Mobile ---- */
+@media (max-width: 480px) {
+  .cr-chip-btn {
+    width: 52px;
+  }
+  .cr-chip-img {
+    width: 52px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .cr-chip-btn {
+    transition: none;
+  }
+  .cr-chip-btn--selected {
+    animation: none;
+  }
+}

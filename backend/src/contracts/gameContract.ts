@@ -233,7 +233,7 @@ export const RoundDetailSchema = z
     lines: z.number().int(),
     balance_before: z.number(),
     balance_after: z.number(),
-    reel_matrix: z.array(z.array(z.string())),
+    reel_matrix: z.any(),
     win_breakdown: z.array(z.unknown()),
     bonus_triggered: z.unknown().nullable(),
     outcome_hash: z.string().nullable(),
@@ -246,6 +246,19 @@ export const RoundDetailResponseSchema = z
     round: RoundDetailSchema,
     provably_fair: ProvablyFairSchema.nullable(),
     transactions: z.array(TransactionSchema),
+    roulette_bets: z
+      .array(
+        z.object({
+          id: z.string(),
+          bet_type: z.string(),
+          numbers: z.array(z.number().int()),
+          amount: z.number(),
+          payout: z.number(),
+          la_partage: z.boolean(),
+          created_at: z.string(),
+        })
+      )
+      .optional(),
   })
   .strict();
 

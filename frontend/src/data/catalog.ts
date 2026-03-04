@@ -165,7 +165,7 @@ const GAMES: GameItem[] = [
     provider: 'Evolution',
     rtp: 97.3,
     volatility: 'medium',
-    status: 'soon',
+    status: 'available',
     badge: 'TOP',
     thumbnail: '/games/european-roulette.png',
   },

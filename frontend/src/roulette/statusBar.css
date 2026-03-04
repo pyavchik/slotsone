@@ -1,0 +1,161 @@
+/* ---- statusBar.css — Balance / win / bet pills + icons ---- */
+
+.sb-bar {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  height: 44px;
+  margin-bottom: 6px;
+  padding: 0 4px;
+  max-width: 520px;
+  margin-left: auto;
+  margin-right: auto;
+  width: 100%;
+  position: relative;
+  z-index: 10;
+}
+
+.sb-pill {
+  border-radius: 20px;
+  padding: 5px 14px;
+  font-weight: 800;
+  font-size: 14px;
+  white-space: nowrap;
+  line-height: 1.3;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.sb-pill-chevron {
+  font-size: 18px;
+  font-weight: 400;
+  opacity: 0.6;
+  line-height: 1;
+}
+
+.sb-pill--balance {
+  background: linear-gradient(135deg, rgba(200, 160, 78, 0.18), rgba(200, 160, 78, 0.06));
+  border: 1.5px solid rgba(200, 160, 78, 0.55);
+  color: #f6be57;
+  font-size: 15px;
+  text-shadow: 0 0 12px rgba(246, 190, 87, 0.25);
+  box-shadow: 0 0 12px rgba(200, 160, 78, 0.1);
+}
+
+.sb-pill--win {
+  background: linear-gradient(135deg, rgba(200, 160, 78, 0.12), rgba(200, 160, 78, 0.04));
+  border: 1.5px solid rgba(200, 160, 78, 0.4);
+  color: #f6be57;
+  font-size: 14px;
+  animation: sb-win-flash 0.6s ease-out;
+}
+
+.sb-win-badge {
+  background: #22c55e;
+  color: #fff;
+  font-size: 9px;
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  padding: 2px 6px;
+  border-radius: 8px;
+  line-height: 1.2;
+}
+
+.sb-pill--win-placeholder {
+  flex: 1;
+  min-width: 0;
+}
+
+@keyframes sb-win-flash {
+  0% {
+    transform: scale(0.8);
+    opacity: 0;
+  }
+  50% {
+    transform: scale(1.08);
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+.sb-pill--bet {
+  background: linear-gradient(135deg, rgba(200, 160, 78, 0.12), rgba(200, 160, 78, 0.04));
+  border: 1.5px solid rgba(200, 160, 78, 0.4);
+  color: #f6be57;
+  font-size: 14px;
+  margin-left: auto;
+}
+
+/* ---- Icon buttons ---- */
+.sb-icon-btn {
+  background: rgba(200, 160, 78, 0.1);
+  border: 1.5px solid rgba(200, 160, 78, 0.3);
+  border-radius: 50%;
+  width: 34px;
+  height: 34px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #c8a04e;
+  cursor: pointer;
+  transition:
+    background 0.15s,
+    border-color 0.15s;
+  padding: 0;
+  flex-shrink: 0;
+  font-size: 18px;
+  line-height: 1;
+}
+
+.sb-icon-btn:hover {
+  background: rgba(200, 160, 78, 0.22);
+  border-color: rgba(200, 160, 78, 0.5);
+}
+
+.sb-icon-btn--lobby {
+  background: linear-gradient(135deg, rgba(200, 160, 78, 0.18), rgba(200, 160, 78, 0.08));
+  border-color: rgba(200, 160, 78, 0.45);
+}
+
+.sb-icon-btn--small {
+  width: 28px;
+  height: 28px;
+}
+
+/* ---- Desktop ---- */
+@media (min-width: 1024px) {
+  .sb-bar {
+    max-width: 1100px;
+  }
+}
+
+@media (min-width: 1400px) {
+  .sb-bar {
+    max-width: 1280px;
+  }
+}
+
+/* ---- Mobile ---- */
+@media (max-width: 480px) {
+  .sb-bar {
+    gap: 4px;
+    margin-bottom: 4px;
+  }
+  .sb-pill {
+    padding: 3px 8px;
+    font-size: 12px;
+  }
+  .sb-pill--balance {
+    font-size: 13px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sb-pill--win {
+    animation: none;
+  }
+}

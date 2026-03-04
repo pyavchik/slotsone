@@ -26,6 +26,16 @@ import {
   AuthResponseSchema,
 } from '../contracts/authContract.js';
 import { ImageGenerateRequestSchema, ImageJobResponseSchema } from '../contracts/imageContract.js';
+import {
+  RouletteBetSchema,
+  BetResultSchema,
+  RouletteOutcomeSchema,
+  RouletteSpinRequestSchema,
+  RouletteSpinResponseSchema,
+  RouletteInitResponseSchema,
+  RouletteConfigSchema,
+  RouletteBetRowSchema,
+} from '../contracts/rouletteContract.js';
 import { z } from '../contracts/zodOpenApi.js';
 
 const registry = new OpenAPIRegistry();
@@ -69,6 +79,20 @@ const ImageGenerateRequestRef = registry.register(
   ImageGenerateRequestSchema
 );
 const ImageJobResponseRef = registry.register('ImageJobResponse', ImageJobResponseSchema);
+registry.register('RouletteBet', RouletteBetSchema);
+registry.register('BetResult', BetResultSchema);
+registry.register('RouletteOutcome', RouletteOutcomeSchema);
+const RouletteSpinRequestRef = registry.register('RouletteSpinRequest', RouletteSpinRequestSchema);
+const RouletteSpinResponseRef = registry.register(
+  'RouletteSpinResponse',
+  RouletteSpinResponseSchema
+);
+const RouletteInitResponseRef = registry.register(
+  'RouletteInitResponse',
+  RouletteInitResponseSchema
+);
+registry.register('RouletteConfig', RouletteConfigSchema);
+registry.register('RouletteBetRow', RouletteBetRowSchema);
 
 registry.registerPath({
   method: 'post',
@@ -718,6 +742,99 @@ registry.registerPath({
   },
 });
 
+// ── Roulette ──
+
+registry.registerPath({
+  method: 'post',
+  path: '/api/v1/roulette/init',
+  tags: ['Roulette'],
+  summary: 'Initialize a roulette session',
+  security: [{ bearerAuth: [] }],
+  responses: {
+    200: {
+      description: 'Session created',
+      content: {
+        'application/json': {
+          schema: RouletteInitResponseRef,
+        },
+      },
+    },
+    401: {
+      description: 'Unauthorized',
+      content: {
+        'application/json': {
+          schema: ErrorResponseRef,
+        },
+      },
+    },
+  },
+});
+
+registry.registerPath({
+  method: 'post',
+  path: '/api/v1/roulette/spin',
+  tags: ['Roulette'],
+  summary: 'Place roulette bets and spin the wheel',
+  security: [{ bearerAuth: [] }],
+  request: {
+    headers: z
+      .object({
+        'Idempotency-Key': z.string().optional(),
+      })
+      .openapi({ description: 'Optional idempotency key to make the call safe to retry' }),
+    body: {
+      required: true,
+      content: {
+        'application/json': {
+          schema: RouletteSpinRequestRef,
+        },
+      },
+    },
+  },
+  responses: {
+    200: {
+      description: 'Spin resolved',
+      content: {
+        'application/json': {
+          schema: RouletteSpinResponseRef,
+        },
+      },
+    },
+    400: {
+      description: 'Invalid payload',
+      content: {
+        'application/json': {
+          schema: ErrorResponseRef,
+        },
+      },
+    },
+    401: {
+      description: 'Unauthorized',
+      content: {
+        'application/json': {
+          schema: ErrorResponseRef,
+        },
+      },
+    },
+    409: {
+      description: 'Idempotency conflict',
+      content: {
+        'application/json': {
+          schema: ErrorResponseRef,
+        },
+      },
+    },
+    422: {
+      description: 'Validation or balance error',
+      content: {
+        'application/json': {
+          schema: ErrorResponseRef,
+        },
+      },
+    },
+  },
+});
+
 registry.registerPath({
   method: 'get',
   path: '/api/v1/images/jobs/{jobId}',
@@ -796,6 +913,7 @@ export const openApiSpec = generator.generateDocument({
   tags: [
     { name: 'Auth' },
     { name: 'Game' },
+    { name: 'Roulette' },
     { name: 'Images' },
     { name: 'Provably Fair' },
     { name: 'System' },

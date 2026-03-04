@@ -3,14 +3,20 @@ import cors from 'cors';
 import swaggerUi from 'swagger-ui-express';
 import type { NextFunction, Request, Response } from 'express';
 import { randomUUID } from 'crypto';
+import pinoHttpModule from 'pino-http';
+import type { IncomingMessage, ServerResponse } from 'http';
+
+// pino-http is CJS; with esModuleInterop the default export wraps the function
+const pinoHttp = pinoHttpModule as unknown as typeof pinoHttpModule.default;
 import { loadEnvironmentFiles } from './config/loadEnv.js';
 import { validateAuthEnvironment } from './config/validateAuthEnv.js';
 import { openApiSpec } from './docs/openapi.js';
-import { logger } from './logger.js';
+import { rootLogger, runWithContext, getLogger } from './logger.js';
 import { join } from 'path';
 import gameRoutes from './routes/game.js';
 import authRoutes from './routes/auth.js';
 import imageRoutes from './routes/images.js';
+import { rouletteRoutes } from './routes/roulette.js';
 import { getPool } from './db.js';
 
 loadEnvironmentFiles();
@@ -40,25 +46,50 @@ const corsOptions: cors.CorsOptions = {
 
 app.use(cors(corsOptions));
 
+// ---------------------------------------------------------------------------
+// Request context + pino-http: structured HTTP logging with AsyncLocalStorage
+// ---------------------------------------------------------------------------
+
+const httpLogger = pinoHttp({
+  logger: rootLogger,
+  genReqId: () => randomUUID().slice(0, 12),
+  customLogLevel(_req: IncomingMessage, res: ServerResponse, err: Error | undefined) {
+    if (err || (res.statusCode ?? 500) >= 500) return 'error';
+    if ((res.statusCode ?? 200) >= 400) return 'warn';
+    return 'info';
+  },
+  serializers: {
+    req(raw: Record<string, unknown>) {
+      const req = raw as unknown as IncomingMessage & { remoteAddress?: string };
+      return {
+        method: req.method,
+        url: req.url,
+        userAgent: req.headers?.['user-agent'],
+        contentType: req.headers?.['content-type'],
+        remoteAddress: req.remoteAddress,
+      };
+    },
+    res(raw: Record<string, unknown>) {
+      const res = raw as unknown as ServerResponse;
+      return { statusCode: res.statusCode };
+    },
+  },
+  customSuccessMessage(req: IncomingMessage, res: ServerResponse) {
+    return `${req.method} ${req.url} ${res.statusCode}`;
+  },
+  customErrorMessage(req: IncomingMessage, _res: ServerResponse, err: Error) {
+    return `${req.method} ${req.url} failed: ${err.message}`;
+  },
+});
+
 app.use((req, res, next) => {
-  const requestId = randomUUID().slice(0, 12);
-  const startedAt = process.hrtime.bigint();
+  // Initialize pino-http (assigns req.id, req.log, response logging)
+  httpLogger(req, res);
+  const requestId = req.id as string;
   res.setHeader('X-Request-Id', requestId);
 
-  res.on('finish', () => {
-    const elapsedMs = Number(process.hrtime.bigint() - startedAt) / 1_000_000;
-    logger.info('http_request', {
-      request_id: requestId,
-      method: req.method,
-      path: req.originalUrl,
-      status: res.statusCode,
-      duration_ms: Math.round(elapsedMs * 10) / 10,
-      user_agent: req.headers['user-agent'] ?? 'unknown',
-      remote_ip: req.ip,
-    });
-  });
-
-  next();
+  // Wrap the rest of the request lifecycle in AsyncLocalStorage context
+  runWithContext({ requestId }, () => next());
 });
 
 app.use(express.json({ limit: '10kb' }));
@@ -85,6 +116,9 @@ app.use('/api/v1/auth', authRoutes);
 
 // POST /api/v1/images/generate
 app.use('/api/v1', imageRoutes);
+
+// Roulette
+app.use('/api/v1', rouletteRoutes);
 
 // POST /api/v1/game/init, POST /api/v1/spin, GET /api/v1/history
 app.use('/api/v1', gameRoutes);
@@ -131,11 +165,8 @@ app.use((req: Request, res: Response) => {
 });
 
 app.use((err: unknown, req: Request, res: Response, next: NextFunction) => {
-  logger.error('http_unhandled_error', {
-    method: req.method,
-    path: req.originalUrl,
-    err,
-  });
+  const log = getLogger();
+  log.error({ method: req.method, path: req.originalUrl, err }, 'http_unhandled_error');
 
   if (res.headersSent) {
     next(err);

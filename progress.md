@@ -153,3 +153,52 @@ Original prompt: I don't like this slot machine. can we rebuild it from scratch?
   - `npm --prefix frontend run lint` PASS
   - `npm --prefix frontend run build` PASS
   - `npm --prefix frontend run test:e2e -- --project=chromium --grep "Slots app"` PASS
+
+## 2026-03-03 - Roulette production pipeline pass (Pixi + GSAP + Howler + AI assets)
+- Skills used in this pass: `imagegen`, `develop-web-game`.
+- Generated a full roulette asset pack through OpenAI image API and normalized to production dimensions:
+  - Raw outputs: `output/imagegen/roulette-raw/`
+  - Final assets: `frontend/public/assets/roulette/pro/`
+  - Included:
+    - `wheel-topdown-2048.png`
+    - `ball-track-ring-2048.png`
+    - `ball-64.png`
+    - `chips-sheet-1024x128.png` + split chip icons
+    - chip stacks `64x96` for `1/5/10/25/50/100`
+    - `felt-512-tile.png`
+    - `gold-trim-border-128.png`
+    - `win-particles-128x32.png` + `particle-{1..4}.png`
+    - number badges `48x48` (red/black/green)
+    - `background-1920x1080.jpg`
+- Replaced roulette wheel rendering with Pixi scene:
+  - `frontend/src/components/roulette/Wheel.tsx`
+  - Layered WebGL sprites (wheel + track + ball), particle burst on wins, pointer overlay.
+- Added GSAP timeline spin flow:
+  - Waiting spin while backend result is pending.
+  - Deceleration to exact `wheel_position`.
+  - Ball drop radius transition + bounce timings.
+- Moved roulette audio to Howler:
+  - `frontend/src/audio/rouletteAudio.ts`
+  - Added Howler-based cues and rolling loop controls (`startBallRolling`, `stopBallRolling`).
+- State machine upgrade:
+  - `frontend/src/stores/rouletteStore.ts` phase union now includes `ball_drop` and `payout`.
+  - `frontend/src/pages/RoulettePage.tsx` now commits backend spin result only after animation completes.
+  - Effective flow: `betting -> spinning -> ball_drop -> result -> payout`.
+- UI asset wiring:
+  - `ChipRack` uses generated chip assets.
+  - `RecentNumbers` uses generated number badge assets.
+  - Betting table uses felt texture.
+  - Roulette page background uses generated 1920x1080 casino texture.
+- Dependency updates:
+  - Added frontend deps: `gsap`, `howler`, `@types/howler`.
+- Verification:
+  - `npm --prefix frontend run lint` PASS
+  - `npm --prefix frontend run build` PASS
+  - `npm --prefix backend test` PASS
+  - `node ~/.codex/skills/develop-web-game/scripts/web_game_playwright_client.js ...` run completed, but captured login page without authenticated roulette session (backend not running on `127.0.0.1:3001`).
+  - `npm --prefix frontend run test:e2e -- --project=chromium --grep "Slots app"` FAIL (existing slots tests expecting old lobby/game flow; also backend proxy unavailable in this local run).
+
+## TODO / suggestions for next pass
+- Add dedicated Playwright e2e coverage for `/slots/european-roulette` including auth bootstrap + spin animation assertions.
+- Hook real audio sprite files (if available) into Howler in place of synthesized WAV data URIs.
+- Expand roulette bet placement UX to include split/corner/six-line hotspots directly on the felt grid.

@@ -23,6 +23,9 @@
       "name": "Game"
     },
     {
+      "name": "Roulette"
+    },
+    {
       "name": "Images"
     },
     {
@@ -1284,13 +1287,7 @@
             "type": "number"
           },
           "reel_matrix": {
-            "type": "array",
-            "items": {
-              "type": "array",
-              "items": {
-                "type": "string"
-              }
-            }
+            "nullable": true
           },
           "win_breakdown": {
             "type": "array",
@@ -1319,7 +1316,6 @@
           "lines",
           "balance_before",
           "balance_after",
-          "reel_matrix",
           "win_breakdown",
           "outcome_hash",
           "created_at"
@@ -1360,13 +1356,7 @@
                 "type": "number"
               },
               "reel_matrix": {
-                "type": "array",
-                "items": {
-                  "type": "array",
-                  "items": {
-                    "type": "string"
-                  }
-                }
+                "nullable": true
               },
               "win_breakdown": {
                 "type": "array",
@@ -1395,7 +1385,6 @@
               "lines",
               "balance_before",
               "balance_after",
-              "reel_matrix",
               "win_breakdown",
               "outcome_hash",
               "created_at"
@@ -1470,6 +1459,47 @@
                 "created_at"
               ],
               "additionalProperties": false
+            }
+          },
+          "roulette_bets": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string"
+                },
+                "bet_type": {
+                  "type": "string"
+                },
+                "numbers": {
+                  "type": "array",
+                  "items": {
+                    "type": "integer"
+                  }
+                },
+                "amount": {
+                  "type": "number"
+                },
+                "payout": {
+                  "type": "number"
+                },
+                "la_partage": {
+                  "type": "boolean"
+                },
+                "created_at": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "id",
+                "bet_type",
+                "numbers",
+                "amount",
+                "payout",
+                "la_partage",
+                "created_at"
+              ]
             }
           }
         },
@@ -1650,6 +1680,762 @@
           "status",
           "imageUrl",
           "error"
+        ],
+        "additionalProperties": false
+      },
+      "RouletteBet": {
+        "type": "object",
+        "properties": {
+          "type": {
+            "type": "string",
+            "enum": [
+              "straight",
+              "split",
+              "street",
+              "trio",
+              "corner",
+              "basket",
+              "sixLine",
+              "column",
+              "dozen",
+              "red",
+              "black",
+              "even",
+              "odd",
+              "high",
+              "low"
+            ]
+          },
+          "numbers": {
+            "type": "array",
+            "items": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 36
+            }
+          },
+          "amount": {
+            "type": "number",
+            "minimum": 0,
+            "exclusiveMinimum": true
+          }
+        },
+        "required": [
+          "type",
+          "numbers",
+          "amount"
+        ],
+        "additionalProperties": false
+      },
+      "BetResult": {
+        "type": "object",
+        "properties": {
+          "bet_type": {
+            "type": "string",
+            "enum": [
+              "straight",
+              "split",
+              "street",
+              "trio",
+              "corner",
+              "basket",
+              "sixLine",
+              "column",
+              "dozen",
+              "red",
+              "black",
+              "even",
+              "odd",
+              "high",
+              "low"
+            ]
+          },
+          "numbers": {
+            "type": "array",
+            "items": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 36
+            }
+          },
+          "bet_amount": {
+            "type": "number"
+          },
+          "payout": {
+            "type": "number"
+          },
+          "profit": {
+            "type": "number"
+          },
+          "la_partage": {
+            "type": "boolean"
+          },
+          "won": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "bet_type",
+          "numbers",
+          "bet_amount",
+          "payout",
+          "profit",
+          "la_partage",
+          "won"
+        ],
+        "additionalProperties": false
+      },
+      "RouletteOutcome": {
+        "type": "object",
+        "properties": {
+          "winning_number": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 36
+          },
+          "winning_color": {
+            "type": "string",
+            "enum": [
+              "red",
+              "black",
+              "green"
+            ]
+          },
+          "wheel_position": {
+            "type": "integer"
+          },
+          "win": {
+            "type": "object",
+            "properties": {
+              "amount": {
+                "type": "number"
+              },
+              "currency": {
+                "type": "string"
+              },
+              "breakdown": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "bet_type": {
+                      "type": "string",
+                      "enum": [
+                        "straight",
+                        "split",
+                        "street",
+                        "trio",
+                        "corner",
+                        "basket",
+                        "sixLine",
+                        "column",
+                        "dozen",
+                        "red",
+                        "black",
+                        "even",
+                        "odd",
+                        "high",
+                        "low"
+                      ]
+                    },
+                    "numbers": {
+                      "type": "array",
+                      "items": {
+                        "type": "integer",
+                        "minimum": 0,
+                        "maximum": 36
+                      }
+                    },
+                    "bet_amount": {
+                      "type": "number"
+                    },
+                    "payout": {
+                      "type": "number"
+                    },
+                    "profit": {
+                      "type": "number"
+                    },
+                    "la_partage": {
+                      "type": "boolean"
+                    },
+                    "won": {
+                      "type": "boolean"
+                    }
+                  },
+                  "required": [
+                    "bet_type",
+                    "numbers",
+                    "bet_amount",
+                    "payout",
+                    "profit",
+                    "la_partage",
+                    "won"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            },
+            "required": [
+              "amount",
+              "currency",
+              "breakdown"
+            ]
+          },
+          "total_bet": {
+            "type": "number"
+          },
+          "total_return": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "winning_number",
+          "winning_color",
+          "wheel_position",
+          "win",
+          "total_bet",
+          "total_return"
+        ],
+        "additionalProperties": false
+      },
+      "RouletteSpinRequest": {
+        "type": "object",
+        "properties": {
+          "session_id": {
+            "type": "string"
+          },
+          "game_id": {
+            "type": "string",
+            "default": "roulette_european_001"
+          },
+          "bets": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "type": {
+                  "type": "string",
+                  "enum": [
+                    "straight",
+                    "split",
+                    "street",
+                    "trio",
+                    "corner",
+                    "basket",
+                    "sixLine",
+                    "column",
+                    "dozen",
+                    "red",
+                    "black",
+                    "even",
+                    "odd",
+                    "high",
+                    "low"
+                  ]
+                },
+                "numbers": {
+                  "type": "array",
+                  "items": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 36
+                  }
+                },
+                "amount": {
+                  "type": "number",
+                  "minimum": 0,
+                  "exclusiveMinimum": true
+                }
+              },
+              "required": [
+                "type",
+                "numbers",
+                "amount"
+              ],
+              "additionalProperties": false
+            },
+            "minItems": 1,
+            "maxItems": 200
+          },
+          "client_timestamp": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "session_id",
+          "bets"
+        ],
+        "additionalProperties": false
+      },
+      "RouletteSpinResponse": {
+        "type": "object",
+        "properties": {
+          "spin_id": {
+            "type": "string"
+          },
+          "session_id": {
+            "type": "string"
+          },
+          "game_id": {
+            "type": "string"
+          },
+          "balance": {
+            "type": "object",
+            "properties": {
+              "amount": {
+                "type": "number"
+              },
+              "currency": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "amount",
+              "currency"
+            ]
+          },
+          "outcome": {
+            "type": "object",
+            "properties": {
+              "winning_number": {
+                "type": "integer",
+                "minimum": 0,
+                "maximum": 36
+              },
+              "winning_color": {
+                "type": "string",
+                "enum": [
+                  "red",
+                  "black",
+                  "green"
+                ]
+              },
+              "wheel_position": {
+                "type": "integer"
+              },
+              "win": {
+                "type": "object",
+                "properties": {
+                  "amount": {
+                    "type": "number"
+                  },
+                  "currency": {
+                    "type": "string"
+                  },
+                  "breakdown": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "bet_type": {
+                          "type": "string",
+                          "enum": [
+                            "straight",
+                            "split",
+                            "street",
+                            "trio",
+                            "corner",
+                            "basket",
+                            "sixLine",
+                            "column",
+                            "dozen",
+                            "red",
+                            "black",
+                            "even",
+                            "odd",
+                            "high",
+                            "low"
+                          ]
+                        },
+                        "numbers": {
+                          "type": "array",
+                          "items": {
+                            "type": "integer",
+                            "minimum": 0,
+                            "maximum": 36
+                          }
+                        },
+                        "bet_amount": {
+                          "type": "number"
+                        },
+                        "payout": {
+                          "type": "number"
+                        },
+                        "profit": {
+                          "type": "number"
+                        },
+                        "la_partage": {
+                          "type": "boolean"
+                        },
+                        "won": {
+                          "type": "boolean"
+                        }
+                      },
+                      "required": [
+                        "bet_type",
+                        "numbers",
+                        "bet_amount",
+                        "payout",
+                        "profit",
+                        "la_partage",
+                        "won"
+                      ],
+                      "additionalProperties": false
+                    }
+                  }
+                },
+                "required": [
+                  "amount",
+                  "currency",
+                  "breakdown"
+                ]
+              },
+              "total_bet": {
+                "type": "number"
+              },
+              "total_return": {
+                "type": "number"
+              }
+            },
+            "required": [
+              "winning_number",
+              "winning_color",
+              "wheel_position",
+              "win",
+              "total_bet",
+              "total_return"
+            ],
+            "additionalProperties": false
+          },
+          "timestamp": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "spin_id",
+          "session_id",
+          "game_id",
+          "balance",
+          "outcome",
+          "timestamp"
+        ],
+        "additionalProperties": false
+      },
+      "RouletteInitResponse": {
+        "type": "object",
+        "properties": {
+          "session_id": {
+            "type": "string"
+          },
+          "game_id": {
+            "type": "string",
+            "default": "roulette_european_001"
+          },
+          "config": {
+            "type": "object",
+            "properties": {
+              "game_id": {
+                "type": "string",
+                "default": "roulette_european_001"
+              },
+              "type": {
+                "type": "string",
+                "enum": [
+                  "roulette"
+                ]
+              },
+              "variant": {
+                "type": "string",
+                "enum": [
+                  "european"
+                ]
+              },
+              "numbers": {
+                "type": "integer",
+                "default": 37
+              },
+              "min_bet": {
+                "type": "number"
+              },
+              "max_total_bet": {
+                "type": "number"
+              },
+              "bet_levels": {
+                "type": "array",
+                "items": {
+                  "type": "number"
+                }
+              },
+              "bet_types": {
+                "type": "object",
+                "additionalProperties": {
+                  "type": "object",
+                  "properties": {
+                    "payout": {
+                      "type": "number"
+                    },
+                    "size": {
+                      "type": "number"
+                    },
+                    "maxBet": {
+                      "type": "number"
+                    }
+                  },
+                  "required": [
+                    "payout",
+                    "size",
+                    "maxBet"
+                  ]
+                }
+              },
+              "currencies": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              },
+              "rtp": {
+                "type": "number"
+              },
+              "features": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              },
+              "wheel_order": {
+                "type": "array",
+                "items": {
+                  "type": "integer"
+                }
+              },
+              "number_colors": {
+                "type": "object",
+                "additionalProperties": {
+                  "type": "string",
+                  "enum": [
+                    "red",
+                    "black",
+                    "green"
+                  ]
+                }
+              }
+            },
+            "required": [
+              "type",
+              "variant",
+              "min_bet",
+              "max_total_bet",
+              "bet_levels",
+              "bet_types",
+              "currencies",
+              "rtp",
+              "features",
+              "wheel_order",
+              "number_colors"
+            ],
+            "additionalProperties": false
+          },
+          "balance": {
+            "type": "object",
+            "properties": {
+              "amount": {
+                "type": "number"
+              },
+              "currency": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "amount",
+              "currency"
+            ]
+          },
+          "recent_numbers": {
+            "type": "array",
+            "items": {
+              "type": "integer"
+            }
+          },
+          "expires_at": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "session_id",
+          "config",
+          "balance",
+          "recent_numbers",
+          "expires_at"
+        ],
+        "additionalProperties": false
+      },
+      "RouletteConfig": {
+        "type": "object",
+        "properties": {
+          "game_id": {
+            "type": "string",
+            "default": "roulette_european_001"
+          },
+          "type": {
+            "type": "string",
+            "enum": [
+              "roulette"
+            ]
+          },
+          "variant": {
+            "type": "string",
+            "enum": [
+              "european"
+            ]
+          },
+          "numbers": {
+            "type": "integer",
+            "default": 37
+          },
+          "min_bet": {
+            "type": "number"
+          },
+          "max_total_bet": {
+            "type": "number"
+          },
+          "bet_levels": {
+            "type": "array",
+            "items": {
+              "type": "number"
+            }
+          },
+          "bet_types": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "object",
+              "properties": {
+                "payout": {
+                  "type": "number"
+                },
+                "size": {
+                  "type": "number"
+                },
+                "maxBet": {
+                  "type": "number"
+                }
+              },
+              "required": [
+                "payout",
+                "size",
+                "maxBet"
+              ]
+            }
+          },
+          "currencies": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "rtp": {
+            "type": "number"
+          },
+          "features": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "wheel_order": {
+            "type": "array",
+            "items": {
+              "type": "integer"
+            }
+          },
+          "number_colors": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "string",
+              "enum": [
+                "red",
+                "black",
+                "green"
+              ]
+            }
+          }
+        },
+        "required": [
+          "type",
+          "variant",
+          "min_bet",
+          "max_total_bet",
+          "bet_levels",
+          "bet_types",
+          "currencies",
+          "rtp",
+          "features",
+          "wheel_order",
+          "number_colors"
+        ],
+        "additionalProperties": false
+      },
+      "RouletteBetRow": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "bet_type": {
+            "type": "string",
+            "enum": [
+              "straight",
+              "split",
+              "street",
+              "trio",
+              "corner",
+              "basket",
+              "sixLine",
+              "column",
+              "dozen",
+              "red",
+              "black",
+              "even",
+              "odd",
+              "high",
+              "low"
+            ]
+          },
+          "numbers": {
+            "type": "array",
+            "items": {
+              "type": "integer"
+            }
+          },
+          "amount": {
+            "type": "number"
+          },
+          "payout": {
+            "type": "number"
+          },
+          "profit": {
+            "type": "number"
+          },
+          "la_partage": {
+            "type": "boolean"
+          },
+          "won": {
+            "type": "boolean"
+          },
+          "created_at": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "bet_type",
+          "numbers",
+          "amount",
+          "payout",
+          "profit",
+          "la_partage",
+          "won",
+          "created_at"
         ],
         "additionalProperties": false
       },
@@ -2588,6 +3374,126 @@
           },
           "503": {
             "description": "Image generation service unavailable",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/roulette/init": {
+      "post": {
+        "tags": [
+          "Roulette"
+        ],
+        "summary": "Initialize a roulette session",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Session created",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RouletteInitResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/roulette/spin": {
+      "post": {
+        "tags": [
+          "Roulette"
+        ],
+        "summary": "Place roulette bets and spin the wheel",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "string"
+            },
+            "required": false,
+            "name": "Idempotency-Key",
+            "in": "header"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RouletteSpinRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Spin resolved",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RouletteSpinResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid payload",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Idempotency conflict",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation or balance error",
             "content": {
               "application/json": {
                 "schema": {

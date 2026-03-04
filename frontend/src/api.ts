@@ -208,6 +208,139 @@ export async function rotateSeedPair(token: string): Promise<SeedRotationResult>
 }
 
 // ---------------------------------------------------------------------------
+// Roulette API
+// ---------------------------------------------------------------------------
+
+export type RouletteBetType =
+  | 'straight'
+  | 'split'
+  | 'street'
+  | 'trio'
+  | 'corner'
+  | 'basket'
+  | 'sixLine'
+  | 'column'
+  | 'dozen'
+  | 'red'
+  | 'black'
+  | 'even'
+  | 'odd'
+  | 'high'
+  | 'low';
+
+export interface RouletteBet {
+  type: RouletteBetType;
+  numbers: number[];
+  amount: number;
+}
+
+export interface BetResult {
+  bet_type: RouletteBetType;
+  numbers: number[];
+  bet_amount: number;
+  payout: number;
+  profit: number;
+  la_partage: boolean;
+  won: boolean;
+}
+
+export interface RouletteOutcome {
+  winning_number: number;
+  winning_color: 'red' | 'black' | 'green';
+  wheel_position: number;
+  win: {
+    amount: number;
+    currency: string;
+    breakdown: BetResult[];
+  };
+  total_bet: number;
+  total_return: number;
+}
+
+export interface RouletteBetTypeConfig {
+  payout: number;
+  size: number;
+  maxBet: number;
+}
+
+export interface RouletteConfig {
+  game_id: string;
+  type: 'roulette';
+  variant: 'european';
+  numbers: number;
+  min_bet: number;
+  max_total_bet: number;
+  bet_levels: number[];
+  bet_types: Record<string, RouletteBetTypeConfig>;
+  currencies: string[];
+  rtp: number;
+  features: string[];
+  wheel_order: number[];
+  number_colors: Record<string, 'red' | 'black' | 'green'>;
+}
+
+export interface RouletteInitResponse {
+  session_id: string;
+  game_id: string;
+  config: RouletteConfig;
+  balance: { amount: number; currency: string };
+  recent_numbers: number[];
+  expires_at: string;
+}
+
+export interface RouletteSpinResponse {
+  spin_id: string;
+  session_id: string;
+  game_id: string;
+  balance: { amount: number; currency: string };
+  outcome: RouletteOutcome;
+  timestamp: number;
+}
+
+export async function initRoulette(
+  token: string,
+  signal?: AbortSignal
+): Promise<RouletteInitResponse> {
+  const res = await fetch(`${API_BASE}/roulette/init`, {
+    method: 'POST',
+    headers: authHeaders(token),
+    signal,
+  });
+  if (!res.ok) throw new ApiError(await res.text(), res.status);
+  return (await res.json()) as RouletteInitResponse;
+}
+
+export async function spinRoulette(
+  token: string,
+  sessionId: string,
+  gameId: string,
+  bets: RouletteBet[],
+  idempotencyKey?: string
+): Promise<RouletteSpinResponse> {
+  const headers: Record<string, string> = {
+    'Content-Type': 'application/json',
+    ...authHeaders(token),
+  };
+  if (idempotencyKey) headers['Idempotency-Key'] = idempotencyKey;
+
+  const res = await fetch(`${API_BASE}/roulette/spin`, {
+    method: 'POST',
+    headers,
+    body: JSON.stringify({
+      session_id: sessionId,
+      game_id: gameId,
+      bets,
+      client_timestamp: Date.now(),
+    }),
+  });
+  if (!res.ok) {
+    const err = (await res.json().catch(() => ({}))) as Partial<ErrorResponse>;
+    throw new ApiError(err.error ?? err.code ?? res.statusText, res.status);
+  }
+  return (await res.json()) as RouletteSpinResponse;
+}
+
+// ---------------------------------------------------------------------------
 // Image generation API
 // ---------------------------------------------------------------------------
 

@@ -48,6 +48,20 @@ export interface CreateRoundParams {
   outcomeHash: string | null;
   // balance after bet (before win credit) for the bet transaction
   balanceAfterBetCents: number;
+  rouletteBets?: {
+    bet_type: string;
+    numbers: number[];
+    amount_cents: number;
+    payout_cents: number;
+    profit_cents: number;
+    la_partage: boolean;
+    won: boolean;
+  }[];
+  rouletteResult?: {
+    userId: string;
+    winningNumber: number;
+    winningColor: string;
+  };
 }
 
 export async function createRound(params: CreateRoundParams): Promise<GameRound> {
@@ -97,6 +111,38 @@ export async function createRound(params: CreateRoundParams): Promise<GameRound>
         `INSERT INTO transactions (round_id, user_id, type, amount_cents, balance_after_cents)
          VALUES ($1, $2, 'win', $3, $4)`,
         [round.id, params.userId, params.winCents, params.balanceAfterCents]
+      );
+    }
+
+    if (params.rouletteBets && params.rouletteBets.length > 0) {
+      for (const bet of params.rouletteBets) {
+        await client.query(
+          `INSERT INTO roulette_bets (round_id, bet_type, numbers, amount_cents, payout_cents, profit_cents, la_partage, won)
+           VALUES ($1,$2,$3,$4,$5,$6,$7,$8)`,
+          [
+            round.id,
+            bet.bet_type,
+            bet.numbers,
+            bet.amount_cents,
+            bet.payout_cents,
+            bet.profit_cents,
+            bet.la_partage,
+            bet.won,
+          ]
+        );
+      }
+    }
+
+    if (params.rouletteResult) {
+      await client.query(
+        `INSERT INTO roulette_results (round_id, user_id, winning_number, winning_color)
+         VALUES ($1,$2,$3,$4)`,
+        [
+          round.id,
+          params.rouletteResult.userId,
+          params.rouletteResult.winningNumber,
+          params.rouletteResult.winningColor,
+        ]
       );
     }
 

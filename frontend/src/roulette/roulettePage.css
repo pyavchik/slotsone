@@ -1,0 +1,262 @@
+/* === European Roulette — Ultra-Luxury Monaco Grand Casino (Portrait) === */
+
+/* ---- Page Shell ---- */
+.rp-shell {
+  min-height: 100vh;
+  min-height: 100dvh;
+  background: #0d0704 url('/assets/roulette/pro/background-1920x1080.jpg') center top / cover
+    no-repeat;
+  color: #f4ead8;
+  font-family:
+    'Inter',
+    system-ui,
+    -apple-system,
+    sans-serif;
+  padding: 8px;
+  display: flex;
+  flex-direction: column;
+  overflow-x: hidden;
+  position: relative;
+}
+
+.rp-loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  gap: 16px;
+  min-height: 60vh;
+  color: #c8a04e;
+  font-size: 18px;
+  text-shadow: 0 0 20px rgba(200, 160, 78, 0.3);
+}
+
+.rp-loading-spinner {
+  width: 36px;
+  height: 36px;
+  border: 3px solid rgba(200, 160, 78, 0.2);
+  border-top-color: #c8a04e;
+  border-radius: 50%;
+  animation: rp-spin 0.8s linear infinite;
+}
+
+@keyframes rp-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* ---- Error ---- */
+.rp-error {
+  background: rgba(239, 68, 68, 0.12);
+  border: 1px solid rgba(239, 68, 68, 0.25);
+  border-radius: 10px;
+  padding: 10px 16px;
+  color: #fca5a5;
+  margin-bottom: 8px;
+  font-size: 14px;
+  max-width: 1100px;
+  margin-left: auto;
+  margin-right: auto;
+  width: 100%;
+}
+
+/* ---- Main Game Layout ---- */
+.rp-game {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  max-width: 520px;
+  margin: 0 auto;
+  width: 100%;
+  position: relative;
+  z-index: 2;
+}
+
+/* Mobile: left/right wrappers are transparent */
+.rp-left,
+.rp-right {
+  display: contents;
+}
+
+/* ---- Wheel Area ---- */
+.rp-wheel-area {
+  display: flex;
+  justify-content: center;
+  padding: 4px 0;
+  position: relative;
+}
+
+/* ---- Decorative Chips ---- */
+.rp-deco-chips {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 1;
+}
+
+.rp-deco-chip {
+  position: absolute;
+  pointer-events: none;
+  opacity: 0.65;
+  filter: drop-shadow(0 3px 6px rgba(0, 0, 0, 0.6));
+  transition: opacity 0.3s;
+}
+
+/* ---- Tab Bar ---- */
+.rp-tab-bar {
+  display: flex;
+  gap: 0;
+  border: 1.5px solid rgba(200, 160, 78, 0.35);
+  border-radius: 8px;
+  overflow: hidden;
+  background: rgba(13, 7, 4, 0.6);
+}
+
+.rp-tab {
+  flex: 1;
+  padding: 9px 8px;
+  background: transparent;
+  border: none;
+  border-right: 1px solid rgba(200, 160, 78, 0.15);
+  color: #8b7355;
+  font-size: 11px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  cursor: pointer;
+  transition:
+    background 0.15s,
+    color 0.15s;
+}
+
+.rp-tab:last-child {
+  border-right: none;
+}
+
+.rp-tab:hover {
+  background: rgba(200, 160, 78, 0.08);
+  color: #c8a04e;
+}
+
+.rp-tab--active {
+  background: rgba(200, 160, 78, 0.1);
+  color: #f6be57;
+  box-shadow: inset 0 -2px 0 #f6be57;
+  text-shadow: 0 0 8px rgba(246, 190, 87, 0.3);
+}
+
+/* ---- Stats Drawer ---- */
+.rp-stats-drawer-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.7);
+  z-index: 90;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  backdrop-filter: blur(4px);
+  animation: rp-fade-in 0.2s ease-out;
+}
+
+@keyframes rp-fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.rp-stats-drawer {
+  background: #0d0704;
+  border: 1px solid rgba(200, 160, 78, 0.3);
+  border-radius: 16px 16px 0 0;
+  width: 100%;
+  max-width: 600px;
+  max-height: 70vh;
+  overflow-y: auto;
+  padding: 16px;
+  animation: rp-drawer-up 0.3s ease-out;
+}
+
+@keyframes rp-drawer-up {
+  from {
+    transform: translateY(100%);
+  }
+  to {
+    transform: translateY(0);
+  }
+}
+
+.rp-stats-drawer-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+  font-size: 18px;
+  font-weight: 700;
+  color: #f6be57;
+}
+
+/* ---- Responsive ---- */
+@media (max-width: 480px) {
+  .rp-shell {
+    padding: 4px;
+  }
+  .rp-game {
+    gap: 6px;
+  }
+}
+
+@media (max-width: 380px) {
+  .rp-deco-chip {
+    display: none;
+  }
+}
+
+/* ---- Desktop: two-column layout ---- */
+@media (min-width: 1024px) {
+  .rp-game {
+    display: grid;
+    grid-template-columns: 480px 1fr;
+    gap: 24px;
+    max-width: 1100px;
+    flex: 1;
+    align-items: start;
+    padding-block: 2vh;
+  }
+
+  .rp-left,
+  .rp-right {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .rp-left {
+    position: relative;
+  }
+
+  .rp-wheel-area {
+    padding: 12px 0;
+  }
+}
+
+/* Extra-wide: give more room */
+@media (min-width: 1400px) {
+  .rp-game {
+    grid-template-columns: 560px 1fr;
+    max-width: 1280px;
+    gap: 32px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .rp-loading-spinner,
+  .rp-stats-drawer,
+  .rp-stats-drawer-overlay {
+    animation: none;
+    transition: none;
+  }
+}

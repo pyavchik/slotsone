@@ -9,6 +9,7 @@ import {
   revokeAllRefreshTokensForUser,
   REFRESH_TOKEN_TTL_MS,
 } from '../auth/refreshTokenStore.js';
+import { getLogger } from '../logger.js';
 
 const router = Router();
 
@@ -58,6 +59,10 @@ function getRefreshCookie(req: Request): string | undefined {
 // ---------------------------------------------------------------------------
 
 router.post('/register', async (req, res) => {
+  const log = getLogger();
+  const ip = req.ip;
+  const userAgent = req.headers['user-agent'];
+
   const parsed = RegisterRequestSchema.safeParse(req.body);
   if (!parsed.success) {
     res.status(400).json({ error: 'Invalid request', code: 'invalid_body' });
@@ -71,9 +76,12 @@ router.post('/register', async (req, res) => {
   try {
     user = await createUser(email, passwordHash);
   } catch {
+    log.warn({ email, ip, userAgent }, 'auth_register_email_taken');
     res.status(409).json({ error: 'Email already registered', code: 'email_taken' });
     return;
   }
+
+  log.info({ userId: user.id, email, ip }, 'auth_register');
 
   setRefreshCookie(res, await createRefreshToken(user.id));
   res.status(201).json({
@@ -84,6 +92,10 @@ router.post('/register', async (req, res) => {
 });
 
 router.post('/login', async (req, res) => {
+  const log = getLogger();
+  const ip = req.ip;
+  const userAgent = req.headers['user-agent'];
+
   const parsed = LoginRequestSchema.safeParse(req.body);
   if (!parsed.success) {
     res.status(400).json({ error: 'Invalid request', code: 'invalid_body' });
@@ -94,9 +106,12 @@ router.post('/login', async (req, res) => {
   const user = await findUserByEmail(email);
 
   if (!user || !(await verifyPassword(password, user.passwordHash))) {
+    log.warn({ email, ip, userAgent }, 'auth_login_failed');
     res.status(401).json({ error: 'Invalid credentials', code: 'invalid_credentials' });
     return;
   }
+
+  log.info({ userId: user.id, email, ip, userAgent }, 'auth_login');
 
   setRefreshCookie(res, await createRefreshToken(user.id));
   res.json({
@@ -107,17 +122,18 @@ router.post('/login', async (req, res) => {
 });
 
 router.post('/refresh', async (req, res) => {
+  const log = getLogger();
+  const ip = req.ip;
+
   const incoming = getRefreshCookie(req);
   if (!incoming) {
     res.status(401).json({ error: 'No refresh token', code: 'missing_refresh_token' });
     return;
   }
 
-  // consumeRefreshToken rotates: it deletes the old token and returns userId.
-  // If the same token is presented twice (theft detection), entry is already
-  // gone so consumeRefreshToken returns null.
   const userId = await consumeRefreshToken(incoming);
   if (!userId) {
+    log.warn({ ip }, 'auth_refresh_invalid_token');
     clearRefreshCookie(res);
     res
       .status(401)
@@ -125,7 +141,8 @@ router.post('/refresh', async (req, res) => {
     return;
   }
 
-  // Issue a fresh rotation pair
+  log.info({ userId, ip }, 'auth_refresh');
+
   setRefreshCookie(res, await createRefreshToken(userId));
   res.json({
     access_token: signToken(userId, ACCESS_TOKEN_TTL),
@@ -135,10 +152,16 @@ router.post('/refresh', async (req, res) => {
 });
 
 router.post('/logout', async (req, res) => {
+  const log = getLogger();
+  const ip = req.ip;
+
   const incoming = getRefreshCookie(req);
   if (incoming) {
     const userId = await consumeRefreshToken(incoming);
-    if (userId) await revokeAllRefreshTokensForUser(userId); // logout all devices
+    if (userId) {
+      await revokeAllRefreshTokensForUser(userId);
+      log.info({ userId, ip }, 'auth_logout');
+    }
   }
   clearRefreshCookie(res);
   res.status(204).send();
