@@ -1,0 +1,14 @@
+{
+  "name": "slotsone-qa",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "test": "node --import tsx --test tests/api.test.ts",
+    "test:smoke": "node --import tsx --test --test-name-pattern='smoke' tests/api.test.ts"
+  },
+  "devDependencies": {
+    "tsx": "^4.19.0",
+    "typescript": "^5.5.0",
+    "@types/node": "^22.0.0"
+  }
+}
