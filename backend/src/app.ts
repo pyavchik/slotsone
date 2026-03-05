@@ -17,6 +17,7 @@ import gameRoutes from './routes/game.js';
 import authRoutes from './routes/auth.js';
 import imageRoutes from './routes/images.js';
 import { rouletteRoutes } from './routes/roulette.js';
+import { americanRouletteRoutes } from './routes/americanRoulette.js';
 import { getPool } from './db.js';
 
 loadEnvironmentFiles();
@@ -117,8 +118,11 @@ app.use('/api/v1/auth', authRoutes);
 // POST /api/v1/images/generate
 app.use('/api/v1', imageRoutes);
 
-// Roulette
+// Roulette (European)
 app.use('/api/v1', rouletteRoutes);
+
+// American Roulette
+app.use('/api/v1', americanRouletteRoutes);
 
 // POST /api/v1/game/init, POST /api/v1/spin, GET /api/v1/history
 app.use('/api/v1', gameRoutes);

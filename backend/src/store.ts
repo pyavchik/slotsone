@@ -26,6 +26,18 @@ import {
   type RouletteBet as RouletteBetInput,
 } from './engine/rouletteValidation.js';
 import { runRouletteSpin, type RouletteOutcome } from './engine/rouletteEngine.js';
+import {
+  AMERICAN_ROULETTE_CONFIG,
+  AMERICAN_ROULETTE_GAME_ID,
+} from './engine/americanRouletteConfig.js';
+import {
+  validateAmericanRouletteBets,
+  type AmericanRouletteBet as AmericanRouletteBetInput,
+} from './engine/americanRouletteValidation.js';
+import {
+  runAmericanRouletteSpin,
+  type AmericanRouletteOutcome,
+} from './engine/americanRouletteEngine.js';
 
 export interface Session {
   session_id: string;
@@ -262,6 +274,16 @@ export interface RouletteSpinResult {
   balance: { amount: number; currency: string };
   total_bet: number;
   outcome: RouletteOutcome;
+  timestamp: number;
+}
+
+export interface AmericanRouletteSpinResult {
+  spin_id: string;
+  session_id: string;
+  game_id: string;
+  balance: { amount: number; currency: string };
+  total_bet: number;
+  outcome: AmericanRouletteOutcome;
   timestamp: number;
 }
 
@@ -707,6 +729,249 @@ export async function executeRouletteSpin(
     return { result, code: 200 };
   } catch (err) {
     log.error({ err, userId, sessionId, gameId, betCount }, 'roulette_spin_error');
+    throw err;
+  }
+}
+
+export async function createAmericanRouletteSession(userId: string) {
+  return createSession(userId, AMERICAN_ROULETTE_GAME_ID);
+}
+
+function americanRouletteFingerprint(
+  sessionId: string,
+  gameId: string,
+  bets: AmericanRouletteBetInput[],
+  currency: string
+): string {
+  const normalizedBets = bets
+    .map((b) => ({ ...b, numbers: [...b.numbers].sort((a, b) => a - b) }))
+    .sort((a, b) => a.type.localeCompare(b.type));
+  return `${sessionId}|${gameId}|${currency}|${JSON.stringify(normalizedBets)}`;
+}
+
+export async function executeAmericanRouletteSpin(
+  userId: string,
+  sessionId: string,
+  gameId: string,
+  bets: AmericanRouletteBetInput[],
+  currency: string,
+  idempotencyKey?: string
+): Promise<
+  | { result: AmericanRouletteSpinResult; code: 200 }
+  | { error: string; code: 400 | 401 | 403 | 409 | 422 | 429; retry_after_seconds?: number }
+> {
+  const log = getLogger();
+  const startedAt = Date.now();
+  const betCount = bets.length;
+  const totalBet = bets.reduce((sum, b) => sum + b.amount, 0);
+
+  log.info(
+    { userId, sessionId, gameId, betCount, totalBet, currency },
+    'american_roulette_spin_initiated'
+  );
+
+  const session = await getSession(sessionId);
+  if (!session) {
+    log.warn({ userId, sessionId, reason: 'session_not_found' }, 'american_roulette_spin_rejected');
+    return { error: 'Session not found or expired', code: 403 };
+  }
+  if (session.user_id !== userId) {
+    log.warn({ userId, sessionId, reason: 'forbidden' }, 'american_roulette_spin_rejected');
+    return { error: 'Forbidden', code: 403 };
+  }
+  if (session.game_id !== gameId) {
+    log.warn({ userId, sessionId, reason: 'invalid_game' }, 'american_roulette_spin_rejected');
+    return { error: 'Invalid game for session', code: 400 };
+  }
+
+  const validation = validateAmericanRouletteBets(bets);
+  if (!validation.valid) {
+    log.warn(
+      { userId, sessionId, reason: 'invalid_bets', detail: validation.error },
+      'american_roulette_spin_rejected'
+    );
+    return { error: validation.error, code: 400 };
+  }
+
+  if (totalBet <= 0) {
+    log.warn({ userId, sessionId, reason: 'zero_bet' }, 'american_roulette_spin_rejected');
+    return { error: 'Total bet must be positive', code: 422 };
+  }
+
+  if (!AMERICAN_ROULETTE_CONFIG.currencies.includes(currency)) {
+    log.warn(
+      { userId, sessionId, currency, reason: 'invalid_currency' },
+      'american_roulette_spin_rejected'
+    );
+    return { error: 'Invalid currency', code: 422 };
+  }
+
+  const requestFingerprint = americanRouletteFingerprint(sessionId, gameId, bets, currency);
+  if (idempotencyKey) {
+    const scopedKey = idempotencyKeyForUser(userId, idempotencyKey);
+    const now = Date.now();
+    const cutoff = now - TTL_IDEMPOTENCY_MS;
+    const { rows } = await getPool().query<{
+      request_fingerprint: string;
+      response: unknown;
+      created_at: string;
+    }>(
+      `SELECT request_fingerprint, response, created_at
+       FROM idempotency_keys WHERE scoped_key = $1`,
+      [scopedKey]
+    );
+
+    if (rows.length > 0) {
+      const existing = rows[0];
+      const createdAt = Number(existing.created_at);
+      if (createdAt <= cutoff) {
+        await getPool().query('DELETE FROM idempotency_keys WHERE scoped_key = $1', [scopedKey]);
+      } else {
+        if (existing.request_fingerprint !== requestFingerprint) {
+          log.warn(
+            { userId, sessionId, reason: 'idempotency_mismatch' },
+            'american_roulette_spin_rejected'
+          );
+          return { error: 'Idempotency key reused with different request payload', code: 409 };
+        }
+        return { result: existing.response as AmericanRouletteSpinResult, code: 200 };
+      }
+    }
+  }
+
+  const wallet = await getOrCreateWallet(userId);
+  const totalBetCents = Math.round(totalBet * 100);
+  if (wallet.balance_cents < totalBetCents) {
+    log.warn(
+      {
+        userId,
+        sessionId,
+        totalBetCents,
+        balanceCents: wallet.balance_cents,
+        reason: 'insufficient_balance',
+      },
+      'american_roulette_spin_rejected'
+    );
+    return { error: 'insufficient_balance', code: 422 };
+  }
+
+  const rate = await rateLimit(userId);
+  if (rate.limited) {
+    log.warn({ userId, sessionId, reason: 'rate_limited' }, 'american_roulette_spin_rejected');
+    return { error: 'Too many requests', code: 429, retry_after_seconds: rate.retryAfterSeconds };
+  }
+
+  try {
+    const seedPair = await getOrCreateActiveSeedPair(userId);
+    const nonce = await incrementNonce(seedPair.id);
+    const spinSeed = deriveSpinSeed(seedPair.server_seed, seedPair.client_seed, nonce);
+
+    const balanceBeforeCents = wallet.balance_cents;
+    const debitedWallet = await debitWallet(userId, totalBetCents, wallet.version);
+    if (!debitedWallet) {
+      log.warn(
+        { userId, sessionId, totalBetCents, reason: 'debit_failed' },
+        'american_roulette_spin_rejected'
+      );
+      return { error: 'insufficient_balance', code: 422 };
+    }
+
+    const outcome = runAmericanRouletteSpin(bets, currency, spinSeed);
+    const winCents = Math.round(outcome.win.amount * 100);
+
+    let finalWallet = debitedWallet;
+    if (winCents > 0) {
+      finalWallet = await creditWallet(userId, winCents);
+    }
+
+    const balanceAfterCents = finalWallet.balance_cents;
+    const finishedAt = Date.now();
+
+    const rouletteBets = outcome.win.breakdown.map((b) => ({
+      bet_type: b.bet_type,
+      numbers: b.numbers,
+      amount_cents: Math.round(b.bet_amount * 100),
+      payout_cents: Math.round(b.payout * 100),
+      profit_cents: Math.round(b.profit * 100),
+      la_partage: false,
+      won: b.won,
+    }));
+
+    const round = await createRound({
+      userId,
+      sessionId,
+      gameId,
+      seedPairId: seedPair.id,
+      nonce,
+      betCents: totalBetCents,
+      winCents,
+      currency,
+      lines: bets.length,
+      balanceBeforeCents,
+      balanceAfterCents,
+      reelMatrix: {
+        winning_number: outcome.winning_number,
+        winning_number_display: outcome.winning_number_display,
+        winning_color: outcome.winning_color,
+        wheel_position: outcome.wheel_position,
+      } as unknown as string[][],
+      winBreakdown: outcome.win.breakdown,
+      bonusTriggered: null,
+      outcomeHash: null,
+      balanceAfterBetCents: debitedWallet.balance_cents,
+      rouletteBets,
+      rouletteResult: {
+        userId,
+        winningNumber: outcome.winning_number,
+        winningColor: outcome.winning_color,
+      },
+    });
+
+    const durationMs = finishedAt - startedAt;
+    log.info(
+      {
+        spinId: round.id,
+        userId,
+        sessionId,
+        gameId,
+        betCents: totalBetCents,
+        winCents,
+        balanceAfterCents,
+        isWin: winCents > 0,
+        betCount,
+        winningNumber: outcome.winning_number,
+        winningNumberDisplay: outcome.winning_number_display,
+        winningColor: outcome.winning_color,
+        wheelPosition: outcome.wheel_position,
+        nonce,
+        durationMs,
+      },
+      'american_roulette_spin_completed'
+    );
+
+    const result: AmericanRouletteSpinResult = {
+      spin_id: round.id,
+      session_id: sessionId,
+      game_id: gameId,
+      balance: { amount: balanceAfterCents / 100, currency },
+      total_bet: totalBet,
+      outcome,
+      timestamp: finishedAt,
+    };
+
+    if (idempotencyKey) {
+      const scopedKey = idempotencyKeyForUser(userId, idempotencyKey);
+      await getPool().query(
+        `INSERT INTO idempotency_keys (scoped_key, user_id, request_fingerprint, response, created_at)
+         VALUES ($1,$2,$3,$4,$5)
+         ON CONFLICT (scoped_key) DO NOTHING`,
+        [scopedKey, userId, requestFingerprint, JSON.stringify(result), finishedAt]
+      );
+    }
+
+    return { result, code: 200 };
+  } catch (err) {
+    log.error({ err, userId, sessionId, gameId, betCount }, 'american_roulette_spin_error');
     throw err;
   }
 }
