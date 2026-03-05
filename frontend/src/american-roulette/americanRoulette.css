@@ -1,0 +1,833 @@
+/* ══════════════════════════════════════════════════════════
+   Monte Carlo Noir — American Roulette
+   Premium casino aesthetic: mahogany, brass, emerald baize
+   ══════════════════════════════════════════════════════════ */
+
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700;800&family=DM+Sans:wght@400;500;600;700&display=swap');
+
+:root {
+  /* Palette */
+  --mc-mahogany: #3d2510;
+  --mc-mahogany-light: #5c3a1e;
+  --mc-felt: #0d5c38;
+  --mc-felt-dark: #0a3d25;
+  --mc-felt-deep: #072a1a;
+  --mc-brass: #c9a84c;
+  --mc-brass-light: #dfc87a;
+  --mc-brass-dim: #9a7a20;
+  --mc-ivory: #f0ece2;
+  --mc-ivory-muted: rgba(240, 236, 226, 0.65);
+  --mc-red: #c41e2a;
+  --mc-red-deep: #8b1520;
+  --mc-black: #1a1a22;
+  --mc-green: #00784a;
+  --mc-shadow: rgba(0, 0, 0, 0.55);
+  --mc-panel: rgba(10, 40, 25, 0.75);
+  --mc-panel-border: rgba(201, 168, 76, 0.25);
+  --mc-glow: rgba(201, 168, 76, 0.12);
+}
+
+/* ── Page Shell ─────────────────────────────────────────── */
+
+.ar-page {
+  min-height: 100vh;
+  color: var(--mc-ivory);
+  position: relative;
+  overflow-x: hidden;
+  font-family: 'DM Sans', system-ui, sans-serif;
+
+  /* Layered felt-like background */
+  background:
+    /* Top-down casino spotlight */
+    radial-gradient(ellipse 60% 45% at 50% 15%, rgba(255, 240, 200, 0.07), transparent),
+    /* Secondary warm fill */
+    radial-gradient(ellipse 80% 80% at 30% 70%, rgba(201, 168, 76, 0.04), transparent),
+    /* Felt texture (fine noise via repeating gradients) */
+    repeating-conic-gradient(
+        from 0deg at 50% 50%,
+        rgba(13, 92, 56, 0.03) 0deg,
+        transparent 0.5deg,
+        transparent 1deg
+      ),
+    /* Base gradient — deep emerald to near-black */
+    linear-gradient(175deg, #0f4a2e 0%, #072a1a 35%, #041a10 70%, #020e08 100%);
+  padding: 16px 20px;
+}
+
+/* Subtle overlay pattern simulating felt weave */
+.ar-backdrop {
+  position: absolute;
+  inset: 0;
+  background:
+    repeating-linear-gradient(
+      0deg,
+      rgba(255, 255, 255, 0.008) 0px,
+      rgba(255, 255, 255, 0.008) 1px,
+      transparent 1px,
+      transparent 3px
+    ),
+    repeating-linear-gradient(
+      90deg,
+      rgba(255, 255, 255, 0.006) 0px,
+      rgba(255, 255, 255, 0.006) 1px,
+      transparent 1px,
+      transparent 3px
+    );
+  pointer-events: none;
+  z-index: 0;
+}
+
+.ar-hud,
+.ar-main,
+.ar-controls,
+.ar-dev-wrap,
+.ar-payout-guide,
+.ar-toast-stack {
+  position: relative;
+  z-index: 1;
+}
+
+/* ── HUD (Balance / Bet / Win) ──────────────────────────── */
+
+.ar-hud {
+  display: grid;
+  gap: 12px;
+  grid-template-columns: repeat(3, 1fr) auto;
+  margin-bottom: 18px;
+}
+
+.ar-hud-frame {
+  display: none;
+}
+
+.ar-hud-item {
+  background: linear-gradient(145deg, rgba(15, 50, 30, 0.85), rgba(8, 30, 18, 0.9));
+  border: 1px solid var(--mc-panel-border);
+  border-radius: 14px;
+  padding: 14px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  position: relative;
+  overflow: hidden;
+  backdrop-filter: blur(8px);
+}
+
+/* Brass accent line at top */
+.ar-hud-item::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 16px;
+  right: 16px;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--mc-brass), transparent);
+}
+
+.ar-hud-item span {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--mc-ivory-muted);
+}
+
+.ar-hud-item strong {
+  font-family: 'Playfair Display', serif;
+  font-size: 24px;
+  font-weight: 700;
+  color: var(--mc-brass-light);
+  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.4);
+}
+
+.ar-settings {
+  width: 50px;
+  border-radius: 14px;
+  border: 1px solid var(--mc-panel-border);
+  background: linear-gradient(145deg, rgba(15, 50, 30, 0.85), rgba(8, 30, 18, 0.9));
+  color: var(--mc-brass);
+  font-size: 20px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  backdrop-filter: blur(8px);
+}
+
+.ar-settings:hover {
+  border-color: var(--mc-brass);
+  box-shadow: 0 0 20px var(--mc-glow);
+}
+
+/* ── Main Layout ────────────────────────────────────────── */
+
+.ar-main {
+  display: grid;
+  gap: 20px;
+  grid-template-columns: minmax(300px, 440px) minmax(0, 1fr);
+  align-items: start;
+}
+
+/* ── Glass Panel (shared) ───────────────────────────────── */
+
+.ar-wheel-panel,
+.ar-table-panel,
+.ar-controls,
+.ar-dev-panel,
+.ar-payout-guide {
+  border: 1px solid var(--mc-panel-border);
+  border-radius: 16px;
+  background: linear-gradient(160deg, rgba(12, 48, 30, 0.7), rgba(6, 28, 16, 0.8));
+  box-shadow:
+    0 1px 0 0 rgba(255, 240, 200, 0.04) inset,
+    0 20px 60px rgba(0, 0, 0, 0.4),
+    0 2px 8px rgba(0, 0, 0, 0.3);
+  backdrop-filter: blur(12px);
+}
+
+/* ── Wheel Panel ────────────────────────────────────────── */
+
+.ar-wheel-panel {
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  align-items: center;
+}
+
+.ar-wheel {
+  width: 100%;
+  aspect-ratio: 1;
+  border-radius: 50%;
+  filter: drop-shadow(0 8px 30px rgba(0, 0, 0, 0.5));
+}
+
+.ar-result {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--mc-ivory-muted);
+}
+
+.ar-result span {
+  font-family: 'Playfair Display', serif;
+  font-size: 28px;
+  font-weight: 800;
+  color: var(--mc-brass-light);
+  text-shadow: 0 0 16px rgba(201, 168, 76, 0.3);
+  margin-left: 6px;
+}
+
+.ar-dev-outcome {
+  color: #6beba0;
+  font-weight: 700;
+  font-size: 13px;
+  letter-spacing: 0.05em;
+}
+
+/* ── Buttons (shared style) ─────────────────────────────── */
+
+.ar-lobby-btn,
+.ar-actions button,
+.ar-dev-toggle,
+.ar-sim-btn {
+  min-height: 46px;
+  border-radius: 10px;
+  border: 1px solid rgba(201, 168, 76, 0.2);
+  background: linear-gradient(160deg, rgba(20, 52, 35, 0.9), rgba(10, 35, 22, 0.95));
+  color: var(--mc-ivory);
+  font-family: 'DM Sans', sans-serif;
+  font-weight: 700;
+  font-size: 13px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.ar-lobby-btn::before,
+.ar-actions button::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.04), transparent 50%);
+  pointer-events: none;
+}
+
+.ar-lobby-btn:hover,
+.ar-actions button:hover:not(:disabled),
+.ar-dev-toggle:hover,
+.ar-sim-btn:hover {
+  border-color: rgba(201, 168, 76, 0.5);
+  box-shadow:
+    0 0 24px var(--mc-glow),
+    0 4px 12px rgba(0, 0, 0, 0.3);
+  transform: translateY(-1px);
+}
+
+.ar-lobby-btn:active,
+.ar-actions button:active:not(:disabled),
+.ar-dev-toggle:active,
+.ar-sim-btn:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.4);
+}
+
+.ar-actions button:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+  transform: none !important;
+}
+
+.ar-lobby-btn {
+  width: 100%;
+  font-size: 12px;
+}
+
+/* ── Betting Table ──────────────────────────────────────── */
+
+.ar-table-panel {
+  padding: 16px;
+}
+
+.ar-table {
+  display: grid;
+  gap: 3px;
+  grid-template-columns: 56px 56px repeat(12, minmax(32px, 1fr)) 84px;
+  grid-template-rows: repeat(5, minmax(44px, auto));
+  padding: 12px;
+  border-radius: 12px;
+
+  /* Casino baize felt with stitched border */
+  background:
+    /* Spotlight on table center */
+    radial-gradient(ellipse 70% 60% at 50% 40%, rgba(20, 100, 60, 0.35), transparent),
+    /* Felt base */ linear-gradient(170deg, #0a5535, #073d25, #052d1a);
+  border: 2px solid rgba(201, 168, 76, 0.3);
+  box-shadow:
+    inset 0 2px 6px rgba(0, 0, 0, 0.3),
+    inset 0 0 0 4px rgba(201, 168, 76, 0.06);
+}
+
+.ar-cell {
+  border: 1px solid rgba(201, 168, 76, 0.35);
+  border-radius: 6px;
+  color: var(--mc-ivory);
+  background: rgba(0, 0, 0, 0.35);
+  position: relative;
+  font-family: 'Playfair Display', serif;
+  font-weight: 700;
+  font-size: 15px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.6);
+}
+
+.ar-cell:disabled {
+  opacity: 0.8;
+  cursor: default;
+}
+
+.ar-cell:hover:not(:disabled) {
+  box-shadow:
+    0 0 16px rgba(201, 168, 76, 0.3),
+    inset 0 0 12px rgba(255, 255, 255, 0.06);
+  border-color: rgba(201, 168, 76, 0.7);
+  z-index: 2;
+  transform: scale(1.03);
+}
+
+.ar-cell:active:not(:disabled) {
+  transform: scale(0.97);
+}
+
+/* Number cells — colored with 3D depth */
+.ar-red {
+  background: linear-gradient(165deg, #d42735 0%, #b01e2a 50%, #8b1520 100%);
+  border-color: rgba(255, 80, 80, 0.25);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.1);
+}
+
+.ar-black {
+  background: linear-gradient(165deg, #2a2a34 0%, #1a1a24 50%, #0e0e16 100%);
+  border-color: rgba(100, 100, 120, 0.3);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.05);
+}
+
+.ar-green {
+  background: linear-gradient(165deg, #00885a 0%, #006842 50%, #004d30 100%);
+  border-color: rgba(0, 180, 100, 0.3);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08);
+}
+
+.ar-zero {
+  background: linear-gradient(165deg, #00885a 0%, #006842 50%, #004d30 100%);
+  border-color: rgba(0, 180, 100, 0.3);
+  font-size: 16px;
+}
+
+.ar-zero:first-of-type {
+  grid-column: 1;
+  grid-row: 1 / 3;
+}
+
+.ar-zero:nth-of-type(2) {
+  grid-column: 2;
+  grid-row: 1 / 3;
+}
+
+.ar-number {
+  min-height: 44px;
+}
+
+.ar-col,
+.ar-outside {
+  background: linear-gradient(165deg, rgba(15, 50, 32, 0.8), rgba(8, 30, 20, 0.9));
+  font-family: 'DM Sans', sans-serif;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+}
+
+/* ── Bet Badge (chip on table) ──────────────────────────── */
+
+.ar-bet-badge {
+  position: absolute;
+  bottom: 3px;
+  right: 3px;
+  min-width: 22px;
+  height: 22px;
+  padding: 0 5px;
+  border-radius: 11px;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 11px;
+  font-weight: 800;
+  color: #1a1208;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(145deg, #f0d88c, #c9a84c);
+  box-shadow:
+    0 1px 3px rgba(0, 0, 0, 0.4),
+    inset 0 1px 0 rgba(255, 255, 255, 0.3);
+  text-shadow: none;
+  z-index: 3;
+  animation: ar-badge-pop 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+@keyframes ar-badge-pop {
+  from {
+    transform: scale(0);
+  }
+  to {
+    transform: scale(1);
+  }
+}
+
+/* ── History Strip ──────────────────────────────────────── */
+
+.ar-history {
+  margin-top: 14px;
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  padding: 8px 0;
+}
+
+.ar-history-item {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'Playfair Display', serif;
+  font-size: 12px;
+  font-weight: 700;
+  border: 2px solid rgba(201, 168, 76, 0.25);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.08),
+    0 2px 6px rgba(0, 0, 0, 0.3);
+  animation: ar-hist-in 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.ar-history-item.ar-red {
+  background: linear-gradient(135deg, #c41e2a, #8b1520);
+}
+
+.ar-history-item.ar-black {
+  background: linear-gradient(135deg, #2a2a34, #0e0e16);
+}
+
+.ar-history-item.ar-green {
+  background: linear-gradient(135deg, #00784a, #004d30);
+}
+
+@keyframes ar-hist-in {
+  from {
+    transform: scale(0) rotate(-180deg);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1) rotate(0);
+    opacity: 1;
+  }
+}
+
+/* ── Controls Bar (chips + actions) ─────────────────────── */
+
+.ar-controls {
+  margin-top: 18px;
+  padding: 16px 20px;
+  display: flex;
+  gap: 16px;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+/* ── Chips ──────────────────────────────────────────────── */
+
+.ar-chips {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.ar-chip {
+  width: 58px;
+  height: 58px;
+  border-radius: 50%;
+  position: relative;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+  font-family: 'Playfair Display', serif;
+
+  /* Multi-ring chip edge pattern */
+  border: 3px solid rgba(255, 255, 255, 0.15);
+  box-shadow:
+    inset 0 2px 4px rgba(255, 255, 255, 0.15),
+    inset 0 -2px 4px rgba(0, 0, 0, 0.3),
+    0 3px 8px rgba(0, 0, 0, 0.4);
+
+  /* Edge notch pattern via dashed outline */
+  outline: 2px dashed rgba(255, 255, 255, 0.2);
+  outline-offset: -7px;
+}
+
+.ar-chip span {
+  font-weight: 800;
+  font-size: 16px;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.6);
+  position: relative;
+  z-index: 1;
+}
+
+/* Chip denominations — each gets unique color */
+.ar-chip--1 {
+  background:
+    radial-gradient(circle at 35% 30%, rgba(255, 255, 255, 0.2), transparent 60%),
+    linear-gradient(145deg, #e8e0d0, #b8b0a0, #908880);
+  color: #2a2520;
+}
+.ar-chip--1 span {
+  text-shadow: 0 1px 2px rgba(255, 255, 255, 0.3);
+}
+
+.ar-chip--5 {
+  background:
+    radial-gradient(circle at 35% 30%, rgba(255, 255, 255, 0.25), transparent 60%),
+    linear-gradient(145deg, #e03040, #c41e2a, #8b1520);
+  color: var(--mc-ivory);
+}
+
+.ar-chip--10 {
+  background:
+    radial-gradient(circle at 35% 30%, rgba(255, 255, 255, 0.2), transparent 60%),
+    linear-gradient(145deg, #3a7ae8, #2856b0, #1a3878);
+  color: var(--mc-ivory);
+}
+
+.ar-chip--25 {
+  background:
+    radial-gradient(circle at 35% 30%, rgba(255, 255, 255, 0.25), transparent 60%),
+    linear-gradient(145deg, #2eaa55, #1e8840, #0e6628);
+  color: var(--mc-ivory);
+}
+
+.ar-chip--100 {
+  background:
+    radial-gradient(circle at 35% 30%, rgba(255, 255, 255, 0.3), transparent 60%),
+    linear-gradient(145deg, #1a1a2a, #0e0e18, #060610);
+  color: var(--mc-ivory);
+}
+
+.ar-chip--500 {
+  background:
+    radial-gradient(circle at 35% 30%, rgba(255, 255, 255, 0.3), transparent 60%),
+    linear-gradient(145deg, #7040a8, #5a2e90, #3e1c68);
+  color: var(--mc-ivory);
+}
+
+.ar-chip:hover {
+  transform: translateY(-3px) scale(1.05);
+  box-shadow:
+    inset 0 2px 4px rgba(255, 255, 255, 0.15),
+    inset 0 -2px 4px rgba(0, 0, 0, 0.3),
+    0 8px 20px rgba(0, 0, 0, 0.5),
+    0 0 16px var(--mc-glow);
+}
+
+.ar-chip.is-selected {
+  transform: translateY(-4px) scale(1.1);
+  border-color: var(--mc-brass-light);
+  outline-color: rgba(201, 168, 76, 0.5);
+  box-shadow:
+    inset 0 2px 4px rgba(255, 255, 255, 0.15),
+    inset 0 -2px 4px rgba(0, 0, 0, 0.3),
+    0 0 24px rgba(201, 168, 76, 0.4),
+    0 8px 24px rgba(0, 0, 0, 0.5);
+}
+
+/* ── Action Buttons ─────────────────────────────────────── */
+
+.ar-actions {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.ar-actions button {
+  min-width: 88px;
+  padding: 0 16px;
+}
+
+/* SPIN button — gold & prominent */
+.ar-actions .ar-spin {
+  background: linear-gradient(160deg, var(--mc-brass-light), var(--mc-brass), var(--mc-brass-dim));
+  color: #1a1208;
+  border-color: rgba(240, 210, 140, 0.6);
+  font-size: 14px;
+  letter-spacing: 0.15em;
+  min-width: 110px;
+  box-shadow:
+    0 0 20px rgba(201, 168, 76, 0.15),
+    inset 0 1px 0 rgba(255, 255, 255, 0.25),
+    0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+.ar-actions .ar-spin:hover:not(:disabled) {
+  box-shadow:
+    0 0 32px rgba(201, 168, 76, 0.35),
+    inset 0 1px 0 rgba(255, 255, 255, 0.3),
+    0 6px 16px rgba(0, 0, 0, 0.4);
+}
+
+.ar-actions .ar-spin:disabled {
+  opacity: 0.4;
+  box-shadow: none;
+}
+
+/* ── Dev Panel ──────────────────────────────────────────── */
+
+.ar-dev-wrap {
+  margin-top: 18px;
+  display: grid;
+  gap: 8px;
+}
+
+.ar-dev-toggle {
+  max-width: 160px;
+  font-size: 12px;
+}
+
+.ar-dev-panel {
+  padding: 14px;
+  display: grid;
+  gap: 8px;
+  font-size: 14px;
+}
+
+.ar-dev-line {
+  color: var(--mc-ivory-muted);
+  font-size: 13px;
+}
+
+.ar-sim-btn {
+  max-width: 140px;
+}
+
+.ar-sim-results {
+  border-top: 1px solid rgba(201, 168, 76, 0.15);
+  padding-top: 10px;
+  display: grid;
+  gap: 6px;
+  font-size: 13px;
+}
+
+.ar-sim-grid {
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: 4px;
+  font-size: 12px;
+  color: var(--mc-ivory-muted);
+}
+
+/* ── Toast Notifications ────────────────────────────────── */
+
+.ar-toast-stack {
+  position: fixed;
+  right: 20px;
+  bottom: 24px;
+  display: grid;
+  gap: 8px;
+  z-index: 50;
+}
+
+.ar-toast {
+  border: 1px solid rgba(201, 168, 76, 0.35);
+  background: linear-gradient(145deg, rgba(12, 48, 30, 0.92), rgba(6, 28, 16, 0.95));
+  color: var(--mc-ivory);
+  border-radius: 12px;
+  padding: 12px 18px;
+  font-family: 'DM Sans', sans-serif;
+  font-weight: 600;
+  font-size: 14px;
+  backdrop-filter: blur(12px);
+  box-shadow:
+    0 8px 24px rgba(0, 0, 0, 0.5),
+    0 0 0 1px rgba(255, 255, 255, 0.03) inset;
+  animation: ar-toast-in 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+/* ── Payout Guide ───────────────────────────────────────── */
+
+.ar-payout-guide {
+  margin-top: 18px;
+  padding: 14px 18px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  color: var(--mc-ivory-muted);
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 0.04em;
+}
+
+.ar-payout-guide span {
+  position: relative;
+  padding-right: 16px;
+}
+
+.ar-payout-guide span:not(:last-child)::after {
+  content: '';
+  position: absolute;
+  right: 0;
+  top: 15%;
+  height: 70%;
+  width: 1px;
+  background: rgba(201, 168, 76, 0.2);
+}
+
+/* ── Animations ─────────────────────────────────────────── */
+
+@keyframes ar-toast-in {
+  from {
+    opacity: 0;
+    transform: translateY(12px) scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+/* Winner pocket pulse on the SVG wheel */
+.wr-winner-pulse {
+  animation: wr-pulse 1.2s ease-in-out infinite;
+}
+
+@keyframes wr-pulse {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
+/* ── Responsive ─────────────────────────────────────────── */
+
+@media (max-width: 1100px) {
+  .ar-main {
+    grid-template-columns: 1fr;
+  }
+
+  .ar-wheel-panel {
+    max-width: 460px;
+    margin: 0 auto;
+    width: 100%;
+  }
+
+  .ar-table {
+    grid-template-columns: 48px 48px repeat(12, minmax(26px, 1fr)) 68px;
+  }
+
+  .ar-sim-grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 760px) {
+  .ar-page {
+    padding: 12px;
+  }
+
+  .ar-hud {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 8px;
+  }
+
+  .ar-hud-item strong {
+    font-size: 20px;
+  }
+
+  .ar-settings {
+    min-height: 44px;
+  }
+
+  .ar-controls {
+    flex-direction: column;
+    align-items: stretch;
+    padding: 14px;
+  }
+
+  .ar-chips {
+    justify-content: center;
+  }
+
+  .ar-chip {
+    width: 50px;
+    height: 50px;
+  }
+
+  .ar-chip span {
+    font-size: 14px;
+  }
+
+  .ar-actions {
+    width: 100%;
+  }
+
+  .ar-actions button {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .ar-table {
+    overflow-x: auto;
+  }
+}

@@ -341,6 +341,134 @@ export async function spinRoulette(
 }
 
 // ---------------------------------------------------------------------------
+// American Roulette API
+// ---------------------------------------------------------------------------
+
+export type AmericanRouletteBetType =
+  | 'straight'
+  | 'split'
+  | 'street'
+  | 'corner'
+  | 'topLine'
+  | 'sixLine'
+  | 'column'
+  | 'dozen'
+  | 'red'
+  | 'black'
+  | 'even'
+  | 'odd'
+  | 'high'
+  | 'low';
+
+export interface AmericanRouletteBet {
+  type: AmericanRouletteBetType;
+  numbers: number[];
+  amount: number;
+}
+
+export interface AmericanBetResult {
+  bet_type: AmericanRouletteBetType;
+  numbers: number[];
+  bet_amount: number;
+  payout: number;
+  profit: number;
+  won: boolean;
+}
+
+export interface AmericanRouletteOutcome {
+  winning_number: number;
+  winning_number_display: string;
+  winning_color: 'red' | 'black' | 'green';
+  wheel_position: number;
+  win: {
+    amount: number;
+    currency: string;
+    breakdown: AmericanBetResult[];
+  };
+  total_bet: number;
+  total_return: number;
+}
+
+export interface AmericanRouletteConfig {
+  game_id: string;
+  type: 'roulette';
+  variant: 'american';
+  numbers: number;
+  double_zero: number;
+  min_bet: number;
+  max_total_bet: number;
+  bet_levels: number[];
+  bet_types: Record<string, RouletteBetTypeConfig>;
+  currencies: string[];
+  rtp: number;
+  features: string[];
+  wheel_order: number[];
+  number_colors: Record<string, 'red' | 'black' | 'green'>;
+}
+
+export interface AmericanRouletteInitResponse {
+  session_id: string;
+  game_id: string;
+  config: AmericanRouletteConfig;
+  balance: { amount: number; currency: string };
+  recent_numbers: number[];
+  expires_at: string;
+}
+
+export interface AmericanRouletteSpinResponse {
+  spin_id: string;
+  session_id: string;
+  game_id: string;
+  balance: { amount: number; currency: string };
+  total_bet: number;
+  outcome: AmericanRouletteOutcome;
+  timestamp: number;
+}
+
+export async function initAmericanRoulette(
+  token: string,
+  signal?: AbortSignal
+): Promise<AmericanRouletteInitResponse> {
+  const res = await fetch(`${API_BASE}/american-roulette/init`, {
+    method: 'POST',
+    headers: authHeaders(token),
+    signal,
+  });
+  if (!res.ok) throw new ApiError(await res.text(), res.status);
+  return (await res.json()) as AmericanRouletteInitResponse;
+}
+
+export async function spinAmericanRoulette(
+  token: string,
+  sessionId: string,
+  gameId: string,
+  bets: AmericanRouletteBet[],
+  idempotencyKey?: string
+): Promise<AmericanRouletteSpinResponse> {
+  const headers: Record<string, string> = {
+    'Content-Type': 'application/json',
+    ...authHeaders(token),
+  };
+  if (idempotencyKey) headers['Idempotency-Key'] = idempotencyKey;
+
+  const res = await fetch(`${API_BASE}/american-roulette/spin`, {
+    method: 'POST',
+    headers,
+    body: JSON.stringify({
+      session_id: sessionId,
+      game_id: gameId,
+      bets,
+      client_timestamp: Date.now(),
+    }),
+  });
+  if (!res.ok) {
+    const err = (await res.json().catch(() => ({}))) as Partial<ErrorResponse>;
+    throw new ApiError(err.error ?? err.code ?? res.statusText, res.status);
+  }
+  return (await res.json()) as AmericanRouletteSpinResponse;
+}
+
+// ---------------------------------------------------------------------------
 // Image generation API
 // ---------------------------------------------------------------------------
 

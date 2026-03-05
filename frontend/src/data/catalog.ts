@@ -176,8 +176,8 @@ const GAMES: GameItem[] = [
     provider: 'Evolution',
     rtp: 94.74,
     volatility: 'medium',
-    status: 'soon',
-    badge: null,
+    status: 'available',
+    badge: 'NEW',
     thumbnail: '/games/american-roulette.png',
   },
   {
