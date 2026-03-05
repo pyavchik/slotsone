@@ -699,7 +699,7 @@
 
     <span class="nav-section">Setup</span>
     <a class="nav-link" href="#files">Files</a>
-    <a class="nav-link" href="#env-vars">Environment</a>
+    <a class="nav-link" href="#env-vars">Variables</a>
 
     <span class="nav-section">Tests</span>
     <a class="nav-link" href="#test-cases">Test Cases</a>
@@ -741,12 +741,6 @@
           </svg>
           Download Collection
         </a>
-        <a class="btn btn-ghost" href="/postman/dev.env.json" download>
-          <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
-            <path d="M7 1v8M4 7l3 3 3-3M2 11h10" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-          </svg>
-          Download Environment
-        </a>
         <a class="btn btn-ghost" href="/postman-tests.html">
           <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
             <path d="M9 11L5 7L9 3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
@@ -776,10 +770,6 @@
               <td class="mono">slots-collection.json</td>
               <td class="desc">Requests + test scripts (TC-01 … TC-14)</td>
             </tr>
-            <tr>
-              <td class="mono">dev.env.json</td>
-              <td class="desc">Environment: base_url, jwt_token, session_id, user_id, game_id</td>
-            </tr>
           </tbody>
         </table>
       </div>
@@ -790,8 +780,8 @@
     <!-- Environment Variables -->
     <section class="section" id="env-vars">
       <div class="section-label">Setup</div>
-      <h2 class="section-title">Environment Variables</h2>
-      <p class="section-desc">Import <code>dev.env.json</code> and fill in the values below. Variables marked <em>auto</em> are set by test scripts at runtime.</p>
+      <h2 class="section-title">Collection Variables</h2>
+      <p class="section-desc">All variables are included in the collection. Variables marked <em>auto</em> are set by pre-request/post-response scripts at runtime.</p>
       <div class="card">
         <table class="data-table">
           <thead>
@@ -1067,22 +1057,18 @@
         <div class="steps">
           <div class="step">
             <div class="step-num">1</div>
-            <div class="step-body"><strong>Import</strong> — click <strong>Import</strong> → select <code>slots-collection.json</code> and <code>dev.env.json</code>.</div>
+            <div class="step-body"><strong>Import</strong> — click <strong>Import</strong> → select <code>slots-collection.json</code>. All variables are included in the collection.</div>
           </div>
           <div class="step">
             <div class="step-num">2</div>
-            <div class="step-body">Select the <code>Slots API - Dev</code> environment in the top-right dropdown.</div>
+            <div class="step-body">Run <strong>Auth → Register</strong> — the test script automatically saves <code>jwt_token</code> to collection variables. Session IDs are populated by init requests.</div>
           </div>
           <div class="step">
             <div class="step-num">3</div>
-            <div class="step-body">Run <strong>Auth → Login</strong> — the test script automatically saves <code>jwt_token</code> to the environment. Optionally set <code>session_id</code>, or let TC-01 populate it.</div>
-          </div>
-          <div class="step">
-            <div class="step-num">4</div>
             <div class="step-body"><strong>Single request</strong> — open any TC → click <strong>Send</strong> → check the <strong>Test Results</strong> tab at the bottom.</div>
           </div>
           <div class="step">
-            <div class="step-num">5</div>
+            <div class="step-num">4</div>
             <div class="step-body"><strong>Full suite</strong> — right-click the collection → <strong>Run collection</strong> (see Collection Runner below).</div>
           </div>
         </div>
@@ -1104,7 +1090,7 @@
           </div>
           <div class="step">
             <div class="step-num">2</div>
-            <div class="step-body">Select the <code>Slots API - Dev</code> environment.</div>
+            <div class="step-body">Ensure the collection is selected (no separate environment needed).</div>
           </div>
           <div class="step">
             <div class="step-num">3</div>
@@ -1137,9 +1123,9 @@
         </div>
 
         <div class="code-block">
-          <div class="code-label">Run with environment</div>
+          <div class="code-label">Run collection</div>
           <pre id="pre-run"><span class="cmd">cd</span> postman
-<span class="cmd">newman</span> run slots-collection.json <span class="flag">-e</span> dev.env.json</pre>
+<span class="cmd">newman</span> run slots-collection.json</pre>
           <button class="copy-btn" data-target="pre-run" title="Copy">
             <svg width="13" height="13" viewBox="0 0 13 13" fill="none"><rect x="4" y="4" width="8" height="8" rx="1.5" stroke="currentColor" stroke-width="1.3"/><path d="M2 9V2h7" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
           </button>
@@ -1147,7 +1133,7 @@
 
         <div class="code-block">
           <div class="code-label">With HTML report (htmlextra)</div>
-          <pre id="pre-html"><span class="cmd">newman</span> run slots-collection.json <span class="flag">-e</span> dev.env.json \
+          <pre id="pre-html"><span class="cmd">newman</span> run slots-collection.json \
   <span class="flag">-r</span> htmlextra <span class="flag">--reporter-htmlextra-export</span> <span class="val">report.html</span></pre>
           <button class="copy-btn" data-target="pre-html" title="Copy">
             <svg width="13" height="13" viewBox="0 0 13 13" fill="none"><rect x="4" y="4" width="8" height="8" rx="1.5" stroke="currentColor" stroke-width="1.3"/><path d="M2 9V2h7" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
@@ -1157,14 +1143,14 @@
         <div class="code-block">
           <div class="code-label">Additional options</div>
           <pre id="pre-opts"><span class="comment"># 200 ms delay (reduce load / avoid rate limit)</span>
-<span class="cmd">newman</span> run slots-collection.json <span class="flag">-e</span> dev.env.json <span class="flag">-d</span> <span class="val">200</span>
+<span class="cmd">newman</span> run slots-collection.json <span class="flag">--delay-request</span> <span class="val">200</span>
 
 <span class="comment"># 10-second request timeout</span>
-<span class="cmd">newman</span> run slots-collection.json <span class="flag">-e</span> dev.env.json <span class="flag">--timeout-request</span> <span class="val">10000</span>
+<span class="cmd">newman</span> run slots-collection.json <span class="flag">--timeout-request</span> <span class="val">10000</span>
 
 <span class="comment"># Override base URL from CLI</span>
-<span class="cmd">newman</span> run slots-collection.json <span class="flag">-e</span> dev.env.json \
-  <span class="flag">--env-var</span> <span class="val">"base_url=https://api.casino-staging.com"</span></pre>
+<span class="cmd">newman</span> run slots-collection.json \
+  <span class="flag">--global-var</span> <span class="val">"base_url=https://api.casino-staging.com"</span></pre>
           <button class="copy-btn" data-target="pre-opts" title="Copy">
             <svg width="13" height="13" viewBox="0 0 13 13" fill="none"><rect x="4" y="4" width="8" height="8" rx="1.5" stroke="currentColor" stroke-width="1.3"/><path d="M2 9V2h7" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
           </button>

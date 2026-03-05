@@ -36,6 +36,15 @@ import {
   RouletteConfigSchema,
   RouletteBetRowSchema,
 } from '../contracts/rouletteContract.js';
+import {
+  AmericanRouletteBetSchema,
+  AmericanBetResultSchema,
+  AmericanRouletteOutcomeSchema,
+  AmericanRouletteSpinRequestSchema,
+  AmericanRouletteSpinResponseSchema,
+  AmericanRouletteInitResponseSchema,
+  AmericanRouletteConfigSchema,
+} from '../contracts/americanRouletteContract.js';
 import { z } from '../contracts/zodOpenApi.js';
 
 const registry = new OpenAPIRegistry();
@@ -93,6 +102,22 @@ const RouletteInitResponseRef = registry.register(
 );
 registry.register('RouletteConfig', RouletteConfigSchema);
 registry.register('RouletteBetRow', RouletteBetRowSchema);
+registry.register('AmericanRouletteBet', AmericanRouletteBetSchema);
+registry.register('AmericanBetResult', AmericanBetResultSchema);
+registry.register('AmericanRouletteOutcome', AmericanRouletteOutcomeSchema);
+const AmericanRouletteSpinRequestRef = registry.register(
+  'AmericanRouletteSpinRequest',
+  AmericanRouletteSpinRequestSchema
+);
+const AmericanRouletteSpinResponseRef = registry.register(
+  'AmericanRouletteSpinResponse',
+  AmericanRouletteSpinResponseSchema
+);
+const AmericanRouletteInitResponseRef = registry.register(
+  'AmericanRouletteInitResponse',
+  AmericanRouletteInitResponseSchema
+);
+registry.register('AmericanRouletteConfig', AmericanRouletteConfigSchema);
 
 registry.registerPath({
   method: 'post',
@@ -835,6 +860,105 @@ registry.registerPath({
   },
 });
 
+// ── American Roulette ──
+
+registry.registerPath({
+  method: 'post',
+  path: '/api/v1/american-roulette/init',
+  tags: ['American Roulette'],
+  summary: 'Initialize an American roulette session',
+  description:
+    'Creates a new American roulette session (38-number wheel with 0 and 00). ' +
+    'Returns the session ID, game config, balance, and recent winning numbers.',
+  security: [{ bearerAuth: [] }],
+  responses: {
+    200: {
+      description: 'Session created',
+      content: {
+        'application/json': {
+          schema: AmericanRouletteInitResponseRef,
+        },
+      },
+    },
+    401: {
+      description: 'Unauthorized',
+      content: {
+        'application/json': {
+          schema: ErrorResponseRef,
+        },
+      },
+    },
+  },
+});
+
+registry.registerPath({
+  method: 'post',
+  path: '/api/v1/american-roulette/spin',
+  tags: ['American Roulette'],
+  summary: 'Place American roulette bets and spin the wheel',
+  description:
+    'Accepts an array of bets and resolves them against a provably fair spin. ' +
+    'The American wheel has 38 pockets (0, 00, 1-36) with a 5.26% house edge.',
+  security: [{ bearerAuth: [] }],
+  request: {
+    headers: z
+      .object({
+        'Idempotency-Key': z.string().optional(),
+      })
+      .openapi({ description: 'Optional idempotency key to make the call safe to retry' }),
+    body: {
+      required: true,
+      content: {
+        'application/json': {
+          schema: AmericanRouletteSpinRequestRef,
+        },
+      },
+    },
+  },
+  responses: {
+    200: {
+      description: 'Spin resolved',
+      content: {
+        'application/json': {
+          schema: AmericanRouletteSpinResponseRef,
+        },
+      },
+    },
+    400: {
+      description: 'Invalid payload',
+      content: {
+        'application/json': {
+          schema: ErrorResponseRef,
+        },
+      },
+    },
+    401: {
+      description: 'Unauthorized',
+      content: {
+        'application/json': {
+          schema: ErrorResponseRef,
+        },
+      },
+    },
+    409: {
+      description: 'Idempotency conflict',
+      content: {
+        'application/json': {
+          schema: ErrorResponseRef,
+        },
+      },
+    },
+    422: {
+      description: 'Validation or balance error',
+      content: {
+        'application/json': {
+          schema: ErrorResponseRef,
+        },
+      },
+    },
+  },
+});
+
 registry.registerPath({
   method: 'get',
   path: '/api/v1/images/jobs/{jobId}',
@@ -914,6 +1038,7 @@ export const openApiSpec = generator.generateDocument({
     { name: 'Auth' },
     { name: 'Game' },
     { name: 'Roulette' },
+    { name: 'American Roulette' },
     { name: 'Images' },
     { name: 'Provably Fair' },
     { name: 'System' },

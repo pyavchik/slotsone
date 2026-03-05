@@ -26,6 +26,9 @@
       "name": "Roulette"
     },
     {
+      "name": "American Roulette"
+    },
+    {
       "name": "Images"
     },
     {
@@ -2439,6 +2442,701 @@
         ],
         "additionalProperties": false
       },
+      "AmericanRouletteBet": {
+        "type": "object",
+        "properties": {
+          "type": {
+            "type": "string",
+            "enum": [
+              "straight",
+              "split",
+              "street",
+              "corner",
+              "topLine",
+              "sixLine",
+              "column",
+              "dozen",
+              "red",
+              "black",
+              "even",
+              "odd",
+              "high",
+              "low"
+            ]
+          },
+          "numbers": {
+            "type": "array",
+            "items": {
+              "type": "integer",
+              "minimum": -1,
+              "maximum": 36
+            }
+          },
+          "amount": {
+            "type": "number",
+            "minimum": 0,
+            "exclusiveMinimum": true
+          }
+        },
+        "required": [
+          "type",
+          "numbers",
+          "amount"
+        ],
+        "additionalProperties": false
+      },
+      "AmericanBetResult": {
+        "type": "object",
+        "properties": {
+          "bet_type": {
+            "type": "string",
+            "enum": [
+              "straight",
+              "split",
+              "street",
+              "corner",
+              "topLine",
+              "sixLine",
+              "column",
+              "dozen",
+              "red",
+              "black",
+              "even",
+              "odd",
+              "high",
+              "low"
+            ]
+          },
+          "numbers": {
+            "type": "array",
+            "items": {
+              "type": "integer",
+              "minimum": -1,
+              "maximum": 36
+            }
+          },
+          "bet_amount": {
+            "type": "number"
+          },
+          "payout": {
+            "type": "number"
+          },
+          "profit": {
+            "type": "number"
+          },
+          "won": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "bet_type",
+          "numbers",
+          "bet_amount",
+          "payout",
+          "profit",
+          "won"
+        ],
+        "additionalProperties": false
+      },
+      "AmericanRouletteOutcome": {
+        "type": "object",
+        "properties": {
+          "winning_number": {
+            "type": "integer",
+            "minimum": -1,
+            "maximum": 36
+          },
+          "winning_number_display": {
+            "type": "string"
+          },
+          "winning_color": {
+            "type": "string",
+            "enum": [
+              "red",
+              "black",
+              "green"
+            ]
+          },
+          "wheel_position": {
+            "type": "integer"
+          },
+          "win": {
+            "type": "object",
+            "properties": {
+              "amount": {
+                "type": "number"
+              },
+              "currency": {
+                "type": "string"
+              },
+              "breakdown": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "bet_type": {
+                      "type": "string",
+                      "enum": [
+                        "straight",
+                        "split",
+                        "street",
+                        "corner",
+                        "topLine",
+                        "sixLine",
+                        "column",
+                        "dozen",
+                        "red",
+                        "black",
+                        "even",
+                        "odd",
+                        "high",
+                        "low"
+                      ]
+                    },
+                    "numbers": {
+                      "type": "array",
+                      "items": {
+                        "type": "integer",
+                        "minimum": -1,
+                        "maximum": 36
+                      }
+                    },
+                    "bet_amount": {
+                      "type": "number"
+                    },
+                    "payout": {
+                      "type": "number"
+                    },
+                    "profit": {
+                      "type": "number"
+                    },
+                    "won": {
+                      "type": "boolean"
+                    }
+                  },
+                  "required": [
+                    "bet_type",
+                    "numbers",
+                    "bet_amount",
+                    "payout",
+                    "profit",
+                    "won"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            },
+            "required": [
+              "amount",
+              "currency",
+              "breakdown"
+            ]
+          },
+          "total_bet": {
+            "type": "number"
+          },
+          "total_return": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "winning_number",
+          "winning_number_display",
+          "winning_color",
+          "wheel_position",
+          "win",
+          "total_bet",
+          "total_return"
+        ],
+        "additionalProperties": false
+      },
+      "AmericanRouletteSpinRequest": {
+        "type": "object",
+        "properties": {
+          "session_id": {
+            "type": "string"
+          },
+          "game_id": {
+            "type": "string",
+            "default": "roulette_american_001"
+          },
+          "bets": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "type": {
+                  "type": "string",
+                  "enum": [
+                    "straight",
+                    "split",
+                    "street",
+                    "corner",
+                    "topLine",
+                    "sixLine",
+                    "column",
+                    "dozen",
+                    "red",
+                    "black",
+                    "even",
+                    "odd",
+                    "high",
+                    "low"
+                  ]
+                },
+                "numbers": {
+                  "type": "array",
+                  "items": {
+                    "type": "integer",
+                    "minimum": -1,
+                    "maximum": 36
+                  }
+                },
+                "amount": {
+                  "type": "number",
+                  "minimum": 0,
+                  "exclusiveMinimum": true
+                }
+              },
+              "required": [
+                "type",
+                "numbers",
+                "amount"
+              ],
+              "additionalProperties": false
+            },
+            "minItems": 1,
+            "maxItems": 200
+          },
+          "client_timestamp": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "session_id",
+          "bets"
+        ],
+        "additionalProperties": false
+      },
+      "AmericanRouletteSpinResponse": {
+        "type": "object",
+        "properties": {
+          "spin_id": {
+            "type": "string"
+          },
+          "session_id": {
+            "type": "string"
+          },
+          "game_id": {
+            "type": "string"
+          },
+          "balance": {
+            "type": "object",
+            "properties": {
+              "amount": {
+                "type": "number"
+              },
+              "currency": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "amount",
+              "currency"
+            ]
+          },
+          "total_bet": {
+            "type": "number"
+          },
+          "outcome": {
+            "type": "object",
+            "properties": {
+              "winning_number": {
+                "type": "integer",
+                "minimum": -1,
+                "maximum": 36
+              },
+              "winning_number_display": {
+                "type": "string"
+              },
+              "winning_color": {
+                "type": "string",
+                "enum": [
+                  "red",
+                  "black",
+                  "green"
+                ]
+              },
+              "wheel_position": {
+                "type": "integer"
+              },
+              "win": {
+                "type": "object",
+                "properties": {
+                  "amount": {
+                    "type": "number"
+                  },
+                  "currency": {
+                    "type": "string"
+                  },
+                  "breakdown": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "bet_type": {
+                          "type": "string",
+                          "enum": [
+                            "straight",
+                            "split",
+                            "street",
+                            "corner",
+                            "topLine",
+                            "sixLine",
+                            "column",
+                            "dozen",
+                            "red",
+                            "black",
+                            "even",
+                            "odd",
+                            "high",
+                            "low"
+                          ]
+                        },
+                        "numbers": {
+                          "type": "array",
+                          "items": {
+                            "type": "integer",
+                            "minimum": -1,
+                            "maximum": 36
+                          }
+                        },
+                        "bet_amount": {
+                          "type": "number"
+                        },
+                        "payout": {
+                          "type": "number"
+                        },
+                        "profit": {
+                          "type": "number"
+                        },
+                        "won": {
+                          "type": "boolean"
+                        }
+                      },
+                      "required": [
+                        "bet_type",
+                        "numbers",
+                        "bet_amount",
+                        "payout",
+                        "profit",
+                        "won"
+                      ],
+                      "additionalProperties": false
+                    }
+                  }
+                },
+                "required": [
+                  "amount",
+                  "currency",
+                  "breakdown"
+                ]
+              },
+              "total_bet": {
+                "type": "number"
+              },
+              "total_return": {
+                "type": "number"
+              }
+            },
+            "required": [
+              "winning_number",
+              "winning_number_display",
+              "winning_color",
+              "wheel_position",
+              "win",
+              "total_bet",
+              "total_return"
+            ],
+            "additionalProperties": false
+          },
+          "timestamp": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "spin_id",
+          "session_id",
+          "game_id",
+          "balance",
+          "total_bet",
+          "outcome",
+          "timestamp"
+        ],
+        "additionalProperties": false
+      },
+      "AmericanRouletteInitResponse": {
+        "type": "object",
+        "properties": {
+          "session_id": {
+            "type": "string"
+          },
+          "game_id": {
+            "type": "string",
+            "default": "roulette_american_001"
+          },
+          "config": {
+            "type": "object",
+            "properties": {
+              "game_id": {
+                "type": "string",
+                "default": "roulette_american_001"
+              },
+              "type": {
+                "type": "string",
+                "enum": [
+                  "roulette"
+                ]
+              },
+              "variant": {
+                "type": "string",
+                "enum": [
+                  "american"
+                ]
+              },
+              "numbers": {
+                "type": "integer",
+                "default": 38
+              },
+              "double_zero": {
+                "type": "integer"
+              },
+              "min_bet": {
+                "type": "number"
+              },
+              "max_total_bet": {
+                "type": "number"
+              },
+              "bet_levels": {
+                "type": "array",
+                "items": {
+                  "type": "number"
+                }
+              },
+              "bet_types": {
+                "type": "object",
+                "additionalProperties": {
+                  "type": "object",
+                  "properties": {
+                    "payout": {
+                      "type": "number"
+                    },
+                    "size": {
+                      "type": "number"
+                    },
+                    "maxBet": {
+                      "type": "number"
+                    }
+                  },
+                  "required": [
+                    "payout",
+                    "size",
+                    "maxBet"
+                  ]
+                }
+              },
+              "currencies": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              },
+              "rtp": {
+                "type": "number"
+              },
+              "features": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              },
+              "wheel_order": {
+                "type": "array",
+                "items": {
+                  "type": "integer"
+                }
+              },
+              "number_colors": {
+                "type": "object",
+                "additionalProperties": {
+                  "type": "string",
+                  "enum": [
+                    "red",
+                    "black",
+                    "green"
+                  ]
+                }
+              }
+            },
+            "required": [
+              "type",
+              "variant",
+              "double_zero",
+              "min_bet",
+              "max_total_bet",
+              "bet_levels",
+              "bet_types",
+              "currencies",
+              "rtp",
+              "features",
+              "wheel_order",
+              "number_colors"
+            ],
+            "additionalProperties": false
+          },
+          "balance": {
+            "type": "object",
+            "properties": {
+              "amount": {
+                "type": "number"
+              },
+              "currency": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "amount",
+              "currency"
+            ]
+          },
+          "recent_numbers": {
+            "type": "array",
+            "items": {
+              "type": "integer"
+            }
+          },
+          "expires_at": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "session_id",
+          "config",
+          "balance",
+          "recent_numbers",
+          "expires_at"
+        ],
+        "additionalProperties": false
+      },
+      "AmericanRouletteConfig": {
+        "type": "object",
+        "properties": {
+          "game_id": {
+            "type": "string",
+            "default": "roulette_american_001"
+          },
+          "type": {
+            "type": "string",
+            "enum": [
+              "roulette"
+            ]
+          },
+          "variant": {
+            "type": "string",
+            "enum": [
+              "american"
+            ]
+          },
+          "numbers": {
+            "type": "integer",
+            "default": 38
+          },
+          "double_zero": {
+            "type": "integer"
+          },
+          "min_bet": {
+            "type": "number"
+          },
+          "max_total_bet": {
+            "type": "number"
+          },
+          "bet_levels": {
+            "type": "array",
+            "items": {
+              "type": "number"
+            }
+          },
+          "bet_types": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "object",
+              "properties": {
+                "payout": {
+                  "type": "number"
+                },
+                "size": {
+                  "type": "number"
+                },
+                "maxBet": {
+                  "type": "number"
+                }
+              },
+              "required": [
+                "payout",
+                "size",
+                "maxBet"
+              ]
+            }
+          },
+          "currencies": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "rtp": {
+            "type": "number"
+          },
+          "features": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "wheel_order": {
+            "type": "array",
+            "items": {
+              "type": "integer"
+            }
+          },
+          "number_colors": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "string",
+              "enum": [
+                "red",
+                "black",
+                "green"
+              ]
+            }
+          }
+        },
+        "required": [
+          "type",
+          "variant",
+          "double_zero",
+          "min_bet",
+          "max_total_bet",
+          "bet_levels",
+          "bet_types",
+          "currencies",
+          "rtp",
+          "features",
+          "wheel_order",
+          "number_colors"
+        ],
+        "additionalProperties": false
+      },
       "HistorySummaryResponse": {
         "type": "object",
         "properties": {
@@ -3458,6 +4156,128 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/RouletteSpinResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid payload",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Idempotency conflict",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation or balance error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/american-roulette/init": {
+      "post": {
+        "tags": [
+          "American Roulette"
+        ],
+        "summary": "Initialize an American roulette session",
+        "description": "Creates a new American roulette session (38-number wheel with 0 and 00). Returns the session ID, game config, balance, and recent winning numbers.",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Session created",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AmericanRouletteInitResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/american-roulette/spin": {
+      "post": {
+        "tags": [
+          "American Roulette"
+        ],
+        "summary": "Place American roulette bets and spin the wheel",
+        "description": "Accepts an array of bets and resolves them against a provably fair spin. The American wheel has 38 pockets (0, 00, 1-36) with a 5.26% house edge.",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "string"
+            },
+            "required": false,
+            "name": "Idempotency-Key",
+            "in": "header"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AmericanRouletteSpinRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Spin resolved",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AmericanRouletteSpinResponse"
                 }
               }
             }

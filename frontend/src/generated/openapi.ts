@@ -1016,6 +1016,135 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/american-roulette/init": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Initialize an American roulette session
+         * @description Creates a new American roulette session (38-number wheel with 0 and 00). Returns the session ID, game config, balance, and recent winning numbers.
+         */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Session created */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["AmericanRouletteInitResponse"];
+                    };
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/american-roulette/spin": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Place American roulette bets and spin the wheel
+         * @description Accepts an array of bets and resolves them against a provably fair spin. The American wheel has 38 pockets (0, 00, 1-36) with a 5.26% house edge.
+         */
+        post: {
+            parameters: {
+                query?: never;
+                header?: {
+                    "Idempotency-Key"?: string;
+                };
+                path?: never;
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": components["schemas"]["AmericanRouletteSpinRequest"];
+                };
+            };
+            responses: {
+                /** @description Spin resolved */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["AmericanRouletteSpinResponse"];
+                    };
+                };
+                /** @description Invalid payload */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
+                };
+                /** @description Idempotency conflict */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
+                };
+                /** @description Validation or balance error */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/images/jobs/{jobId}": {
         parameters: {
             query?: never;
@@ -1653,6 +1782,155 @@ export interface components {
             la_partage: boolean;
             won: boolean;
             created_at: string;
+        };
+        AmericanRouletteBet: {
+            /** @enum {string} */
+            type: "straight" | "split" | "street" | "corner" | "topLine" | "sixLine" | "column" | "dozen" | "red" | "black" | "even" | "odd" | "high" | "low";
+            numbers: number[];
+            amount: number;
+        };
+        AmericanBetResult: {
+            /** @enum {string} */
+            bet_type: "straight" | "split" | "street" | "corner" | "topLine" | "sixLine" | "column" | "dozen" | "red" | "black" | "even" | "odd" | "high" | "low";
+            numbers: number[];
+            bet_amount: number;
+            payout: number;
+            profit: number;
+            won: boolean;
+        };
+        AmericanRouletteOutcome: {
+            winning_number: number;
+            winning_number_display: string;
+            /** @enum {string} */
+            winning_color: "red" | "black" | "green";
+            wheel_position: number;
+            win: {
+                amount: number;
+                currency: string;
+                breakdown: {
+                    /** @enum {string} */
+                    bet_type: "straight" | "split" | "street" | "corner" | "topLine" | "sixLine" | "column" | "dozen" | "red" | "black" | "even" | "odd" | "high" | "low";
+                    numbers: number[];
+                    bet_amount: number;
+                    payout: number;
+                    profit: number;
+                    won: boolean;
+                }[];
+            };
+            total_bet: number;
+            total_return: number;
+        };
+        AmericanRouletteSpinRequest: {
+            session_id: string;
+            /** @default roulette_american_001 */
+            game_id: string;
+            bets: {
+                /** @enum {string} */
+                type: "straight" | "split" | "street" | "corner" | "topLine" | "sixLine" | "column" | "dozen" | "red" | "black" | "even" | "odd" | "high" | "low";
+                numbers: number[];
+                amount: number;
+            }[];
+            client_timestamp?: number;
+        };
+        AmericanRouletteSpinResponse: {
+            spin_id: string;
+            session_id: string;
+            game_id: string;
+            balance: {
+                amount: number;
+                currency: string;
+            };
+            total_bet: number;
+            outcome: {
+                winning_number: number;
+                winning_number_display: string;
+                /** @enum {string} */
+                winning_color: "red" | "black" | "green";
+                wheel_position: number;
+                win: {
+                    amount: number;
+                    currency: string;
+                    breakdown: {
+                        /** @enum {string} */
+                        bet_type: "straight" | "split" | "street" | "corner" | "topLine" | "sixLine" | "column" | "dozen" | "red" | "black" | "even" | "odd" | "high" | "low";
+                        numbers: number[];
+                        bet_amount: number;
+                        payout: number;
+                        profit: number;
+                        won: boolean;
+                    }[];
+                };
+                total_bet: number;
+                total_return: number;
+            };
+            timestamp: number;
+        };
+        AmericanRouletteInitResponse: {
+            session_id: string;
+            /** @default roulette_american_001 */
+            game_id: string;
+            config: {
+                /** @default roulette_american_001 */
+                game_id: string;
+                /** @enum {string} */
+                type: "roulette";
+                /** @enum {string} */
+                variant: "american";
+                /** @default 38 */
+                numbers: number;
+                double_zero: number;
+                min_bet: number;
+                max_total_bet: number;
+                bet_levels: number[];
+                bet_types: {
+                    [key: string]: {
+                        payout: number;
+                        size: number;
+                        maxBet: number;
+                    };
+                };
+                currencies: string[];
+                rtp: number;
+                features: string[];
+                wheel_order: number[];
+                number_colors: {
+                    [key: string]: "red" | "black" | "green";
+                };
+            };
+            balance: {
+                amount: number;
+                currency: string;
+            };
+            recent_numbers: number[];
+            expires_at: string;
+        };
+        AmericanRouletteConfig: {
+            /** @default roulette_american_001 */
+            game_id: string;
+            /** @enum {string} */
+            type: "roulette";
+            /** @enum {string} */
+            variant: "american";
+            /** @default 38 */
+            numbers: number;
+            double_zero: number;
+            min_bet: number;
+            max_total_bet: number;
+            bet_levels: number[];
+            bet_types: {
+                [key: string]: {
+                    payout: number;
+                    size: number;
+                    maxBet: number;
+                };
+            };
+            currencies: string[];
+            rtp: number;
+            features: string[];
+            wheel_order: number[];
+            number_colors: {
+                [key: string]: "red" | "black" | "green";
+            };
         };
         HistorySummaryResponse: {
             total_rounds: number;

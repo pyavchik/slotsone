@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Postman Tests — Slots API</title>
+    <title>Postman Tests — SlotsOne API</title>
     <style>
       * { box-sizing: border-box; }
       body {
@@ -136,6 +136,9 @@
       .badge-happy  { background: rgba(62,224,169,0.15); color: #3ee0a9; }
       .badge-neg    { background: rgba(251,191,36,0.15);  color: #fbbf24; }
       .badge-sec    { background: rgba(248,113,113,0.15); color: #f87171; }
+      .badge-eur    { background: rgba(168,85,247,0.15); color: #a855f7; }
+      .badge-amr    { background: rgba(244,114,182,0.15); color: #f472b6; }
+      .badge-pf     { background: rgba(45,212,191,0.15); color: #2dd4bf; }
       .expects {
         font-family: ui-monospace, monospace;
         font-size: 12px;
@@ -148,12 +151,11 @@
 
       <section class="card">
         <h1>Postman Tests</h1>
-        <p class="subtitle">Slots API — Full Regression Suite</p>
-        <p>Download the collection and environment, then run the full regression suite in Postman or Newman.</p>
+        <p class="subtitle">SlotsOne API — Full Regression Suite (Slots, European Roulette, American Roulette)</p>
+        <p>Download the collection and environment, then run the full regression suite in Postman or Newman. Includes pre-request scripts with Postman faker variables and post-response test assertions.</p>
 
         <div class="actions">
           <a class="btn primary" href="/postman/slots-collection.json" download>Download Collection</a>
-          <a class="btn" href="/postman/dev.env.json" download>Download Environment</a>
           <a class="btn" href="/postman/test-guide.html" target="_blank" rel="noreferrer">Test Guide</a>
         </div>
       </section>
@@ -362,6 +364,96 @@
               <td>POST /spin — idempotency key reused with different payload</td>
               <td class="expects">409, code: idempotency_key_reused</td>
             </tr>
+
+            <!-- European Roulette -->
+            <tr>
+              <td class="tc-id">EUR-01</td>
+              <td><span class="badge badge-eur">EU Roulette</span></td>
+              <td>POST /roulette/init — session with 37-number config</td>
+              <td class="expects">200, variant: european, numbers: 37</td>
+            </tr>
+            <tr>
+              <td class="tc-id">EUR-02</td>
+              <td><span class="badge badge-eur">EU Roulette</span></td>
+              <td>POST /roulette/spin — straight + red bet</td>
+              <td class="expects">200, winning_number 0-36, breakdown[]</td>
+            </tr>
+            <tr>
+              <td class="tc-id">EUR-03</td>
+              <td><span class="badge badge-eur">EU Roulette</span></td>
+              <td>POST /roulette/spin — split + column bet</td>
+              <td class="expects">200, balance delta matches payout</td>
+            </tr>
+            <tr>
+              <td class="tc-id">EUR-04</td>
+              <td><span class="badge badge-eur">EU Roulette</span></td>
+              <td>POST /roulette/spin — La Partage on even-money bet (zero)</td>
+              <td class="expects">200, half bet returned on 0</td>
+            </tr>
+            <tr>
+              <td class="tc-id">EUR-05</td>
+              <td><span class="badge badge-neg">Negative</span></td>
+              <td>POST /roulette/spin — invalid bet type</td>
+              <td class="expects">400, validation error</td>
+            </tr>
+            <tr>
+              <td class="tc-id">EUR-06</td>
+              <td><span class="badge badge-neg">Negative</span></td>
+              <td>POST /roulette/spin — bet exceeds balance</td>
+              <td class="expects">422, insufficient_balance</td>
+            </tr>
+
+            <!-- American Roulette -->
+            <tr>
+              <td class="tc-id">AMR-01</td>
+              <td><span class="badge badge-amr">US Roulette</span></td>
+              <td>POST /american-roulette/init — 38-number config with 00</td>
+              <td class="expects">200, variant: american, numbers: 38</td>
+            </tr>
+            <tr>
+              <td class="tc-id">AMR-02</td>
+              <td><span class="badge badge-amr">US Roulette</span></td>
+              <td>POST /american-roulette/spin — straight + red bet</td>
+              <td class="expects">200, winning_number -1..36, breakdown[]</td>
+            </tr>
+            <tr>
+              <td class="tc-id">AMR-03</td>
+              <td><span class="badge badge-amr">US Roulette</span></td>
+              <td>POST /american-roulette/spin — Top Line bet (0, 00, 1, 2, 3)</td>
+              <td class="expects">200, 6:1 payout on win</td>
+            </tr>
+            <tr>
+              <td class="tc-id">AMR-04</td>
+              <td><span class="badge badge-neg">Negative</span></td>
+              <td>POST /american-roulette/spin — no auth header</td>
+              <td class="expects">401 Unauthorized</td>
+            </tr>
+            <tr>
+              <td class="tc-id">AMR-05</td>
+              <td><span class="badge badge-neg">Negative</span></td>
+              <td>POST /american-roulette/spin — zero bet amount</td>
+              <td class="expects">400, validation error</td>
+            </tr>
+
+            <!-- Provably Fair -->
+            <tr>
+              <td class="tc-id">PF-01</td>
+              <td><span class="badge badge-pf">Provably Fair</span></td>
+              <td>GET /provably-fair/current — active seed pair</td>
+              <td class="expects">200, server_seed_hash, client_seed, nonce</td>
+            </tr>
+            <tr>
+              <td class="tc-id">PF-02</td>
+              <td><span class="badge badge-pf">Provably Fair</span></td>
+              <td>POST /provably-fair/rotate — reveals old server seed</td>
+              <td class="expects">200, previous seed revealed, new hash</td>
+            </tr>
+            <tr>
+              <td class="tc-id">PF-03</td>
+              <td><span class="badge badge-pf">Provably Fair</span></td>
+              <td>PUT /provably-fair/client-seed — update client seed</td>
+              <td class="expects">200, client_seed updated</td>
+            </tr>
           </tbody>
         </table>
       </section>
@@ -369,9 +461,8 @@
       <section class="card">
         <h2>Quick Start</h2>
         <ul>
-          <li>Open Postman and import <code>slots-collection.json</code> and <code>dev.env.json</code>.</li>
-          <li>Select the <code>Slots API - Dev</code> environment in the top-right dropdown.</li>
-          <li>Set <code>base_url</code>, then run <strong>Auth → Login</strong> — <code>jwt_token</code> is saved automatically.</li>
+          <li>Open Postman and import <code>slots-collection.json</code> — all variables are included in the collection.</li>
+          <li>Base URL is pre-configured to <code>https://pyavchik.space</code>. Run <strong>Auth → Register</strong> first — <code>jwt_token</code> is saved automatically.</li>
           <li>Run a single request: open it → <strong>Send</strong> → check the <strong>Test Results</strong> tab.</li>
           <li>Run the full suite: right-click the collection → <strong>Run collection</strong>.</li>
         </ul>
@@ -379,9 +470,9 @@
 
       <section class="card">
         <h2>Newman CLI</h2>
-        <pre>newman run slots-collection.json -e dev.env.json</pre>
+        <pre>newman run slots-collection.json</pre>
         <p style="margin-top:10px;margin-bottom:6px;font-size:13px;color:#94a3b8;">With HTML report:</p>
-        <pre>newman run slots-collection.json -e dev.env.json -r htmlextra --reporter-htmlextra-export report.html</pre>
+        <pre>newman run slots-collection.json -r htmlextra --reporter-htmlextra-export report.html</pre>
       </section>
 
     </main>
