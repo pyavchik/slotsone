@@ -10,6 +10,8 @@ import {
 } from '../store.js';
 import { GAME_ID } from '../engine/gameConfig.js';
 import { buildIdleMatrix } from '../engine/spinEngine.js';
+import { BOD_GAME_ID } from '../engine/bookOfDeadConfig.js';
+import { buildBookOfDeadIdleMatrix } from '../engine/bookOfDeadEngine.js';
 import {
   EnhancedHistoryQuerySchema,
   InitRequestSchema,
@@ -73,12 +75,14 @@ router.post(
 
     log.info({ userId, gameId: game_id, sessionId: session.session_id }, 'game_session_created');
 
+    const idleMatrix = game_id === BOD_GAME_ID ? buildBookOfDeadIdleMatrix() : buildIdleMatrix();
+
     res.json({
       session_id: session.session_id,
       game_id: session.game_id,
-      config: getConfig(),
+      config: getConfig(game_id),
       balance: { amount: balance.amount, currency: balance.currency },
-      idle_matrix: buildIdleMatrix(),
+      idle_matrix: idleMatrix,
       expires_at: new Date(session.expires_at).toISOString(),
     });
   })
