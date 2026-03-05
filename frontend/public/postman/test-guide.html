@@ -1115,8 +1115,8 @@
       <div class="card">
         <div class="code-block">
           <div class="code-label">Install</div>
-          <pre id="pre-install"><span class="cmd">npm</span> install <span class="flag">-g</span> newman
-<span class="cmd">npm</span> install <span class="flag">-g</span> newman-reporter-htmlextra</pre>
+          <pre id="pre-install"><span class="cmd">npm</span> install <span class="flag">-g</span> newman newman-reporter-htmlextra
+<span class="comment"># Or use npx (no install needed)</span></pre>
           <button class="copy-btn" data-target="pre-install" title="Copy">
             <svg width="13" height="13" viewBox="0 0 13 13" fill="none"><rect x="4" y="4" width="8" height="8" rx="1.5" stroke="currentColor" stroke-width="1.3"/><path d="M2 9V2h7" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
           </button>
@@ -1125,7 +1125,7 @@
         <div class="code-block">
           <div class="code-label">Run collection</div>
           <pre id="pre-run"><span class="cmd">cd</span> postman
-<span class="cmd">newman</span> run slots-collection.json</pre>
+<span class="cmd">npx</span> newman run slots-collection.json</pre>
           <button class="copy-btn" data-target="pre-run" title="Copy">
             <svg width="13" height="13" viewBox="0 0 13 13" fill="none"><rect x="4" y="4" width="8" height="8" rx="1.5" stroke="currentColor" stroke-width="1.3"/><path d="M2 9V2h7" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
           </button>
@@ -1133,7 +1133,7 @@
 
         <div class="code-block">
           <div class="code-label">With HTML report (htmlextra)</div>
-          <pre id="pre-html"><span class="cmd">newman</span> run slots-collection.json \
+          <pre id="pre-html"><span class="cmd">npx</span> newman run slots-collection.json \
   <span class="flag">-r</span> htmlextra <span class="flag">--reporter-htmlextra-export</span> <span class="val">report.html</span></pre>
           <button class="copy-btn" data-target="pre-html" title="Copy">
             <svg width="13" height="13" viewBox="0 0 13 13" fill="none"><rect x="4" y="4" width="8" height="8" rx="1.5" stroke="currentColor" stroke-width="1.3"/><path d="M2 9V2h7" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
@@ -1143,13 +1143,13 @@
         <div class="code-block">
           <div class="code-label">Additional options</div>
           <pre id="pre-opts"><span class="comment"># 200 ms delay (reduce load / avoid rate limit)</span>
-<span class="cmd">newman</span> run slots-collection.json <span class="flag">--delay-request</span> <span class="val">200</span>
+<span class="cmd">npx</span> newman run slots-collection.json <span class="flag">--delay-request</span> <span class="val">200</span>
 
 <span class="comment"># 10-second request timeout</span>
-<span class="cmd">newman</span> run slots-collection.json <span class="flag">--timeout-request</span> <span class="val">10000</span>
+<span class="cmd">npx</span> newman run slots-collection.json <span class="flag">--timeout-request</span> <span class="val">10000</span>
 
 <span class="comment"># Override base URL from CLI</span>
-<span class="cmd">newman</span> run slots-collection.json \
+<span class="cmd">npx</span> newman run slots-collection.json \
   <span class="flag">--global-var</span> <span class="val">"base_url=https://api.casino-staging.com"</span></pre>
           <button class="copy-btn" data-target="pre-opts" title="Copy">
             <svg width="13" height="13" viewBox="0 0 13 13" fill="none"><rect x="4" y="4" width="8" height="8" rx="1.5" stroke="currentColor" stroke-width="1.3"/><path d="M2 9V2h7" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
