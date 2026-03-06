@@ -1,10 +1,10 @@
 # SlotsOne -- Test Case Matrix
 
 **Document ID:** QA-TCM-001
-**Version:** 1.0
+**Version:** 1.1
 **Author:** QA Engineering
-**Last Updated:** 2026-03-05
-**Total Test Cases:** 198
+**Last Updated:** 2026-03-06
+**Total Test Cases:** 218
 **Platform Under Test:** SlotsOne iGaming Platform (REST API)
 
 ---
@@ -15,10 +15,11 @@
 2. [Slots Game Module](#2-slots-game-module)
 3. [European Roulette Module](#3-european-roulette-module)
 4. [American Roulette Module](#4-american-roulette-module)
-5. [Provably Fair Module](#5-provably-fair-module)
-6. [Session & Rate Limiting](#6-session--rate-limiting)
-7. [Wallet & Balance](#7-wallet--balance)
-8. [Cross-Cutting Concerns](#8-cross-cutting-concerns)
+5. [Book of Dead Module](#5-book-of-dead-module)
+6. [Provably Fair Module](#6-provably-fair-module)
+7. [Session & Rate Limiting](#7-session--rate-limiting)
+8. [Wallet & Balance](#8-wallet--balance)
+9. [Cross-Cutting Concerns](#9-cross-cutting-concerns)
 
 **Legend -- Priority:** P0 = Blocker, P1 = Critical, P2 = Major, P3 = Minor
 **Legend -- Type:** EP = Equivalence Partitioning, BVA = Boundary Value Analysis, DT = Decision Table, ST = State Transition, NEG = Negative, SEC = Security, COMB = Combinatorial
@@ -448,12 +449,42 @@ Game ID: `roulette_american_001`. 38 pockets (0, 00 (=-1), 1-36). No La Partage.
 
 ---
 
-## 5. Provably Fair Module
+## 5. Book of Dead Module
+
+Game ID: `slot_book_of_dead_001`. 5x3 reel grid, 10 paylines, high volatility. RTP: ~96.21%.
+Symbols: RichWilde, Osiris, Anubis, Horus, Book (Wild + Scatter), A, K, Q, J, 10.
+Book symbol acts as both Wild (substitutes for all line symbols) and Scatter (3+ trigger free spins with expanding symbol).
+
+### 5.1 Session Init & Config
+
+| TC-ID | Test Case | Input | Expected Result | Priority | Type |
+|-------|-----------|-------|-----------------|----------|------|
+| TC-BOD-001 | Init BoD session with correct game_id | `{ "game_id": "slot_book_of_dead_001" }` | 200, response contains `game_id: "slot_book_of_dead_001"`, valid `session_id` | P0 | EP |
+| TC-BOD-002 | BoD config has 10 paylines | Init BoD session | `config.paylines = 10` | P0 | EP |
+| TC-BOD-003 | BoD config RTP ~96.21% | Init BoD session | `config.rtp` approximately 96.21 | P1 | EP |
+| TC-BOD-004 | BoD config volatility high | Init BoD session | `config.volatility = "high"` | P1 | EP |
+| TC-BOD-005 | BoD idle matrix 5x3 with valid symbols | Init BoD session | `reel_matrix` has 5 reels, 3 rows each; all symbols from BoD symbol set | P0 | EP |
+| TC-BOD-012 | BoD invalid game_id | `{ "game_id": "slot_book_of_dead_INVALID" }` | Fallback to default or error response | P2 | NEG |
+
+### 5.2 Spin & Symbols
+
+| TC-ID | Test Case | Input | Expected Result | Priority | Type |
+|-------|-----------|-------|-----------------|----------|------|
+| TC-BOD-006 | BoD spin returns valid reel_matrix | Valid spin request | 5x3 matrix with symbols from BoD set (RichWilde, Osiris, Anubis, Horus, Book, A, K, Q, J, 10) | P0 | EP |
+| TC-BOD-007 | BoD symbols are game-specific | Spin multiple times | Only BoD symbols appear: RichWilde, Osiris, Anubis, Horus, Book, A, K, Q, J, 10 | P0 | EP |
+| TC-BOD-008 | Book symbol acts as Wild | Spin with Book on a payline | Book substitutes for all line symbols in payout calculation | P0 | DT |
+| TC-BOD-009 | Book symbol acts as Scatter | Spin with 3+ Books anywhere on grid | 3+ Books trigger free spins regardless of payline position | P0 | DT |
+| TC-BOD-010 | BoD expanding symbol in free spins | Free spin round triggered | Selected symbol expands to fill entire reel when contributing to a win | P1 | ST |
+| TC-BOD-011 | BoD bet limits respected | Bet below min ($0.10) or above max ($100) | Below min or above max: 400 validation error; within range: 200 success | P1 | BVA |
+
+---
+
+## 6. Provably Fair Module
 
 Mechanism: HMAC-SHA256(server_seed, `client_seed:nonce`) -> first 4 bytes as uint32 -> used as RNG seed.
 Server seed hash = SHA-256(server_seed). Hash is committed before play; seed revealed after rotation.
 
-### 5.1 Seed Management
+### 6.1 Seed Management
 
 | TC-ID | Test Case | Endpoint | Input | Expected Result | Priority | Type |
 |-------|-----------|----------|-------|-----------------|----------|------|
@@ -469,7 +500,7 @@ Server seed hash = SHA-256(server_seed). Hash is committed before play; seed rev
 | TC-PF-010 | Nonce increments per spin | Spin twice, then check | Nonce should be 2 after two spins | P1 | ST |
 | TC-PF-011 | Nonce resets on rotation | Rotate, then check current | New pair starts with `nonce: 0` | P1 | ST |
 
-### 5.2 Verification Flow
+### 6.2 Verification Flow
 
 | TC-ID | Test Case | Steps | Expected Result | Priority | Type |
 |-------|-----------|-------|-----------------|----------|------|
@@ -480,7 +511,7 @@ Server seed hash = SHA-256(server_seed). Hash is committed before play; seed rev
 | TC-PF-016 | Active pair hides server_seed | GET round detail for a round whose seed pair is still active | `provably_fair.server_seed: null`, `provably_fair.revealed: false` | P0 | SEC |
 | TC-PF-017 | No auth on provably fair endpoints | No Authorization header | 401 | P1 | NEG |
 
-### 5.3 Provably Fair State Transition
+### 6.3 Provably Fair State Transition
 
 ```
 [No Seed Pair] --first request--> [Active Pair: hash committed, nonce=0]
@@ -492,9 +523,9 @@ Server seed hash = SHA-256(server_seed). Hash is committed before play; seed rev
 
 ---
 
-## 6. Session & Rate Limiting
+## 7. Session & Rate Limiting
 
-### 6.1 Session Lifecycle
+### 7.1 Session Lifecycle
 
 Session TTL: 1 hour (3,600,000 ms). Format: `sess_<12-char-UUID-prefix>`.
 
@@ -515,7 +546,7 @@ Session state transition:
 [Active] --cleanup--> [Removed]
 ```
 
-### 6.2 Rate Limiting
+### 7.2 Rate Limiting
 
 Limit: 5 spins per second per user. Atomic upsert with 1-second sliding window.
 
@@ -528,7 +559,7 @@ Limit: 5 spins per second per user. Atomic upsert with 1-second sliding window.
 | TC-RATE-005 | Rate limit per user isolation | User A at limit, User B spins | User B unaffected | P1 | EP |
 | TC-RATE-006 | Roulette shares rate limit | Mix slot and roulette spins | Total across both counts toward 5/sec limit | P2 | COMB |
 
-### 6.3 Idempotency (Idempotency-Key Header)
+### 7.3 Idempotency (Idempotency-Key Header)
 
 TTL: 24 hours. Scope: per-user (key combined with userId).
 
@@ -544,11 +575,11 @@ TTL: 24 hours. Scope: per-user (key combined with userId).
 
 ---
 
-## 7. Wallet & Balance
+## 8. Wallet & Balance
 
 Money stored as BIGINT cents in PostgreSQL. Converted to float at API boundary (`/ 100`). Optimistic locking via `version` column on debit.
 
-### 7.1 Balance Operations
+### 8.1 Balance Operations
 
 | TC-ID | Test Case | Scenario | Expected Result | Priority | Type |
 |-------|-----------|----------|-----------------|----------|------|
@@ -561,7 +592,7 @@ Money stored as BIGINT cents in PostgreSQL. Converted to float at API boundary (
 | TC-WAL-007 | Balance precision (cents) | Bet $0.10, win $0.33 | Amounts rounded to 2 decimal places at API boundary | P1 | EP |
 | TC-WAL-008 | Large win does not overflow | Win $99,999.99 | Balance reflects correctly; no integer overflow in BIGINT | P2 | BVA |
 
-### 7.2 Transaction Records
+### 8.2 Transaction Records
 
 | TC-ID | Test Case | Scenario | Expected Result | Priority | Type |
 |-------|-----------|----------|-----------------|----------|------|
@@ -570,11 +601,24 @@ Money stored as BIGINT cents in PostgreSQL. Converted to float at API boundary (
 | TC-WAL-011 | Loss has only bet transaction | Losing spin | Only one transaction (bet); no win transaction | P1 | EP |
 | TC-WAL-012 | balance_before and balance_after in round detail | GET /history/:roundId | `round.balance_before` and `round.balance_after` present and correct | P0 | EP |
 
+### 8.3 Wallet Top-Up (POST /api/v1/wallet/topup)
+
+| TC-ID | Test Case | Scenario | Expected Result | Priority | Type |
+|-------|-----------|----------|-----------------|----------|------|
+| TC-WAL-013 | Top up $500 | `{ "amount": 500 }` with valid JWT | 200, `credited: 500`, balance increased by $500 | P0 | EP |
+| TC-WAL-014 | Top up $0.01 (minimum) | `{ "amount": 0.01 }` | 200, `credited: 0.01`, balance increased by $0.01 | P1 | BVA |
+| TC-WAL-015 | Top up $100000 (maximum) | `{ "amount": 100000 }` | 200, `credited: 100000`, balance increased by $100,000 | P1 | BVA |
+| TC-WAL-016 | Top up $0 | `{ "amount": 0 }` | 400, validation error | P0 | BVA |
+| TC-WAL-017 | Top up negative amount | `{ "amount": -50 }` | 400, validation error | P0 | NEG |
+| TC-WAL-018 | Top up > $100000 | `{ "amount": 100001 }` | 400, validation error | P1 | BVA |
+| TC-WAL-019 | Top up without auth | No Authorization header | 401, unauthorized | P0 | SEC |
+| TC-WAL-020 | Top up multiple times | Top up $100 three times | Balance accumulates correctly (increases by $300 total) | P1 | ST |
+
 ---
 
-## 8. Cross-Cutting Concerns
+## 9. Cross-Cutting Concerns
 
-### 8.1 Security Tests
+### 9.1 Security Tests
 
 | TC-ID | Test Case | Input | Expected Result | Priority | Type |
 |-------|-----------|-------|-----------------|----------|------|
@@ -599,7 +643,7 @@ Money stored as BIGINT cents in PostgreSQL. Converted to float at API boundary (
 | TC-SEC-019 | Algorithm confusion attack (none) | JWT with `alg: "none"` | 401 `invalid_token_alg` | P0 | SEC |
 | TC-SEC-020 | Extra fields rejected by strict schemas | Any strict endpoint + unknown fields | 400 `invalid_body` | P1 | SEC |
 
-### 8.2 API Contract Tests
+### 9.2 API Contract Tests
 
 | TC-ID | Test Case | Endpoint | Expected Result | Priority | Type |
 |-------|-----------|----------|-----------------|----------|------|
@@ -613,7 +657,7 @@ Money stored as BIGINT cents in PostgreSQL. Converted to float at API boundary (
 | TC-API-008 | OpenAPI spec served | GET /api-docs.json | 200, valid OpenAPI JSON document | P2 | EP |
 | TC-API-009 | Swagger UI accessible | GET /api-docs/ | 200, HTML page | P3 | EP |
 
-### 8.3 History & Reporting
+### 9.3 History & Reporting
 
 | TC-ID | Test Case | Endpoint | Input | Expected Result | Priority | Type |
 |-------|-----------|----------|-------|-----------------|----------|------|
@@ -629,7 +673,7 @@ Money stored as BIGINT cents in PostgreSQL. Converted to float at API boundary (
 | TC-HIST-010 | History includes roulette rounds | Play roulette then fetch history | Roulette rounds appear in general history | P1 | COMB |
 | TC-HIST-011 | Round detail for roulette includes bets | GET /history/:rouletteRoundId | `roulette_bets` array present with bet_type, numbers, amount, payout, la_partage | P1 | EP |
 
-### 8.4 Performance Baselines
+### 9.4 Performance Baselines
 
 | TC-ID | Endpoint | Method | Expected P95 Latency | Condition |
 |-------|----------|--------|---------------------|-----------|
@@ -650,12 +694,12 @@ Money stored as BIGINT cents in PostgreSQL. Converted to float at API boundary (
 
 | Technique | Count | Sections Applied |
 |-----------|-------|-----------------|
-| Equivalence Partitioning (EP) | 89 | All modules |
-| Boundary Value Analysis (BVA) | 28 | Auth passwords, bet amounts/lines, rate limits, wallet, seeds |
-| Decision Table (DT) | 42 | Roulette bet validation, payouts, La Partage |
-| State Transition (ST) | 24 | Auth lifecycle, sessions, seed pairs, rate limit reset |
-| Negative Testing (NEG) | 27 | Missing fields, invalid inputs, expired tokens |
-| Security Testing (SEC) | 26 | SQL injection, XSS, JWT attacks, CORS, cookie flags |
+| Equivalence Partitioning (EP) | 95 | All modules |
+| Boundary Value Analysis (BVA) | 33 | Auth passwords, bet amounts/lines, rate limits, wallet, wallet top-up, seeds, BoD bet limits |
+| Decision Table (DT) | 44 | Roulette bet validation, payouts, La Partage, BoD Wild/Scatter |
+| State Transition (ST) | 26 | Auth lifecycle, sessions, seed pairs, rate limit reset, BoD free spins, wallet top-up accumulation |
+| Negative Testing (NEG) | 29 | Missing fields, invalid inputs, expired tokens, invalid game_id, negative top-up |
+| Security Testing (SEC) | 27 | SQL injection, XSS, JWT attacks, CORS, cookie flags, wallet top-up auth |
 | Combinatorial Testing (COMB) | 5 | Concurrent wallet ops, cross-game rate limiting |
 
 ## Appendix B: Test Case ID Ranges
@@ -667,11 +711,12 @@ Money stored as BIGINT cents in PostgreSQL. Converted to float at API boundary (
 | TC-ROUL | European Roulette (bets) | 001-070 |
 | TC-PAY | Roulette Payouts | 001-030 |
 | TC-AROUL | American Roulette | 001-040 |
+| TC-BOD | Book of Dead | 001-012 |
 | TC-PF | Provably Fair | 001-017 |
 | TC-SESS | Session Management | 001-006 |
 | TC-RATE | Rate Limiting | 001-006 |
 | TC-IDEMP | Idempotency | 001-007 |
-| TC-WAL | Wallet & Balance | 001-012 |
+| TC-WAL | Wallet & Balance | 001-020 |
 | TC-SEC | Security | 001-020 |
 | TC-API | API Contract | 001-009 |
 | TC-HIST | History & Reporting | 001-011 |
@@ -685,6 +730,7 @@ Money stored as BIGINT cents in PostgreSQL. Converted to float at API boundary (
 | Slots Engine | `backend/src/routes/game.ts`, `backend/src/contracts/gameContract.ts`, `backend/src/engine/gameConfig.ts`, `backend/src/engine/spinEngine.ts`, `backend/src/store.ts` |
 | European Roulette | `backend/src/routes/roulette.ts`, `backend/src/contracts/rouletteContract.ts`, `backend/src/engine/rouletteConfig.ts`, `backend/src/engine/rouletteValidation.ts`, `backend/src/engine/rouletteEngine.ts` |
 | American Roulette | `backend/src/routes/americanRoulette.ts`, `backend/src/engine/americanRouletteConfig.ts`, `backend/src/engine/americanRouletteValidation.ts`, `backend/src/engine/americanRouletteEngine.ts` |
+| Book of Dead | `backend/src/routes/game.ts`, `backend/src/engine/bookOfDeadConfig.ts`, `backend/src/engine/spinEngine.ts` |
 | Provably Fair | `backend/src/provablyFair.ts`, `backend/src/seedStore.ts` |
 | Wallet | `backend/src/walletStore.ts` |
 | Session & Rate Limiting | `backend/src/store.ts` (session, rate limit, idempotency management) |

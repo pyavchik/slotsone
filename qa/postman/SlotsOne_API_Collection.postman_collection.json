@@ -125,6 +125,16 @@
       "key": "fake_uuid",
       "value": "",
       "type": "string"
+    },
+    {
+      "key": "bod_session_id",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "bod_game_id",
+      "value": "",
+      "type": "string"
     }
   ],
   "item": [
@@ -1465,7 +1475,7 @@
                 "spin"
               ]
             },
-            "description": "Top Line bet (0, 00, 1, 2, 3) \u2014 unique to American Roulette. 00 is encoded as -1. Payout: 6:1."
+            "description": "Top Line bet (0, 00, 1, 2, 3) — unique to American Roulette. 00 is encoded as -1. Payout: 6:1."
           },
           "event": [
             {
@@ -1504,12 +1514,298 @@
                   "        }",
                   "    });",
                   "} else {",
-                  "    pm.test('Rate limited \u2014 retry after delay', function () {",
+                  "    pm.test('Rate limited — retry after delay', function () {",
                   "        pm.expect(pm.response.code).to.equal(429);",
                   "    });",
                   "}",
                   "",
                   "console.log(`[Post-response] American Roulette Spin (Top Line): ${pm.response.code} (${pm.response.responseTime}ms)`);"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Book of Dead",
+      "description": "Book of Dead slot game (5 reels, 3 rows, 10 paylines). Ancient Egypt theme with expanding symbols in free spins.",
+      "item": [
+        {
+          "name": "Init Book of Dead Session",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"game_id\": \"slot_book_of_dead_001\",\n  \"platform\": \"web\",\n  \"locale\": \"en\",\n  \"client_version\": \"1.0.0\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/game/init",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "game",
+                "init"
+              ]
+            },
+            "description": "Initialize a Book of Dead slot session. Returns session_id, game config with 10 paylines, balance, and idle reel matrix."
+          },
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "// Verify auth token before Book of Dead init",
+                  "const token = pm.collectionVariables.get('access_token');",
+                  "if (!token) {",
+                  "    console.error('[Pre-request] No access_token. Run Auth > Login first.');",
+                  "}",
+                  "console.log('[Pre-request] Initializing Book of Dead session...');"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "console.log(`[Post-response] Init Book of Dead Session: ${pm.response.code} (${pm.response.responseTime}ms)`);",
+                  "",
+                  "pm.test('Status code is 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test('Response has session_id', function () {",
+                  "    const json = pm.response.json();",
+                  "    pm.expect(json).to.have.property('session_id');",
+                  "    pm.expect(json.session_id).to.be.a('string').and.have.length.greaterThan(5);",
+                  "});",
+                  "",
+                  "pm.test('Game ID equals slot_book_of_dead_001', function () {",
+                  "    pm.expect(pm.response.json().game_id).to.equal('slot_book_of_dead_001');",
+                  "});",
+                  "",
+                  "pm.test('Config has 10 paylines', function () {",
+                  "    pm.expect(pm.response.json().config.paylines).to.equal(10);",
+                  "});",
+                  "",
+                  "pm.test('Config RTP is close to 96.21', function () {",
+                  "    pm.expect(pm.response.json().config.rtp).to.be.within(96.0, 96.5);",
+                  "});",
+                  "",
+                  "pm.test('Idle matrix is an array', function () {",
+                  "    const matrix = pm.response.json().idle_matrix;",
+                  "    pm.expect(matrix).to.be.an('array');",
+                  "});",
+                  "",
+                  "pm.test('Response time < 2000ms', function () {",
+                  "    pm.expect(pm.response.responseTime).to.be.below(2000);",
+                  "});",
+                  "",
+                  "// Store session_id and game_id for spin tests",
+                  "if (pm.response.code === 200) {",
+                  "    const json = pm.response.json();",
+                  "    pm.collectionVariables.set('bod_session_id', json.session_id);",
+                  "    pm.collectionVariables.set('bod_game_id', json.game_id);",
+                  "    console.log('Book of Dead Session ID:', json.session_id);",
+                  "    console.log('Initial balance:', json.balance.amount);",
+                  "}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Spin Book of Dead",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"session_id\": \"{{bod_session_id}}\",\n  \"game_id\": \"{{bod_game_id}}\",\n  \"bet\": {\n    \"amount\": 1,\n    \"currency\": \"USD\",\n    \"lines\": 10\n  },\n  \"client_timestamp\": {{$timestamp}}\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/spin",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "spin"
+              ]
+            },
+            "description": "Execute a Book of Dead spin with $1.00 bet across 10 paylines."
+          },
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "// Store balance before spin for comparison",
+                  "const currentBalance = parseFloat(pm.collectionVariables.get('balance_before_spin') || '0');",
+                  "console.log('Balance before Book of Dead spin:', currentBalance);"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "console.log(`[Post-response] Spin Book of Dead: ${pm.response.code} (${pm.response.responseTime}ms)`);",
+                  "",
+                  "pm.test('Status code is 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test('Response has spin_id', function () {",
+                  "    const json = pm.response.json();",
+                  "    pm.expect(json).to.have.property('spin_id');",
+                  "    pm.expect(json.spin_id).to.be.a('string');",
+                  "});",
+                  "",
+                  "pm.test('Reel matrix has 5 reels with 3 rows each', function () {",
+                  "    const matrix = pm.response.json().outcome.reel_matrix;",
+                  "    pm.expect(matrix).to.be.an('array').with.lengthOf(5);",
+                  "    matrix.forEach(function(reel) {",
+                  "        pm.expect(reel).to.be.an('array').with.lengthOf(3);",
+                  "    });",
+                  "});",
+                  "",
+                  "pm.test('Win amount is >= 0', function () {",
+                  "    pm.expect(pm.response.json().outcome.win.amount).to.be.at.least(0);",
+                  "});",
+                  "",
+                  "pm.test('Balance amount is a number', function () {",
+                  "    pm.expect(pm.response.json().balance.amount).to.be.a('number');",
+                  "});",
+                  "",
+                  "pm.test('Response time < 2000ms', function () {",
+                  "    pm.expect(pm.response.responseTime).to.be.below(2000);",
+                  "});",
+                  "",
+                  "// Persist for subsequent tests",
+                  "if (pm.response.code === 200) {",
+                  "    const json = pm.response.json();",
+                  "    pm.collectionVariables.set('spin_id', json.spin_id);",
+                  "    pm.collectionVariables.set('balance_before_spin', String(json.balance.amount));",
+                  "    console.log('Spin ID:', json.spin_id, '| Win:', json.outcome.win.amount, '| Balance:', json.balance.amount);",
+                  "}"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Wallet",
+      "description": "Wallet operations: top-up balance, check balance.",
+      "item": [
+        {
+          "name": "Top Up Balance",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"amount\": 500\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/wallet/topup",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "wallet",
+                "topup"
+              ]
+            },
+            "description": "Top up the player wallet with a specified amount. Returns updated balance."
+          },
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "// Verify auth token before top-up",
+                  "const token = pm.collectionVariables.get('access_token');",
+                  "if (!token) {",
+                  "    console.error('[Pre-request] No access_token. Run Auth > Login first.');",
+                  "}",
+                  "console.log('[Pre-request] Topping up wallet...');"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "console.log(`[Post-response] Top Up Balance: ${pm.response.code} (${pm.response.responseTime}ms)`);",
+                  "",
+                  "pm.test('Status code is 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test('Credited amount equals 500', function () {",
+                  "    pm.expect(pm.response.json().credited).to.equal(500);",
+                  "});",
+                  "",
+                  "pm.test('Balance amount is a number', function () {",
+                  "    pm.expect(pm.response.json().balance.amount).to.be.a('number');",
+                  "});",
+                  "",
+                  "pm.test('Balance currency is USD', function () {",
+                  "    pm.expect(pm.response.json().balance.currency).to.equal('USD');",
+                  "});",
+                  "",
+                  "pm.test('Response time < 2000ms', function () {",
+                  "    pm.expect(pm.response.responseTime).to.be.below(2000);",
+                  "});",
+                  "",
+                  "if (pm.response.code === 200) {",
+                  "    const json = pm.response.json();",
+                  "    pm.collectionVariables.set('current_balance', String(json.balance.amount));",
+                  "    console.log('Credited:', json.credited, '| New balance:', json.balance.amount);",
+                  "}"
                 ]
               }
             }
@@ -2423,7 +2719,7 @@
                 "exec": [
                   "console.log(`[Post-response] Login - Non-existent User: ${pm.response.code} (${pm.response.responseTime}ms)`);",
                   "",
-                  "pm.test('Status code is 401 (same as wrong password \u2014 no user enumeration)', function () {",
+                  "pm.test('Status code is 401 (same as wrong password — no user enumeration)', function () {",
                   "    pm.response.to.have.status(401);",
                   "});",
                   "",
@@ -2989,7 +3285,7 @@
                 "exec": [
                   "console.log(`[Post-response] Idempotency Key Reuse (Different Payload): ${pm.response.code} (${pm.response.responseTime}ms)`);",
                   "",
-                  "// This is the first call \u2014 should succeed",
+                  "// This is the first call — should succeed",
                   "pm.test('First call succeeds (200) or fails gracefully', function () {",
                   "    pm.expect(pm.response.code).to.be.oneOf([200, 400, 402]);",
                   "});"

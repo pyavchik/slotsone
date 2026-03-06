@@ -703,6 +703,8 @@
 
     <span class="nav-section">Tests</span>
     <a class="nav-link" href="#test-cases">Test Cases</a>
+    <a class="nav-link" href="#book-of-dead">Book of Dead</a>
+    <a class="nav-link" href="#wallet">Wallet</a>
 
     <span class="nav-section">Running</span>
     <a class="nav-link" href="#postman">In Postman</a>
@@ -1041,6 +1043,95 @@
             <span class="tc-id">TC-14</span>
             <div class="tc-desc">POST /spin — replay attack; identical intercepted request sent twice; second must not cause a double debit</div>
             <span class="tc-expects">200 same spin_id or 409</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <div class="divider"></div>
+
+    <!-- Book of Dead -->
+    <section class="section" id="book-of-dead">
+      <div class="section-label">Tests</div>
+      <h2 class="section-title">Book of Dead</h2>
+      <p class="section-desc">4 test cases covering session initialization, spin mechanics, symbol validation, and RTP configuration for the Book of Dead slot.</p>
+
+      <div class="tc-group">
+        <div class="tc-group-header">
+          <span class="tc-badge happy">Happy Path</span>
+          <div class="tc-group-line happy"></div>
+        </div>
+        <div class="tc-list">
+          <div class="tc-item happy">
+            <span class="tc-id">BOD-01</span>
+            <div class="tc-desc">POST /game/init — <code>game_id: "slot_book_of_dead_001"</code>; returns <code>session_id</code>, <code>game_id</code> matches request, <code>config</code> includes 10 paylines, RTP ~96.21%, high volatility</div>
+            <span class="tc-expects">200 · session_id · config</span>
+          </div>
+          <div class="tc-item happy">
+            <span class="tc-id">BOD-02</span>
+            <div class="tc-desc">POST /spin — send spin with <code>lines: 10</code>; response contains a 5×3 <code>reel_matrix</code> and a valid <code>win</code> breakdown</div>
+            <span class="tc-expects">200 · 5×3 reel_matrix · win</span>
+          </div>
+          <div class="tc-item happy">
+            <span class="tc-id">BOD-03</span>
+            <div class="tc-desc">Verify BoD Symbols — <code>reel_matrix</code> values must be drawn from game-specific symbols: <code>RichWilde</code>, <code>Osiris</code>, <code>Anubis</code>, <code>Horus</code>, <code>Book</code>, <code>A</code>, <code>K</code>, <code>Q</code>, <code>J</code>, <code>10</code></div>
+            <span class="tc-expects">symbols ∈ valid set</span>
+          </div>
+          <div class="tc-item happy">
+            <span class="tc-id">BOD-04</span>
+            <div class="tc-desc">Verify Config RTP — <code>config.rtp</code> should be approximately <code>96.21</code></div>
+            <span class="tc-expects">rtp ≈ 96.21</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <div class="divider"></div>
+
+    <!-- Wallet -->
+    <section class="section" id="wallet">
+      <div class="section-label">Tests</div>
+      <h2 class="section-title">Wallet</h2>
+      <p class="section-desc">3 test cases covering wallet top-up, input validation, and authentication enforcement.</p>
+
+      <div class="tc-group">
+        <div class="tc-group-header">
+          <span class="tc-badge happy">Happy Path</span>
+          <div class="tc-group-line happy"></div>
+        </div>
+        <div class="tc-list">
+          <div class="tc-item happy">
+            <span class="tc-id">WAL-01</span>
+            <div class="tc-desc">POST /wallet/topup — <code>{"amount": 500}</code>; expects <code>credited: 500</code> and updated <code>balance</code> reflecting the deposit</div>
+            <span class="tc-expects">200 · credited=500 · balance</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="tc-group">
+        <div class="tc-group-header">
+          <span class="tc-badge neg">Negative Testing</span>
+          <div class="tc-group-line neg"></div>
+        </div>
+        <div class="tc-list">
+          <div class="tc-item neg">
+            <span class="tc-id">WAL-02</span>
+            <div class="tc-desc">POST /wallet/topup — invalid amount <code>{"amount": 0}</code> or <code>{"amount": -1}</code>; must be rejected at validation layer</div>
+            <span class="tc-expects">400 Bad Request</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="tc-group">
+        <div class="tc-group-header">
+          <span class="tc-badge sec">Security Testing</span>
+          <div class="tc-group-line sec"></div>
+        </div>
+        <div class="tc-list">
+          <div class="tc-item sec">
+            <span class="tc-id">WAL-03</span>
+            <div class="tc-desc">POST /wallet/topup — no <code>Authorization</code> header; endpoint must require authentication</div>
+            <span class="tc-expects">401 Unauthorized</span>
           </div>
         </div>
       </div>
