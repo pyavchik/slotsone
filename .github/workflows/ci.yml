@@ -83,6 +83,8 @@ jobs:
       - name: Frontend build
         working-directory: frontend
         run: npm run build
+        env:
+          NODE_OPTIONS: --max-old-space-size=4096
 
       - name: Install Playwright browsers
         working-directory: frontend

@@ -41,6 +41,8 @@ jobs:
         run: |
           npm ci
           npm run build
+        env:
+          NODE_OPTIONS: --max-old-space-size=4096
 
       - name: Build admin
         working-directory: admin
