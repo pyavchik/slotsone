@@ -321,7 +321,8 @@ Key areas include:
 
 | Test                    | Method                                                  | Acceptance Criteria |
 |-------------------------|---------------------------------------------------------|---------------------|
-| Slot RTP validation     | Run 1,000,000 simulated spins; calculate actual RTP    | Within +/- 0.5% of theoretical 96.4% |
+| Slot RTP validation (Mega Fortune) | Run 1,000,000 simulated spins; calculate actual RTP | Within +/- 0.5% of theoretical 96.4% |
+| Slot RTP validation (Book of Dead) | Run 1,000,000 simulated spins; calculate actual RTP | Within +/- 0.5% of theoretical 96.21% |
 | Roulette number distribution | Run 1,000,000 spins; chi-squared test on 37 outcomes | p-value > 0.01 (no significant bias) |
 | Roulette RTP (European) | Calculated from distribution + payouts                 | Within +/- 0.3% of theoretical 97.3% |
 | PRNG seed independence  | Kolmogorov-Smirnov test on consecutive outputs         | Distribution indistinguishable from uniform |
@@ -338,6 +339,7 @@ Key areas include:
 | Roulette total bet | < $0.10   | $0.10 -- $2,000.00     | > $2,000.00          |
 | Straight bet numbers | []      | [0] -- [36] (single)   | [0, 1] (wrong size)  |
 | Client seed length | "" (empty) | 1 -- 64 characters     | > 64 characters      |
+| Wallet top-up amount | <= $0.00  | $0.01 -- $100,000.00   | > $100,000.00        |
 
 #### 4.3.2 Boundary Value Analysis
 
@@ -351,6 +353,8 @@ Key areas include:
 | Wallet balance          | $0.00 (cannot spin), $0.10 (minimum viable spin)      |
 | History limit           | 0, 1, default, max                                    |
 | Client seed             | 1 char, 64 chars, 65 chars                            |
+| Wallet top-up min       | $0.00 (reject), $0.01 (accept), $0.02 (accept)       |
+| Wallet top-up max       | $99,999.99 (accept), $100,000.00 (accept), $100,000.01 (reject) |
 
 #### 4.3.3 State Transition Testing
 
@@ -450,7 +454,8 @@ Used for roulette multi-bet scenarios: combinations of bet types placed simultan
 | P2 test cases passed                               | > 85%                               |
 | Open critical / blocker defects                    | 0                                   |
 | Open major defects                                 | < 3 (with documented workarounds)   |
-| Slot RTP validation                                | Within +/- 0.5% of 96.4%           |
+| Slot RTP validation (Mega Fortune)                 | Within +/- 0.5% of 96.4%           |
+| Slot RTP validation (Book of Dead)                 | Within +/- 0.5% of 96.21%          |
 | European Roulette RTP validation                   | Within +/- 0.3% of 97.3%           |
 | American Roulette RTP validation                   | Within +/- 0.3% of 94.74%          |
 | Provably fair verification                         | 100% of sampled rounds verify       |
