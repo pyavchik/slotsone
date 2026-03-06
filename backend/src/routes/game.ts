@@ -16,7 +16,9 @@ import {
   EnhancedHistoryQuerySchema,
   InitRequestSchema,
   SpinRequestSchema,
+  TopUpRequestSchema,
 } from '../contracts/gameContract.js';
+import { creditWallet, getOrCreateWallet } from '../walletStore.js';
 import { getRoundById, getRoundTransactions } from '../roundStore.js';
 import { rotateSeedPair, setClientSeed, getOrCreateActiveSeedPair } from '../seedStore.js';
 import { getRouletteBets } from '../rouletteStore.js';
@@ -379,6 +381,35 @@ router.get(
       client_seed: pair.client_seed,
       nonce: pair.nonce,
       active: pair.active,
+    });
+  })
+);
+
+// ─── Wallet top-up (demo) ────────────────────────────────────────────
+
+router.post(
+  '/wallet/topup',
+  authMiddleware,
+  asyncHandler(async (req, res) => {
+    const userId = (req as unknown as { userId: string }).userId;
+    setUserId(userId);
+
+    const parsed = TopUpRequestSchema.safeParse(req.body);
+    if (!parsed.success) {
+      res.status(400).json({ error: 'Invalid request', code: 'invalid_body' });
+      return;
+    }
+
+    const { amount } = parsed.data;
+    const amountCents = Math.round(amount * 100);
+
+    // Ensure wallet exists
+    await getOrCreateWallet(userId);
+    const wallet = await creditWallet(userId, amountCents);
+
+    res.json({
+      balance: { amount: wallet.balance_cents / 100, currency: 'USD' },
+      credited: amount,
     });
   })
 );
