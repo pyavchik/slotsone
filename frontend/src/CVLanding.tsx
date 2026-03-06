@@ -7,7 +7,7 @@ const CV_PDF_PATH = '/QA_Oleksander_Pyavchik_CV.pdf';
 const SKILLS = [
   'Java',
   'Automated Testing',
-  'Test Framework Development',
+  'Test Framework Dev',
   'API Testing',
   'E2E Testing',
   'CI/CD',
@@ -22,36 +22,27 @@ const EXPERIENCE = [
     role: 'AQA Engineer',
     company: 'EG',
     period: '2021 — 2025',
-    location: 'Remote',
     highlights: [
-      'Team of 5 QA automation engineers.',
-      'Maintained 1500+ automated tests across multiple environments.',
-      'Used AI tools to accelerate test generation and maintenance.',
+      'Team of 5 QA automation engineers',
+      'Maintained 1500+ automated tests',
+      'AI-accelerated test generation',
     ],
   },
   {
     role: 'AQA Engineer',
     company: 'Digicode',
     period: '2019 — 2021',
-    location: 'Kiev',
-    highlights: [
-      'Built UI and API automation frameworks from scratch.',
-      'Designed JMeter load testing scenarios independently.',
-    ],
+    highlights: ['UI & API automation from scratch', 'JMeter load testing scenarios'],
   },
   {
     role: 'QA Engineer',
     company: 'Innovation Group',
     period: '2014 — 2019',
-    location: 'Odesa',
-    highlights: [
-      'Java-based automated test suites for web and mobile.',
-      'Manual testing, detailed test cases and documentation.',
-    ],
+    highlights: ['Java test suites for web & mobile', 'Manual testing & documentation'],
   },
 ];
 
-const LINKS = [
+const PORTFOLIO = [
   { href: '/requirements.html', label: 'Requirements', testId: 'cv-requirements' },
   { href: '/test-cases.html', label: 'Test Cases', testId: 'cv-test-cases' },
   { href: '/postman-tests.html', label: 'Postman' },
@@ -62,134 +53,131 @@ const LINKS = [
 
 export function CVLanding() {
   return (
-    <div className="layout">
-      {/* ── RIGHT — 3D robot, fixed, interactive ── */}
+    <div className="hud-root">
+      {/* ── Full-bleed 3D robot — z-index 0 ── */}
       <SplineRobot />
 
-      {/* ── LEFT — scrollable sidebar ─────────── */}
-      <aside className="sidebar">
-        {/* Identity */}
-        <header className="id-block">
-          <figure className="avatar-ring">
-            <img src="/cv-photo.png" alt="Oleksander Pyavchik" />
-          </figure>
-          <div className="id-text">
-            <span className="label" data-testid="cv-title">
+      {/* ── HUD overlay — pointer-events: none on all wrappers ── */}
+      <div className="hud-overlay">
+        {/* TOP BAR */}
+        <header className="hud-topbar hud-inert">
+          <div className="hud-brand hud-inert">
+            <span className="hud-name" data-testid="cv-title">
               Oleksander Pyavchik
             </span>
-            <span className="role">Automated QA Engineer</span>
-            <span className="location">
-              Odesa, Ukraine · <span className="avail">Available</span>
-            </span>
+            <span className="hud-role">Automated QA Engineer</span>
           </div>
+          <nav className="hud-topnav hud-inert">
+            <Link
+              to="/slots"
+              className="hud-btn hud-btn--primary hud-active"
+              data-testid="cv-open-slots"
+            >
+              Live Demo
+            </Link>
+            <a
+              href={CV_PDF_PATH}
+              target="_blank"
+              rel="noreferrer"
+              className="hud-btn hud-btn--ghost hud-active"
+            >
+              Download CV
+            </a>
+          </nav>
         </header>
 
-        {/* CTA row */}
-        <div className="cta-row">
-          <Link to="/slots" className="cta-primary" data-testid="cv-open-slots">
-            Live Demo
-          </Link>
-          <a href={CV_PDF_PATH} target="_blank" rel="noreferrer" className="cta-ghost">
-            Download CV
-          </a>
-        </div>
+        {/* MAIN COLUMNS */}
+        <div className="hud-columns">
+          {/* LEFT PANEL — Identity + Contact */}
+          <aside className="hud-panel hud-panel--left hud-inert">
+            <figure className="hud-avatar hud-inert">
+              <img src="/cv-photo.png" alt="Oleksander Pyavchik" />
+            </figure>
 
-        {/* Contact */}
-        <div className="contact-row">
-          <a href="mailto:pyavchik@gmail.com" className="contact-item">
-            pyavchik@gmail.com
-          </a>
-          <a href="tel:+380639977874" className="contact-item">
-            +380 63 997 7874
-          </a>
-        </div>
+            <div className="hud-id hud-inert">
+              <span className="hud-location hud-inert">
+                Odesa, Ukraine &nbsp;·&nbsp; <span className="hud-avail">Available</span>
+              </span>
+            </div>
 
-        <div className="divider" />
+            <div className="hud-divider" />
 
-        {/* Summary */}
-        <section className="section">
-          <h2 className="section-label">About</h2>
-          <p className="body-text">
-            7+ years shipping quality at scale — building automation frameworks from zero,
-            maintaining 1500+ tests, integrating CI/CD pipelines, and proving software works before
-            users ever see it.
-          </p>
-        </section>
+            <div className="hud-contacts hud-inert">
+              <a href="mailto:pyavchik@gmail.com" className="hud-contact hud-active">
+                pyavchik@gmail.com
+              </a>
+              <a href="tel:+380639977874" className="hud-contact hud-active">
+                +380 63 997 7874
+              </a>
+            </div>
 
-        <div className="divider" />
+            <div className="hud-divider" />
 
-        {/* Experience */}
-        <section className="section">
-          <h2 className="section-label">Experience</h2>
-          <div className="timeline">
-            {EXPERIENCE.map((job) => (
-              <div key={job.company} className="job">
-                <div className="job-meta">
-                  <div>
-                    <span className="job-role">{job.role}</span>
-                    <span className="job-company">{job.company}</span>
+            <p className="hud-about hud-inert">
+              7+ years shipping quality at scale — building automation frameworks from zero,
+              maintaining 1500+ tests, and integrating CI/CD pipelines.
+            </p>
+          </aside>
+
+          {/* CENTER — intentionally empty so robot is visible */}
+          <div className="hud-center" />
+
+          {/* RIGHT PANEL — Experience */}
+          <aside className="hud-panel hud-panel--right hud-inert">
+            <h2 className="hud-section-label hud-inert">Experience</h2>
+            <div className="hud-timeline hud-inert">
+              {EXPERIENCE.map((job) => (
+                <div key={job.company} className="hud-job hud-inert">
+                  <div className="hud-job-head hud-inert">
+                    <span className="hud-job-role hud-inert">{job.role}</span>
+                    <span className="hud-job-co hud-inert">{job.company}</span>
+                    <span className="hud-job-period hud-inert">{job.period}</span>
                   </div>
-                  <span className="job-period">{job.period}</span>
+                  <ul className="hud-job-list hud-inert">
+                    {job.highlights.map((h) => (
+                      <li key={h}>{h}</li>
+                    ))}
+                  </ul>
                 </div>
-                <ul className="job-list">
-                  {job.highlights.map((h) => (
-                    <li key={h}>{h}</li>
-                  ))}
-                </ul>
-              </div>
-            ))}
-          </div>
-        </section>
+              ))}
+            </div>
+          </aside>
+        </div>
 
-        <div className="divider" />
-
-        {/* Skills */}
-        <section className="section">
-          <h2 className="section-label">Skills</h2>
-          <div className="chips">
+        {/* BOTTOM BAR — Skills + Portfolio */}
+        <footer className="hud-bottom hud-inert">
+          <div className="hud-skills hud-inert">
             {SKILLS.map((s) => (
-              <span key={s} className="chip">
+              <span key={s} className="hud-chip hud-inert">
                 {s}
               </span>
             ))}
           </div>
-        </section>
 
-        <div className="divider" />
-
-        {/* Portfolio links */}
-        <section className="section">
-          <h2 className="section-label">QA Portfolio</h2>
-          <div className="link-grid">
-            {LINKS.map((l) => (
-              <a
-                key={l.label}
-                href={l.href}
-                target="_blank"
-                rel="noreferrer"
-                className="portfolio-link"
-                data-testid={l.testId}
-              >
-                {l.label}
-                <svg width="10" height="10" viewBox="0 0 10 10" fill="none" aria-hidden="true">
-                  <path
-                    d="M2 8L8 2M8 2H3M8 2V7"
-                    stroke="currentColor"
-                    strokeWidth="1.5"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  />
-                </svg>
-              </a>
-            ))}
+          <div className="hud-portfolio hud-inert">
+            <span className="hud-section-label hud-inert">Portfolio</span>
+            <div className="hud-portlinks hud-inert">
+              {PORTFOLIO.map((l) => (
+                <a
+                  key={l.label}
+                  href={l.href}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="hud-portlink hud-active"
+                  data-testid={l.testId}
+                >
+                  {l.label}
+                </a>
+              ))}
+            </div>
           </div>
-        </section>
 
-        <footer className="sidebar-footer">
-          <span>Ukrainian · English</span>
-          <span>© 2025</span>
+          <div className="hud-foot hud-inert">
+            <span>Ukrainian · English</span>
+            <span>© {new Date().getFullYear()}</span>
+          </div>
         </footer>
-      </aside>
+      </div>
     </div>
   );
 }
