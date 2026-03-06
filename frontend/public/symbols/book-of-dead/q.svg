@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120">
+  <defs>
+    <linearGradient id="q-bg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#2a1a08"/>
+      <stop offset="100%" stop-color="#140d04"/>
+    </linearGradient>
+  </defs>
+  <rect width="120" height="120" rx="12" fill="url(#q-bg)"/>
+  <text x="60" y="76" text-anchor="middle" font-family="serif" font-size="64" font-weight="bold" fill="#E879F9" opacity="0.9">Q</text>
+  <path d="M30 88 Q60 82 90 88" fill="none" stroke="#D4A017" stroke-width="1" opacity="0.5"/>
+  <path d="M30 32 Q60 38 90 32" fill="none" stroke="#D4A017" stroke-width="1" opacity="0.5"/>
+</svg>

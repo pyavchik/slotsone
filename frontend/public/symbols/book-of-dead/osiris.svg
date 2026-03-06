@@ -1,0 +1,37 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120">
+  <defs>
+    <linearGradient id="os-bg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#0a2a1a"/>
+      <stop offset="100%" stop-color="#051510"/>
+    </linearGradient>
+    <linearGradient id="os-crown" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#FFD700"/>
+      <stop offset="100%" stop-color="#B8860B"/>
+    </linearGradient>
+  </defs>
+  <rect width="120" height="120" rx="12" fill="url(#os-bg)"/>
+  <!-- Atef Crown -->
+  <path d="M60 8 L52 28 L68 28 Z" fill="url(#os-crown)"/>
+  <rect x="54" y="28" width="12" height="10" fill="#FFD700" rx="1"/>
+  <!-- Feathers -->
+  <path d="M48 12 Q42 20 46 30" fill="none" stroke="#22c55e" stroke-width="3" opacity="0.8"/>
+  <path d="M72 12 Q78 20 74 30" fill="none" stroke="#22c55e" stroke-width="3" opacity="0.8"/>
+  <!-- Green face -->
+  <ellipse cx="60" cy="52" rx="18" ry="20" fill="#2D8B57"/>
+  <!-- Eyes - Eye of Ra style -->
+  <path d="M48 48 L54 48 Q56 52 54 54 L48 52 Z" fill="#FFD700"/>
+  <circle cx="52" cy="50" r="2" fill="#0a2a1a"/>
+  <path d="M66 48 L72 48 Q74 52 72 54 L66 52 Z" fill="#FFD700"/>
+  <circle cx="68" cy="50" r="2" fill="#0a2a1a"/>
+  <!-- Crook and flail crossed -->
+  <line x1="34" y1="60" x2="34" y2="100" stroke="#FFD700" stroke-width="3" stroke-linecap="round"/>
+  <path d="M34 60 Q28 54 24 60" fill="none" stroke="#FFD700" stroke-width="3" stroke-linecap="round"/>
+  <line x1="86" y1="60" x2="86" y2="100" stroke="#FFD700" stroke-width="3" stroke-linecap="round"/>
+  <line x1="86" y1="66" x2="96" y2="70" stroke="#FFD700" stroke-width="2"/>
+  <line x1="86" y1="74" x2="96" y2="78" stroke="#FFD700" stroke-width="2"/>
+  <line x1="86" y1="82" x2="96" y2="86" stroke="#FFD700" stroke-width="2"/>
+  <!-- Beard -->
+  <rect x="56" y="68" width="8" height="18" fill="#2D8B57" rx="3"/>
+  <!-- Label -->
+  <text x="60" y="112" text-anchor="middle" font-family="serif" font-size="13" font-weight="bold" fill="#22c55e">OSIRIS</text>
+</svg>

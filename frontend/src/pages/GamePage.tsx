@@ -3,6 +3,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { initGame, spin, refreshAccessToken, logout, ApiError } from '@/api';
 import { useGameStore } from '@/store';
 import { getGameBySlug } from '@/data/catalog';
+import { setActiveGameSymbols } from '@/symbols';
 import { SlotCanvas } from '@/SlotCanvas';
 import { BetPanel } from '@/BetPanel';
 import { HUD } from '@/HUD';
@@ -24,9 +25,11 @@ export default function GamePage() {
   const catalogEntry = slug ? getGameBySlug(slug) : undefined;
   const gameId = catalogEntry?.gameId ?? 'slot_mega_fortune_001';
 
-  // Keep store in sync for spin calls
+  // Keep store in sync and activate game-specific symbols
   useEffect(() => {
     setGameId(gameId);
+    setActiveGameSymbols(gameId);
+    return () => setActiveGameSymbols(null);
   }, [gameId, setGameId]);
   const bet = useGameStore((s) => s.bet);
   const lines = useGameStore((s) => s.lines);
