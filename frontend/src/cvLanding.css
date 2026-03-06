@@ -10,14 +10,14 @@
 /* ── Tokens ─────────────────────────────────────── */
 :root {
   --bg: #07080f;
-  --glass: rgba(7, 8, 15, 0.72);
-  --glass-hi: rgba(7, 8, 15, 0.88);
-  --border: rgba(255, 255, 255, 0.07);
-  --border-hi: rgba(255, 255, 255, 0.15);
+  --glass: rgba(8, 10, 20, 0.88);
+  --glass-hi: rgba(8, 10, 20, 0.96);
+  --border: rgba(255, 255, 255, 0.1);
+  --border-hi: rgba(255, 255, 255, 0.2);
   --txt: #e4e8f0;
-  --muted: #5a6880;
+  --muted: #8ca4bf;
   --accent: #4f8eff;
-  --accent-lo: rgba(79, 142, 255, 0.12);
+  --accent-lo: rgba(79, 142, 255, 0.14);
   --gold: #f0c060;
   --green: #3ddc84;
   --r: 10px;
@@ -115,8 +115,10 @@
   justify-content: space-between;
   padding: 20px 28px;
   gap: 16px;
-  /* Subtle top gradient to anchor UI */
-  background: linear-gradient(to bottom, rgba(7, 8, 15, 0.55) 0%, transparent 100%);
+  background: var(--glass);
+  backdrop-filter: blur(28px);
+  -webkit-backdrop-filter: blur(28px);
+  border-bottom: 1px solid var(--border);
   animation: fadeDown 0.5s cubic-bezier(0.22, 1, 0.36, 1) both;
 }
 
@@ -214,18 +216,18 @@
 
 /* ── Side panels ─────────────────────────────────── */
 .hud-panel {
-  width: 280px;
+  width: 310px;
   flex-shrink: 0;
   display: flex;
   flex-direction: column;
-  gap: 14px;
-  padding: 20px;
+  gap: 18px;
+  padding: 24px;
   overflow-y: auto;
   scrollbar-width: none;
-  /* Glassmorphic panel */
+  /* Opaque enough to be highly readable over 3D background */
   background: var(--glass);
-  backdrop-filter: blur(22px);
-  -webkit-backdrop-filter: blur(22px);
+  backdrop-filter: blur(28px);
+  -webkit-backdrop-filter: blur(28px);
   border: 1px solid var(--border);
 }
 
@@ -301,7 +303,7 @@
 }
 
 .hud-location {
-  font-size: 11px;
+  font-size: 13px;
   color: var(--muted);
 }
 
@@ -325,32 +327,34 @@
 }
 
 .hud-contact {
-  font-size: 12px;
-  color: var(--muted);
+  font-size: 13.5px;
+  color: var(--accent);
   text-decoration: none;
   transition: color 0.15s;
   cursor: pointer;
+  opacity: 0.85;
 }
 
 .hud-contact:hover {
   color: var(--txt);
+  opacity: 1;
 }
 
 /* ── About ───────────────────────────────────────── */
 .hud-about {
   margin: 0;
-  font-size: 12.5px;
-  line-height: 1.6;
-  color: var(--muted);
+  font-size: 13.5px;
+  line-height: 1.65;
+  color: var(--txt);
 }
 
 /* ── Section label ───────────────────────────────── */
 .hud-section-label {
   margin: 0;
   font-family: var(--font-head);
-  font-size: 9.5px;
+  font-size: 11px;
   font-weight: 600;
-  letter-spacing: 0.14em;
+  letter-spacing: 0.12em;
   text-transform: uppercase;
   color: var(--muted);
 }
@@ -389,35 +393,35 @@
 
 .hud-job-role {
   font-family: var(--font-head);
-  font-size: 13px;
+  font-size: 14px;
   font-weight: 700;
   color: #fff;
 }
 
 .hud-job-co {
-  font-size: 11px;
+  font-size: 13px;
   font-weight: 600;
   color: var(--gold);
 }
 
 .hud-job-period {
   margin-left: auto;
-  font-size: 10.5px;
+  font-size: 12px;
   color: var(--muted);
   white-space: nowrap;
 }
 
 .hud-job-list {
   margin: 0;
-  padding-left: 14px;
+  padding-left: 16px;
   display: flex;
   flex-direction: column;
-  gap: 2px;
+  gap: 4px;
 }
 
 .hud-job-list li {
-  font-size: 11.5px;
-  line-height: 1.45;
+  font-size: 13px;
+  line-height: 1.5;
   color: var(--muted);
 }
 
@@ -429,9 +433,12 @@
 .hud-bottom {
   display: flex;
   flex-direction: column;
-  gap: 10px;
-  padding: 14px 20px 16px;
-  background: linear-gradient(to top, rgba(7, 8, 15, 0.62) 0%, transparent 100%);
+  gap: 12px;
+  padding: 16px 24px 20px;
+  background: var(--glass);
+  backdrop-filter: blur(28px);
+  -webkit-backdrop-filter: blur(28px);
+  border-top: 1px solid var(--border);
   animation: fadeUp 0.5s 0.2s cubic-bezier(0.22, 1, 0.36, 1) both;
 }
 
@@ -454,15 +461,13 @@
 }
 
 .hud-chip {
-  padding: 4px 10px;
+  padding: 5px 12px;
   border-radius: 999px;
-  font-size: 11px;
+  font-size: 12.5px;
   font-weight: 500;
   color: var(--muted);
   border: 1px solid var(--border);
-  background: var(--glass);
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
+  background: rgba(255, 255, 255, 0.04);
   transition: all 0.18s;
   cursor: default;
 }
@@ -490,33 +495,31 @@
 .hud-portlink {
   display: inline-flex;
   align-items: center;
-  padding: 5px 12px;
+  padding: 6px 14px;
   border-radius: 7px;
   border: 1px solid var(--border);
-  background: var(--glass);
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
-  font-size: 11.5px;
+  background: rgba(255, 255, 255, 0.04);
+  font-size: 13px;
   font-weight: 500;
-  color: var(--muted);
+  color: var(--txt);
   text-decoration: none;
   cursor: pointer;
   transition: all 0.18s;
 }
 
 .hud-portlink:hover {
-  border-color: var(--border-hi);
-  color: var(--txt);
-  background: rgba(255, 255, 255, 0.06);
+  border-color: var(--accent);
+  color: var(--accent);
+  background: var(--accent-lo);
 }
 
 /* ── Footer strip ────────────────────────────────── */
 .hud-foot {
   display: flex;
   justify-content: space-between;
-  font-size: 10.5px;
+  font-size: 12px;
   color: var(--muted);
-  opacity: 0.5;
+  opacity: 0.65;
 }
 
 /* ── Mobile ─────────────────────────────────────── */
