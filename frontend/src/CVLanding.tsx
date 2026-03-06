@@ -1,4 +1,5 @@
 import { Link } from 'react-router-dom';
+import { SplineRobot } from './SplineRobot';
 import './cvLanding.css';
 
 const CV_PDF_PATH = '/QA_Oleksander_Pyavchik_CV.pdf';
@@ -64,137 +65,140 @@ const EXPERIENCE = [
 
 export function CVLanding() {
   return (
-    <main className="cv-page">
-      <header className="cv-header-card">
-        <div className="cv-header-main">
-          <figure className="cv-avatar-wrap">
-            <img src="/cv-photo.png" alt="Oleksander Pyavchik" className="cv-avatar" />
-          </figure>
+    <>
+      <SplineRobot />
+      <main className="cv-page">
+        <header className="cv-header-card">
+          <div className="cv-header-main">
+            <figure className="cv-avatar-wrap">
+              <img src="/cv-photo.png" alt="Oleksander Pyavchik" className="cv-avatar" />
+            </figure>
 
-          <div className="cv-identity">
-            <p className="cv-kicker">Automated QA Engineer</p>
-            <h1 className="cv-title" data-testid="cv-title">
-              Oleksander Pyavchik
-            </h1>
-            <p className="cv-subtitle">
-              Experienced QA engineer with 7+ years in automation, API/E2E testing, CI/CD, and
-              performance testing.
-            </p>
+            <div className="cv-identity">
+              <p className="cv-kicker">Automated QA Engineer</p>
+              <h1 className="cv-title" data-testid="cv-title">
+                Oleksander Pyavchik
+              </h1>
+              <p className="cv-subtitle">
+                Experienced QA engineer with 7+ years in automation, API/E2E testing, CI/CD, and
+                performance testing.
+              </p>
 
-            <ul className="cv-contact-list" aria-label="Contact information">
-              <li>
-                <a href="mailto:pyavchik@gmail.com">pyavchik@gmail.com</a>
-              </li>
-              <li>
-                <a href="tel:+380639977874">+380 63 997 7874</a>
-              </li>
-              <li>Odesa, Ukraine</li>
-            </ul>
+              <ul className="cv-contact-list" aria-label="Contact information">
+                <li>
+                  <a href="mailto:pyavchik@gmail.com">pyavchik@gmail.com</a>
+                </li>
+                <li>
+                  <a href="tel:+380639977874">+380 63 997 7874</a>
+                </li>
+                <li>Odesa, Ukraine</li>
+              </ul>
+            </div>
           </div>
-        </div>
 
-        <div className="cv-actions">
+          <div className="cv-actions">
+            <Link to="/slots" className="cv-open-slots" data-testid="cv-open-slots">
+              slots
+            </Link>
+            <a
+              className="cv-link"
+              href={REQUIREMENTS_PATH}
+              target="_blank"
+              rel="noreferrer"
+              data-testid="cv-requirements"
+            >
+              requirements
+            </a>
+            <a
+              className="cv-link"
+              href={TEST_CASES_PATH}
+              target="_blank"
+              rel="noreferrer"
+              data-testid="cv-test-cases"
+            >
+              test cases
+            </a>
+            <a className="cv-link" href={POSTMAN_TESTS_PATH} target="_blank" rel="noreferrer">
+              postman
+            </a>
+            <a className="cv-link" href={SWAGER_PATH} target="_blank" rel="noreferrer">
+              swager
+            </a>
+            <a
+              className="cv-link"
+              href={SQL_PATH}
+              target="_blank"
+              rel="noreferrer"
+              data-testid="cv-sql"
+            >
+              sql
+            </a>
+            <a className="cv-link" href={BUG_REPORT_PATH} target="_blank" rel="noreferrer">
+              bug report
+            </a>
+            <a className="cv-link" href={CV_PDF_PATH} target="_blank" rel="noreferrer">
+              Download PDF CV
+            </a>
+          </div>
+        </header>
+
+        <section className="cv-section">
+          <h2>Professional Summary</h2>
+          <p>
+            Experienced Automated QA Engineer with 7+ years of expertise in test automation, CI/CD,
+            and test framework development. Strong background in building automation frameworks from
+            scratch and maintaining large test suites, with deep hands-on experience in Java, API,
+            end-to-end, and performance testing using JMeter.
+          </p>
+        </section>
+
+        <section className="cv-section">
+          <h2>Work Experience</h2>
+          <div className="cv-experience-list">
+            {EXPERIENCE.map((item) => (
+              <article key={`${item.company}-${item.period}`} className="cv-experience-item">
+                <div className="cv-experience-head">
+                  <h3>
+                    {item.role} at {item.company}
+                  </h3>
+                  <p>
+                    {item.period} • {item.location}
+                  </p>
+                </div>
+                <ul>
+                  {item.highlights.map((highlight) => (
+                    <li key={highlight}>{highlight}</li>
+                  ))}
+                </ul>
+              </article>
+            ))}
+          </div>
+        </section>
+
+        <section className="cv-section">
+          <h2>Core Skills</h2>
+          <div className="cv-skills-grid">
+            {SKILLS.map((skill) => (
+              <span key={skill} className="cv-skill-pill">
+                {skill}
+              </span>
+            ))}
+          </div>
+        </section>
+
+        <section className="cv-section cv-languages">
+          <h2>Languages</h2>
+          <p>Ukrainian, English</p>
+        </section>
+
+        <section className="cv-section cv-final-cta">
+          <h2>Project Demo</h2>
+          <p>Use the button below to launch the interactive slots application.</p>
           <Link to="/slots" className="cv-open-slots" data-testid="cv-open-slots">
             slots
           </Link>
-          <a
-            className="cv-link"
-            href={REQUIREMENTS_PATH}
-            target="_blank"
-            rel="noreferrer"
-            data-testid="cv-requirements"
-          >
-            requirements
-          </a>
-          <a
-            className="cv-link"
-            href={TEST_CASES_PATH}
-            target="_blank"
-            rel="noreferrer"
-            data-testid="cv-test-cases"
-          >
-            test cases
-          </a>
-          <a className="cv-link" href={POSTMAN_TESTS_PATH} target="_blank" rel="noreferrer">
-            postman
-          </a>
-          <a className="cv-link" href={SWAGER_PATH} target="_blank" rel="noreferrer">
-            swager
-          </a>
-          <a
-            className="cv-link"
-            href={SQL_PATH}
-            target="_blank"
-            rel="noreferrer"
-            data-testid="cv-sql"
-          >
-            sql
-          </a>
-          <a className="cv-link" href={BUG_REPORT_PATH} target="_blank" rel="noreferrer">
-            bug report
-          </a>
-          <a className="cv-link" href={CV_PDF_PATH} target="_blank" rel="noreferrer">
-            Download PDF CV
-          </a>
-        </div>
-      </header>
-
-      <section className="cv-section">
-        <h2>Professional Summary</h2>
-        <p>
-          Experienced Automated QA Engineer with 7+ years of expertise in test automation, CI/CD,
-          and test framework development. Strong background in building automation frameworks from
-          scratch and maintaining large test suites, with deep hands-on experience in Java, API,
-          end-to-end, and performance testing using JMeter.
-        </p>
-      </section>
-
-      <section className="cv-section">
-        <h2>Work Experience</h2>
-        <div className="cv-experience-list">
-          {EXPERIENCE.map((item) => (
-            <article key={`${item.company}-${item.period}`} className="cv-experience-item">
-              <div className="cv-experience-head">
-                <h3>
-                  {item.role} at {item.company}
-                </h3>
-                <p>
-                  {item.period} • {item.location}
-                </p>
-              </div>
-              <ul>
-                {item.highlights.map((highlight) => (
-                  <li key={highlight}>{highlight}</li>
-                ))}
-              </ul>
-            </article>
-          ))}
-        </div>
-      </section>
-
-      <section className="cv-section">
-        <h2>Core Skills</h2>
-        <div className="cv-skills-grid">
-          {SKILLS.map((skill) => (
-            <span key={skill} className="cv-skill-pill">
-              {skill}
-            </span>
-          ))}
-        </div>
-      </section>
-
-      <section className="cv-section cv-languages">
-        <h2>Languages</h2>
-        <p>Ukrainian, English</p>
-      </section>
-
-      <section className="cv-section cv-final-cta">
-        <h2>Project Demo</h2>
-        <p>Use the button below to launch the interactive slots application.</p>
-        <Link to="/slots" className="cv-open-slots" data-testid="cv-open-slots">
-          slots
-        </Link>
-      </section>
-    </main>
+        </section>
+      </main>
+    </>
   );
 }
