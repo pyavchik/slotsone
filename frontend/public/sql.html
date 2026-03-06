@@ -824,8 +824,8 @@
               <tr>
                 <td><span class="erd-col-name">round_id</span></td>
                 <td><span class="erd-col-type">UUID</span></td>
-                <td><span class="erd-col-constraint erd-fk">FK</span> <span class="erd-col-constraint erd-nn">NOT NULL</span></td>
-                <td><span class="erd-def">&rarr; game_rounds(id)</span></td>
+                <td><span class="erd-col-constraint erd-fk">FK</span></td>
+                <td><span class="erd-def">&rarr; game_rounds(id) nullable</span></td>
               </tr>
               <tr>
                 <td><span class="erd-col-name">user_id</span></td>
@@ -837,7 +837,7 @@
                 <td><span class="erd-col-name">type</span></td>
                 <td><span class="erd-col-type">TEXT</span></td>
                 <td><span class="erd-col-constraint erd-nn">NOT NULL</span></td>
-                <td><span class="erd-def">CHECK ('bet','win')</span></td>
+                <td><span class="erd-def">CHECK ('bet','win','topup')</span></td>
               </tr>
               <tr>
                 <td><span class="erd-col-name">amount_cents</span></td>
@@ -1250,8 +1250,8 @@
       {
         id: 'DDL-11', category: 'ddl', op: 'CREATE TABLE',
         title: 'Create transactions table (CHECK constraint on type)',
-        desc: 'Creates the transactions ledger table. Each transaction records a bet debit or win credit. The CHECK constraint ensures type is always \'bet\' or \'win\'. Foreign keys link to game_rounds and users with CASCADE.',
-        sql: "CREATE TABLE IF NOT EXISTS transactions (\n  id                  UUID        PRIMARY KEY DEFAULT gen_random_uuid(),\n  round_id            UUID        NOT NULL REFERENCES game_rounds(id) ON DELETE CASCADE,\n  user_id             UUID        NOT NULL REFERENCES users(id) ON DELETE CASCADE,\n  type                TEXT        NOT NULL CHECK (type IN ('bet', 'win')),\n  amount_cents        BIGINT      NOT NULL,\n  balance_after_cents BIGINT      NOT NULL,\n  created_at          TIMESTAMPTZ NOT NULL DEFAULT NOW()\n);",
+        desc: 'Creates the transactions ledger table. Each transaction records a bet debit, win credit, or admin top-up. The CHECK constraint ensures type is always \'bet\', \'win\', or \'topup\'. round_id is nullable to support top-up transactions not tied to a game round. Foreign keys link to game_rounds and users with CASCADE.',
+        sql: "CREATE TABLE IF NOT EXISTS transactions (\n  id                  UUID        PRIMARY KEY DEFAULT gen_random_uuid(),\n  round_id            UUID        REFERENCES game_rounds(id) ON DELETE CASCADE,\n  user_id             UUID        NOT NULL REFERENCES users(id) ON DELETE CASCADE,\n  type                TEXT        NOT NULL CHECK (type IN ('bet', 'win', 'topup')),\n  amount_cents        BIGINT      NOT NULL,\n  balance_after_cents BIGINT      NOT NULL,\n  created_at          TIMESTAMPTZ NOT NULL DEFAULT NOW()\n);",
         params: [],
         source: 'backend/src/migrations/002_game_history.sql',
         returns: 'Table created or no-op if exists',
@@ -1383,7 +1383,7 @@
         explain: 'Explicit transaction with pool.connect():\n  1. BEGIN \u2014 starts transaction\n  2. INSERT game_rounds \u2192 returns round with UUID\n  3. INSERT transactions (bet) \u2192 debit record\n  4. INSERT transactions (win) \u2192 credit record (if win > 0)\n  5. COMMIT \u2014 makes all changes visible\n  6. On error: ROLLBACK + re-throw\n\nAtomicity guarantees: either all 2\u20133 inserts succeed\nor none persist. Prevents orphaned transactions.',
         errors: [
           { code: '23503', type: 'pg', label: 'foreign_key_violation', text: 'user_id or seed_pair_id does not exist. Prevented by prior validation.' },
-          { code: '23514', type: 'pg', label: 'check_violation', text: 'transactions.type is not \'bet\' or \'win\'. Prevented by hardcoded string literals in the code.' },
+          { code: '23514', type: 'pg', label: 'check_violation', text: 'transactions.type is not \'bet\', \'win\', or \'topup\'. Prevented by hardcoded string literals in the code.' },
           { code: '40001', type: 'pg', label: 'serialization_failure', text: 'Rare under default READ COMMITTED isolation. Would trigger ROLLBACK and the error is re-thrown to the caller.' },
         ],
       },

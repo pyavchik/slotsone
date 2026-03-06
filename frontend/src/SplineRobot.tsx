@@ -1,22 +1,27 @@
-import { lazy, Suspense, useCallback, useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
+import { Application } from '@splinetool/runtime';
 
-const Spline = lazy(() => import('@splinetool/react-spline'));
-
-const SCENE_URL = '/robot.splinecode';
+const SCENE_URL = 'https://prod.spline.design/ybMZfIZe8twskrvI/scene.splinecode';
 
 export function SplineRobot() {
+  const canvasRef = useRef<HTMLCanvasElement>(null);
   const [loaded, setLoaded] = useState(false);
-  const containerRef = useRef<HTMLDivElement>(null);
 
-  const handleLoad = useCallback(() => {
-    setLoaded(true);
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+
+    const app = new Application(canvas);
+    app.load(SCENE_URL).then(() => setLoaded(true));
+
+    return () => app.dispose();
   }, []);
 
-  // Forward every document-level mousemove to the Spline canvas so the
-  // robot tracks the cursor even when hovering over content layers above it.
+  // Forward document-level mousemove to the canvas so the robot tracks
+  // the cursor even when hovering over content layers above it.
   useEffect(() => {
     if (!loaded) return;
-    const canvas = containerRef.current?.querySelector('canvas');
+    const canvas = canvasRef.current;
     if (!canvas) return;
 
     const forward = (e: MouseEvent) => {
@@ -35,10 +40,8 @@ export function SplineRobot() {
   }, [loaded]);
 
   return (
-    <div ref={containerRef} className={`spline-bg${loaded ? ' spline-bg--ready' : ''}`}>
-      <Suspense fallback={null}>
-        <Spline scene={SCENE_URL} onLoad={handleLoad} />
-      </Suspense>
+    <div className={`spline-bg${loaded ? ' spline-bg--ready' : ''}`}>
+      <canvas ref={canvasRef} id="canvas3d" />
     </div>
   );
 }
