@@ -17,6 +17,8 @@ import {
   SpinOutcomeSchema,
   SpinRequestSchema,
   SpinResponseSchema,
+  TopUpRequestSchema,
+  TopUpResponseSchema,
   TransactionSchema,
   WinBreakdownItemSchema,
 } from '../contracts/gameContract.js';
@@ -83,6 +85,8 @@ const SeedRotationResponseRef = registry.register(
   SeedRotationResponseSchema
 );
 const ClientSeedRequestRef = registry.register('ClientSeedRequest', ClientSeedRequestSchema);
+const TopUpRequestRef = registry.register('TopUpRequest', TopUpRequestSchema);
+const TopUpResponseRef = registry.register('TopUpResponse', TopUpResponseSchema);
 const ImageGenerateRequestRef = registry.register(
   'ImageGenerateRequest',
   ImageGenerateRequestSchema
@@ -692,6 +696,53 @@ registry.registerPath({
   },
 });
 
+// ── Wallet ──
+
+registry.registerPath({
+  method: 'post',
+  path: '/api/v1/wallet/topup',
+  tags: ['Wallet'],
+  summary: 'Top up wallet balance (demo)',
+  description: 'Add funds to the authenticated user wallet. For demo/testing purposes.',
+  security: [{ bearerAuth: [] }],
+  request: {
+    body: {
+      required: true,
+      content: {
+        'application/json': {
+          schema: TopUpRequestRef,
+        },
+      },
+    },
+  },
+  responses: {
+    200: {
+      description: 'Balance topped up',
+      content: {
+        'application/json': {
+          schema: TopUpResponseRef,
+        },
+      },
+    },
+    400: {
+      description: 'Invalid request',
+      content: {
+        'application/json': {
+          schema: ErrorResponseRef,
+        },
+      },
+    },
+    401: {
+      description: 'Unauthorized',
+      content: {
+        'application/json': {
+          schema: ErrorResponseRef,
+        },
+      },
+    },
+  },
+});
+
 // ── Images ──
 
 registry.registerPath({
@@ -1039,6 +1090,7 @@ export const openApiSpec = generator.generateDocument({
     { name: 'Game' },
     { name: 'Roulette' },
     { name: 'American Roulette' },
+    { name: 'Wallet' },
     { name: 'Images' },
     { name: 'Provably Fair' },
     { name: 'System' },

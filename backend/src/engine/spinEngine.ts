@@ -29,6 +29,7 @@ export interface SpinOutcome {
     free_spins_count: number;
     bonus_round_id: string;
     multiplier: number;
+    expanding_symbol?: string;
   } | null;
 }
 

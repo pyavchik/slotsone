@@ -46,6 +46,77 @@ const THEMED_COLORS: Record<string, number> = {
   coin: 0x4ade80,
 };
 
+// ---------------------------------------------------------------------------
+// Per-game symbol configurations
+// ---------------------------------------------------------------------------
+
+export interface GameSymbolConfig {
+  /** All symbol IDs for this game (used for random rolling, warming cache, etc.) */
+  symbolIds: readonly string[];
+  /** Symbol-specific colors */
+  colors: Record<string, number>;
+  /** Display labels */
+  labels: Record<string, string>;
+  /** Image file paths (relative to /symbols/) */
+  images: Record<string, string>;
+}
+
+const BOOK_OF_DEAD_SYMBOLS: GameSymbolConfig = {
+  symbolIds: ['RichWilde', 'Osiris', 'Anubis', 'Horus', 'A', 'K', 'Q', 'J', '10', 'Book'],
+  colors: {
+    richwilde: 0xd4a017,
+    osiris: 0x22c55e,
+    anubis: 0x9333ea,
+    horus: 0x3b82f6,
+    book: 0xffd700,
+    a: 0xffd700,
+    k: 0xc0c0c0,
+    q: 0xe879f9,
+    j: 0x60a5fa,
+    '10': 0x4ade80,
+  },
+  labels: {
+    richwilde: 'Rich Wilde',
+    osiris: 'Osiris',
+    anubis: 'Anubis',
+    horus: 'Horus',
+    book: 'Book',
+  },
+  images: {
+    richwilde: 'book-of-dead/richwilde.svg',
+    osiris: 'book-of-dead/osiris.svg',
+    anubis: 'book-of-dead/anubis.svg',
+    horus: 'book-of-dead/horus.svg',
+    book: 'book-of-dead/book.svg',
+    a: 'book-of-dead/a.svg',
+    k: 'book-of-dead/k.svg',
+    q: 'book-of-dead/q.svg',
+    j: 'book-of-dead/j.svg',
+    '10': 'book-of-dead/10.svg',
+  },
+};
+
+const GAME_SYMBOL_CONFIGS: Record<string, GameSymbolConfig> = {
+  slot_book_of_dead_001: BOOK_OF_DEAD_SYMBOLS,
+};
+
+/** Current active game symbol config (set via setActiveGame) */
+let activeGameConfig: GameSymbolConfig | null = null;
+
+/** Set the active game for symbol resolution. Call when game changes. */
+export function setActiveGameSymbols(gameId: string | null): void {
+  activeGameConfig = gameId ? (GAME_SYMBOL_CONFIGS[gameId] ?? null) : null;
+}
+
+/** Get symbol IDs for the active game (falls back to default Mega Fortune set) */
+export function getActiveSymbolIds(): readonly string[] {
+  return activeGameConfig?.symbolIds ?? SYMBOL_IDS;
+}
+
+// ---------------------------------------------------------------------------
+// Core helpers
+// ---------------------------------------------------------------------------
+
 function normalizeKey(symbolId: string): string {
   return symbolId
     .trim()
@@ -78,6 +149,11 @@ function fallbackColor(symbolId: string): number {
 export function normalizeSymbolId(symbolId: string): string {
   const trimmed = symbolId.trim();
   if (!trimmed) return symbolId;
+  // For game-specific symbols, don't alias them
+  if (activeGameConfig) {
+    const key = normalizeKey(trimmed);
+    if (key in activeGameConfig.colors) return trimmed;
+  }
   const alias = THEMED_ALIASES[normalizeKey(trimmed)];
   return alias ?? trimmed;
 }
@@ -85,6 +161,12 @@ export function normalizeSymbolId(symbolId: string): string {
 export function symbolLabel(symbolId: string): string {
   const trimmed = symbolId.trim();
   if (!trimmed) return symbolId;
+  // Check game-specific labels first
+  if (activeGameConfig) {
+    const key = normalizeKey(trimmed);
+    const label = activeGameConfig.labels[key];
+    if (label) return label;
+  }
   const normalized = normalizeSymbolId(trimmed);
   if (normalized !== trimmed) return toTitleCase(trimmed);
   return trimmed;
@@ -108,6 +190,13 @@ export function symbolShortLabel(symbolId: string): string {
 
 export function symbolColorNumber(symbolId: string): number {
   const key = normalizeKey(symbolId);
+
+  // Check game-specific colors first
+  if (activeGameConfig) {
+    const gameColor = activeGameConfig.colors[key];
+    if (gameColor != null) return gameColor;
+  }
+
   const themedColor = THEMED_COLORS[key];
   if (themedColor != null) return themedColor;
 
@@ -124,6 +213,13 @@ export function symbolColorCss(symbolId: string): string {
 }
 
 export function symbolImageFileName(symbolId: string): string {
+  // Check game-specific images first
+  if (activeGameConfig) {
+    const key = normalizeKey(symbolId);
+    const gameImage = activeGameConfig.images[key];
+    if (gameImage) return gameImage;
+  }
+
   const normalized = normalizeSymbolId(symbolId);
   if (normalized in SYMBOL_IMAGE_FILES) {
     return SYMBOL_IMAGE_FILES[normalized as SymbolId];
@@ -133,6 +229,10 @@ export function symbolImageFileName(symbolId: string): string {
 
 export function symbolImagePath(symbolId: string): string {
   const fileName = symbolImageFileName(symbolId);
+  // SVG files don't need cache busting
+  if (fileName.endsWith('.svg')) {
+    return `/symbols/${fileName}`;
+  }
   if (!SYMBOL_ASSET_VERSION) {
     return `/symbols/${fileName}`;
   }

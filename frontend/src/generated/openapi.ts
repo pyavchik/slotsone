@@ -801,6 +801,67 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/wallet/topup": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Top up wallet balance (demo)
+         * @description Add funds to the authenticated user wallet. For demo/testing purposes.
+         */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": components["schemas"]["TopUpRequest"];
+                };
+            };
+            responses: {
+                /** @description Balance topped up */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["TopUpResponse"];
+                    };
+                };
+                /** @description Invalid request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/images/generate": {
         parameters: {
             query?: never;
@@ -1593,6 +1654,16 @@ export interface components {
         };
         ClientSeedRequest: {
             client_seed: string;
+        };
+        TopUpRequest: {
+            amount: number;
+        };
+        TopUpResponse: {
+            balance: {
+                amount: number;
+                currency: string;
+            };
+            credited: number;
         };
         ImageGenerateRequest: {
             /**

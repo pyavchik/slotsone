@@ -23,6 +23,7 @@ interface GameState {
   error: string | null;
   // Actions
   setToken: (t: string) => void;
+  setGameId: (id: string) => void;
   setInit: (data: InitResponse) => void;
   setBet: (amount: number) => void;
   setLines: (lines: number) => void;
@@ -56,6 +57,7 @@ export const useGameStore = create<GameState>((set) => ({
   error: null,
 
   setToken: (t) => set({ token: t }),
+  setGameId: (id) => set({ gameId: id }),
   setInit: (data) => {
     const maxLines = Math.max(1, data.config.max_lines ?? data.config.paylines);
     const minLines = Math.max(1, Math.min(maxLines, data.config.min_lines ?? 1));

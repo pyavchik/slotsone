@@ -1,0 +1,47 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120">
+  <defs>
+    <linearGradient id="bk-bg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#2a1a08"/>
+      <stop offset="100%" stop-color="#140d04"/>
+    </linearGradient>
+    <linearGradient id="bk-cover" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#D4A017"/>
+      <stop offset="50%" stop-color="#8B6914"/>
+      <stop offset="100%" stop-color="#D4A017"/>
+    </linearGradient>
+    <radialGradient id="bk-glow" cx="50%" cy="50%">
+      <stop offset="0%" stop-color="#FFD700" stop-opacity="0.4"/>
+      <stop offset="100%" stop-color="#FFD700" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+  <rect width="120" height="120" rx="12" fill="url(#bk-bg)"/>
+  <!-- Glow -->
+  <circle cx="60" cy="52" r="40" fill="url(#bk-glow)"/>
+  <!-- Book body (open) -->
+  <path d="M28 30 L28 82 Q60 72 60 72 Q60 72 92 82 L92 30 Z" fill="#6B3A1F" stroke="#D4A017" stroke-width="1.5"/>
+  <!-- Left page -->
+  <path d="M30 32 L30 78 Q58 70 58 70 L58 30 Z" fill="#F5E6C8"/>
+  <!-- Right page -->
+  <path d="M62 30 L62 70 Q90 78 90 78 L90 32 Z" fill="#F5E6C8"/>
+  <!-- Spine -->
+  <line x1="60" y1="28" x2="60" y2="74" stroke="#D4A017" stroke-width="3"/>
+  <!-- Hieroglyphs on left page -->
+  <text x="44" y="44" text-anchor="middle" font-family="serif" font-size="8" fill="#8B6914" opacity="0.6">&#x131F3;</text>
+  <line x1="34" y1="48" x2="54" y2="48" stroke="#8B6914" stroke-width="0.5" opacity="0.4"/>
+  <line x1="34" y1="52" x2="50" y2="52" stroke="#8B6914" stroke-width="0.5" opacity="0.4"/>
+  <line x1="34" y1="56" x2="52" y2="56" stroke="#8B6914" stroke-width="0.5" opacity="0.4"/>
+  <line x1="34" y1="60" x2="48" y2="60" stroke="#8B6914" stroke-width="0.5" opacity="0.4"/>
+  <!-- Eye symbol on right page -->
+  <ellipse cx="76" cy="46" rx="8" ry="5" fill="none" stroke="#8B6914" stroke-width="1"/>
+  <circle cx="76" cy="46" r="2.5" fill="#8B6914"/>
+  <line x1="68" y1="52" x2="84" y2="52" stroke="#8B6914" stroke-width="0.5" opacity="0.4"/>
+  <line x1="68" y1="56" x2="82" y2="56" stroke="#8B6914" stroke-width="0.5" opacity="0.4"/>
+  <line x1="68" y1="60" x2="80" y2="60" stroke="#8B6914" stroke-width="0.5" opacity="0.4"/>
+  <!-- Gold corner ornaments -->
+  <path d="M28 30 L38 30 L28 40 Z" fill="#D4A017" opacity="0.4"/>
+  <path d="M92 30 L82 30 L92 40 Z" fill="#D4A017" opacity="0.4"/>
+  <!-- WILD + SCATTER label -->
+  <text x="60" y="96" text-anchor="middle" font-family="serif" font-size="9" font-weight="bold" fill="#FFD700">WILD + SCATTER</text>
+  <!-- Label -->
+  <text x="60" y="112" text-anchor="middle" font-family="serif" font-size="13" font-weight="bold" fill="#FFD700">BOOK</text>
+</svg>

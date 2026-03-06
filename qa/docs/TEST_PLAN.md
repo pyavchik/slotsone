@@ -3,11 +3,11 @@
 | Field            | Value                                      |
 |------------------|--------------------------------------------|
 | **Document ID**  | QA-TP-001                                  |
-| **Version**      | 1.0                                        |
+| **Version**      | 1.1                                        |
 | **Status**       | Draft                                      |
 | **Author**       | QA Engineering                             |
 | **Created**      | 2026-03-05                                 |
-| **Last Updated** | 2026-03-05                                 |
+| **Last Updated** | 2026-03-06                                 |
 | **Review Cycle** | Per sprint (bi-weekly)                     |
 | **Classification** | Internal -- Confidential                 |
 
@@ -20,6 +20,7 @@
 | 0.1     | 2026-02-10 | QA Engineering | Initial draft                  |
 | 0.5     | 2026-02-24 | QA Engineering | Added roulette test coverage   |
 | 1.0     | 2026-03-05 | QA Engineering | Full plan with American Roulette, admin panel |
+| 1.1     | 2026-03-06 | QA Engineering | Added Book of Dead multi-game, wallet top-up |
 
 ---
 
@@ -87,9 +88,10 @@ See [Appendix A](#appendix-a--glossary).
 | Module              | Endpoints / Functions                                   | Version |
 |---------------------|---------------------------------------------------------|---------|
 | Authentication      | `POST /api/v1/auth/register`, `POST /api/v1/auth/login` | 1.0     |
-| Slot Game Engine    | `POST /api/v1/game/init`, `POST /api/v1/game/spin`     | 1.0     |
+| Slot Game Engine    | `POST /api/v1/game/init`, `POST /api/v1/spin` (multi-game registry) | 1.1 |
+| Book of Dead Engine | `game_id: slot_book_of_dead_001`, 10 paylines, expanding symbols | 1.1 |
 | European Roulette   | `POST /api/v1/roulette/init`, `POST /api/v1/roulette/spin` | 1.0  |
-| Wallet              | Balance read, debit (optimistic locking), credit        | 1.0     |
+| Wallet              | Balance read, debit (optimistic locking), credit, `POST /api/v1/wallet/topup` | 1.1 |
 | Game History        | `GET /api/v1/game/history` with filters, pagination, summary | 1.0 |
 | Round Detail        | `GET /api/v1/game/round/:id` with transactions          | 1.0     |
 | Provably Fair       | `POST /api/v1/game/seed/rotate`, `PUT /api/v1/game/seed/client`, seed verification | 1.0 |
@@ -100,7 +102,8 @@ See [Appendix A](#appendix-a--glossary).
 | Module              | Description                                              |
 |---------------------|----------------------------------------------------------|
 | Lobby               | Game catalog grid, category filtering, admin toggle respect |
-| Slot Machine (PixiJS) | 5x3 reel animation, 20 paylines, wild/scatter, free spins |
+| Slot Machine (PixiJS) | 5x3 reel animation, multi-game symbol system, wild/scatter, free spins |
+| Book of Dead          | 10 paylines, Egyptian-themed symbols, Book as Wild+Scatter, expanding symbols |
 | European Roulette   | Wheel animation, betting table, La Partage, announced bets |
 | American Roulette   | 38-pocket wheel (0, 00), 12 bet types, chip denominations |
 | Authentication      | Login/register forms, JWT storage, token refresh          |
@@ -150,6 +153,9 @@ Features are prioritised using a P0-P3 scale aligned with business criticality a
 | P0-11 | Provably fair verification     | `HMAC-SHA256(server_seed, client_seed:nonce)` reproduces the spin seed |
 | P0-12 | Insufficient balance guard     | Spin rejected with `insufficient_balance` when bet exceeds wallet |
 | P0-13 | Optimistic locking             | Concurrent debit attempts do not cause double-spend           |
+| P0-14 | Multi-game init dispatch        | `game_id` in init request selects correct engine config (Mega Fortune vs Book of Dead) |
+| P0-15 | Book of Dead payout correctness | Win amounts match BoD paytable; Book symbol acts as Wild+Scatter |
+| P0-16 | Wallet top-up                  | `POST /api/v1/wallet/topup` credits correct amount; balance reflects addition |
 
 ### P1 -- High (Sprint Blocker)
 
@@ -168,6 +174,9 @@ Features are prioritised using a P0-P3 scale aligned with business criticality a
 | P1-11 | Client seed update             | Custom client seed (1-64 chars) accepted; reflected in subsequent spins |
 | P1-12 | Scatter / Free Spins trigger   | 3/4/5 scatters award 5/10/20 free spins with correct bonus round ID |
 | P1-13 | Wild substitution              | Wild substitutes for all symbols except Scatter               |
+| P1-15 | BoD expanding symbol           | During free spins, selected symbol expands to fill entire reel |
+| P1-16 | BoD game-specific symbols      | Reel matrix contains only valid BoD symbols (RichWilde, Osiris, Anubis, Horus, Book, A, K, Q, J, 10) |
+| P1-17 | Wallet top-up validation       | Amount must be positive, max $100,000; rejects 0, negative, and over-limit |
 | P1-14 | JWT validation                 | Expired/malformed/missing tokens return 401                   |
 
 ### P2 -- Medium (Should Fix)
@@ -244,6 +253,8 @@ The test approach follows the **ISTQB test pyramid** adapted for a microservices
 | Register -> Init Roulette -> Place Bets -> Spin | Bets validated, winning number correct, La Partage applied, balance updated |
 | Spin -> Round Detail -> Provably Fair Verify   | Server seed revealed on rotation, HMAC reproduces spin seed |
 | Admin Login -> Toggle Game -> Lobby Refresh    | Disabled game excluded from `GET /admin/api/public/games` inactive set |
+| Register -> Init BoD -> Spin -> Verify Symbols | Session uses BoD config, reel matrix contains only BoD symbols, paylines = 10 |
+| Register -> Top-up -> Spin -> Verify Balance   | Top-up credited, spin debit applied to updated balance, history reflects both |
 
 #### 4.1.3 System Testing
 
@@ -267,6 +278,11 @@ The test approach follows the **ISTQB test pyramid** adapted for a microservices
 #### 4.2.1 Functional Testing
 
 Verification that all API endpoints and UI interactions produce correct results per the OpenAPI specification and game math models.
+
+Key areas include:
+
+- **Multi-game architecture (Book of Dead):** Validates that the game init dispatch correctly selects the BoD engine config (`slot_book_of_dead_001`), produces a 5x3 reel matrix with game-specific symbols (RichWilde, Osiris, Anubis, Horus, Book, A, K, Q, J, 10), enforces 10-payline evaluation, and handles the Book symbol as both Wild (line substitution) and Scatter (free spin trigger with expanding symbol mechanic).
+- **Wallet top-up endpoint:** Verifies `POST /api/v1/wallet/topup` with boundary value testing ($0.01 minimum, $100,000 maximum), rejection of zero/negative/over-limit amounts, authentication enforcement, and correct balance accumulation across multiple top-ups.
 
 #### 4.2.2 Performance Testing
 
@@ -305,7 +321,8 @@ Verification that all API endpoints and UI interactions produce correct results 
 
 | Test                    | Method                                                  | Acceptance Criteria |
 |-------------------------|---------------------------------------------------------|---------------------|
-| Slot RTP validation     | Run 1,000,000 simulated spins; calculate actual RTP    | Within +/- 0.5% of theoretical 96.4% |
+| Slot RTP validation (Mega Fortune) | Run 1,000,000 simulated spins; calculate actual RTP | Within +/- 0.5% of theoretical 96.4% |
+| Slot RTP validation (Book of Dead) | Run 1,000,000 simulated spins; calculate actual RTP | Within +/- 0.5% of theoretical 96.21% |
 | Roulette number distribution | Run 1,000,000 spins; chi-squared test on 37 outcomes | p-value > 0.01 (no significant bias) |
 | Roulette RTP (European) | Calculated from distribution + payouts                 | Within +/- 0.3% of theoretical 97.3% |
 | PRNG seed independence  | Kolmogorov-Smirnov test on consecutive outputs         | Distribution indistinguishable from uniform |
@@ -322,6 +339,7 @@ Verification that all API endpoints and UI interactions produce correct results 
 | Roulette total bet | < $0.10   | $0.10 -- $2,000.00     | > $2,000.00          |
 | Straight bet numbers | []      | [0] -- [36] (single)   | [0, 1] (wrong size)  |
 | Client seed length | "" (empty) | 1 -- 64 characters     | > 64 characters      |
+| Wallet top-up amount | <= $0.00  | $0.01 -- $100,000.00   | > $100,000.00        |
 
 #### 4.3.2 Boundary Value Analysis
 
@@ -335,6 +353,8 @@ Verification that all API endpoints and UI interactions produce correct results 
 | Wallet balance          | $0.00 (cannot spin), $0.10 (minimum viable spin)      |
 | History limit           | 0, 1, default, max                                    |
 | Client seed             | 1 char, 64 chars, 65 chars                            |
+| Wallet top-up min       | $0.00 (reject), $0.01 (accept), $0.02 (accept)       |
+| Wallet top-up max       | $99,999.99 (accept), $100,000.00 (accept), $100,000.01 (reject) |
 
 #### 4.3.3 State Transition Testing
 
@@ -434,7 +454,8 @@ Used for roulette multi-bet scenarios: combinations of bet types placed simultan
 | P2 test cases passed                               | > 85%                               |
 | Open critical / blocker defects                    | 0                                   |
 | Open major defects                                 | < 3 (with documented workarounds)   |
-| Slot RTP validation                                | Within +/- 0.5% of 96.4%           |
+| Slot RTP validation (Mega Fortune)                 | Within +/- 0.5% of 96.4%           |
+| Slot RTP validation (Book of Dead)                 | Within +/- 0.5% of 96.21%          |
 | European Roulette RTP validation                   | Within +/- 0.3% of 97.3%           |
 | American Roulette RTP validation                   | Within +/- 0.3% of 94.74%          |
 | Provably fair verification                         | 100% of sampled rounds verify       |

@@ -138,6 +138,8 @@
       .badge-sec    { background: rgba(248,113,113,0.15); color: #f87171; }
       .badge-eur    { background: rgba(168,85,247,0.15); color: #a855f7; }
       .badge-amr    { background: rgba(244,114,182,0.15); color: #f472b6; }
+      .badge-bod    { background: rgba(234,179,8,0.15); color: #eab308; }
+      .badge-wal    { background: rgba(59,130,246,0.15); color: #3b82f6; }
       .badge-pf     { background: rgba(45,212,191,0.15); color: #2dd4bf; }
       .expects {
         font-family: ui-monospace, monospace;
@@ -151,7 +153,7 @@
 
       <section class="card">
         <h1>Postman Tests</h1>
-        <p class="subtitle">SlotsOne API — Full Regression Suite (Slots, European Roulette, American Roulette)</p>
+        <p class="subtitle">SlotsOne API — Full Regression Suite (Slots, European Roulette, American Roulette, Book of Dead, Wallet)</p>
         <p>Download the collection and environment, then run the full regression suite in Postman or Newman. Includes pre-request scripts with Postman faker variables and post-response test assertions.</p>
 
         <div class="actions">
@@ -434,6 +436,52 @@
               <td><span class="badge badge-neg">Negative</span></td>
               <td>POST /american-roulette/spin — zero bet amount</td>
               <td class="expects">400, validation error</td>
+            </tr>
+
+            <!-- Book of Dead -->
+            <tr>
+              <td class="tc-id">BOD-01</td>
+              <td><span class="badge badge-bod">Book of Dead</span></td>
+              <td>POST /game/init — Init Book of Dead session</td>
+              <td class="expects">200, session_id, game_id=slot_book_of_dead_001, paylines=10</td>
+            </tr>
+            <tr>
+              <td class="tc-id">BOD-02</td>
+              <td><span class="badge badge-bod">Book of Dead</span></td>
+              <td>POST /spin — Spin with valid bet (10 lines)</td>
+              <td class="expects">200, spin_id, 5×3 reel_matrix, win ≥ 0</td>
+            </tr>
+            <tr>
+              <td class="tc-id">BOD-03</td>
+              <td><span class="badge badge-bod">Book of Dead</span></td>
+              <td>POST /spin — Verify BoD-specific symbols in matrix</td>
+              <td class="expects">Matrix contains BoD symbols (RichWilde, Osiris, Anubis, Horus, Book, A-10)</td>
+            </tr>
+            <tr>
+              <td class="tc-id">BOD-04</td>
+              <td><span class="badge badge-bod">Book of Dead</span></td>
+              <td>POST /spin — Verify config RTP ~96.21%</td>
+              <td class="expects">config.rtp close to 96.21</td>
+            </tr>
+
+            <!-- Wallet -->
+            <tr>
+              <td class="tc-id">WAL-01</td>
+              <td><span class="badge badge-wal">Wallet</span></td>
+              <td>POST /wallet/topup — Top up balance $500</td>
+              <td class="expects">200, credited=500, balance updated</td>
+            </tr>
+            <tr>
+              <td class="tc-id">WAL-02</td>
+              <td><span class="badge badge-wal">Wallet</span></td>
+              <td>POST /wallet/topup — Top up with zero amount</td>
+              <td class="expects">400, validation error</td>
+            </tr>
+            <tr>
+              <td class="tc-id">WAL-03</td>
+              <td><span class="badge badge-wal">Wallet</span></td>
+              <td>POST /wallet/topup — Top up without auth</td>
+              <td class="expects">401, unauthorized</td>
             </tr>
 
             <!-- Provably Fair -->

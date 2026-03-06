@@ -29,6 +29,9 @@
       "name": "American Roulette"
     },
     {
+      "name": "Wallet"
+    },
+    {
       "name": "Images"
     },
     {
@@ -1614,6 +1617,50 @@
         },
         "required": [
           "client_seed"
+        ],
+        "additionalProperties": false
+      },
+      "TopUpRequest": {
+        "type": "object",
+        "properties": {
+          "amount": {
+            "type": "number",
+            "minimum": 0,
+            "exclusiveMinimum": true,
+            "maximum": 100000
+          }
+        },
+        "required": [
+          "amount"
+        ],
+        "additionalProperties": false
+      },
+      "TopUpResponse": {
+        "type": "object",
+        "properties": {
+          "balance": {
+            "type": "object",
+            "properties": {
+              "amount": {
+                "type": "number"
+              },
+              "currency": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "amount",
+              "currency"
+            ],
+            "additionalProperties": false
+          },
+          "credited": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "balance",
+          "credited"
         ],
         "additionalProperties": false
       },
@@ -3980,6 +4027,62 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/SeedPairResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/wallet/topup": {
+      "post": {
+        "tags": [
+          "Wallet"
+        ],
+        "summary": "Top up wallet balance (demo)",
+        "description": "Add funds to the authenticated user wallet. For demo/testing purposes.",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TopUpRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Balance topped up",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TopUpResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
                 }
               }
             }

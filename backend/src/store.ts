@@ -12,7 +12,22 @@ import {
   SYMBOLS,
   SCATTER_FREE_SPINS,
 } from './engine/gameConfig.js';
-import { runSpin } from './engine/spinEngine.js';
+import { runSpin, buildIdleMatrix as buildMegaFortuneIdleMatrix } from './engine/spinEngine.js';
+import {
+  BOD_MIN_BET,
+  BOD_MAX_BET,
+  BOD_BET_LEVELS,
+  BOD_PAYLINES,
+  BOD_LINE_DEFS,
+  BOD_REELS,
+  BOD_ROWS,
+  BOD_CURRENCY,
+  BOD_PAYTABLE,
+  BOD_SYMBOLS,
+  BOD_SCATTER_FREE_SPINS,
+  BOD_GAME_ID,
+} from './engine/bookOfDeadConfig.js';
+import { runBookOfDeadSpin, buildBookOfDeadIdleMatrix } from './engine/bookOfDeadEngine.js';
 import { randomUUID } from 'crypto';
 import { getOrCreateWallet, debitWallet, creditWallet } from './walletStore.js';
 import { getOrCreateActiveSeedPair, incrementNonce } from './seedStore.js';
@@ -66,9 +81,6 @@ const TTL_IDEMPOTENCY_MS = 24 * 60 * 60 * 1000;
 const TTL_SESSION_MS = 60 * 60 * 1000;
 const CLEANUP_INTERVAL_MS = 5 * 60 * 1000;
 const RATE_LIMIT_SPINS_PER_SEC = 5;
-const MIN_ACTIVE_LINES = 1;
-const MAX_ACTIVE_LINES = PAYLINES;
-
 const lineWins = SYMBOLS.map((symbol, index) => {
   const [x3, x4, x5] = PAYTABLE[index] ?? [0, 0, 0];
   return { symbol, x3, x4, x5 };
@@ -87,6 +99,132 @@ const paytableConfig = {
     substitutes_for: lineWins.map((item) => item.symbol),
   },
 } as const;
+
+// Book of Dead paytable config (uses 2/3/4/5 of a kind)
+const bodLineWins = BOD_SYMBOLS.map((symbol, index) => {
+  const [x2, x3, x4, x5] = BOD_PAYTABLE[index] ?? [0, 0, 0, 0];
+  return { symbol, x2, x3, x4, x5 };
+})
+  .filter((item) => item.x2 > 0 || item.x3 > 0 || item.x4 > 0 || item.x5 > 0)
+  .sort((a, b) => b.x5 - a.x5);
+
+const bodPaytableConfig = {
+  line_wins: bodLineWins,
+  scatter: {
+    symbol: 'Book',
+    awards: BOD_SCATTER_FREE_SPINS.map(([count, freeSpins]) => ({ count, free_spins: freeSpins })),
+  },
+  wild: {
+    symbol: 'Book',
+    substitutes_for: bodLineWins.map((item) => item.symbol),
+  },
+} as const;
+
+interface SlotGameEntry {
+  minBet: number;
+  maxBet: number;
+  currency: string;
+  minLines: number;
+  maxLines: number;
+  runSpin: (
+    betAmount: number,
+    currency: string,
+    lines: number,
+    seed: number
+  ) => { outcome: SpinOutcome; seedUsed: number };
+  buildIdleMatrix: () => string[][];
+  getConfig: () => ReturnType<typeof getSlotConfig>;
+}
+
+function getSlotConfig(
+  reels: number,
+  rows: number,
+  paylines: number,
+  currencies: string[],
+  minBet: number,
+  maxBet: number,
+  maxLines: number,
+  lineDefs: number[][],
+  betLevels: number[],
+  paytable: unknown,
+  rtp: number,
+  volatility: string,
+  features: string[]
+) {
+  return {
+    reels,
+    rows,
+    paylines,
+    currencies,
+    min_bet: minBet,
+    max_bet: maxBet,
+    min_lines: 1,
+    max_lines: maxLines,
+    default_lines: maxLines,
+    line_defs: lineDefs,
+    bet_levels: betLevels,
+    paytable_url: '',
+    paytable,
+    rules_url: '',
+    rtp,
+    volatility,
+    features,
+  };
+}
+
+const SLOT_GAME_REGISTRY: Record<string, SlotGameEntry> = {
+  slot_mega_fortune_001: {
+    minBet: MIN_BET,
+    maxBet: MAX_BET,
+    currency: CURRENCY,
+    minLines: 1,
+    maxLines: PAYLINES,
+    runSpin: (betAmount, currency, lines, seed) => runSpin(betAmount, currency, lines, seed),
+    buildIdleMatrix: buildMegaFortuneIdleMatrix,
+    getConfig: () =>
+      getSlotConfig(
+        REELS,
+        ROWS,
+        PAYLINES,
+        [CURRENCY],
+        MIN_BET,
+        MAX_BET,
+        PAYLINES,
+        LINE_DEFS,
+        BET_LEVELS,
+        paytableConfig,
+        96.5,
+        'high',
+        ['free_spins', 'multipliers', 'scatter']
+      ),
+  },
+  [BOD_GAME_ID]: {
+    minBet: BOD_MIN_BET,
+    maxBet: BOD_MAX_BET,
+    currency: BOD_CURRENCY,
+    minLines: 1,
+    maxLines: BOD_PAYLINES,
+    runSpin: (betAmount, currency, lines, seed) =>
+      runBookOfDeadSpin(betAmount, currency, lines, seed),
+    buildIdleMatrix: buildBookOfDeadIdleMatrix,
+    getConfig: () =>
+      getSlotConfig(
+        BOD_REELS,
+        BOD_ROWS,
+        BOD_PAYLINES,
+        [BOD_CURRENCY],
+        BOD_MIN_BET,
+        BOD_MAX_BET,
+        BOD_PAYLINES,
+        BOD_LINE_DEFS,
+        BOD_BET_LEVELS,
+        bodPaytableConfig,
+        96.21,
+        'high',
+        ['free_spins', 'expanding_symbol', 'wild_scatter']
+      ),
+  },
+};
 
 function idempotencyKeyForUser(userId: string, key: string): string {
   return `${userId}:${key}`;
@@ -234,26 +372,13 @@ export async function getSession(sessionId: string): Promise<Session | undefined
   };
 }
 
-export function getConfig() {
-  return {
-    reels: REELS,
-    rows: ROWS,
-    paylines: PAYLINES,
-    currencies: [CURRENCY],
-    min_bet: MIN_BET,
-    max_bet: MAX_BET,
-    min_lines: MIN_ACTIVE_LINES,
-    max_lines: MAX_ACTIVE_LINES,
-    default_lines: MAX_ACTIVE_LINES,
-    line_defs: LINE_DEFS,
-    bet_levels: BET_LEVELS,
-    paytable_url: '',
-    paytable: paytableConfig,
-    rules_url: '',
-    rtp: 96.5,
-    volatility: 'high' as const,
-    features: ['free_spins', 'multipliers', 'scatter'],
-  };
+export function getConfig(gameId?: string) {
+  const slotGame = SLOT_GAME_REGISTRY[gameId ?? 'slot_mega_fortune_001'];
+  if (slotGame) {
+    return slotGame.getConfig();
+  }
+  // Default to Mega Fortune for backward compatibility
+  return SLOT_GAME_REGISTRY['slot_mega_fortune_001']!.getConfig();
 }
 
 export interface SpinResult {
@@ -318,15 +443,21 @@ export async function executeSpin(
     return { error: 'Invalid game for session', code: 400 };
   }
 
-  if (betAmount < MIN_BET || betAmount > MAX_BET) {
+  const slotGame = SLOT_GAME_REGISTRY[gameId];
+  if (!slotGame) {
+    log.warn({ userId, sessionId, gameId, reason: 'unknown_slot_game' }, 'spin_rejected');
+    return { error: 'Unknown slot game', code: 400 };
+  }
+
+  if (betAmount < slotGame.minBet || betAmount > slotGame.maxBet) {
     log.warn({ userId, sessionId, betAmount, reason: 'bet_out_of_range' }, 'spin_rejected');
     return { error: 'Bet amount out of range', code: 422 };
   }
-  if (currency !== CURRENCY) {
+  if (currency !== slotGame.currency) {
     log.warn({ userId, sessionId, currency, reason: 'invalid_currency' }, 'spin_rejected');
     return { error: 'Invalid currency', code: 422 };
   }
-  if (!Number.isInteger(lines) || lines < MIN_ACTIVE_LINES || lines > MAX_ACTIVE_LINES) {
+  if (!Number.isInteger(lines) || lines < slotGame.minLines || lines > slotGame.maxLines) {
     log.warn({ userId, sessionId, lines, reason: 'invalid_lines' }, 'spin_rejected');
     return { error: 'Invalid lines count', code: 422 };
   }
@@ -406,7 +537,7 @@ export async function executeSpin(
       'wallet_debit'
     );
 
-    const { outcome } = runSpin(betAmount, currency, lines, spinSeed);
+    const { outcome } = slotGame.runSpin(betAmount, currency, lines, spinSeed);
     const winCents = Math.round(outcome.win.amount * 100);
     const outcomeHash = hashOutcome(outcome);
 

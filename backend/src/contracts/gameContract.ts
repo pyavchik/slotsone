@@ -301,6 +301,21 @@ export const ClientSeedRequestSchema = z
   })
   .strict();
 
+export const TopUpRequestSchema = z
+  .object({
+    amount: z.number().positive().max(100000),
+  })
+  .strict();
+
+export const TopUpResponseSchema = z
+  .object({
+    balance: BalanceSchema,
+    credited: z.number(),
+  })
+  .strict();
+
+export type TopUpRequest = z.infer<typeof TopUpRequestSchema>;
+export type TopUpResponse = z.infer<typeof TopUpResponseSchema>;
 export type InitRequest = z.infer<typeof InitRequestSchema>;
 export type SpinRequest = z.infer<typeof SpinRequestSchema>;
 export type InitResponse = z.infer<typeof InitResponseSchema>;

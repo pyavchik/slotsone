@@ -485,6 +485,28 @@ export async function generateThumbnail(
   return (await res.json()) as ThumbnailResponse;
 }
 
+// ---------------------------------------------------------------------------
+// Wallet API
+// ---------------------------------------------------------------------------
+
+export interface TopUpResponse {
+  balance: { amount: number; currency: string };
+  credited: number;
+}
+
+export async function topUpWallet(token: string, amount: number): Promise<TopUpResponse> {
+  const res = await fetch(`${API_BASE}/wallet/topup`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...authHeaders(token) },
+    body: JSON.stringify({ amount }),
+  });
+  if (!res.ok) {
+    const err = (await res.json().catch(() => ({}))) as Partial<ErrorResponse>;
+    throw new ApiError(err.error ?? res.statusText, res.status);
+  }
+  return (await res.json()) as TopUpResponse;
+}
+
 export async function setClientSeed(token: string, clientSeed: string): Promise<SeedPairInfo> {
   const res = await fetch(`${API_BASE}/provably-fair/client-seed`, {
     method: 'PUT',

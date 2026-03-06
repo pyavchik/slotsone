@@ -1,6 +1,11 @@
 import { Application, Assets, Container, Graphics, Sprite, Text } from 'pixi.js';
 import type { Texture } from 'pixi.js';
-import { SYMBOL_IDS, normalizeSymbolId, symbolColorNumber, symbolImagePath } from '../symbols';
+import {
+  normalizeSymbolId,
+  symbolColorNumber,
+  symbolImagePath,
+  getActiveSymbolIds,
+} from '../symbols';
 
 const REELS = 5;
 const ROWS = 3;
@@ -53,7 +58,8 @@ function clamp(value: number, min: number, max: number): number {
 }
 
 function randomSymbolId(): string {
-  return SYMBOL_IDS[Math.floor(Math.random() * SYMBOL_IDS.length)]!;
+  const ids = getActiveSymbolIds();
+  return ids[Math.floor(Math.random() * ids.length)]!;
 }
 
 function prefersReducedMotion(): boolean {
@@ -187,7 +193,8 @@ class SymbolTextureBank {
   ) {}
 
   async warm(): Promise<void> {
-    await Promise.allSettled(SYMBOL_IDS.map((id) => this.resolveAsync(id)));
+    const ids = getActiveSymbolIds();
+    await Promise.allSettled(ids.map((id) => this.resolveAsync(id)));
   }
 
   sprite(symbolId: string): Sprite {
@@ -1004,7 +1011,7 @@ export class ReelGrid {
   private defaultIdleMatrix(): string[][] {
     // Build per-row shuffled pools so no row shows the same symbol twice.
     const rowPools: string[][] = Array.from({ length: ROWS }, () => {
-      const pool = [...SYMBOL_IDS] as string[];
+      const pool = [...getActiveSymbolIds()] as string[];
       for (let i = pool.length - 1; i > 0; i--) {
         const j = Math.floor(Math.random() * (i + 1));
         [pool[i], pool[j]] = [pool[j]!, pool[i]!];

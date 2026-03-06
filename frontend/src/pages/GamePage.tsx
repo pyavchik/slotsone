@@ -1,7 +1,9 @@
 import { useEffect, useState, useCallback, useRef } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import { initGame, spin, refreshAccessToken, logout, ApiError } from '@/api';
 import { useGameStore } from '@/store';
+import { getGameBySlug } from '@/data/catalog';
+import { setActiveGameSymbols } from '@/symbols';
 import { SlotCanvas } from '@/SlotCanvas';
 import { BetPanel } from '@/BetPanel';
 import { HUD } from '@/HUD';
@@ -13,10 +15,22 @@ const DEMO_TOKEN = import.meta.env.VITE_DEMO_JWT;
 
 export default function GamePage() {
   const navigate = useNavigate();
+  const { slug } = useParams<{ slug: string }>();
 
   const token = useGameStore((s) => s.token);
   const sessionId = useGameStore((s) => s.sessionId);
-  const gameId = useGameStore((s) => s.gameId);
+  const setGameId = useGameStore((s) => s.setGameId);
+
+  // Derive gameId from URL slug (synchronous, no effect needed)
+  const catalogEntry = slug ? getGameBySlug(slug) : undefined;
+  const gameId = catalogEntry?.gameId ?? 'slot_mega_fortune_001';
+
+  // Keep store in sync and activate game-specific symbols
+  useEffect(() => {
+    setGameId(gameId);
+    setActiveGameSymbols(gameId);
+    return () => setActiveGameSymbols(null);
+  }, [gameId, setGameId]);
   const bet = useGameStore((s) => s.bet);
   const lines = useGameStore((s) => s.lines);
   const currency = useGameStore((s) => s.currency);
@@ -101,7 +115,7 @@ export default function GamePage() {
     }
 
     if (!token) {
-      navigate('/login?next=/slots/mega-fortune', { replace: true });
+      navigate(`/login?next=/slots/${slug ?? 'mega-fortune'}`, { replace: true });
       return;
     }
 

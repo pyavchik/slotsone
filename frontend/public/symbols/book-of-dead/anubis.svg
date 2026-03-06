@@ -1,0 +1,31 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120">
+  <defs>
+    <linearGradient id="an-bg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#1a0a2e"/>
+      <stop offset="100%" stop-color="#0d0518"/>
+    </linearGradient>
+  </defs>
+  <rect width="120" height="120" rx="12" fill="url(#an-bg)"/>
+  <!-- Ears -->
+  <path d="M42 40 L36 10 L50 32 Z" fill="#2a1a3e" stroke="#9333ea" stroke-width="1"/>
+  <path d="M78 40 L84 10 L70 32 Z" fill="#2a1a3e" stroke="#9333ea" stroke-width="1"/>
+  <!-- Jackal head -->
+  <ellipse cx="60" cy="48" rx="22" ry="20" fill="#1a1a1a"/>
+  <!-- Snout -->
+  <path d="M48 52 Q44 58 42 68 Q50 72 60 68 Q70 72 78 68 Q76 58 72 52" fill="#111"/>
+  <ellipse cx="60" cy="66" rx="6" ry="4" fill="#2a1a3e"/>
+  <!-- Eyes - glowing -->
+  <ellipse cx="50" cy="42" rx="6" ry="4" fill="#9333ea"/>
+  <ellipse cx="50" cy="42" rx="3" ry="2" fill="#c084fc"/>
+  <ellipse cx="70" cy="42" rx="6" ry="4" fill="#9333ea"/>
+  <ellipse cx="70" cy="42" rx="3" ry="2" fill="#c084fc"/>
+  <!-- Necklace/collar -->
+  <path d="M36 72 Q60 82 84 72" fill="none" stroke="#FFD700" stroke-width="3"/>
+  <path d="M38 78 Q60 88 82 78" fill="none" stroke="#FFD700" stroke-width="2" opacity="0.6"/>
+  <!-- Ankh -->
+  <circle cx="60" cy="92" r="5" fill="none" stroke="#FFD700" stroke-width="2"/>
+  <line x1="60" y1="97" x2="60" y2="106" stroke="#FFD700" stroke-width="2"/>
+  <line x1="54" y1="101" x2="66" y2="101" stroke="#FFD700" stroke-width="2"/>
+  <!-- Label -->
+  <text x="60" y="116" text-anchor="middle" font-family="serif" font-size="12" font-weight="bold" fill="#c084fc">ANUBIS</text>
+</svg>

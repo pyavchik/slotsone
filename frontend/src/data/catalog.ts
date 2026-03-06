@@ -13,6 +13,8 @@ export interface GameItem {
   status: GameStatus;
   badge: GameBadge;
   thumbnail?: string;
+  /** Backend game_id for playable slot games */
+  gameId?: string;
 }
 
 export const CATEGORIES: { value: GameCategory; label: string }[] = [
@@ -34,6 +36,7 @@ const GAMES: GameItem[] = [
     status: 'available',
     badge: 'TOP',
     thumbnail: '/games/mega-fortune.png',
+    gameId: 'slot_mega_fortune_001',
   },
   {
     slug: 'book-of-dead',
@@ -42,9 +45,10 @@ const GAMES: GameItem[] = [
     provider: "Play'n GO",
     rtp: 96.21,
     volatility: 'high',
-    status: 'soon',
+    status: 'available',
     badge: 'HOT',
     thumbnail: '/games/book-of-dead.png',
+    gameId: 'slot_book_of_dead_001',
   },
   {
     slug: 'sweet-bonanza',

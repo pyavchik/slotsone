@@ -1,0 +1,31 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120">
+  <defs>
+    <linearGradient id="ho-bg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#1a2040"/>
+      <stop offset="100%" stop-color="#0a1020"/>
+    </linearGradient>
+  </defs>
+  <rect width="120" height="120" rx="12" fill="url(#ho-bg)"/>
+  <!-- Eye of Horus -->
+  <g transform="translate(60,50) scale(1.4)">
+    <!-- Eyebrow -->
+    <path d="M-28 -12 Q0 -22 28 -12" fill="none" stroke="#3b82f6" stroke-width="3"/>
+    <!-- Eye shape -->
+    <path d="M-24 -4 Q-12 -14 0 -10 Q12 -14 24 -4 Q12 6 0 4 Q-12 6 -24 -4 Z" fill="#1e3a6e" stroke="#3b82f6" stroke-width="2"/>
+    <!-- Iris -->
+    <circle cx="0" cy="-3" r="7" fill="#3b82f6"/>
+    <circle cx="0" cy="-3" r="4" fill="#0a1020"/>
+    <circle cx="2" cy="-5" r="1.5" fill="#60a5fa" opacity="0.8"/>
+    <!-- Tear drop / falcon marking -->
+    <path d="M0 4 Q-4 14 -2 24 Q0 26 2 24 Q4 14 0 4" fill="#3b82f6" opacity="0.8"/>
+    <!-- Spiral -->
+    <path d="M-2 24 Q-10 28 -14 22 Q-16 16 -10 14" fill="none" stroke="#3b82f6" stroke-width="2" stroke-linecap="round"/>
+  </g>
+  <!-- Wing hints -->
+  <path d="M16 78 Q30 72 44 76" fill="none" stroke="#60a5fa" stroke-width="1.5" opacity="0.5"/>
+  <path d="M76 76 Q90 72 104 78" fill="none" stroke="#60a5fa" stroke-width="1.5" opacity="0.5"/>
+  <!-- Sun disc above -->
+  <circle cx="60" cy="12" r="6" fill="#FFD700" opacity="0.7"/>
+  <!-- Label -->
+  <text x="60" y="108" text-anchor="middle" font-family="serif" font-size="13" font-weight="bold" fill="#60a5fa">HORUS</text>
+</svg>
