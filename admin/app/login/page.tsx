@@ -24,16 +24,19 @@ export default function LoginPage() {
       const csrfRes = await fetch(`${AUTH_BASE}/csrf`);
       const { csrfToken } = await csrfRes.json();
 
-      // 2. POST credentials
-      const res = await fetch(`${AUTH_BASE}/callback/credentials`, {
+      // 2. POST credentials (redirect: "manual" to prevent browser following the 302)
+      await fetch(`${AUTH_BASE}/callback/credentials`, {
         method: "POST",
         headers: { "Content-Type": "application/x-www-form-urlencoded" },
         body: new URLSearchParams({ email, password, csrfToken }),
         redirect: "manual",
       });
 
-      // 302 with session cookie = success
-      if (res.status === 200 || res.status === 302 || res.type === "opaqueredirect") {
+      // 3. Verify session was actually created (both success and failure return 302/opaqueredirect)
+      const sessionRes = await fetch(`${AUTH_BASE}/session`);
+      const session = await sessionRes.json();
+
+      if (session?.user) {
         const params = new URLSearchParams(window.location.search);
         const callbackUrl = params.get("callbackUrl") || "/admin";
         window.location.href = callbackUrl;
