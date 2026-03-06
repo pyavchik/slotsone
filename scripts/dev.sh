@@ -101,7 +101,7 @@ ADMIN_DB="slotsone_admin"
 ADMIN_PG_USER="slotsone"
 ADMIN_PG_PASS="slotsone"
 
-export ADMIN_DATABASE_URL="${ADMIN_DATABASE_URL:-postgres://${ADMIN_PG_USER}:${ADMIN_PG_PASS}@localhost:${ADMIN_PG_PORT}/${ADMIN_DB}}"
+export ADMIN_DATABASE_URL="${ADMIN_DATABASE_URL:-postgres://${ADMIN_PG_USER}:${ADMIN_PG_PASS}@localhost:${PG_PORT}/${ADMIN_DB}}"
 export BACKEND_DATABASE_URL="${BACKEND_DATABASE_URL:-$DATABASE_URL}"
 
 if [[ -d "$ADMIN" ]]; then

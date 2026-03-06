@@ -1,15 +1,14 @@
 "use client";
 
 import { useState } from "react";
-import { signIn } from "next-auth/react";
-import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 
+const AUTH_BASE = "/admin/api/auth";
+
 export default function LoginPage() {
-  const router = useRouter();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
@@ -20,19 +19,31 @@ export default function LoginPage() {
     setError("");
     setLoading(true);
 
-    const result = await signIn("credentials", {
-      email,
-      password,
-      redirect: false,
-    });
+    try {
+      // 1. Get CSRF token
+      const csrfRes = await fetch(`${AUTH_BASE}/csrf`);
+      const { csrfToken } = await csrfRes.json();
 
-    setLoading(false);
+      // 2. POST credentials
+      const res = await fetch(`${AUTH_BASE}/callback/credentials`, {
+        method: "POST",
+        headers: { "Content-Type": "application/x-www-form-urlencoded" },
+        body: new URLSearchParams({ email, password, csrfToken }),
+        redirect: "manual",
+      });
 
-    if (result?.error) {
-      setError("Invalid email or password");
-    } else {
-      router.push("/");
-      router.refresh();
+      // 302 with session cookie = success
+      if (res.status === 200 || res.status === 302 || res.type === "opaqueredirect") {
+        const params = new URLSearchParams(window.location.search);
+        const callbackUrl = params.get("callbackUrl") || "/admin";
+        window.location.href = callbackUrl;
+      } else {
+        setError("Invalid email or password");
+      }
+    } catch {
+      setError("Login failed. Please try again.");
+    } finally {
+      setLoading(false);
     }
   }
 
