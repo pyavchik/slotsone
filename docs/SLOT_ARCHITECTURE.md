@@ -435,6 +435,93 @@ Real-time connection: balance notifications, blocks, promotions, bonus-round com
 
 ---
 
+### 2.6 POST /api/v1/wallet/topup
+
+Player-initiated wallet top-up (demo/dev). Credits the player's wallet and records a transaction.
+
+**Request Headers**
+
+| Header        | Value          |
+|---------------|----------------|
+| Authorization | Bearer \<JWT\> |
+| Content-Type  | application/json |
+
+**Request Body**
+
+```json
+{
+  "amount": 100.00
+}
+```
+
+**Response 200 OK**
+
+```json
+{
+  "balance": {
+    "amount": 1350.50,
+    "currency": "USD"
+  },
+  "credited": 100.00
+}
+```
+
+**Errors**
+
+| Code | Description                    |
+|------|--------------------------------|
+| 400  | Invalid amount (must be > 0, <= 100000) |
+| 401  | Missing or invalid JWT         |
+| 500  | Internal server error          |
+
+---
+
+### 2.7 Admin Panel — Balance Top-Up
+
+Admin-initiated balance replenishment via the admin panel (`POST /admin/api/players/{id}/topup`).
+
+**Authentication**: NextAuth session (admin users only).
+
+**Request Body**
+
+```json
+{
+  "amount": 50.00
+}
+```
+
+**Response 200 OK**
+
+```json
+{
+  "success": true,
+  "credited": 50.00,
+  "balance": "1400.50",
+  "transactionId": "uuid-of-the-topup-transaction"
+}
+```
+
+**Errors**
+
+| Code | Description                              |
+|------|------------------------------------------|
+| 400  | Invalid amount (must be $0.01–$100,000)  |
+| 401  | Unauthorized (no admin session)          |
+| 404  | Player not found                         |
+| 500  | Failed to credit wallet                  |
+
+**How it works**:
+
+1. Validates the admin session and the amount.
+2. Credits the player's wallet atomically (within a database transaction).
+3. Inserts a `topup` transaction into the immutable ledger (`round_id = NULL`).
+4. Records an audit log entry (`BALANCE_ADJUSTMENT`) in the admin database with the admin's identity, amount, new balance, and transaction ID.
+5. Returns the updated balance and transaction ID.
+
+**UI**: Available on the player detail page (`/admin/players/{id}`) via the "Top Up" button on the Real Balance card. Quick-select presets: $10, $50, $100, $500, $1000.
+
+---
+
 ## 3. DATABASE SCHEMA
 
 Column types: PostgreSQL (BIGINT, NUMERIC, JSONB, TIMESTAMPTZ).
@@ -518,21 +605,23 @@ Column types: PostgreSQL (BIGINT, NUMERIC, JSONB, TIMESTAMPTZ).
 
 ### transactions
 
-Immutable ledger of balance movements (bet, win, deposit, bonus, admin).
+Immutable ledger of balance movements (bet, win, deposit, bonus, admin top-up).
 
 | Column       | Type         | Description                    |
 |--------------|--------------|--------------------------------|
 | id           | BIGSERIAL    | PK                             |
 | transaction_id | VARCHAR(64) | UNIQUE                         |
 | user_id      | BIGINT       | FK → users.id                  |
-| type         | VARCHAR(32)  | bet, win, deposit, withdrawal, bonus, adjustment |
+| type         | VARCHAR(32)  | bet, win, topup, deposit, withdrawal, bonus, adjustment |
 | amount       | NUMERIC(18,4)| positive = credit              |
 | currency     | CHAR(3)      |                                |
 | balance_after| NUMERIC(18,4)| balance after the operation    |
-| reference_type | VARCHAR(32) | spin, bonus_round, deposit_id  |
-| reference_id | VARCHAR(64)  | spin_id, bonus_round_id, etc.  |
+| reference_type | VARCHAR(32) | spin, bonus_round, deposit_id (nullable for admin top-ups) |
+| reference_id | VARCHAR(64)  | spin_id, bonus_round_id, etc. (nullable for admin top-ups) |
 | created_at   | TIMESTAMPTZ  |                                |
 | metadata     | JSONB        | optional                       |
+
+**Note on admin top-ups**: The `topup` transaction type is used for admin-initiated balance credits via the admin panel. These transactions have `reference_type` and `reference_id` set to NULL (no associated game round). All admin top-ups are additionally logged in the admin panel's audit log with the performing admin's identity.
 
 ---
 

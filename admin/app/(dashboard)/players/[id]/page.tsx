@@ -1,15 +1,18 @@
 "use client";
 
-import { useQuery } from "@tanstack/react-query";
+import { useState } from "react";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useParams, useRouter } from "next/navigation";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Separator } from "@/components/ui/separator";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { formatCurrency, formatDate } from "@/lib/utils";
 import { STATUS_COLORS, RISK_COLORS, TRANSACTION_TYPE_COLORS } from "@/lib/constants";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, Plus } from "lucide-react";
 
 interface PlayerTransaction {
   id: string;
@@ -98,7 +101,13 @@ interface PlayerDetail {
 export default function PlayerDetailPage() {
   const params = useParams();
   const router = useRouter();
+  const queryClient = useQueryClient();
   const playerId = params.id as string;
+
+  const [showTopUp, setShowTopUp] = useState(false);
+  const [topUpAmount, setTopUpAmount] = useState("");
+  const [topUpLoading, setTopUpLoading] = useState(false);
+  const [topUpResult, setTopUpResult] = useState<{ success?: string; error?: string } | null>(null);
 
   const { data: player, isLoading } = useQuery<PlayerDetail>({
     queryKey: ["player", playerId],
@@ -108,6 +117,37 @@ export default function PlayerDetailPage() {
       return res.json();
     },
   });
+
+  async function handleTopUp() {
+    const amount = parseFloat(topUpAmount);
+    if (!amount || amount <= 0 || amount > 100000) {
+      setTopUpResult({ error: "Enter an amount between $0.01 and $100,000" });
+      return;
+    }
+    setTopUpLoading(true);
+    setTopUpResult(null);
+    try {
+      const res = await fetch(`/admin/api/players/${playerId}/topup`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ amount }),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        setTopUpResult({ error: data.error || "Top-up failed" });
+      } else {
+        setTopUpResult({
+          success: `Credited ${formatCurrency(amount)}. New balance: ${formatCurrency(data.balance)}`,
+        });
+        setTopUpAmount("");
+        queryClient.invalidateQueries({ queryKey: ["player", playerId] });
+      }
+    } catch {
+      setTopUpResult({ error: "Top-up failed. Please try again." });
+    } finally {
+      setTopUpLoading(false);
+    }
+  }
 
   if (isLoading) {
     return (
@@ -157,11 +197,72 @@ export default function PlayerDetailPage() {
       <div className="grid gap-4 md:grid-cols-4">
         <Card>
           <CardContent className="pt-6">
-            <div className="text-sm text-muted-foreground">Real Balance</div>
+            <div className="flex items-center justify-between">
+              <div className="text-sm text-muted-foreground">Real Balance</div>
+              <Button
+                variant="outline"
+                size="sm"
+                className="h-7 gap-1 text-xs"
+                onClick={() => {
+                  setShowTopUp(!showTopUp);
+                  setTopUpResult(null);
+                }}
+              >
+                <Plus className="h-3 w-3" />
+                Top Up
+              </Button>
+            </div>
             <div className="text-2xl font-bold">{formatCurrency(player.balanceReal)}</div>
             {parseFloat(player.balanceBonus) > 0 && (
               <div className="text-sm text-purple-600">
                 +{formatCurrency(player.balanceBonus)} bonus
+              </div>
+            )}
+            {showTopUp && (
+              <div className="mt-3 space-y-2 border-t pt-3">
+                <Label htmlFor="topup-amount" className="text-xs">
+                  Amount (USD)
+                </Label>
+                <div className="flex gap-2">
+                  <Input
+                    id="topup-amount"
+                    type="number"
+                    min="0.01"
+                    max="100000"
+                    step="0.01"
+                    placeholder="100.00"
+                    value={topUpAmount}
+                    onChange={(e) => setTopUpAmount(e.target.value)}
+                    className="h-8 text-sm"
+                  />
+                  <Button
+                    size="sm"
+                    className="h-8"
+                    disabled={topUpLoading || !topUpAmount}
+                    onClick={handleTopUp}
+                  >
+                    {topUpLoading ? "..." : "Credit"}
+                  </Button>
+                </div>
+                <div className="flex flex-wrap gap-1">
+                  {[10, 50, 100, 500, 1000].map((v) => (
+                    <Button
+                      key={v}
+                      variant="ghost"
+                      size="sm"
+                      className="h-6 px-2 text-xs"
+                      onClick={() => setTopUpAmount(String(v))}
+                    >
+                      ${v}
+                    </Button>
+                  ))}
+                </div>
+                {topUpResult?.error && (
+                  <p className="text-xs text-destructive">{topUpResult.error}</p>
+                )}
+                {topUpResult?.success && (
+                  <p className="text-xs text-emerald-600">{topUpResult.success}</p>
+                )}
               </div>
             )}
           </CardContent>

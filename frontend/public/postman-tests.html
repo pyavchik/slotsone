@@ -483,6 +483,30 @@
               <td>POST /wallet/topup — Top up without auth</td>
               <td class="expects">401, unauthorized</td>
             </tr>
+            <tr>
+              <td class="tc-id">WAL-04</td>
+              <td><span class="badge badge-wal">Wallet</span></td>
+              <td>POST /admin/api/players/{id}/topup — Admin top-up $100</td>
+              <td class="expects">200, credited=100, balance updated, txn recorded with type=topup</td>
+            </tr>
+            <tr>
+              <td class="tc-id">WAL-05</td>
+              <td><span class="badge badge-wal">Wallet</span></td>
+              <td>POST /admin/api/players/{id}/topup — Audit log created</td>
+              <td class="expects">AuditLog entry: BALANCE_ADJUSTMENT, admin ID, amount, txn ID</td>
+            </tr>
+            <tr>
+              <td class="tc-id">WAL-06</td>
+              <td><span class="badge badge-wal">Wallet</span></td>
+              <td>POST /admin/api/players/{id}/topup — Invalid amount (0, negative, >100k)</td>
+              <td class="expects">400, validation error, balance unchanged</td>
+            </tr>
+            <tr>
+              <td class="tc-id">WAL-07</td>
+              <td><span class="badge badge-wal">Wallet</span></td>
+              <td>POST /admin/api/players/{id}/topup — Non-existent player</td>
+              <td class="expects">404, "Player not found"</td>
+            </tr>
 
             <!-- Provably Fair -->
             <tr>

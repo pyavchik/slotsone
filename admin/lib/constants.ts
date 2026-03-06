@@ -32,6 +32,7 @@ export const TRANSACTION_TYPE_COLORS: Record<string, string> = {
   BET: "text-orange-600",
   WIN: "text-blue-600",
   BONUS_CREDIT: "text-purple-600",
+  TOPUP: "text-emerald-600",
   ADJUSTMENT: "text-gray-600",
   REFUND: "text-cyan-600",
 };
