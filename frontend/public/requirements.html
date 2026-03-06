@@ -1182,13 +1182,14 @@
       {
         id: 'FR-SQL-17', module: 'sql', prio: 'must',
         title: 'Transactions ledger table',
-        desc: 'The transactions table shall record every balance-affecting operation (bet debit, win credit) with a CHECK constraint ensuring type is always \'bet\' or \'win\'.',
+        desc: 'The transactions table shall record every balance-affecting operation (bet debit, win credit, admin top-up) with a CHECK constraint ensuring type is \'bet\', \'win\', or \'topup\'. The round_id column is nullable to support admin top-ups that are not associated with a game round.',
         bdd: [
           { kw: 'Given', text: 'a spin with bet and win' },
           { kw: 'When', text: 'transactions are recorded' },
           { kw: 'Then', text: '1-2 rows are inserted: one for the bet, and optionally one for the win if win > 0' },
+          { kw: 'And', text: 'admin top-up transactions are recorded with type=\'topup\' and round_id=NULL' },
         ],
-        tests: ['GAME-23'],
+        tests: ['GAME-23', 'WAL-04'],
       },
       {
         id: 'FR-SQL-18', module: 'sql', prio: 'must',
@@ -1244,6 +1245,74 @@
           { kw: 'Then', text: 'all wallets, seed pairs, game rounds, and transactions for that user are automatically removed' },
         ],
         tests: ['GAME-30'],
+      },
+
+      // ── Wallet Top-Up (Player & Admin) ──────────────────────────────────
+      {
+        id: 'FR-WAL-01', module: 'wallet', prio: 'must',
+        title: 'Player wallet top-up endpoint',
+        desc: 'The system shall provide POST /api/v1/wallet/topup for authenticated players to credit their wallet. Amount must be positive and ≤ 100,000. The wallet is credited atomically and the updated balance is returned.',
+        bdd: [
+          { kw: 'Given', text: 'an authenticated player with a valid JWT' },
+          { kw: 'When', text: 'POST /api/v1/wallet/topup is called with { "amount": 500 }' },
+          { kw: 'Then', text: 'the wallet balance increases by $500 and the response includes the updated balance' },
+        ],
+        tests: ['WAL-01'],
+      },
+      {
+        id: 'FR-WAL-02', module: 'wallet', prio: 'must',
+        title: 'Top-up input validation',
+        desc: 'The top-up endpoint shall reject amounts that are zero, negative, or exceed 100,000 with HTTP 400.',
+        bdd: [
+          { kw: 'Given', text: 'a top-up request with amount = 0 or amount = -50' },
+          { kw: 'When', text: 'the request is processed' },
+          { kw: 'Then', text: 'HTTP 400 is returned with a validation error message' },
+        ],
+        tests: ['WAL-02'],
+      },
+      {
+        id: 'FR-WAL-03', module: 'wallet', prio: 'must',
+        title: 'Top-up requires authentication',
+        desc: 'The top-up endpoint shall require a valid JWT. Requests without authentication receive HTTP 401.',
+        bdd: [
+          { kw: 'Given', text: 'a top-up request with no Authorization header' },
+          { kw: 'When', text: 'the request is sent' },
+          { kw: 'Then', text: 'HTTP 401 Unauthorized is returned' },
+        ],
+        tests: ['WAL-03'],
+      },
+      {
+        id: 'FR-WAL-04', module: 'wallet', prio: 'must',
+        title: 'Admin panel balance replenishment',
+        desc: 'The admin panel shall provide POST /admin/api/players/{id}/topup for authenticated admin users to credit any player\'s wallet. The operation is atomic: wallet credit + transaction ledger insert within a single DB transaction.',
+        bdd: [
+          { kw: 'Given', text: 'an authenticated admin user on the admin panel' },
+          { kw: 'When', text: 'they submit a top-up of $100 for a player' },
+          { kw: 'Then', text: 'the player\'s wallet is credited, a topup transaction is recorded in the ledger (round_id=NULL), and an audit log entry is created' },
+        ],
+        tests: ['WAL-04', 'WAL-05'],
+      },
+      {
+        id: 'FR-WAL-05', module: 'wallet', prio: 'must',
+        title: 'Admin top-up audit trail',
+        desc: 'Every admin-initiated balance top-up shall be recorded in the AuditLog table with the admin\'s identity, action type (BALANCE_ADJUSTMENT), target player ID, credited amount, resulting balance, and transaction ID.',
+        bdd: [
+          { kw: 'Given', text: 'an admin top-up is successfully processed' },
+          { kw: 'When', text: 'the audit log is queried' },
+          { kw: 'Then', text: 'an entry with action=BALANCE_ADJUSTMENT exists containing the admin ID, amount, new balance, and transaction ID' },
+        ],
+        tests: ['WAL-05'],
+      },
+      {
+        id: 'FR-WAL-06', module: 'wallet', prio: 'must',
+        title: 'Admin top-up validation and error handling',
+        desc: 'The admin top-up endpoint shall validate: admin session (401 if missing), amount range $0.01-$100,000 (400 if invalid), player existence (404 if not found).',
+        bdd: [
+          { kw: 'Given', text: 'an admin top-up request with invalid parameters' },
+          { kw: 'When', text: 'the amount is outside the valid range or the player does not exist' },
+          { kw: 'Then', text: 'the appropriate HTTP error code is returned (400, 401, or 404)' },
+        ],
+        tests: ['WAL-06', 'WAL-07'],
       },
 
       // ── Non-Functional ────────────────────────────────────────────────────

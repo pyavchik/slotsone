@@ -1207,6 +1207,103 @@
           expected: 'All balance calculations are exact to 2 decimal places. No accumulated floating-point drift (e.g. 0.1 + 0.2 = 0.30, not 0.30000000000000004). BIGINT cents internally avoids IEEE 754 issues.'
         },
 
+        /* ═══════════════════  WALLET — Top-Up  ═══════════════════ */
+        {
+          id: 'WAL-01', module: 'WAL', priority: 'HIGH',
+          title: 'Player wallet top-up — happy path',
+          preconditions: 'Authenticated user. Valid access_token. Wallet exists.',
+          steps: [
+            'Record current balance via POST /api/v1/game/init.',
+            'Send POST /api/v1/wallet/topup with body: { "amount": 500 }.',
+            'Set header Authorization: Bearer <access_token>.',
+            'Check the HTTP response status code and body.',
+            'Verify balance increased by exactly $500.'
+          ],
+          testData: 'Body: { "amount": 500 }. Authorization: Bearer <valid access_token>.',
+          expected: 'HTTP 200. credited = 500. balance.amount = previous + 500. balance.currency = "USD".'
+        },
+        {
+          id: 'WAL-02', module: 'WAL', priority: 'HIGH',
+          title: 'Player wallet top-up — zero/negative amount rejected',
+          preconditions: 'Authenticated user. Valid access_token.',
+          steps: [
+            'Send POST /api/v1/wallet/topup with body: { "amount": 0 }.',
+            'Verify HTTP 400 response.',
+            'Send POST /api/v1/wallet/topup with body: { "amount": -100 }.',
+            'Verify HTTP 400 response.',
+            'Verify balance has not changed.'
+          ],
+          testData: 'Body: { "amount": 0 } and { "amount": -100 }.',
+          expected: 'HTTP 400 for both. Error message indicates invalid amount. Balance unchanged.'
+        },
+        {
+          id: 'WAL-03', module: 'WAL', priority: 'HIGH',
+          title: 'Player wallet top-up — no auth returns 401',
+          preconditions: 'No authentication token.',
+          steps: [
+            'Send POST /api/v1/wallet/topup with body: { "amount": 100 }.',
+            'Do NOT include Authorization header.',
+            'Check the HTTP response status code.'
+          ],
+          testData: 'Body: { "amount": 100 }. No Authorization header.',
+          expected: 'HTTP 401 Unauthorized.'
+        },
+        {
+          id: 'WAL-04', module: 'WAL', priority: 'HIGH',
+          title: 'Admin balance top-up — atomic wallet credit + transaction ledger',
+          preconditions: 'Admin user authenticated on admin panel. Target player exists with known balance.',
+          steps: [
+            'Login to admin panel as admin@slotsone.com.',
+            'Navigate to Players > select target player.',
+            'Record current Real Balance.',
+            'Click "Top Up" button, enter $100, click "Credit".',
+            'Verify success message and updated balance.',
+            'Query backend DB: SELECT * FROM transactions WHERE user_id = <player_id> ORDER BY created_at DESC LIMIT 1.',
+            'Verify transaction type = "topup", amount_cents = 10000, round_id IS NULL.',
+            'Verify wallet balance_cents increased by 10000.'
+          ],
+          testData: 'Admin session. Player UUID. Amount: $100.',
+          expected: 'Balance increases by $100. Transaction ledger has topup entry with round_id=NULL. Wallet version incremented by 1.'
+        },
+        {
+          id: 'WAL-05', module: 'WAL', priority: 'MED',
+          title: 'Admin balance top-up — audit log recorded',
+          preconditions: 'Admin user authenticated. Successful top-up performed.',
+          steps: [
+            'Perform an admin top-up for a player.',
+            'Navigate to player\'s Audit tab.',
+            'Verify audit log entry exists with action BALANCE_ADJUSTMENT.',
+            'Verify entry contains admin name, credited amount, new balance, and transaction ID.'
+          ],
+          testData: 'Admin session. Recent top-up operation.',
+          expected: 'AuditLog entry: action=BALANCE_ADJUSTMENT, adminId=<admin UUID>, targetType="User", targetId=<player UUID>, after JSON contains amount, newBalanceCents, transactionId.'
+        },
+        {
+          id: 'WAL-06', module: 'WAL', priority: 'HIGH',
+          title: 'Admin top-up — invalid amount rejected',
+          preconditions: 'Admin user authenticated on admin panel.',
+          steps: [
+            'Send POST /admin/api/players/<id>/topup with { "amount": 0 }.',
+            'Verify HTTP 400.',
+            'Send with { "amount": -50 }. Verify HTTP 400.',
+            'Send with { "amount": 200000 }. Verify HTTP 400.',
+            'Verify player balance unchanged after all attempts.'
+          ],
+          testData: 'Amounts: 0, -50, 200000 (exceeds $100,000 limit).',
+          expected: 'HTTP 400 for all. Error: "Amount must be between $0.01 and $100,000". Balance unchanged.'
+        },
+        {
+          id: 'WAL-07', module: 'WAL', priority: 'HIGH',
+          title: 'Admin top-up — non-existent player returns 404',
+          preconditions: 'Admin user authenticated on admin panel.',
+          steps: [
+            'Send POST /admin/api/players/00000000-0000-0000-0000-000000000000/topup with { "amount": 100 }.',
+            'Check the HTTP response status code.'
+          ],
+          testData: 'Non-existent player UUID. Amount: $100.',
+          expected: 'HTTP 404. Error: "Player not found".'
+        },
+
         /* ═══════════════════  SECURITY — Provably Fair  ═══════════════════ */
         {
           id: 'SEC-07', module: 'SEC', priority: 'HIGH',
@@ -1254,8 +1351,9 @@
         GAME: 'badge-game',
         E2E:  'badge-e2e',
         SEC:  'badge-sec',
+        WAL:  'badge-game',
       };
-      const MODULE_LABEL = { UI: 'UI', AUTH: 'Auth', GAME: 'Game', E2E: 'E2E', SEC: 'Security' };
+      const MODULE_LABEL = { UI: 'UI', AUTH: 'Auth', GAME: 'Game', E2E: 'E2E', SEC: 'Security', WAL: 'Wallet' };
 
       /* ─────────────────────────────────────────────────────────────────────
          STATS

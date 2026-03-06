@@ -350,6 +350,56 @@ export async function getAllTransactions(opts: TransactionListOptions) {
   };
 }
 
+// --- Admin Top-Up ---
+
+export async function topupPlayerBalance(
+  userId: string,
+  amountCents: number
+): Promise<{ balanceCents: number; transactionId: string } | null> {
+  if (!isBackendAvailable()) return null;
+  const pool = backendPool!;
+
+  const client = await pool.connect();
+  try {
+    await client.query("BEGIN");
+
+    // Credit the wallet
+    const { rows: walletRows } = await client.query(
+      `UPDATE wallets
+       SET balance_cents = balance_cents + $2,
+           version = version + 1,
+           updated_at = NOW()
+       WHERE user_id = $1
+       RETURNING balance_cents`,
+      [userId, amountCents]
+    );
+
+    if (walletRows.length === 0) {
+      await client.query("ROLLBACK");
+      return null;
+    }
+
+    const balanceCents = Number(walletRows[0].balance_cents);
+
+    // Record transaction in the ledger
+    const { rows: txRows } = await client.query(
+      `INSERT INTO transactions (user_id, type, amount_cents, balance_after_cents)
+       VALUES ($1, 'topup', $2, $3)
+       RETURNING id`,
+      [userId, amountCents, balanceCents]
+    );
+
+    await client.query("COMMIT");
+
+    return { balanceCents, transactionId: txRows[0].id };
+  } catch (err) {
+    await client.query("ROLLBACK");
+    throw err;
+  } finally {
+    client.release();
+  }
+}
+
 // --- Dashboard KPIs ---
 
 export async function getDashboardKPIs() {

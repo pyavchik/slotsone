@@ -2,7 +2,7 @@
   "info": {
     "_postman_id": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
     "name": "SlotsOne iGaming Platform API",
-    "description": "Comprehensive API test collection for the SlotsOne iGaming platform.\n\nCovers: Auth, Slots, European Roulette, American Roulette, History, Provably Fair, System probes, and Negative test cases.\n\n**Environments:**\n- Production: https://pyavchik.space\n- Prod (domain): https://pyavchik.space\n- Local dev: http://localhost:3001\n\n**Test execution order:**\n1. System > Health & Ready (verify server is up)\n2. Auth > Register (creates test user, sets token)\n3. Auth > Login (verifies credentials, refreshes token)\n4. Slots > Init > Spin (core game loop)\n5. Roulette > Init > Spin (European)\n6. American Roulette > Init > Spin\n7. History & Provably Fair\n8. Negative Tests\n\n**Author:** QA Engineering | SlotsOne Platform",
+    "description": "Comprehensive API test collection for the SlotsOne iGaming platform.\n\nCovers: Auth, Slots, European Roulette, American Roulette, Book of Dead, Wallet (player + admin top-up), History, Provably Fair, System probes, and Negative test cases.\n\n**Environments:**\n- Production: https://pyavchik.space\n- Prod (domain): https://pyavchik.space\n- Local dev: http://localhost:3001\n\n**Test execution order:**\n1. System > Health & Ready (verify server is up)\n2. Auth > Register (creates test user, sets token)\n3. Auth > Login (verifies credentials, refreshes token)\n4. Slots > Init > Spin (core game loop)\n5. Roulette > Init > Spin (European)\n6. American Roulette > Init > Spin\n7. Book of Dead > Init > Spin\n8. Wallet > Player Top-Up + Admin Top-Up\n9. History & Provably Fair\n10. Negative Tests\n\n**Author:** QA Engineering | SlotsOne Platform",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
   },
   "variable": [
@@ -93,6 +93,16 @@
     },
     {
       "key": "client_seed",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "admin_session_token",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "test_player_id",
       "value": "",
       "type": "string"
     },
@@ -1725,7 +1735,7 @@
     },
     {
       "name": "Wallet",
-      "description": "Wallet operations: top-up balance, check balance.",
+      "description": "Wallet operations: player top-up, admin balance replenishment, validation.",
       "item": [
         {
           "name": "Top Up Balance",
@@ -1806,6 +1816,178 @@
                   "    pm.collectionVariables.set('current_balance', String(json.balance.amount));",
                   "    console.log('Credited:', json.credited, '| New balance:', json.balance.amount);",
                   "}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Admin Top Up Balance ($100)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Cookie",
+                "value": "authjs.session-token={{admin_session_token}}",
+                "description": "Admin panel session cookie (NextAuth)"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"amount\": 100\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/admin/api/players/{{test_player_id}}/topup",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "admin",
+                "api",
+                "players",
+                "{{test_player_id}}",
+                "topup"
+              ]
+            },
+            "description": "Admin-initiated balance top-up. Credits the player's wallet, records a topup transaction in the ledger (round_id=NULL), and creates an audit log entry."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "console.log(`[Post-response] Admin Top Up: ${pm.response.code} (${pm.response.responseTime}ms)`);",
+                  "",
+                  "pm.test('Status code is 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test('Response has success=true', function () {",
+                  "    pm.expect(pm.response.json().success).to.equal(true);",
+                  "});",
+                  "",
+                  "pm.test('Credited amount equals 100', function () {",
+                  "    pm.expect(pm.response.json().credited).to.equal(100);",
+                  "});",
+                  "",
+                  "pm.test('Balance is a string with decimal', function () {",
+                  "    pm.expect(pm.response.json().balance).to.match(/^\\d+\\.\\d{2}$/);",
+                  "});",
+                  "",
+                  "pm.test('Transaction ID is a UUID', function () {",
+                  "    pm.expect(pm.response.json().transactionId).to.match(/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/);",
+                  "});",
+                  "",
+                  "pm.test('Response time < 2000ms', function () {",
+                  "    pm.expect(pm.response.responseTime).to.be.below(2000);",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Admin Top Up — Invalid Amount (0)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Cookie",
+                "value": "authjs.session-token={{admin_session_token}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"amount\": 0\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/admin/api/players/{{test_player_id}}/topup",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "admin",
+                "api",
+                "players",
+                "{{test_player_id}}",
+                "topup"
+              ]
+            },
+            "description": "Negative test: admin top-up with zero amount should be rejected."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status code is 400', function () {",
+                  "    pm.response.to.have.status(400);",
+                  "});",
+                  "",
+                  "pm.test('Error message present', function () {",
+                  "    pm.expect(pm.response.json().error).to.be.a('string');",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Admin Top Up — Non-existent Player",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Cookie",
+                "value": "authjs.session-token={{admin_session_token}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"amount\": 100\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/admin/api/players/00000000-0000-0000-0000-000000000000/topup",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "admin",
+                "api",
+                "players",
+                "00000000-0000-0000-0000-000000000000",
+                "topup"
+              ]
+            },
+            "description": "Negative test: admin top-up for a non-existent player should return 404."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status code is 404', function () {",
+                  "    pm.response.to.have.status(404);",
+                  "});",
+                  "",
+                  "pm.test('Error is Player not found', function () {",
+                  "    pm.expect(pm.response.json().error).to.equal('Player not found');",
+                  "});"
                 ]
               }
             }

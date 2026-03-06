@@ -266,5 +266,39 @@ Threats, protective measures, and regulatory compliance (penetration testing & s
 | Client-side manipulation  | Outcome and balance from server only, client is display only |
 | Brute force / abuse       | Rate limiting by user_id/session_id, spin limit per second |
 | RNG / game fairness       | Certified RNG (BMM, GLI, eCOGRA), audit and seed logging |
+| Unauthorised balance change | Admin session auth, amount validation, atomic DB transactions, immutable audit log |
 
 Compliance (RG, AML, GDPR) is ensured through policies, in-code limits, monitoring, and procedures — not by any single technical measure.
+
+---
+
+## 4. ADMIN PANEL — BALANCE ADJUSTMENT CONTROLS
+
+### 4.1 Admin Balance Top-Up
+
+The admin panel provides a balance replenishment feature for player wallets, accessible from the player detail page.
+
+**Security measures**:
+
+- **Authentication**: Requires an active NextAuth session (admin users only). Unauthenticated requests receive 401.
+- **Input validation**: Amount must be a positive number between $0.01 and $100,000. Values outside this range are rejected (400).
+- **Atomic operations**: Wallet credit and transaction ledger insert are wrapped in a single database transaction. On failure, the entire operation is rolled back — no partial credits.
+- **Immutable audit trail**: Every top-up creates two records:
+  1. A `topup` transaction in the backend's immutable transaction ledger (with `round_id = NULL` to distinguish from game-related transactions).
+  2. An audit log entry in the admin database (`BALANCE_ADJUSTMENT` action) recording the admin's identity, credited amount, resulting balance, and transaction ID.
+- **Player existence check**: The player must exist in the backend database before any credit operation is attempted (404 on missing player).
+
+### 4.2 Admin Audit Log
+
+All administrative actions (balance adjustments, status changes, KYC decisions, etc.) are recorded in the `AuditLog` table with:
+
+| Field      | Description                                      |
+|------------|--------------------------------------------------|
+| adminId    | The admin user who performed the action           |
+| action     | Action type (e.g. `BALANCE_ADJUSTMENT`)           |
+| targetType | Entity type (`User`)                              |
+| targetId   | The affected player's UUID                        |
+| after      | JSON payload with operation details (amount, new balance, transaction ID) |
+| createdAt  | Timestamp                                         |
+
+This provides a complete chain of custody for all balance modifications, supporting both internal review and regulatory compliance requirements.
