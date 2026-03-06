@@ -2,7 +2,7 @@ import { lazy, Suspense, useCallback, useEffect, useRef, useState } from 'react'
 
 const Spline = lazy(() => import('@splinetool/react-spline'));
 
-const SCENE_URL = 'https://prod.spline.design/8XGqmhHhRaPFEFAj/scene.splinecode';
+const SCENE_URL = '/robot.splinecode';
 
 export function SplineRobot() {
   const [loaded, setLoaded] = useState(false);
