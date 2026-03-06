@@ -1,11 +1,31 @@
+/* ── Spline robot — fixed full-page background ── */
+.spline-bg {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  opacity: 0;
+  transition: opacity 1.4s cubic-bezier(0.16, 1, 0.3, 1);
+  pointer-events: none;
+}
+
+.spline-bg--ready {
+  opacity: 1;
+}
+
+.spline-bg canvas {
+  width: 100% !important;
+  height: 100% !important;
+  display: block;
+}
+
+/* ── Page — sits above robot, transparent bg ── */
 .cv-page {
+  position: relative;
+  z-index: 1;
   width: 100%;
   min-height: 100vh;
   padding: 24px;
-  background:
-    radial-gradient(circle at 8% 12%, rgba(251, 191, 36, 0.14), transparent 34%),
-    radial-gradient(circle at 92% 18%, rgba(34, 211, 238, 0.12), transparent 38%),
-    linear-gradient(180deg, #0f1118 0%, #0b0d13 100%);
+  background: transparent;
   color: #f8fafc;
   display: flex;
   flex-direction: column;
