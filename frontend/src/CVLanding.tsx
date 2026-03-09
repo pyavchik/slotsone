@@ -9,6 +9,7 @@ const POSTMAN_TESTS_PATH = '/postman-tests.html';
 const SWAGER_PATH = '/api-docs';
 const SQL_PATH = '/sql.html';
 const BUG_REPORT_PATH = '/bug-report.html';
+const TEST_DESIGN_PATH = '/test-design.html';
 
 const SKILLS = [
   'Java',
@@ -132,6 +133,15 @@ export function CVLanding() {
               data-testid="cv-sql"
             >
               sql
+            </a>
+            <a
+              className="cv-link"
+              href={TEST_DESIGN_PATH}
+              target="_blank"
+              rel="noreferrer"
+              data-testid="cv-test-design"
+            >
+              test design
             </a>
             <a className="cv-link" href={BUG_REPORT_PATH} target="_blank" rel="noreferrer">
               bug report
