@@ -1,0 +1,1719 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Test Design Techniques — pyavchik.space</title>
+    <style>
+      *, *::before, *::after { box-sizing: border-box; }
+
+      body {
+        margin: 0;
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+        background: linear-gradient(180deg, #0f1118 0%, #0b0d13 100%);
+        color: #f8fafc;
+        min-height: 100vh;
+        font-size: 14px;
+      }
+
+      .wrap {
+        max-width: 1080px;
+        margin: 0 auto;
+        padding: 28px 18px 56px;
+        display: flex;
+        flex-direction: column;
+        gap: 14px;
+      }
+
+      /* ── Cards ───────────────────────────────────── */
+      .card {
+        border: 1px solid rgba(255,255,255,0.13);
+        border-radius: 14px;
+        background: rgba(17,20,30,0.78);
+        padding: 20px 22px;
+      }
+
+      h1 { margin: 0 0 3px; font-size: 26px; letter-spacing: -.3px; }
+      .subtitle { margin: 0 0 14px; color: #94a3b8; font-size: 13px; }
+      h2 { margin: 0 0 14px; font-size: 16px; color: #f1f5f9; }
+      h3 { margin: 0 0 10px; font-size: 14px; color: #e2e8f0; }
+      p  { margin: 0 0 10px; color: #dbe2ec; line-height: 1.55; }
+
+      /* ── Back link ───────────────────────────────── */
+      .back {
+        display: inline-flex; align-items: center; gap: 6px;
+        font-size: 13px; font-weight: 600; color: #94a3b8;
+        text-decoration: none;
+        border: 1px solid rgba(148,163,184,.3);
+        padding: 6px 12px; border-radius: 8px;
+        background: rgba(15,23,42,.5);
+        width: fit-content;
+      }
+      .back:hover { color: #f8fafc; border-color: rgba(148,163,184,.7); }
+
+      /* ── Stats ───────────────────────────────────── */
+      .stats { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 8px; }
+      .stat {
+        padding: 8px 14px; border-radius: 10px;
+        background: rgba(15,23,42,.65);
+        border: 1px solid rgba(148,163,184,.2);
+        font-size: 13px; color: #dbe2ec; text-align: center;
+      }
+      .stat strong { display: block; font-size: 22px; line-height: 1.15; color: #f8fafc; }
+
+      /* ── Badges ──────────────────────────────────── */
+      .badge {
+        display: inline-block; padding: 2px 7px;
+        border-radius: 5px; font-size: 11px; font-weight: 700;
+        white-space: nowrap; letter-spacing: .02em;
+      }
+      .badge-ep    { background: rgba(56,189,248,.15);  color: #38bdf8; }
+      .badge-bva   { background: rgba(62,224,169,.15);  color: #3ee0a9; }
+      .badge-dt    { background: rgba(245,208,106,.15); color: #f5d06a; }
+      .badge-st    { background: rgba(167,139,250,.18); color: #a78bfa; }
+      .badge-pw    { background: rgba(251,146,60,.15);  color: #fb923c; }
+      .badge-eg    { background: rgba(248,113,113,.15); color: #f87171; }
+      .badge-reg   { background: rgba(56,189,248,.15);  color: #38bdf8; }
+
+      .class-valid   { background: rgba(62,224,169,.12); color: #4ade80; }
+      .class-invalid { background: rgba(248,113,113,.12); color: #f87171; }
+
+      /* ── Section titles ──────────────────────────── */
+      .section-title {
+        font-size: 18px; font-weight: 700; margin: 0 0 4px;
+        color: #f1f5f9;
+      }
+      .section-desc {
+        font-size: 13px; color: #94a3b8; margin: 0 0 12px;
+      }
+
+      /* ── Technique header ────────────────────────── */
+      .tech-header {
+        display: flex; align-items: center; gap: 10px;
+        margin-bottom: 12px;
+      }
+      .tech-number {
+        width: 28px; height: 28px; border-radius: 8px;
+        display: flex; align-items: center; justify-content: center;
+        font-size: 13px; font-weight: 800;
+        flex-shrink: 0;
+      }
+      .tech-number-ep  { background: rgba(56,189,248,.15);  color: #38bdf8; }
+      .tech-number-bva { background: rgba(62,224,169,.15);  color: #3ee0a9; }
+      .tech-number-dt  { background: rgba(245,208,106,.15); color: #f5d06a; }
+      .tech-number-st  { background: rgba(167,139,250,.15); color: #a78bfa; }
+      .tech-number-pw  { background: rgba(251,146,60,.15);  color: #fb923c; }
+      .tech-number-eg  { background: rgba(248,113,113,.15); color: #f87171; }
+
+      .tech-title {
+        font-size: 16px; font-weight: 700; margin: 0; color: #f1f5f9;
+      }
+      .tech-theory {
+        color: #94a3b8; font-size: 13px; line-height: 1.55;
+        margin: 0 0 14px;
+        padding: 10px 14px;
+        border-radius: 8px;
+        background: rgba(15,23,42,.45);
+        border-left: 3px solid rgba(148,163,184,.25);
+      }
+
+      /* ── Tables ──────────────────────────────────── */
+      .td-table { width: 100%; border-collapse: collapse; }
+      .td-table thead th {
+        text-align: left; padding: 9px 12px;
+        color: #64748b; font-size: 11px; font-weight: 700;
+        text-transform: uppercase; letter-spacing: .07em;
+        border-bottom: 1px solid rgba(255,255,255,.1);
+      }
+      .td-table tbody td {
+        padding: 9px 12px;
+        border-bottom: 1px solid rgba(255,255,255,.06);
+        vertical-align: top;
+        color: #dbe2ec;
+        font-size: 13px;
+        line-height: 1.45;
+      }
+      .td-table tbody tr:hover td { background: rgba(255,255,255,.03); }
+
+      .td-table .mono {
+        font-family: ui-monospace, monospace;
+        font-size: 12px; color: #a78bfa;
+      }
+      .td-table .id-col {
+        font-family: ui-monospace, monospace;
+        font-size: 12px; color: #62d7ff; white-space: nowrap;
+      }
+
+      /* ── Decision table cell styles ─────────────── */
+      .dt-yes { color: #4ade80; font-weight: 700; }
+      .dt-no  { color: #f87171; font-weight: 700; }
+      .dt-any { color: #64748b; }
+
+      /* ── Info grid ──────────────────────────────── */
+      .info-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 10px;
+      }
+      .info-item {
+        padding: 10px 14px; border-radius: 10px;
+        background: rgba(15,23,42,.55);
+        border: 1px solid rgba(148,163,184,.12);
+      }
+      .info-item dt {
+        font-size: 11px; font-weight: 700; text-transform: uppercase;
+        letter-spacing: .06em; color: #62d7ff; margin-bottom: 4px;
+      }
+      .info-item dd {
+        margin: 0; color: #dbe2ec; font-size: 13px; line-height: 1.5;
+      }
+
+      /* ── TOC ────────────────────────────────────── */
+      .toc { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
+      .toc-link {
+        padding: 5px 12px; border-radius: 8px;
+        border: 1px solid rgba(148,163,184,.2);
+        background: rgba(15,23,42,.5);
+        color: #94a3b8; text-decoration: none;
+        font-size: 12px; font-weight: 600;
+        transition: border-color .15s, color .15s;
+      }
+      .toc-link:hover { border-color: rgba(148,163,184,.5); color: #f8fafc; }
+
+      /* ── Responsive ─────────────────────────────── */
+      @media (max-width: 640px) {
+        .info-grid { grid-template-columns: 1fr; }
+        .td-table { font-size: 12px; }
+        .stats { flex-direction: column; }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="wrap">
+
+      <!-- Back -->
+      <a class="back" href="/">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
+        Back to CV
+      </a>
+
+      <!-- ── Header card ──────────────────────────── -->
+      <div class="card">
+        <h1>Test Design Techniques</h1>
+        <p class="subtitle">Practical application of black-box test design techniques to the SlotsOne slot machine project</p>
+
+        <div class="stats">
+          <div class="stat"><strong>6</strong> Techniques</div>
+          <div class="stat"><strong>78</strong> Test scenarios</div>
+          <div class="stat"><strong>4</strong> Modules covered</div>
+          <div class="stat"><strong>100%</strong> Black-box</div>
+        </div>
+
+        <div class="toc" style="margin-top: 14px;">
+          <a class="toc-link" href="#reg" style="border-color:rgba(56,189,248,.4); color:#38bdf8;">Registration Module</a>
+          <a class="toc-link" href="#ep">Equivalence Partitioning</a>
+          <a class="toc-link" href="#bva">Boundary Value Analysis</a>
+          <a class="toc-link" href="#dt">Decision Table</a>
+          <a class="toc-link" href="#st">State Transition</a>
+          <a class="toc-link" href="#pw">Pairwise Testing</a>
+          <a class="toc-link" href="#eg">Error Guessing</a>
+        </div>
+      </div>
+
+      <!-- ══════════════════════════════════════════════
+           REGISTRATION MODULE — all 6 techniques applied
+           ══════════════════════════════════════════════ -->
+      <div class="card" id="reg" style="border-color: rgba(56,189,248,.25);">
+        <div class="tech-header">
+          <div class="tech-number" style="background:rgba(56,189,248,.15); color:#38bdf8;">R</div>
+          <h2 class="tech-title">Registration Module</h2>
+          <span class="badge badge-reg">AUTH</span>
+        </div>
+
+        <div class="tech-theory">
+          The registration form (<code style="color:#38bdf8; background:rgba(56,189,248,.1); padding:1px 5px; border-radius:3px; font-size:12px;">/register</code>) collects
+          <strong>email</strong>, <strong>password</strong>, and an <strong>age confirmation checkbox</strong> (18+).
+          Backend validates email format (Zod <code style="color:#a78bfa; background:rgba(167,139,250,.1); padding:1px 5px; border-radius:3px; font-size:12px;">z.string().email()</code>),
+          password min length (8 chars), normalizes email to lowercase, and returns 201 with JWT on success.
+          Below — every test design technique applied to this single module.
+        </div>
+
+        <!-- ── EP: Registration ────────────────────── -->
+        <h3 style="margin-top: 6px;">
+          <span class="badge badge-ep" style="margin-right:6px;">EP</span>
+          Equivalence Partitioning — Registration Inputs
+        </h3>
+        <table class="td-table">
+          <thead>
+            <tr><th>ID</th><th>Field</th><th>Type</th><th>Class</th><th>Representative</th><th>Expected</th></tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td class="id-col">REP-01</td>
+              <td>Email</td>
+              <td><span class="badge class-valid">Valid</span></td>
+              <td>Standard email format</td>
+              <td class="mono">user@example.com</td>
+              <td>Accepted</td>
+            </tr>
+            <tr>
+              <td class="id-col">REP-02</td>
+              <td>Email</td>
+              <td><span class="badge class-invalid">Invalid</span></td>
+              <td>Missing @ symbol</td>
+              <td class="mono">userexample.com</td>
+              <td>400 invalid_body</td>
+            </tr>
+            <tr>
+              <td class="id-col">REP-03</td>
+              <td>Email</td>
+              <td><span class="badge class-invalid">Invalid</span></td>
+              <td>Missing domain</td>
+              <td class="mono">user@</td>
+              <td>400 invalid_body</td>
+            </tr>
+            <tr>
+              <td class="id-col">REP-04</td>
+              <td>Email</td>
+              <td><span class="badge class-invalid">Invalid</span></td>
+              <td>Empty string</td>
+              <td class="mono">""</td>
+              <td>400 invalid_body</td>
+            </tr>
+            <tr>
+              <td class="id-col">REP-05</td>
+              <td>Email</td>
+              <td><span class="badge class-valid">Valid</span></td>
+              <td>Already registered</td>
+              <td class="mono">existing@mail.com</td>
+              <td>409 email_taken</td>
+            </tr>
+            <tr>
+              <td class="id-col">REP-06</td>
+              <td>Email</td>
+              <td><span class="badge class-valid">Valid</span></td>
+              <td>Case variation of existing</td>
+              <td class="mono">User@Example.COM</td>
+              <td>409 email_taken (lowercased)</td>
+            </tr>
+            <tr>
+              <td class="id-col">REP-07</td>
+              <td>Password</td>
+              <td><span class="badge class-valid">Valid</span></td>
+              <td>8+ characters</td>
+              <td class="mono">SecureP8</td>
+              <td>Accepted</td>
+            </tr>
+            <tr>
+              <td class="id-col">REP-08</td>
+              <td>Password</td>
+              <td><span class="badge class-invalid">Invalid</span></td>
+              <td>&lt; 8 characters</td>
+              <td class="mono">Short1</td>
+              <td>400 invalid_body</td>
+            </tr>
+            <tr>
+              <td class="id-col">REP-09</td>
+              <td>Age checkbox</td>
+              <td><span class="badge class-valid">Valid</span></td>
+              <td>Checked</td>
+              <td>true</td>
+              <td>Submit enabled</td>
+            </tr>
+            <tr>
+              <td class="id-col">REP-10</td>
+              <td>Age checkbox</td>
+              <td><span class="badge class-invalid">Invalid</span></td>
+              <td>Unchecked</td>
+              <td>false</td>
+              <td>Submit disabled (frontend)</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <!-- ── BVA: Registration ───────────────────── -->
+        <h3 style="margin-top: 22px;">
+          <span class="badge badge-bva" style="margin-right:6px;">BVA</span>
+          Boundary Value Analysis — Password Length
+        </h3>
+        <table class="td-table">
+          <thead>
+            <tr><th>ID</th><th>Boundary</th><th>Password</th><th>Length</th><th>Expected</th></tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td class="id-col">RBVA-01</td>
+              <td>Below min</td>
+              <td class="mono">Abcdef7</td>
+              <td class="mono">7</td>
+              <td><span class="badge class-invalid">Rejected</span> — button disabled + 400 if bypassed</td>
+            </tr>
+            <tr>
+              <td class="id-col">RBVA-02</td>
+              <td>At min</td>
+              <td class="mono">Abcdefg8</td>
+              <td class="mono">8</td>
+              <td><span class="badge class-valid">Accepted</span></td>
+            </tr>
+            <tr>
+              <td class="id-col">RBVA-03</td>
+              <td>Above min</td>
+              <td class="mono">Abcdefgh9</td>
+              <td class="mono">9</td>
+              <td><span class="badge class-valid">Accepted</span></td>
+            </tr>
+            <tr>
+              <td class="id-col">RBVA-04</td>
+              <td>Empty</td>
+              <td class="mono">""</td>
+              <td class="mono">0</td>
+              <td><span class="badge class-invalid">Rejected</span> — button disabled + 400</td>
+            </tr>
+            <tr>
+              <td class="id-col">RBVA-05</td>
+              <td>Single char</td>
+              <td class="mono">A</td>
+              <td class="mono">1</td>
+              <td><span class="badge class-invalid">Rejected</span></td>
+            </tr>
+            <tr>
+              <td class="id-col">RBVA-06</td>
+              <td>Very long</td>
+              <td class="mono">a × 10 000</td>
+              <td class="mono">10000</td>
+              <td><span class="badge class-valid">Accepted</span> (no max limit — verify server handles)</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <!-- ── DT: Registration ────────────────────── -->
+        <h3 style="margin-top: 22px;">
+          <span class="badge badge-dt" style="margin-right:6px;">DT</span>
+          Decision Table — Registration Outcome
+        </h3>
+        <div style="overflow-x: auto;">
+          <table class="td-table">
+            <thead>
+              <tr>
+                <th style="min-width:200px;">Conditions / Actions</th>
+                <th>R1</th><th>R2</th><th>R3</th><th>R4</th><th>R5</th><th>R6</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><strong>Conditions</strong></td>
+                <td colspan="6" style="border-bottom:1px solid rgba(255,255,255,.12);"></td>
+              </tr>
+              <tr>
+                <td>Valid email format?</td>
+                <td class="dt-no">N</td>
+                <td class="dt-yes">Y</td>
+                <td class="dt-yes">Y</td>
+                <td class="dt-yes">Y</td>
+                <td class="dt-yes">Y</td>
+                <td class="dt-yes">Y</td>
+              </tr>
+              <tr>
+                <td>Password &ge; 8 chars?</td>
+                <td class="dt-any">—</td>
+                <td class="dt-no">N</td>
+                <td class="dt-yes">Y</td>
+                <td class="dt-yes">Y</td>
+                <td class="dt-yes">Y</td>
+                <td class="dt-yes">Y</td>
+              </tr>
+              <tr>
+                <td>Age confirmed? (frontend)</td>
+                <td class="dt-any">—</td>
+                <td class="dt-any">—</td>
+                <td class="dt-no">N</td>
+                <td class="dt-yes">Y</td>
+                <td class="dt-yes">Y</td>
+                <td class="dt-yes">Y</td>
+              </tr>
+              <tr>
+                <td>Email already registered?</td>
+                <td class="dt-any">—</td>
+                <td class="dt-any">—</td>
+                <td class="dt-any">—</td>
+                <td class="dt-yes">Y</td>
+                <td class="dt-no">N</td>
+                <td class="dt-no">N</td>
+              </tr>
+              <tr>
+                <td>Server reachable?</td>
+                <td class="dt-any">—</td>
+                <td class="dt-any">—</td>
+                <td class="dt-any">—</td>
+                <td class="dt-any">—</td>
+                <td class="dt-no">N</td>
+                <td class="dt-yes">Y</td>
+              </tr>
+              <tr>
+                <td style="border-top:1px solid rgba(255,255,255,.12);"><strong>Actions</strong></td>
+                <td colspan="6" style="border-top:1px solid rgba(255,255,255,.12);"></td>
+              </tr>
+              <tr>
+                <td>Return 400 invalid_body</td>
+                <td class="dt-yes">X</td>
+                <td class="dt-yes">X</td>
+                <td></td><td></td><td></td><td></td>
+              </tr>
+              <tr>
+                <td>Submit button disabled</td>
+                <td class="dt-yes">X</td>
+                <td class="dt-yes">X</td>
+                <td class="dt-yes">X</td>
+                <td></td><td></td><td></td>
+              </tr>
+              <tr>
+                <td>Return 409 email_taken</td>
+                <td></td><td></td><td></td>
+                <td class="dt-yes">X</td>
+                <td></td><td></td>
+              </tr>
+              <tr>
+                <td>Show network error</td>
+                <td></td><td></td><td></td><td></td>
+                <td class="dt-yes">X</td>
+                <td></td>
+              </tr>
+              <tr>
+                <td>Return 201 + JWT</td>
+                <td></td><td></td><td></td><td></td><td></td>
+                <td class="dt-yes">X</td>
+              </tr>
+              <tr>
+                <td>Set refresh token cookie</td>
+                <td></td><td></td><td></td><td></td><td></td>
+                <td class="dt-yes">X</td>
+              </tr>
+              <tr>
+                <td>Redirect to /slots</td>
+                <td></td><td></td><td></td><td></td><td></td>
+                <td class="dt-yes">X</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- ── ST: Registration ────────────────────── -->
+        <h3 style="margin-top: 22px;">
+          <span class="badge badge-st" style="margin-right:6px;">ST</span>
+          State Transition — Registration Flow
+        </h3>
+
+        <div style="overflow-x:auto; padding:12px 0;">
+          <svg viewBox="0 0 700 320" xmlns="http://www.w3.org/2000/svg" style="max-width:700px; width:100%; height:auto; display:block; margin:0 auto;">
+            <defs>
+              <marker id="rah" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6" fill="none" stroke="#64748b" stroke-width="1.2"/></marker>
+              <marker id="rah-g" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6" fill="none" stroke="#4ade80" stroke-width="1.2"/></marker>
+              <marker id="rah-r" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6" fill="none" stroke="#f87171" stroke-width="1.2"/></marker>
+              <marker id="rah-y" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6" fill="none" stroke="#fbbf24" stroke-width="1.2"/></marker>
+            </defs>
+
+            <!-- States -->
+            <rect x="20" y="120" width="120" height="48" rx="10" fill="rgba(148,163,184,.08)" stroke="#64748b" stroke-width="1.5"/>
+            <text x="80" y="140" text-anchor="middle" fill="#f8fafc" font-family="Segoe UI,sans-serif" font-size="12" font-weight="700">LANDING</text>
+            <text x="80" y="155" text-anchor="middle" fill="#94a3b8" font-family="Segoe UI,sans-serif" font-size="9">CV page</text>
+
+            <rect x="190" y="120" width="130" height="48" rx="10" fill="rgba(56,189,248,.1)" stroke="#38bdf8" stroke-width="1.5"/>
+            <text x="255" y="140" text-anchor="middle" fill="#f8fafc" font-family="Segoe UI,sans-serif" font-size="12" font-weight="700">REGISTER FORM</text>
+            <text x="255" y="155" text-anchor="middle" fill="#94a3b8" font-family="Segoe UI,sans-serif" font-size="9">Empty fields</text>
+
+            <rect x="375" y="120" width="130" height="48" rx="10" fill="rgba(167,139,250,.1)" stroke="#a78bfa" stroke-width="1.5"/>
+            <text x="440" y="140" text-anchor="middle" fill="#f8fafc" font-family="Segoe UI,sans-serif" font-size="12" font-weight="700">FORM FILLED</text>
+            <text x="440" y="155" text-anchor="middle" fill="#94a3b8" font-family="Segoe UI,sans-serif" font-size="9">Button enabled</text>
+
+            <rect x="560" y="120" width="120" height="48" rx="10" fill="rgba(245,208,106,.1)" stroke="#f5d06a" stroke-width="1.5"/>
+            <text x="620" y="140" text-anchor="middle" fill="#f8fafc" font-family="Segoe UI,sans-serif" font-size="12" font-weight="700">SUBMITTING</text>
+            <text x="620" y="155" text-anchor="middle" fill="#94a3b8" font-family="Segoe UI,sans-serif" font-size="9">Please wait…</text>
+
+            <rect x="455" y="240" width="130" height="44" rx="10" fill="rgba(248,113,113,.08)" stroke="#f87171" stroke-width="1.2"/>
+            <text x="520" y="267" text-anchor="middle" fill="#f87171" font-family="Segoe UI,sans-serif" font-size="12" font-weight="700">ERROR</text>
+
+            <rect x="190" y="20" width="130" height="44" rx="10" fill="rgba(62,224,169,.08)" stroke="#4ade80" stroke-width="1.2"/>
+            <text x="255" y="38" text-anchor="middle" fill="#4ade80" font-family="Segoe UI,sans-serif" font-size="12" font-weight="700">AUTHENTICATED</text>
+            <text x="255" y="52" text-anchor="middle" fill="#94a3b8" font-family="Segoe UI,sans-serif" font-size="9">Redirect → /slots</text>
+
+            <!-- Arrows -->
+            <line x1="140" y1="144" x2="188" y2="144" stroke="#64748b" stroke-width="1.2" marker-end="url(#rah)"/>
+            <text x="163" y="138" text-anchor="middle" fill="#64748b" font-family="Segoe UI,sans-serif" font-size="9">/register</text>
+
+            <line x1="320" y1="144" x2="373" y2="144" stroke="#a78bfa" stroke-width="1.2" marker-end="url(#rah)"/>
+            <text x="347" y="138" text-anchor="middle" fill="#a78bfa" font-family="Segoe UI,sans-serif" font-size="9">fill all</text>
+
+            <line x1="505" y1="144" x2="558" y2="144" stroke="#f5d06a" stroke-width="1.2" marker-end="url(#rah-y)"/>
+            <text x="532" y="138" text-anchor="middle" fill="#f5d06a" font-family="Segoe UI,sans-serif" font-size="9">submit</text>
+
+            <!-- Submitting → Authenticated (201) -->
+            <path d="M620,120 Q620,42 322,42" fill="none" stroke="#4ade80" stroke-width="1.3" marker-end="url(#rah-g)"/>
+            <text x="490" y="60" fill="#4ade80" font-family="Segoe UI,sans-serif" font-size="9" font-weight="600">201 Created + JWT</text>
+
+            <!-- Submitting → Error (409/400/network) -->
+            <line x1="620" y1="168" x2="575" y2="238" stroke="#f87171" stroke-width="1.2" marker-end="url(#rah-r)"/>
+            <text x="615" y="208" fill="#f87171" font-family="Segoe UI,sans-serif" font-size="9" font-weight="600">409 / 400 / err</text>
+
+            <!-- Error → Form Filled (retry) -->
+            <path d="M455,262 Q410,262 410,200 Q410,170 410,168" fill="none" stroke="#64748b" stroke-width="1.1" stroke-dasharray="5,3" marker-end="url(#rah)"/>
+            <text x="390" y="220" fill="#64748b" font-family="Segoe UI,sans-serif" font-size="9" transform="rotate(-90,390,220)">fix & retry</text>
+
+            <!-- Form Filled → Register Form (clear field) -->
+            <path d="M375,162 Q347,180 320,162" fill="none" stroke="#64748b" stroke-width="1" stroke-dasharray="4,3" marker-end="url(#rah)"/>
+            <text x="347" y="188" text-anchor="middle" fill="#64748b" font-family="Segoe UI,sans-serif" font-size="8">clear field</text>
+
+            <!-- Silent refresh: Landing → Authenticated -->
+            <path d="M80,120 Q80,42 188,42" fill="none" stroke="#4ade80" stroke-width="1.1" stroke-dasharray="5,3" marker-end="url(#rah-g)"/>
+            <text x="110" y="60" fill="#4ade80" font-family="Segoe UI,sans-serif" font-size="8" font-weight="600">silent refresh (cookie)</text>
+          </svg>
+        </div>
+
+        <table class="td-table">
+          <thead>
+            <tr><th>ID</th><th>Current State</th><th>Event</th><th>Next State</th><th>Valid?</th></tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td class="id-col">RST-01</td>
+              <td>Landing</td>
+              <td>Click /register link</td>
+              <td>Register Form</td>
+              <td><span class="badge class-valid">Valid</span></td>
+            </tr>
+            <tr>
+              <td class="id-col">RST-02</td>
+              <td>Register Form</td>
+              <td>Fill email + password + age check</td>
+              <td>Form Filled</td>
+              <td><span class="badge class-valid">Valid</span></td>
+            </tr>
+            <tr>
+              <td class="id-col">RST-03</td>
+              <td>Register Form</td>
+              <td>Click submit (button disabled)</td>
+              <td>Register Form</td>
+              <td><span class="badge class-invalid">Invalid</span> (blocked)</td>
+            </tr>
+            <tr>
+              <td class="id-col">RST-04</td>
+              <td>Form Filled</td>
+              <td>Click Create Account</td>
+              <td>Submitting</td>
+              <td><span class="badge class-valid">Valid</span></td>
+            </tr>
+            <tr>
+              <td class="id-col">RST-05</td>
+              <td>Submitting</td>
+              <td>Server returns 201</td>
+              <td>Authenticated</td>
+              <td><span class="badge class-valid">Valid</span></td>
+            </tr>
+            <tr>
+              <td class="id-col">RST-06</td>
+              <td>Submitting</td>
+              <td>Server returns 409 / 400</td>
+              <td>Error</td>
+              <td><span class="badge class-valid">Valid</span></td>
+            </tr>
+            <tr>
+              <td class="id-col">RST-07</td>
+              <td>Submitting</td>
+              <td>Network timeout</td>
+              <td>Error</td>
+              <td><span class="badge class-valid">Valid</span></td>
+            </tr>
+            <tr>
+              <td class="id-col">RST-08</td>
+              <td>Error</td>
+              <td>User corrects input, re-submits</td>
+              <td>Submitting</td>
+              <td><span class="badge class-valid">Valid</span></td>
+            </tr>
+            <tr>
+              <td class="id-col">RST-09</td>
+              <td>Submitting</td>
+              <td>Click submit again (double-click)</td>
+              <td>Submitting</td>
+              <td><span class="badge class-invalid">Invalid</span> (blocked by loading state)</td>
+            </tr>
+            <tr>
+              <td class="id-col">RST-10</td>
+              <td>Landing</td>
+              <td>Has valid refresh cookie</td>
+              <td>Authenticated</td>
+              <td><span class="badge class-valid">Valid</span> (silent refresh)</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <!-- ── PW: Registration ────────────────────── -->
+        <h3 style="margin-top: 22px;">
+          <span class="badge badge-pw" style="margin-right:6px;">PW</span>
+          Pairwise Testing — Registration Parameters
+        </h3>
+
+        <div class="info-grid" style="margin-bottom: 14px;">
+          <dl class="info-item">
+            <dt>Email Format (3 levels)</dt>
+            <dd>Valid &middot; Invalid (no @) &middot; Empty</dd>
+          </dl>
+          <dl class="info-item">
+            <dt>Password Length (3 levels)</dt>
+            <dd>Short (5) &middot; Min (8) &middot; Long (100)</dd>
+          </dl>
+          <dl class="info-item">
+            <dt>Age Checkbox (2 levels)</dt>
+            <dd>Checked &middot; Unchecked</dd>
+          </dl>
+          <dl class="info-item">
+            <dt>Email Uniqueness (2 levels)</dt>
+            <dd>New &middot; Already registered</dd>
+          </dl>
+        </div>
+
+        <p style="color: #94a3b8; font-size: 12px; margin-bottom: 8px;">
+          Full combination: 3 &times; 3 &times; 2 &times; 2 = <strong style="color:#f8fafc;">36 tests</strong> &rarr;
+          Pairwise reduction: <strong style="color:#4ade80;">9 tests</strong> (75% reduction)
+        </p>
+
+        <table class="td-table">
+          <thead>
+            <tr><th>ID</th><th>Email</th><th>Password</th><th>Age</th><th>Unique?</th><th>Expected</th></tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td class="id-col">RPW-01</td>
+              <td class="mono">new@test.com</td>
+              <td class="mono">8 chars</td>
+              <td class="dt-yes">Y</td>
+              <td>New</td>
+              <td><span class="badge class-valid">201 Created</span></td>
+            </tr>
+            <tr>
+              <td class="id-col">RPW-02</td>
+              <td class="mono">new2@test.com</td>
+              <td class="mono">5 chars</td>
+              <td class="dt-yes">Y</td>
+              <td>New</td>
+              <td><span class="badge class-invalid">400</span> password too short</td>
+            </tr>
+            <tr>
+              <td class="id-col">RPW-03</td>
+              <td class="mono">new3@test.com</td>
+              <td class="mono">100 chars</td>
+              <td class="dt-no">N</td>
+              <td>New</td>
+              <td><span class="badge class-invalid">Blocked</span> button disabled</td>
+            </tr>
+            <tr>
+              <td class="id-col">RPW-04</td>
+              <td class="mono">badformat</td>
+              <td class="mono">8 chars</td>
+              <td class="dt-yes">Y</td>
+              <td>New</td>
+              <td><span class="badge class-invalid">400</span> invalid email</td>
+            </tr>
+            <tr>
+              <td class="id-col">RPW-05</td>
+              <td class="mono">badformat</td>
+              <td class="mono">100 chars</td>
+              <td class="dt-yes">Y</td>
+              <td>Existing</td>
+              <td><span class="badge class-invalid">400</span> invalid email</td>
+            </tr>
+            <tr>
+              <td class="id-col">RPW-06</td>
+              <td class="mono">badformat</td>
+              <td class="mono">5 chars</td>
+              <td class="dt-no">N</td>
+              <td>New</td>
+              <td><span class="badge class-invalid">Blocked</span> button disabled</td>
+            </tr>
+            <tr>
+              <td class="id-col">RPW-07</td>
+              <td class="mono">""</td>
+              <td class="mono">8 chars</td>
+              <td class="dt-no">N</td>
+              <td>New</td>
+              <td><span class="badge class-invalid">Blocked</span> button disabled</td>
+            </tr>
+            <tr>
+              <td class="id-col">RPW-08</td>
+              <td class="mono">""</td>
+              <td class="mono">5 chars</td>
+              <td class="dt-yes">Y</td>
+              <td>Existing</td>
+              <td><span class="badge class-invalid">Blocked</span> button disabled</td>
+            </tr>
+            <tr>
+              <td class="id-col">RPW-09</td>
+              <td class="mono">exist@test.com</td>
+              <td class="mono">8 chars</td>
+              <td class="dt-yes">Y</td>
+              <td>Existing</td>
+              <td><span class="badge class-invalid">409</span> email_taken</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <!-- ── EG: Registration ────────────────────── -->
+        <h3 style="margin-top: 22px;">
+          <span class="badge badge-eg" style="margin-right:6px;">EG</span>
+          Error Guessing — Registration Edge Cases
+        </h3>
+        <table class="td-table">
+          <thead>
+            <tr><th>ID</th><th>Category</th><th>Scenario</th><th>Risk</th></tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td class="id-col">REG-01</td>
+              <td><span class="badge badge-eg">Race</span></td>
+              <td>Two users register with the same email simultaneously</td>
+              <td>Duplicate users if UNIQUE constraint not checked atomically</td>
+            </tr>
+            <tr>
+              <td class="id-col">REG-02</td>
+              <td><span class="badge badge-eg">Race</span></td>
+              <td>Double-click "Create Account" — two POST requests sent</td>
+              <td>Second request should return 409, not create duplicate session</td>
+            </tr>
+            <tr>
+              <td class="id-col">REG-03</td>
+              <td><span class="badge badge-ep">Input</span></td>
+              <td>Email with leading/trailing spaces: <code style="color:#a78bfa; font-size:11px;"> user@test.com </code></td>
+              <td>Should trim or reject; not store spaces in DB</td>
+            </tr>
+            <tr>
+              <td class="id-col">REG-04</td>
+              <td><span class="badge badge-ep">Input</span></td>
+              <td>Email with unicode characters: <code style="color:#a78bfa; font-size:11px;">user@тест.com</code></td>
+              <td>Zod .email() may accept IDN; verify DB stores correctly</td>
+            </tr>
+            <tr>
+              <td class="id-col">REG-05</td>
+              <td><span class="badge badge-ep">Input</span></td>
+              <td>Extremely long email (500+ chars) with valid format</td>
+              <td>PostgreSQL TEXT has no limit — may cause issues downstream</td>
+            </tr>
+            <tr>
+              <td class="id-col">REG-06</td>
+              <td><span class="badge badge-dt">Security</span></td>
+              <td>SQL injection in email: <code style="color:#a78bfa; font-size:11px;">'; DROP TABLE users;--@x.com</code></td>
+              <td>Parameterized queries must prevent injection</td>
+            </tr>
+            <tr>
+              <td class="id-col">REG-07</td>
+              <td><span class="badge badge-dt">Security</span></td>
+              <td>XSS payload in email: <code style="color:#a78bfa; font-size:11px;">&lt;script&gt;alert(1)&lt;/script&gt;@x.com</code></td>
+              <td>Must not execute if email displayed in admin panel</td>
+            </tr>
+            <tr>
+              <td class="id-col">REG-08</td>
+              <td><span class="badge badge-st">State</span></td>
+              <td>Close browser tab during "Please wait…" loading state</td>
+              <td>Account may be created but user never receives JWT</td>
+            </tr>
+            <tr>
+              <td class="id-col">REG-09</td>
+              <td><span class="badge badge-st">State</span></td>
+              <td>Navigate away (browser back) while request is in-flight</td>
+              <td>Orphaned request; user may not know account was created</td>
+            </tr>
+            <tr>
+              <td class="id-col">REG-10</td>
+              <td><span class="badge badge-bva">API</span></td>
+              <td>Send POST with extra fields: <code style="color:#a78bfa; font-size:11px;">{"email":"…","password":"…","role":"admin"}</code></td>
+              <td>Strict schema must reject — no mass assignment</td>
+            </tr>
+            <tr>
+              <td class="id-col">REG-11</td>
+              <td><span class="badge badge-bva">API</span></td>
+              <td>Send POST with Content-Type: text/plain instead of JSON</td>
+              <td>Server must reject with 400, not crash</td>
+            </tr>
+            <tr>
+              <td class="id-col">REG-12</td>
+              <td><span class="badge badge-pw">UX</span></td>
+              <td>Switch between Login and Register tabs — error message persists</td>
+              <td>Error from login attempt should clear when switching to register</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- ══════════════════════════════════════════════
+           1. EQUIVALENCE PARTITIONING
+           ══════════════════════════════════════════════ -->
+      <div class="card" id="ep">
+        <div class="tech-header">
+          <div class="tech-number tech-number-ep">1</div>
+          <h2 class="tech-title">Equivalence Partitioning</h2>
+          <span class="badge badge-ep">EP</span>
+        </div>
+
+        <div class="tech-theory">
+          Divides input data into groups (classes) where each member is expected to be processed
+          the same way. Testing one representative value per class is sufficient, reducing test count
+          while preserving coverage.
+        </div>
+
+        <h3>Bet Amount — Input Classes</h3>
+        <table class="td-table">
+          <thead>
+            <tr>
+              <th>Class</th>
+              <th>Type</th>
+              <th>Range</th>
+              <th>Representative</th>
+              <th>Expected Result</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td class="id-col">EP-01</td>
+              <td><span class="badge class-invalid">Invalid</span></td>
+              <td class="mono">bet &lt; 0.20</td>
+              <td class="mono">0.05</td>
+              <td>Error: bet below minimum</td>
+            </tr>
+            <tr>
+              <td class="id-col">EP-02</td>
+              <td><span class="badge class-valid">Valid</span></td>
+              <td class="mono">0.20 &le; bet &le; 100.00</td>
+              <td class="mono">5.00</td>
+              <td>Spin executes, balance debited</td>
+            </tr>
+            <tr>
+              <td class="id-col">EP-03</td>
+              <td><span class="badge class-invalid">Invalid</span></td>
+              <td class="mono">bet &gt; 100.00</td>
+              <td class="mono">250.00</td>
+              <td>Error: bet above maximum</td>
+            </tr>
+            <tr>
+              <td class="id-col">EP-04</td>
+              <td><span class="badge class-invalid">Invalid</span></td>
+              <td class="mono">bet = 0</td>
+              <td class="mono">0</td>
+              <td>Error: bet must be positive</td>
+            </tr>
+            <tr>
+              <td class="id-col">EP-05</td>
+              <td><span class="badge class-invalid">Invalid</span></td>
+              <td class="mono">bet &lt; 0</td>
+              <td class="mono">-10.00</td>
+              <td>Error: invalid bet value</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <h3 style="margin-top: 18px;">Paylines Count — Input Classes</h3>
+        <table class="td-table">
+          <thead>
+            <tr>
+              <th>Class</th>
+              <th>Type</th>
+              <th>Range</th>
+              <th>Representative</th>
+              <th>Expected Result</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td class="id-col">EP-06</td>
+              <td><span class="badge class-invalid">Invalid</span></td>
+              <td class="mono">lines &lt; 1</td>
+              <td class="mono">0</td>
+              <td>Error: at least 1 payline required</td>
+            </tr>
+            <tr>
+              <td class="id-col">EP-07</td>
+              <td><span class="badge class-valid">Valid</span></td>
+              <td class="mono">1 &le; lines &le; 20</td>
+              <td class="mono">10</td>
+              <td>Spin with 10 active paylines</td>
+            </tr>
+            <tr>
+              <td class="id-col">EP-08</td>
+              <td><span class="badge class-invalid">Invalid</span></td>
+              <td class="mono">lines &gt; 20</td>
+              <td class="mono">25</td>
+              <td>Error: max 20 paylines</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- ══════════════════════════════════════════════
+           2. BOUNDARY VALUE ANALYSIS
+           ══════════════════════════════════════════════ -->
+      <div class="card" id="bva">
+        <div class="tech-header">
+          <div class="tech-number tech-number-bva">2</div>
+          <h2 class="tech-title">Boundary Value Analysis</h2>
+          <span class="badge badge-bva">BVA</span>
+        </div>
+
+        <div class="tech-theory">
+          Focuses on values at the edges of equivalence classes — the exact boundary, one step below,
+          and one step above. Most defects cluster at boundaries, making this technique highly effective
+          at catching off-by-one and range errors.
+        </div>
+
+        <h3>Bet Amount Boundaries (min: 0.20, max: 100.00)</h3>
+        <table class="td-table">
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Boundary</th>
+              <th>Value</th>
+              <th>Expected</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td class="id-col">BVA-01</td>
+              <td>Below min</td>
+              <td class="mono">0.19</td>
+              <td><span class="badge class-invalid">Rejected</span></td>
+            </tr>
+            <tr>
+              <td class="id-col">BVA-02</td>
+              <td>At min</td>
+              <td class="mono">0.20</td>
+              <td><span class="badge class-valid">Accepted</span></td>
+            </tr>
+            <tr>
+              <td class="id-col">BVA-03</td>
+              <td>Above min</td>
+              <td class="mono">0.21</td>
+              <td><span class="badge class-valid">Accepted</span></td>
+            </tr>
+            <tr>
+              <td class="id-col">BVA-04</td>
+              <td>Below max</td>
+              <td class="mono">99.99</td>
+              <td><span class="badge class-valid">Accepted</span></td>
+            </tr>
+            <tr>
+              <td class="id-col">BVA-05</td>
+              <td>At max</td>
+              <td class="mono">100.00</td>
+              <td><span class="badge class-valid">Accepted</span></td>
+            </tr>
+            <tr>
+              <td class="id-col">BVA-06</td>
+              <td>Above max</td>
+              <td class="mono">100.01</td>
+              <td><span class="badge class-invalid">Rejected</span></td>
+            </tr>
+          </tbody>
+        </table>
+
+        <h3 style="margin-top: 18px;">Balance Boundaries for Spin Execution</h3>
+        <table class="td-table">
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Scenario</th>
+              <th>Balance</th>
+              <th>Bet</th>
+              <th>Expected</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td class="id-col">BVA-07</td>
+              <td>Balance = 0</td>
+              <td class="mono">$0.00</td>
+              <td class="mono">$1.00</td>
+              <td><span class="badge class-invalid">Insufficient funds</span></td>
+            </tr>
+            <tr>
+              <td class="id-col">BVA-08</td>
+              <td>Balance &lt; bet</td>
+              <td class="mono">$0.50</td>
+              <td class="mono">$1.00</td>
+              <td><span class="badge class-invalid">Insufficient funds</span></td>
+            </tr>
+            <tr>
+              <td class="id-col">BVA-09</td>
+              <td>Balance = bet</td>
+              <td class="mono">$1.00</td>
+              <td class="mono">$1.00</td>
+              <td><span class="badge class-valid">Spin (balance → $0)</span></td>
+            </tr>
+            <tr>
+              <td class="id-col">BVA-10</td>
+              <td>Balance &gt; bet</td>
+              <td class="mono">$50.00</td>
+              <td class="mono">$1.00</td>
+              <td><span class="badge class-valid">Spin (balance → $49)</span></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- ══════════════════════════════════════════════
+           3. DECISION TABLE TESTING
+           ══════════════════════════════════════════════ -->
+      <div class="card" id="dt">
+        <div class="tech-header">
+          <div class="tech-number tech-number-dt">3</div>
+          <h2 class="tech-title">Decision Table Testing</h2>
+          <span class="badge badge-dt">DT</span>
+        </div>
+
+        <div class="tech-theory">
+          Captures complex business rules where multiple conditions produce different outcomes.
+          Each column represents a unique rule combining condition values and their expected actions.
+          Ensures complete coverage of all meaningful condition combinations.
+        </div>
+
+        <h3>Spin Outcome Decision Table</h3>
+        <div style="overflow-x: auto;">
+          <table class="td-table">
+            <thead>
+              <tr>
+                <th style="min-width: 180px;">Conditions / Actions</th>
+                <th>R1</th>
+                <th>R2</th>
+                <th>R3</th>
+                <th>R4</th>
+                <th>R5</th>
+                <th>R6</th>
+                <th>R7</th>
+                <th>R8</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><strong>Conditions</strong></td>
+                <td colspan="8" style="border-bottom: 1px solid rgba(255,255,255,.12);"></td>
+              </tr>
+              <tr>
+                <td>User authenticated?</td>
+                <td class="dt-no">N</td>
+                <td class="dt-yes">Y</td>
+                <td class="dt-yes">Y</td>
+                <td class="dt-yes">Y</td>
+                <td class="dt-yes">Y</td>
+                <td class="dt-yes">Y</td>
+                <td class="dt-yes">Y</td>
+                <td class="dt-yes">Y</td>
+              </tr>
+              <tr>
+                <td>Balance &ge; bet?</td>
+                <td class="dt-any">—</td>
+                <td class="dt-no">N</td>
+                <td class="dt-yes">Y</td>
+                <td class="dt-yes">Y</td>
+                <td class="dt-yes">Y</td>
+                <td class="dt-yes">Y</td>
+                <td class="dt-yes">Y</td>
+                <td class="dt-yes">Y</td>
+              </tr>
+              <tr>
+                <td>Valid bet amount?</td>
+                <td class="dt-any">—</td>
+                <td class="dt-any">—</td>
+                <td class="dt-no">N</td>
+                <td class="dt-yes">Y</td>
+                <td class="dt-yes">Y</td>
+                <td class="dt-yes">Y</td>
+                <td class="dt-yes">Y</td>
+                <td class="dt-yes">Y</td>
+              </tr>
+              <tr>
+                <td>Winning combination?</td>
+                <td class="dt-any">—</td>
+                <td class="dt-any">—</td>
+                <td class="dt-any">—</td>
+                <td class="dt-no">N</td>
+                <td class="dt-yes">Y</td>
+                <td class="dt-yes">Y</td>
+                <td class="dt-no">N</td>
+                <td class="dt-yes">Y</td>
+              </tr>
+              <tr>
+                <td>Scatter &ge; 3?</td>
+                <td class="dt-any">—</td>
+                <td class="dt-any">—</td>
+                <td class="dt-any">—</td>
+                <td class="dt-any">—</td>
+                <td class="dt-no">N</td>
+                <td class="dt-yes">Y</td>
+                <td class="dt-yes">Y</td>
+                <td class="dt-yes">Y</td>
+              </tr>
+              <tr>
+                <td style="border-top: 1px solid rgba(255,255,255,.12);"><strong>Actions</strong></td>
+                <td colspan="8" style="border-top: 1px solid rgba(255,255,255,.12);"></td>
+              </tr>
+              <tr>
+                <td>Return 401</td>
+                <td class="dt-yes">X</td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+              </tr>
+              <tr>
+                <td>Return insufficient funds</td>
+                <td></td>
+                <td class="dt-yes">X</td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+              </tr>
+              <tr>
+                <td>Return invalid bet error</td>
+                <td></td>
+                <td></td>
+                <td class="dt-yes">X</td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+              </tr>
+              <tr>
+                <td>Debit balance</td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td class="dt-yes">X</td>
+                <td class="dt-yes">X</td>
+                <td class="dt-yes">X</td>
+                <td class="dt-yes">X</td>
+                <td class="dt-yes">X</td>
+              </tr>
+              <tr>
+                <td>Credit winnings</td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td class="dt-yes">X</td>
+                <td class="dt-yes">X</td>
+                <td></td>
+                <td class="dt-yes">X</td>
+              </tr>
+              <tr>
+                <td>Trigger free spins</td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td class="dt-yes">X</td>
+                <td class="dt-yes">X</td>
+                <td class="dt-yes">X</td>
+              </tr>
+              <tr>
+                <td>Record round in history</td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td class="dt-yes">X</td>
+                <td class="dt-yes">X</td>
+                <td class="dt-yes">X</td>
+                <td class="dt-yes">X</td>
+                <td class="dt-yes">X</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- ══════════════════════════════════════════════
+           4. STATE TRANSITION TESTING
+           ══════════════════════════════════════════════ -->
+      <div class="card" id="st">
+        <div class="tech-header">
+          <div class="tech-number tech-number-st">4</div>
+          <h2 class="tech-title">State Transition Testing</h2>
+          <span class="badge badge-st">ST</span>
+        </div>
+
+        <div class="tech-theory">
+          Models the system as a finite state machine. Tests are derived from valid and invalid
+          transitions between states. Especially useful for UI flows and game lifecycle where
+          the same event may produce different results depending on the current state.
+        </div>
+
+        <h3>Game Session State Diagram</h3>
+        <div style="overflow-x:auto; padding:16px 0;">
+          <svg viewBox="0 0 720 560" xmlns="http://www.w3.org/2000/svg" style="max-width:720px; width:100%; height:auto; display:block; margin:0 auto;">
+            <defs>
+              <marker id="ah" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6" fill="none" stroke="#64748b" stroke-width="1.2"/></marker>
+              <marker id="ah-red" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6" fill="none" stroke="#f87171" stroke-width="1.2"/></marker>
+              <marker id="ah-grn" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6" fill="none" stroke="#4ade80" stroke-width="1.2"/></marker>
+              <marker id="ah-ylw" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6" fill="none" stroke="#fbbf24" stroke-width="1.2"/></marker>
+              <marker id="ah-cyn" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6" fill="none" stroke="#62d7ff" stroke-width="1.2"/></marker>
+            </defs>
+
+            <!-- ── State boxes ──────────────────────── -->
+            <!-- LOGGED OUT -->
+            <rect x="270" y="20" width="150" height="48" rx="10" fill="rgba(248,113,113,.1)" stroke="#f87171" stroke-width="1.5"/>
+            <text x="345" y="40" text-anchor="middle" fill="#f8fafc" font-family="Segoe UI,sans-serif" font-size="13" font-weight="700">LOGGED OUT</text>
+            <text x="345" y="56" text-anchor="middle" fill="#94a3b8" font-family="Segoe UI,sans-serif" font-size="10">Unauthenticated</text>
+
+            <!-- IDLE -->
+            <rect x="270" y="130" width="150" height="48" rx="10" fill="rgba(56,189,248,.1)" stroke="#38bdf8" stroke-width="1.5"/>
+            <text x="345" y="150" text-anchor="middle" fill="#f8fafc" font-family="Segoe UI,sans-serif" font-size="13" font-weight="700">IDLE</text>
+            <text x="345" y="166" text-anchor="middle" fill="#94a3b8" font-family="Segoe UI,sans-serif" font-size="10">Lobby</text>
+
+            <!-- SPINNING -->
+            <rect x="270" y="240" width="150" height="48" rx="10" fill="rgba(167,139,250,.12)" stroke="#a78bfa" stroke-width="1.5"/>
+            <text x="345" y="260" text-anchor="middle" fill="#f8fafc" font-family="Segoe UI,sans-serif" font-size="13" font-weight="700">SPINNING</text>
+            <text x="345" y="276" text-anchor="middle" fill="#94a3b8" font-family="Segoe UI,sans-serif" font-size="10">Reels animating</text>
+
+            <!-- LOSE -->
+            <rect x="170" y="350" width="120" height="44" rx="10" fill="rgba(248,113,113,.08)" stroke="#f87171" stroke-width="1.2"/>
+            <text x="230" y="377" text-anchor="middle" fill="#f87171" font-family="Segoe UI,sans-serif" font-size="13" font-weight="700">LOSE</text>
+
+            <!-- WIN -->
+            <rect x="400" y="350" width="120" height="44" rx="10" fill="rgba(62,224,169,.08)" stroke="#4ade80" stroke-width="1.2"/>
+            <text x="460" y="377" text-anchor="middle" fill="#4ade80" font-family="Segoe UI,sans-serif" font-size="13" font-weight="700">WIN</text>
+
+            <!-- FREE SPINS -->
+            <rect x="400" y="450" width="150" height="48" rx="10" fill="rgba(245,208,106,.1)" stroke="#f5d06a" stroke-width="1.5"/>
+            <text x="475" y="470" text-anchor="middle" fill="#f8fafc" font-family="Segoe UI,sans-serif" font-size="13" font-weight="700">FREE SPINS</text>
+            <text x="475" y="486" text-anchor="middle" fill="#94a3b8" font-family="Segoe UI,sans-serif" font-size="10">Bonus round</text>
+
+            <!-- HISTORY -->
+            <rect x="60" y="450" width="120" height="44" rx="10" fill="rgba(148,163,184,.08)" stroke="#64748b" stroke-width="1.2"/>
+            <text x="120" y="477" text-anchor="middle" fill="#94a3b8" font-family="Segoe UI,sans-serif" font-size="13" font-weight="700">HISTORY</text>
+
+            <!-- ── Arrows ───────────────────────────── -->
+            <!-- LOGGED OUT → IDLE (login) -->
+            <line x1="345" y1="68" x2="345" y2="128" stroke="#4ade80" stroke-width="1.3" marker-end="url(#ah-grn)"/>
+            <text x="355" y="103" fill="#4ade80" font-family="Segoe UI,sans-serif" font-size="10" font-weight="600">login / register</text>
+
+            <!-- IDLE → SPINNING (spin) -->
+            <line x1="345" y1="178" x2="345" y2="238" stroke="#a78bfa" stroke-width="1.3" marker-end="url(#ah)"/>
+            <text x="355" y="213" fill="#a78bfa" font-family="Segoe UI,sans-serif" font-size="10" font-weight="600">click SPIN</text>
+
+            <!-- SPINNING → LOSE (no win) -->
+            <line x1="300" y1="288" x2="245" y2="348" stroke="#f87171" stroke-width="1.2" marker-end="url(#ah-red)"/>
+            <text x="245" y="318" fill="#f87171" font-family="Segoe UI,sans-serif" font-size="10" font-weight="600">no win</text>
+
+            <!-- SPINNING → WIN (win) -->
+            <line x1="390" y1="288" x2="445" y2="348" stroke="#4ade80" stroke-width="1.2" marker-end="url(#ah-grn)"/>
+            <text x="430" y="318" fill="#4ade80" font-family="Segoe UI,sans-serif" font-size="10" font-weight="600">win</text>
+
+            <!-- LOSE → IDLE (continue) -->
+            <path d="M170,372 Q80,372 80,270 Q80,154 268,154" fill="none" stroke="#64748b" stroke-width="1.2" stroke-dasharray="5,3" marker-end="url(#ah)"/>
+            <text x="60" y="270" fill="#64748b" font-family="Segoe UI,sans-serif" font-size="10" font-weight="600" transform="rotate(-90,60,270)">continue</text>
+
+            <!-- WIN → IDLE (continue) -->
+            <path d="M520,372 Q620,372 620,270 Q620,154 422,154" fill="none" stroke="#64748b" stroke-width="1.2" stroke-dasharray="5,3" marker-end="url(#ah)"/>
+            <text x="640" y="270" fill="#64748b" font-family="Segoe UI,sans-serif" font-size="10" font-weight="600" transform="rotate(90,640,270)">continue</text>
+
+            <!-- WIN → FREE SPINS (scatter≥3) -->
+            <line x1="460" y1="394" x2="475" y2="448" stroke="#fbbf24" stroke-width="1.3" marker-end="url(#ah-ylw)"/>
+            <text x="490" y="427" fill="#fbbf24" font-family="Segoe UI,sans-serif" font-size="10" font-weight="600">scatter ≥ 3</text>
+
+            <!-- FREE SPINS → IDLE (done) -->
+            <path d="M400,474 Q270,474 270,300 Q270,178 270,168" fill="none" stroke="#62d7ff" stroke-width="1.2" stroke-dasharray="5,3" marker-end="url(#ah-cyn)"/>
+            <text x="248" y="340" fill="#62d7ff" font-family="Segoe UI,sans-serif" font-size="10" font-weight="600" transform="rotate(-90,248,340)">spins done</text>
+
+            <!-- SPINNING → LOGGED OUT (session expired) -->
+            <path d="M270,264 Q160,264 160,140 Q160,44 268,44" fill="none" stroke="#f87171" stroke-width="1.1" stroke-dasharray="4,4" marker-end="url(#ah-red)"/>
+            <text x="120" y="156" fill="#f87171" font-family="Segoe UI,sans-serif" font-size="9" font-weight="600">session expired</text>
+
+            <!-- IDLE → HISTORY (view history) -->
+            <path d="M270,168 Q200,168 160,200 Q120,240 120,448" fill="none" stroke="#64748b" stroke-width="1.1" marker-end="url(#ah)"/>
+            <text x="108" y="320" fill="#64748b" font-family="Segoe UI,sans-serif" font-size="10" font-weight="600" transform="rotate(-90,108,320)">view history</text>
+
+            <!-- IDLE → LOGGED OUT (logout) -->
+            <path d="M420,140 Q500,140 500,90 Q500,44 422,44" fill="none" stroke="#f87171" stroke-width="1.1" marker-end="url(#ah-red)"/>
+            <text x="510" y="93" fill="#f87171" font-family="Segoe UI,sans-serif" font-size="10" font-weight="600">logout</text>
+
+            <!-- Legend -->
+            <rect x="15" y="18" width="130" height="76" rx="8" fill="rgba(15,23,42,.65)" stroke="rgba(148,163,184,.15)" stroke-width="1"/>
+            <line x1="25" y1="38" x2="50" y2="38" stroke="#4ade80" stroke-width="1.3"/>
+            <text x="55" y="42" fill="#94a3b8" font-family="Segoe UI,sans-serif" font-size="9">Valid transition</text>
+            <line x1="25" y1="55" x2="50" y2="55" stroke="#f87171" stroke-width="1.3" stroke-dasharray="4,3"/>
+            <text x="55" y="59" fill="#94a3b8" font-family="Segoe UI,sans-serif" font-size="9">Error / expiry</text>
+            <line x1="25" y1="72" x2="50" y2="72" stroke="#64748b" stroke-width="1.3" stroke-dasharray="5,3"/>
+            <text x="55" y="76" fill="#94a3b8" font-family="Segoe UI,sans-serif" font-size="9">Return / navigate</text>
+          </svg>
+        </div>
+
+        <h3 style="margin-top: 18px;">State Transition Table</h3>
+        <table class="td-table">
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Current State</th>
+              <th>Event</th>
+              <th>Next State</th>
+              <th>Valid?</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td class="id-col">ST-01</td>
+              <td>Logged Out</td>
+              <td>Login with valid credentials</td>
+              <td>Idle</td>
+              <td><span class="badge class-valid">Valid</span></td>
+            </tr>
+            <tr>
+              <td class="id-col">ST-02</td>
+              <td>Logged Out</td>
+              <td>Click Spin</td>
+              <td>Logged Out</td>
+              <td><span class="badge class-invalid">Invalid</span></td>
+            </tr>
+            <tr>
+              <td class="id-col">ST-03</td>
+              <td>Idle</td>
+              <td>Click Spin (balance ok)</td>
+              <td>Spinning</td>
+              <td><span class="badge class-valid">Valid</span></td>
+            </tr>
+            <tr>
+              <td class="id-col">ST-04</td>
+              <td>Idle</td>
+              <td>Click Spin (no balance)</td>
+              <td>Idle</td>
+              <td><span class="badge class-valid">Valid</span> (error shown)</td>
+            </tr>
+            <tr>
+              <td class="id-col">ST-05</td>
+              <td>Spinning</td>
+              <td>Reels stop — no win</td>
+              <td>Lose</td>
+              <td><span class="badge class-valid">Valid</span></td>
+            </tr>
+            <tr>
+              <td class="id-col">ST-06</td>
+              <td>Spinning</td>
+              <td>Reels stop — winning combo</td>
+              <td>Win</td>
+              <td><span class="badge class-valid">Valid</span></td>
+            </tr>
+            <tr>
+              <td class="id-col">ST-07</td>
+              <td>Spinning</td>
+              <td>Click Spin again</td>
+              <td>Spinning</td>
+              <td><span class="badge class-invalid">Invalid</span> (blocked)</td>
+            </tr>
+            <tr>
+              <td class="id-col">ST-08</td>
+              <td>Win</td>
+              <td>Scatter &ge; 3 detected</td>
+              <td>Free Spins</td>
+              <td><span class="badge class-valid">Valid</span></td>
+            </tr>
+            <tr>
+              <td class="id-col">ST-09</td>
+              <td>Lose / Win</td>
+              <td>Continue</td>
+              <td>Idle</td>
+              <td><span class="badge class-valid">Valid</span></td>
+            </tr>
+            <tr>
+              <td class="id-col">ST-10</td>
+              <td>Free Spins</td>
+              <td>All free spins used</td>
+              <td>Idle</td>
+              <td><span class="badge class-valid">Valid</span></td>
+            </tr>
+            <tr>
+              <td class="id-col">ST-11</td>
+              <td>Spinning</td>
+              <td>Session token expires</td>
+              <td>Logged Out</td>
+              <td><span class="badge class-valid">Valid</span></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- ══════════════════════════════════════════════
+           5. PAIRWISE TESTING
+           ══════════════════════════════════════════════ -->
+      <div class="card" id="pw">
+        <div class="tech-header">
+          <div class="tech-number tech-number-pw">5</div>
+          <h2 class="tech-title">Pairwise Testing</h2>
+          <span class="badge badge-pw">PW</span>
+        </div>
+
+        <div class="tech-theory">
+          Instead of testing all possible combinations (which can be exponential), pairwise testing
+          ensures every pair of parameter values is covered at least once. Studies show that most
+          defects are caused by interactions between 2 parameters, making this a highly efficient
+          combinatorial technique.
+        </div>
+
+        <h3>Spin Parameters</h3>
+        <div class="info-grid" style="margin-bottom: 14px;">
+          <dl class="info-item">
+            <dt>Bet Amount (3 levels)</dt>
+            <dd>Min ($0.20) &middot; Mid ($5.00) &middot; Max ($100.00)</dd>
+          </dl>
+          <dl class="info-item">
+            <dt>Paylines (3 levels)</dt>
+            <dd>1 &middot; 10 &middot; 20</dd>
+          </dl>
+          <dl class="info-item">
+            <dt>Balance State (3 levels)</dt>
+            <dd>Low ($1) &middot; Medium ($50) &middot; High ($1000)</dd>
+          </dl>
+          <dl class="info-item">
+            <dt>Client Seed (2 levels)</dt>
+            <dd>Default &middot; Custom</dd>
+          </dl>
+        </div>
+
+        <p style="color: #94a3b8; font-size: 12px; margin-bottom: 8px;">
+          Full combination: 3 &times; 3 &times; 3 &times; 2 = <strong style="color:#f8fafc;">54 tests</strong> &rarr;
+          Pairwise reduction: <strong style="color:#4ade80;">9 tests</strong> (83% reduction)
+        </p>
+
+        <table class="td-table">
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Bet</th>
+              <th>Paylines</th>
+              <th>Balance</th>
+              <th>Client Seed</th>
+              <th>Note</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td class="id-col">PW-01</td>
+              <td class="mono">$0.20</td>
+              <td class="mono">1</td>
+              <td>Low</td>
+              <td>Default</td>
+              <td>Min bet, single line, low funds</td>
+            </tr>
+            <tr>
+              <td class="id-col">PW-02</td>
+              <td class="mono">$0.20</td>
+              <td class="mono">10</td>
+              <td>Medium</td>
+              <td>Custom</td>
+              <td>Min bet, custom seed</td>
+            </tr>
+            <tr>
+              <td class="id-col">PW-03</td>
+              <td class="mono">$0.20</td>
+              <td class="mono">20</td>
+              <td>High</td>
+              <td>Default</td>
+              <td>Min bet, all lines</td>
+            </tr>
+            <tr>
+              <td class="id-col">PW-04</td>
+              <td class="mono">$5.00</td>
+              <td class="mono">1</td>
+              <td>Medium</td>
+              <td>Default</td>
+              <td>Mid bet, single line</td>
+            </tr>
+            <tr>
+              <td class="id-col">PW-05</td>
+              <td class="mono">$5.00</td>
+              <td class="mono">10</td>
+              <td>High</td>
+              <td>Custom</td>
+              <td>Mid bet, custom seed</td>
+            </tr>
+            <tr>
+              <td class="id-col">PW-06</td>
+              <td class="mono">$5.00</td>
+              <td class="mono">20</td>
+              <td>Low</td>
+              <td>Default</td>
+              <td>Mid bet + all lines vs low funds</td>
+            </tr>
+            <tr>
+              <td class="id-col">PW-07</td>
+              <td class="mono">$100.00</td>
+              <td class="mono">1</td>
+              <td>High</td>
+              <td>Default</td>
+              <td>Max bet, single line</td>
+            </tr>
+            <tr>
+              <td class="id-col">PW-08</td>
+              <td class="mono">$100.00</td>
+              <td class="mono">10</td>
+              <td>Low</td>
+              <td>Custom</td>
+              <td>Max bet vs insufficient balance</td>
+            </tr>
+            <tr>
+              <td class="id-col">PW-09</td>
+              <td class="mono">$100.00</td>
+              <td class="mono">20</td>
+              <td>Medium</td>
+              <td>Default</td>
+              <td>Max bet, all lines, medium funds</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- ══════════════════════════════════════════════
+           6. ERROR GUESSING
+           ══════════════════════════════════════════════ -->
+      <div class="card" id="eg">
+        <div class="tech-header">
+          <div class="tech-number tech-number-eg">6</div>
+          <h2 class="tech-title">Error Guessing</h2>
+          <span class="badge badge-eg">EG</span>
+        </div>
+
+        <div class="tech-theory">
+          Leverages tester's experience and intuition to anticipate likely defects. Not systematic
+          like other techniques, but invaluable for catching edge cases that formal methods miss.
+          Focuses on historically problematic areas: concurrency, rounding, null values, network
+          failures, and race conditions.
+        </div>
+
+        <table class="td-table">
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Category</th>
+              <th>Scenario</th>
+              <th>Risk</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td class="id-col">EG-01</td>
+              <td><span class="badge badge-eg">Concurrency</span></td>
+              <td>Double-click spin button — two requests sent simultaneously</td>
+              <td>Double debit from wallet</td>
+            </tr>
+            <tr>
+              <td class="id-col">EG-02</td>
+              <td><span class="badge badge-eg">Concurrency</span></td>
+              <td>Open game in two browser tabs, spin in both at the same moment</td>
+              <td>Race condition on balance update</td>
+            </tr>
+            <tr>
+              <td class="id-col">EG-03</td>
+              <td><span class="badge badge-dt">Rounding</span></td>
+              <td>Win amount produces repeating decimal (e.g. $1.00 / 3)</td>
+              <td>Floating point drift in balance</td>
+            </tr>
+            <tr>
+              <td class="id-col">EG-04</td>
+              <td><span class="badge badge-dt">Rounding</span></td>
+              <td>Many small wins accumulate — check total matches sum of individual credits</td>
+              <td>Cent rounding errors over time</td>
+            </tr>
+            <tr>
+              <td class="id-col">EG-05</td>
+              <td><span class="badge badge-bva">Network</span></td>
+              <td>Network drops during spin — response never arrives</td>
+              <td>Balance debited but no result shown; stuck UI</td>
+            </tr>
+            <tr>
+              <td class="id-col">EG-06</td>
+              <td><span class="badge badge-bva">Network</span></td>
+              <td>Timeout on spin API — client retries with same spin_id</td>
+              <td>Idempotency must return same result, not re-debit</td>
+            </tr>
+            <tr>
+              <td class="id-col">EG-07</td>
+              <td><span class="badge badge-ep">Auth</span></td>
+              <td>JWT expires mid-session — spin request returns 401</td>
+              <td>User loses context; auto-redirect vs error</td>
+            </tr>
+            <tr>
+              <td class="id-col">EG-08</td>
+              <td><span class="badge badge-ep">Auth</span></td>
+              <td>Tampered JWT token (modified payload, invalid signature)</td>
+              <td>Must reject; not bypass authentication</td>
+            </tr>
+            <tr>
+              <td class="id-col">EG-09</td>
+              <td><span class="badge badge-st">State</span></td>
+              <td>Browser back button during spinning animation</td>
+              <td>Orphaned round; UI desync from server state</td>
+            </tr>
+            <tr>
+              <td class="id-col">EG-10</td>
+              <td><span class="badge badge-st">State</span></td>
+              <td>Refresh page immediately after spin response received</td>
+              <td>Win animation skipped; verify balance reflects result</td>
+            </tr>
+            <tr>
+              <td class="id-col">EG-11</td>
+              <td><span class="badge badge-pw">Input</span></td>
+              <td>Bet amount sent as string "abc" via API (bypass UI validation)</td>
+              <td>Server must validate; no 500 errors</td>
+            </tr>
+            <tr>
+              <td class="id-col">EG-12</td>
+              <td><span class="badge badge-pw">Input</span></td>
+              <td>Extremely large bet via API: $999999999.99</td>
+              <td>Integer overflow in BIGINT cents conversion</td>
+            </tr>
+            <tr>
+              <td class="id-col">EG-13</td>
+              <td><span class="badge badge-eg">Security</span></td>
+              <td>Replay a previous spin request with captured spin_id</td>
+              <td>Must return cached result, not new spin</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- ── Summary card ──────────────────────────── -->
+      <div class="card">
+        <h2 class="section-title">Technique Coverage Summary</h2>
+        <p class="section-desc">How each technique contributes to overall quality across Spin and Registration modules</p>
+
+        <div class="info-grid">
+          <dl class="info-item">
+            <dt>Equivalence Partitioning</dt>
+            <dd>Reduces redundant tests by grouping inputs into classes. Applied to bet amounts, paylines, email format, and password — 18 scenarios from infinite inputs.</dd>
+          </dl>
+          <dl class="info-item">
+            <dt>Boundary Value Analysis</dt>
+            <dd>Targets off-by-one defects at min/max edges. Applied to bet limits, balance thresholds, and password length boundaries — 16 boundary checks.</dd>
+          </dl>
+          <dl class="info-item">
+            <dt>Decision Table</dt>
+            <dd>Maps 14 business rules across spin outcomes (auth, balance, wins, scatters) and registration flow (email, password, age, uniqueness).</dd>
+          </dl>
+          <dl class="info-item">
+            <dt>State Transition</dt>
+            <dd>Models game states (6 states, 11 transitions) and registration flow (6 states, 10 transitions) — catches invalid UI actions and blocked paths.</dd>
+          </dl>
+          <dl class="info-item">
+            <dt>Pairwise Testing</dt>
+            <dd>Covers all 2-way interactions: 9 spin parameter combos (83% reduction) + 9 registration combos (75% reduction) = 18 efficient tests.</dd>
+          </dl>
+          <dl class="info-item">
+            <dt>Error Guessing</dt>
+            <dd>25 experience-driven edge cases: concurrency, rounding, network, security (spin) + race conditions, injection, state bugs (registration).</dd>
+          </dl>
+        </div>
+      </div>
+
+    </div>
+  </body>
+</html>

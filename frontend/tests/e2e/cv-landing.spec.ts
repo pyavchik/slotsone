@@ -184,10 +184,10 @@ test.describe('CV Landing – actions bar', () => {
   });
 
   // -------------------------------------------------------------------------
-  // All seven actions are rendered (slots + requirements + test cases + postman + swagger + sql + pdf)
+  // All nine actions are rendered (slots + requirements + test cases + postman + swagger + sql + test design + bug report + pdf)
   // -------------------------------------------------------------------------
 
-  test('renders all seven cv-actions elements', async ({ page }) => {
+  test('renders all nine cv-actions elements', async ({ page }) => {
     const actions = page.locator('.cv-actions').first();
     await expect(actions.getByTestId('cv-open-slots')).toBeVisible();
     await expect(actions.getByTestId('cv-requirements')).toBeVisible();
@@ -195,11 +195,13 @@ test.describe('CV Landing – actions bar', () => {
     await expect(actions.locator('a.cv-link', { hasText: 'postman' })).toBeVisible();
     await expect(actions.locator('a.cv-link', { hasText: 'swager' })).toBeVisible();
     await expect(actions.getByTestId('cv-sql')).toBeVisible();
+    await expect(actions.getByTestId('cv-test-design')).toBeVisible();
+    await expect(actions.locator('a.cv-link', { hasText: 'bug report' })).toBeVisible();
     await expect(actions.locator('a.cv-link', { hasText: 'Download PDF CV' })).toBeVisible();
   });
 
   // -------------------------------------------------------------------------
-  // Action bar order: slots → requirements → test cases → postman → swagger → sql → bug report → pdf
+  // Action bar order: slots → requirements → test cases → postman → swagger → sql → test design → bug report → pdf
   // -------------------------------------------------------------------------
 
   test('action bar items appear in correct order', async ({ page }) => {
@@ -210,7 +212,8 @@ test.describe('CV Landing – actions bar', () => {
     await expect(items.nth(3)).toHaveText('postman');
     await expect(items.nth(4)).toHaveText('swager');
     await expect(items.nth(5)).toHaveText('sql');
-    await expect(items.nth(6)).toHaveText('bug report');
-    await expect(items.nth(7)).toHaveText('Download PDF CV');
+    await expect(items.nth(6)).toHaveText('test design');
+    await expect(items.nth(7)).toHaveText('bug report');
+    await expect(items.nth(8)).toHaveText('Download PDF CV');
   });
 });
