@@ -34,6 +34,7 @@ function App() {
         <Routes>
           <Route path="/" element={<CVLanding />} />
           <Route path="/login" element={<AuthScreen />} />
+          <Route path="/register" element={<AuthScreen />} />
           <Route element={<ProtectedRoute />}>
             <Route path="/slots" element={<LobbyPage />} />
             <Route path="/slots/american-roulette" element={<AmericanRoulettePage />} />

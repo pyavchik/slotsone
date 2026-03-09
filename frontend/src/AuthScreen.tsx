@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef, type FormEvent } from 'react';
-import { useNavigate, useSearchParams } from 'react-router-dom';
+import { useNavigate, useSearchParams, useLocation } from 'react-router-dom';
 import { register, login, refreshAccessToken } from './api';
 import { useGameStore } from './store';
 import './authScreen.css';
@@ -8,11 +8,12 @@ type Tab = 'login' | 'register';
 
 export function AuthScreen() {
   const navigate = useNavigate();
+  const location = useLocation();
   const [searchParams] = useSearchParams();
   const nextPath = searchParams.get('next') || '/slots';
 
   const setToken = useGameStore((s) => s.setToken);
-  const [tab, setTab] = useState<Tab>('login');
+  const [tab, setTab] = useState<Tab>(location.pathname === '/register' ? 'register' : 'login');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [ageConfirmed, setAgeConfirmed] = useState(false);
