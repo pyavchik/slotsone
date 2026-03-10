@@ -1,0 +1,1064 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>BUG-003 — Lobby Header Shows Wrong Brand Name "PyavchikCasino" Instead of "SlotsOne" — pyavchik.space</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
+    <style>
+      *, *::before, *::after { box-sizing: border-box; }
+
+      body {
+        margin: 0;
+        font-family: "DM Sans", -apple-system, "Segoe UI", sans-serif;
+        background: #0d1117;
+        color: #c9d1d9;
+        min-height: 100vh;
+        font-size: 14px;
+        -webkit-font-smoothing: antialiased;
+      }
+
+      a { color: #58a6ff; }
+      a:hover { color: #79c0ff; }
+
+      code, .mono {
+        font-family: "JetBrains Mono", monospace;
+        font-size: 12px;
+      }
+
+      /* ── Topbar (breadcrumb) ──────────────────────── */
+      .jira-topbar {
+        position: sticky;
+        top: 0;
+        z-index: 100;
+        background: #161b22;
+        border-bottom: 1px solid #21262d;
+        padding: 10px 24px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-size: 13px;
+        color: #8b949e;
+      }
+      .jira-topbar a {
+        color: #58a6ff;
+        text-decoration: none;
+        font-weight: 500;
+      }
+      .jira-topbar a:hover { text-decoration: underline; }
+      .jira-topbar .sep { color: #484f58; margin: 0 2px; }
+
+      /* ── Issue header ────────────────────────────── */
+      .jira-issue-header {
+        padding: 20px 24px 16px;
+        border-bottom: 1px solid #21262d;
+      }
+      .issue-key {
+        display: inline-block;
+        font-family: "JetBrains Mono", monospace;
+        font-size: 13px;
+        font-weight: 700;
+        color: #58a6ff;
+        text-decoration: none;
+        margin-bottom: 8px;
+      }
+      .issue-key:hover { text-decoration: underline; }
+      .issue-title {
+        margin: 0 0 10px;
+        font-size: 22px;
+        font-weight: 700;
+        color: #f0f6fc;
+        line-height: 1.3;
+      }
+      .issue-header-row {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        flex-wrap: wrap;
+      }
+      .issue-badge {
+        display: inline-block;
+        font-size: 11px;
+        font-weight: 700;
+        letter-spacing: .04em;
+        text-transform: uppercase;
+        padding: 3px 8px;
+        border-radius: 3px;
+      }
+      .badge-open {
+        background: #1f6feb;
+        color: #f0f6fc;
+      }
+      .issue-actions {
+        display: flex;
+        gap: 8px;
+        margin-left: auto;
+      }
+      .btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 6px 14px;
+        border-radius: 6px;
+        font-size: 13px;
+        font-weight: 600;
+        text-decoration: none;
+        cursor: pointer;
+        border: 1px solid;
+        transition: filter .15s, transform .1s;
+      }
+      .btn:hover { filter: brightness(1.15); }
+      .btn:active { transform: scale(.98); }
+      .btn-danger {
+        color: #fca5a5;
+        background: rgba(248,113,113,.1);
+        border-color: rgba(248,113,113,.25);
+      }
+
+      /* ── Body grid ───────────────────────────────── */
+      .jira-body {
+        display: grid;
+        grid-template-columns: 1fr 340px;
+        gap: 0;
+        max-width: 1280px;
+        margin: 0 auto;
+      }
+
+      /* ── Left: main content ──────────────────────── */
+      .jira-main {
+        padding: 24px 28px;
+        border-right: 1px solid #21262d;
+        min-width: 0;
+      }
+
+      .section {
+        padding-bottom: 24px;
+        margin-bottom: 24px;
+        border-bottom: 1px solid #21262d;
+      }
+      .section:last-child {
+        border-bottom: none;
+        margin-bottom: 0;
+        padding-bottom: 0;
+      }
+
+      .section-title {
+        margin: 0 0 14px;
+        font-size: 14px;
+        font-weight: 700;
+        color: #f0f6fc;
+        text-transform: uppercase;
+        letter-spacing: .04em;
+      }
+
+      .desc-text {
+        margin: 0 0 14px;
+        color: #c9d1d9;
+        line-height: 1.6;
+        font-size: 14px;
+      }
+
+      /* ── Preconditions ──────────────────────────── */
+      .preconditions {
+        display: flex; flex-wrap: wrap; gap: 8px;
+        padding: 0; margin: 0; list-style: none;
+      }
+      .preconditions li {
+        padding: 5px 12px;
+        border-radius: 3px;
+        background: #161b22;
+        border: 1px solid #21262d;
+        font-size: 13px;
+        color: #c9d1d9;
+      }
+      .preconditions li::before {
+        content: "\2713  ";
+        color: #3fb950;
+        font-weight: 700;
+      }
+
+      /* ── Steps to reproduce ────────────────────── */
+      .steps { display: flex; flex-direction: column; gap: 0; }
+      .step {
+        display: flex;
+        gap: 14px;
+        padding: 12px 0;
+        border-bottom: 1px solid rgba(33,38,45,.7);
+      }
+      .step:last-child { border-bottom: none; }
+      .step-num {
+        width: 28px; height: 28px;
+        border-radius: 6px;
+        background: rgba(56,139,253,.1);
+        border: 1px solid rgba(56,139,253,.25);
+        color: #58a6ff;
+        font-family: "JetBrains Mono", monospace;
+        font-size: 12px; font-weight: 700;
+        display: flex; align-items: center; justify-content: center;
+        flex-shrink: 0;
+      }
+      .step-body { flex: 1; }
+      .step-text { color: #c9d1d9; line-height: 1.55; margin: 0; font-size: 14px; }
+      .step-note {
+        margin: 4px 0 0;
+        font-size: 12px;
+        color: #8b949e;
+        font-style: italic;
+      }
+
+      /* ── Expected vs Actual ────────────────────── */
+      .compare-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 12px;
+      }
+      .compare-card {
+        padding: 14px 16px;
+        border-radius: 6px;
+        border: 1px solid;
+      }
+      .compare-card.expected {
+        background: rgba(63,185,80,.05);
+        border-color: rgba(63,185,80,.25);
+      }
+      .compare-card.actual {
+        background: rgba(248,81,73,.05);
+        border-color: rgba(248,81,73,.25);
+      }
+      .compare-label {
+        font-size: 11px; font-weight: 700;
+        letter-spacing: .08em; text-transform: uppercase;
+        margin-bottom: 8px;
+      }
+      .expected .compare-label { color: #3fb950; }
+      .actual .compare-label   { color: #f85149; }
+      .compare-text { margin: 0; color: #c9d1d9; line-height: 1.55; font-size: 13px; }
+
+      /* ── Log blocks ────────────────────────────── */
+      .log-card {
+        border-radius: 6px;
+        border: 1px solid #21262d;
+        background: #0d1117;
+        overflow: hidden;
+      }
+      .log-card-header {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding: 8px 12px;
+        border-bottom: 1px solid #21262d;
+        font-size: 12px;
+        font-weight: 700;
+        letter-spacing: .04em;
+        color: #8b949e;
+        background: #161b22;
+      }
+      .log-card-header .log-icon {
+        width: 18px; height: 18px;
+        border-radius: 3px;
+        display: flex; align-items: center; justify-content: center;
+        font-size: 10px; font-weight: 800;
+        flex-shrink: 0;
+      }
+      .log-icon-source {
+        background: rgba(248,81,73,.15);
+        color: #f85149;
+        border: 1px solid rgba(248,81,73,.3);
+      }
+      .log-icon-html {
+        background: rgba(210,153,34,.15);
+        color: #d29922;
+        border: 1px solid rgba(210,153,34,.3);
+      }
+      .log-card-body {
+        padding: 12px 14px;
+        font-family: "JetBrains Mono", monospace;
+        font-size: 12px;
+        line-height: 1.7;
+        color: #c9d1d9;
+        overflow-x: auto;
+        white-space: pre;
+      }
+      .log-card-body .log-dim  { color: #484f58; }
+      .log-card-body .log-key  { color: #79c0ff; }
+      .log-card-body .log-str  { color: #a5d6ff; }
+      .log-card-body .log-note { color: #f85149; font-style: italic; }
+      .log-card-note {
+        padding: 8px 12px;
+        border-top: 1px solid #21262d;
+        font-size: 11px;
+        color: #8b949e;
+        line-height: 1.5;
+      }
+
+      /* ── Screenshots ──────────────────────────── */
+      .screenshots {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 12px;
+      }
+      .screenshot-wrap {
+        position: relative;
+        border-radius: 6px;
+        overflow: hidden;
+        border: 1px solid #21262d;
+        background: #0d1117;
+      }
+      .screenshot-wrap img {
+        width: 100%;
+        display: block;
+        cursor: pointer;
+        transition: opacity .2s;
+      }
+      .screenshot-wrap img:hover { opacity: .85; }
+      .screenshot-caption {
+        padding: 8px 12px;
+        font-size: 12px;
+        color: #8b949e;
+        background: #161b22;
+        border-top: 1px solid #21262d;
+      }
+      .screenshot-badge {
+        position: absolute;
+        top: 8px; left: 8px;
+        padding: 2px 7px;
+        border-radius: 3px;
+        font-size: 10px; font-weight: 700;
+        letter-spacing: .04em;
+      }
+      .badge-bug {
+        background: rgba(248,81,73,.9);
+        color: #fff;
+      }
+
+      /* ── Lightbox ──────────────────────────────── */
+      .lightbox {
+        display: none;
+        position: fixed;
+        inset: 0;
+        z-index: 9999;
+        background: rgba(1,4,9,.92);
+        backdrop-filter: blur(8px);
+        align-items: center;
+        justify-content: center;
+        cursor: zoom-out;
+        padding: 24px;
+      }
+      .lightbox.open { display: flex; }
+      .lightbox img {
+        max-width: 95vw;
+        max-height: 92vh;
+        border-radius: 6px;
+        box-shadow: 0 12px 48px rgba(0,0,0,.6);
+      }
+
+      /* ── Timeline ─────────────────────────────── */
+      .timeline {
+        display: flex;
+        flex-direction: column;
+        gap: 0;
+        position: relative;
+        padding-left: 24px;
+      }
+      .timeline::before {
+        content: "";
+        position: absolute;
+        left: 10px; top: 6px; bottom: 6px;
+        width: 2px;
+        background: #21262d;
+        border-radius: 2px;
+      }
+      .tl-item {
+        position: relative;
+        padding: 7px 0 7px 20px;
+      }
+      .tl-item::before {
+        content: "";
+        position: absolute;
+        left: -18px; top: 14px;
+        width: 10px; height: 10px;
+        border-radius: 50%;
+        border: 2px solid;
+      }
+      .tl-item.tl-ok::before   { border-color: #3fb950; background: rgba(63,185,80,.12); }
+      .tl-item.tl-warn::before { border-color: #d29922; background: rgba(210,153,34,.12); }
+      .tl-item.tl-bad::before  { border-color: #f85149; background: rgba(248,81,73,.12); }
+
+      .tl-num {
+        font-family: "JetBrains Mono", monospace;
+        font-size: 11px; font-weight: 700;
+        color: #484f58;
+        margin-right: 6px;
+      }
+      .tl-desc {
+        font-size: 13px;
+        color: #c9d1d9;
+        line-height: 1.45;
+      }
+      .tl-code {
+        font-family: "JetBrains Mono", monospace;
+        font-size: 12px;
+        color: #79c0ff;
+        background: rgba(56,139,253,.08);
+        padding: 1px 6px;
+        border-radius: 3px;
+      }
+      .tl-annotation {
+        display: inline-block;
+        margin-left: 6px;
+        font-size: 10px;
+        font-weight: 700;
+        letter-spacing: .04em;
+        padding: 1px 6px;
+        border-radius: 3px;
+      }
+      .ann-wrong {
+        background: rgba(248,81,73,.2);
+        color: #ffa198;
+      }
+
+      /* ── Code blocks / diff ────────────────────── */
+      .code-block {
+        padding: 14px 16px;
+        border-radius: 6px;
+        background: #0d1117;
+        border: 1px solid #21262d;
+        overflow-x: auto;
+        font-family: "JetBrains Mono", monospace;
+        font-size: 12px;
+        line-height: 1.65;
+        color: #c9d1d9;
+        tab-size: 2;
+      }
+      .code-block .kw   { color: #ff7b72; }
+      .code-block .fn   { color: #d2a8ff; }
+      .code-block .str  { color: #a5d6ff; }
+      .code-block .cmt  { color: #484f58; font-style: italic; }
+      .code-block .op   { color: #ff7b72; }
+      .code-block .num  { color: #79c0ff; }
+      .code-block .prop { color: #79c0ff; }
+
+      .diff-remove {
+        background: rgba(248,81,73,.1);
+        border-left: 3px solid #f85149;
+        margin: 0 -16px;
+        padding: 0 16px 0 13px;
+        display: block;
+      }
+      .diff-add {
+        background: rgba(63,185,80,.1);
+        border-left: 3px solid #3fb950;
+        margin: 0 -16px;
+        padding: 0 16px 0 13px;
+        display: block;
+      }
+      .diff-context {
+        display: block;
+        color: #8b949e;
+      }
+
+      /* ── Fix section ──────────────────────────── */
+      .fix-section {
+        position: relative;
+        padding-top: 3px;
+      }
+      .fix-section::before {
+        content: "";
+        position: absolute;
+        top: 0; left: -28px; right: -28px;
+        height: 3px;
+        background: linear-gradient(90deg, #3fb950, #58a6ff);
+      }
+      .fix-badge {
+        display: inline-block;
+        font-size: 11px; font-weight: 700;
+        letter-spacing: .06em;
+        color: #fff;
+        background: #238636;
+        padding: 3px 8px;
+        border-radius: 3px;
+        margin-bottom: 10px;
+        margin-top: 12px;
+      }
+
+      /* ── Right sidebar ──────────────────────────── */
+      .jira-sidebar {
+        padding: 24px 20px;
+        position: sticky;
+        top: 42px;
+        align-self: start;
+        max-height: calc(100vh - 42px);
+        overflow-y: auto;
+      }
+
+      .sidebar-field {
+        padding: 10px 0;
+        border-bottom: 1px solid #21262d;
+      }
+      .sidebar-field:first-child { padding-top: 0; }
+      .sidebar-field:last-child { border-bottom: none; }
+
+      .sidebar-label {
+        display: block;
+        font-size: 11px;
+        font-weight: 700;
+        letter-spacing: .08em;
+        text-transform: uppercase;
+        color: #8b949e;
+        margin-bottom: 5px;
+      }
+      .sidebar-value {
+        font-size: 13px;
+        font-weight: 500;
+        color: #c9d1d9;
+        line-height: 1.5;
+      }
+
+      .sidebar-badge {
+        display: inline-block;
+        font-size: 11px;
+        font-weight: 700;
+        letter-spacing: .03em;
+        padding: 2px 8px;
+        border-radius: 3px;
+      }
+      .sb-open {
+        background: #1f6feb;
+        color: #f0f6fc;
+      }
+      .sb-high {
+        background: rgba(210,153,34,.15);
+        color: #d29922;
+        border: 1px solid rgba(210,153,34,.25);
+      }
+      .sb-p3 {
+        background: rgba(56,139,253,.1);
+        color: #58a6ff;
+        border: 1px solid rgba(56,139,253,.2);
+      }
+
+      /* ── Sidebar file paths ────────────────────── */
+      .sidebar-files {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+        margin: 0;
+        padding: 0;
+        list-style: none;
+      }
+      .sidebar-file {
+        font-family: "JetBrains Mono", monospace;
+        font-size: 11px;
+        color: #58a6ff;
+        padding: 3px 6px;
+        background: rgba(56,139,253,.06);
+        border-radius: 3px;
+        line-height: 1.4;
+      }
+
+      /* ── Sidebar impact ────────────────────────── */
+      .sidebar-impact {
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+        margin: 0;
+        padding: 0;
+        list-style: none;
+      }
+      .sidebar-impact li {
+        font-size: 12px;
+        color: #c9d1d9;
+        line-height: 1.45;
+        padding-left: 14px;
+        position: relative;
+      }
+      .sidebar-impact li::before {
+        content: "!";
+        position: absolute;
+        left: 0;
+        top: 0;
+        font-size: 10px;
+        font-weight: 800;
+        color: #d29922;
+      }
+
+      /* ── Reporter avatar ───────────────────────── */
+      .reporter-row {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+      .avatar-circle {
+        width: 24px;
+        height: 24px;
+        border-radius: 50%;
+        background: #30363d;
+        border: 1px solid #484f58;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 10px;
+        font-weight: 700;
+        color: #c9d1d9;
+        flex-shrink: 0;
+      }
+
+      /* ── Activity feed ─────────────────────────── */
+      .jira-activity {
+        max-width: 1280px;
+        margin: 0 auto;
+        padding: 0 28px 48px;
+        border-top: 1px solid #21262d;
+      }
+      .activity-title {
+        margin: 20px 0 14px;
+        font-size: 13px;
+        font-weight: 700;
+        color: #8b949e;
+        text-transform: uppercase;
+        letter-spacing: .06em;
+      }
+      .activity-feed {
+        display: flex;
+        flex-direction: column;
+        gap: 0;
+        position: relative;
+        padding-left: 28px;
+      }
+      .activity-feed::before {
+        content: "";
+        position: absolute;
+        left: 9px;
+        top: 6px;
+        bottom: 6px;
+        width: 2px;
+        background: #21262d;
+      }
+      .activity-item {
+        position: relative;
+        padding: 6px 0 6px 16px;
+        font-size: 13px;
+        color: #8b949e;
+        line-height: 1.5;
+      }
+      .activity-item::before {
+        content: "";
+        position: absolute;
+        left: -23px;
+        top: 12px;
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        background: #30363d;
+        border: 2px solid #484f58;
+      }
+      .activity-item strong { color: #c9d1d9; font-weight: 600; }
+      .activity-date {
+        color: #484f58;
+        font-size: 12px;
+        margin-left: 6px;
+      }
+
+      /* ── Mobile: summary bar + toggle ──────────── */
+      .mobile-summary {
+        display: none;
+        padding: 12px 16px;
+        border-bottom: 1px solid #21262d;
+        background: #161b22;
+      }
+      .mobile-summary-pills {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        align-items: center;
+      }
+      .mobile-details-toggle {
+        display: none;
+        width: 100%;
+        padding: 10px 16px;
+        background: #161b22;
+        border: none;
+        border-bottom: 1px solid #21262d;
+        color: #58a6ff;
+        font-size: 13px;
+        font-weight: 600;
+        cursor: pointer;
+        text-align: left;
+        font-family: inherit;
+      }
+      .mobile-details-toggle:hover { background: #1c2128; }
+      .mobile-sidebar-content {
+        display: none;
+        padding: 16px;
+        border-bottom: 1px solid #21262d;
+        background: #0d1117;
+      }
+      .mobile-sidebar-content.show { display: block; }
+      .mobile-sidebar-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 12px;
+      }
+      .mobile-sidebar-grid .sidebar-field {
+        border-bottom: none;
+        padding: 0;
+      }
+
+      /* ── Responsive ────────────────────────────── */
+      @media (max-width: 768px) {
+        .jira-body {
+          grid-template-columns: 1fr;
+        }
+        .jira-sidebar {
+          display: none;
+        }
+        .jira-main {
+          border-right: none;
+          padding: 16px;
+        }
+        .mobile-summary {
+          display: block;
+        }
+        .mobile-details-toggle {
+          display: block;
+        }
+        .issue-actions {
+          margin-left: 0;
+          width: 100%;
+        }
+        .issue-header-row {
+          gap: 8px;
+        }
+        .compare-grid {
+          grid-template-columns: 1fr;
+        }
+        .screenshots {
+          grid-template-columns: 1fr;
+        }
+        .jira-activity {
+          padding: 0 16px 40px;
+        }
+        .fix-section::before {
+          left: -16px;
+          right: -16px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+
+    <!-- ── Topbar ────────────────────────────────── -->
+    <nav class="jira-topbar">
+      <a href="/">Projects</a>
+      <span class="sep">/</span>
+      <a href="/">SlotsOne</a>
+      <span class="sep">/</span>
+      <span style="color:#c9d1d9">BUG-003</span>
+      <span class="sep" style="margin-left:auto"></span>
+      <a href="/bug-report.html" style="font-size:12px;color:#8b949e">&larr; All Bugs</a>
+    </nav>
+
+    <!-- ── Issue header ──────────────────────────── -->
+    <header class="jira-issue-header">
+      <a href="#" class="issue-key" onclick="return false">BUG-003</a>
+      <h1 class="issue-title">Lobby header displays &ldquo;PyavchikCasino&rdquo; instead of the correct product name &ldquo;SlotsOne&rdquo;</h1>
+      <div class="issue-header-row">
+        <span class="issue-badge badge-open">OPEN</span>
+        <div class="issue-actions">
+          <a href="/slots" class="btn btn-danger">&#9654; See Live</a>
+        </div>
+      </div>
+    </header>
+
+    <!-- ── Mobile summary bar ────────────────────── -->
+    <div class="mobile-summary">
+      <div class="mobile-summary-pills">
+        <span class="sidebar-badge sb-open">OPEN</span>
+        <span class="sidebar-badge sb-high">S2 HIGH</span>
+        <span class="sidebar-badge sb-p3">P3</span>
+        <span style="font-size:12px;color:#8b949e;margin-left:4px">100% repro &middot; LobbyHeader</span>
+      </div>
+    </div>
+    <button class="mobile-details-toggle" onclick="toggleMobileDetails()">
+      &#9662; Show details
+    </button>
+    <div class="mobile-sidebar-content" id="mobile-sidebar">
+      <div class="mobile-sidebar-grid">
+        <div class="sidebar-field">
+          <span class="sidebar-label">Component</span>
+          <span class="sidebar-value">LobbyHeader</span>
+        </div>
+        <div class="sidebar-field">
+          <span class="sidebar-label">Reproducibility</span>
+          <span class="sidebar-value">100%</span>
+        </div>
+        <div class="sidebar-field">
+          <span class="sidebar-label">Reporter</span>
+          <div class="reporter-row">
+            <span class="avatar-circle">OP</span>
+            <span class="sidebar-value">O. Pyavchik</span>
+          </div>
+        </div>
+        <div class="sidebar-field">
+          <span class="sidebar-label">Date Created</span>
+          <span class="sidebar-value">2026-03-10</span>
+        </div>
+        <div class="sidebar-field" style="grid-column:1/-1">
+          <span class="sidebar-label">Environment</span>
+          <span class="sidebar-value" style="font-size:12px">
+            Any browser &middot; Any device &middot; pyavchik.space/slots &middot; SlotsOne v1.0
+          </span>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── Body: main + sidebar ──────────────────── -->
+    <div class="jira-body">
+
+      <!-- LEFT COLUMN: main content -->
+      <main class="jira-main">
+
+        <!-- Description -->
+        <div class="section">
+          <h2 class="section-title">Description</h2>
+          <p class="desc-text">The lobby page header at <code style="color:#79c0ff">/slots</code> renders the brand name <code style="color:#f85149">"PyavchikCasino"</code> instead of the correct product name <code style="color:#3fb950">"SlotsOne"</code>. This is a <strong>branding / white-label misconfiguration</strong> &mdash; the wrong product identity is displayed to every authenticated user on the main game lobby.</p>
+          <p class="desc-text" style="margin-bottom:0">"Pyavchik" is the developer&rsquo;s surname, not the product brand. The hardcoded strings were likely used as placeholder text during development and never replaced with the correct brand before release.</p>
+        </div>
+
+        <!-- Preconditions -->
+        <div class="section">
+          <h2 class="section-title">Preconditions</h2>
+          <ul class="preconditions">
+            <li>User is authenticated</li>
+            <li>Navigated to the /slots lobby page</li>
+          </ul>
+        </div>
+
+        <!-- Steps to Reproduce -->
+        <div class="section">
+          <h2 class="section-title">Steps to Reproduce</h2>
+          <div class="steps">
+            <div class="step">
+              <span class="step-num">1</span>
+              <div class="step-body">
+                <p class="step-text">Log in to the application</p>
+              </div>
+            </div>
+            <div class="step">
+              <span class="step-num">2</span>
+              <div class="step-body">
+                <p class="step-text">Navigate to <a href="/slots">pyavchik.space/slots</a></p>
+              </div>
+            </div>
+            <div class="step">
+              <span class="step-num">3</span>
+              <div class="step-body">
+                <p class="step-text">Observe the brand name in the top-left header area</p>
+                <p class="step-note">It reads "PyavchikCasino" instead of "SlotsOne".</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Expected vs Actual -->
+        <div class="section">
+          <h2 class="section-title">Expected vs Actual Result</h2>
+          <div class="compare-grid">
+            <div class="compare-card expected">
+              <div class="compare-label">&#10003; Expected</div>
+              <p class="compare-text">The lobby header displays the correct product brand: <strong>&ldquo;SlotsOne&rdquo;</strong> (or a variant like <strong>&ldquo;Slots<span style="color:#3fb950">One</span>&rdquo;</strong>), matching the project name, domain references, and all other branding throughout the application.</p>
+            </div>
+            <div class="compare-card actual">
+              <div class="compare-label">&#10007; Actual</div>
+              <p class="compare-text">The header displays <strong>&ldquo;<span style="color:#ffa198">Pyavchik</span>Casino&rdquo;</strong> &mdash; the developer&rsquo;s surname concatenated with &ldquo;Casino&rdquo;. This contradicts the product identity used everywhere else (page titles, API paths, admin panel, documentation).</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Source Code -->
+        <div class="section">
+          <h2 class="section-title">Source Code</h2>
+          <div class="log-card">
+            <div class="log-card-header">
+              <span class="log-icon log-icon-source">S</span>
+              frontend/src/components/lobby/LobbyHeader.tsx:30-33
+            </div>
+            <div class="log-card-body"><span class="log-dim">// Lines 30-33 of LobbyHeader component</span>
+&lt;<span class="log-key">h1</span> <span class="log-key">className</span>=<span class="log-str">"lobby-brand"</span>&gt;
+  &lt;<span class="log-key">span</span> <span class="log-key">className</span>=<span class="log-str">"lobby-brand-main"</span>&gt;<span class="log-note">Pyavchik</span>&lt;/<span class="log-key">span</span>&gt;
+  &lt;<span class="log-key">span</span> <span class="log-key">className</span>=<span class="log-str">"lobby-brand-accent"</span>&gt;<span class="log-note">Casino</span>&lt;/<span class="log-key">span</span>&gt;
+&lt;/<span class="log-key">h1</span>&gt;</div>
+            <div class="log-card-note">Hardcoded placeholder strings. No configuration, env variable, or brand constant is used.</div>
+          </div>
+        </div>
+
+        <!-- Evidence (screenshot) -->
+        <div class="section">
+          <h2 class="section-title">Evidence</h2>
+          <div class="screenshots">
+            <div class="screenshot-wrap">
+              <span class="screenshot-badge badge-bug">WRONG BRAND NAME</span>
+              <img src="/bug-report/lobby-wrong-brand.png" alt="Lobby header showing PyavchikCasino instead of SlotsOne" onclick="openLightbox(this.src)" />
+              <div class="screenshot-caption">The lobby header at <code>/slots</code> displays &ldquo;PyavchikCasino&rdquo;. Every other surface in the application refers to the product as &ldquo;SlotsOne&rdquo;.</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Root Cause Analysis -->
+        <div class="section">
+          <h2 class="section-title">Root Cause Analysis</h2>
+          <p class="desc-text" style="margin-bottom:16px">The <code style="color:#79c0ff;font-size:12px">LobbyHeader</code> component has the brand name hardcoded as two literal strings: <code style="color:#f85149;font-size:12px">"Pyavchik"</code> and <code style="color:#f85149;font-size:12px">"Casino"</code>. These were used as developer placeholders and were never updated to reflect the actual product name before deployment.</p>
+
+          <div class="timeline">
+            <div class="tl-item tl-ok">
+              <span class="tl-num">1.</span>
+              <span class="tl-desc">Developer creates <span class="tl-code">LobbyHeader</span> component with placeholder brand text</span>
+            </div>
+            <div class="tl-item tl-warn">
+              <span class="tl-num">2.</span>
+              <span class="tl-desc">Brand strings are hardcoded in JSX &mdash; no centralized brand constant or config</span>
+            </div>
+            <div class="tl-item tl-bad">
+              <span class="tl-num">3.</span>
+              <span class="tl-desc">Placeholder text <span class="tl-code">"Pyavchik" + "Casino"</span> is never replaced with <strong>"SlotsOne"</strong> <span class="tl-annotation ann-wrong">WRONG</span></span>
+            </div>
+            <div class="tl-item tl-bad">
+              <span class="tl-num">4.</span>
+              <span class="tl-desc">Deployed to production &mdash; all users see incorrect brand identity <span class="tl-annotation ann-wrong">WRONG</span></span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Proposed Fix -->
+        <div class="section fix-section">
+          <span class="fix-badge">PROPOSED FIX</span>
+          <h2 class="section-title" style="margin-top:6px">Replace hardcoded brand with correct product name</h2>
+          <p class="desc-text">Update the two <code style="color:#3fb950;font-size:12px">&lt;span&gt;</code> elements in <code style="color:#3fb950;font-size:12px">LobbyHeader.tsx</code> to display the correct product name.</p>
+
+          <h3 style="margin:14px 0 8px;font-size:13px;color:#c9d1d9">Diff &mdash; <code style="color:#79c0ff;font-size:12px">frontend/src/components/lobby/LobbyHeader.tsx</code></h3>
+          <pre class="code-block"><span class="diff-context">      &lt;<span class="prop">h1</span> <span class="prop">className</span>=<span class="str">"lobby-brand"</span>&gt;</span>
+<span class="diff-remove"><span style="color:#f85149">&minus;</span>        &lt;<span class="prop">span</span> <span class="prop">className</span>=<span class="str">"lobby-brand-main"</span>&gt;Pyavchik&lt;/<span class="prop">span</span>&gt;</span>
+<span class="diff-remove"><span style="color:#f85149">&minus;</span>        &lt;<span class="prop">span</span> <span class="prop">className</span>=<span class="str">"lobby-brand-accent"</span>&gt;Casino&lt;/<span class="prop">span</span>&gt;</span>
+<span class="diff-add"><span style="color:#3fb950">+</span>        &lt;<span class="prop">span</span> <span class="prop">className</span>=<span class="str">"lobby-brand-main"</span>&gt;Slots&lt;/<span class="prop">span</span>&gt;</span>
+<span class="diff-add"><span style="color:#3fb950">+</span>        &lt;<span class="prop">span</span> <span class="prop">className</span>=<span class="str">"lobby-brand-accent"</span>&gt;One&lt;/<span class="prop">span</span>&gt;</span>
+<span class="diff-context">      &lt;/<span class="prop">h1</span>&gt;</span></pre>
+        </div>
+
+      </main>
+
+      <!-- RIGHT COLUMN: sidebar -->
+      <aside class="jira-sidebar">
+
+        <div class="sidebar-field">
+          <span class="sidebar-label">Status</span>
+          <span class="sidebar-badge sb-open">OPEN</span>
+        </div>
+
+        <div class="sidebar-field">
+          <span class="sidebar-label">Severity</span>
+          <span class="sidebar-badge sb-high">S2 High</span>
+        </div>
+
+        <div class="sidebar-field">
+          <span class="sidebar-label">Priority</span>
+          <span class="sidebar-badge sb-p3">P3 Low</span>
+        </div>
+
+        <div class="sidebar-field">
+          <span class="sidebar-label">Reproducibility</span>
+          <span class="sidebar-value">100%</span>
+        </div>
+
+        <div class="sidebar-field">
+          <span class="sidebar-label">Component</span>
+          <span class="sidebar-value">LobbyHeader</span>
+        </div>
+
+        <div class="sidebar-field">
+          <span class="sidebar-label">Affected Files</span>
+          <ul class="sidebar-files">
+            <li class="sidebar-file">frontend/src/components/lobby/LobbyHeader.tsx:30-33</li>
+            <li class="sidebar-file">frontend/src/pages/lobbyPage.css:56-80</li>
+          </ul>
+        </div>
+
+        <div class="sidebar-field">
+          <span class="sidebar-label">Environment</span>
+          <span class="sidebar-value" style="font-size:12px;line-height:1.6">
+            <strong>URL:</strong> pyavchik.space/slots<br>
+            <strong>Access:</strong> Authenticated users<br>
+            <strong>App:</strong> SlotsOne v1.0 (React 19)
+          </span>
+        </div>
+
+        <div class="sidebar-field">
+          <span class="sidebar-label">Reporter</span>
+          <div class="reporter-row">
+            <span class="avatar-circle">OP</span>
+            <span class="sidebar-value">O. Pyavchik</span>
+          </div>
+        </div>
+
+        <div class="sidebar-field">
+          <span class="sidebar-label">Date Created</span>
+          <span class="sidebar-value">2026-03-10</span>
+        </div>
+
+        <div class="sidebar-field">
+          <span class="sidebar-label">Impact Assessment</span>
+          <ul class="sidebar-impact">
+            <li>Wrong product identity shown to all authenticated users</li>
+            <li>Brand inconsistency across the application</li>
+            <li>Unprofessional appearance &mdash; looks like an unfinished product</li>
+            <li>No functional or security impact &mdash; cosmetic only</li>
+          </ul>
+        </div>
+
+      </aside>
+    </div>
+
+    <!-- ── Activity feed ─────────────────────────── -->
+    <section class="jira-activity">
+      <h3 class="activity-title">Activity</h3>
+      <div class="activity-feed">
+        <div class="activity-item">
+          <strong>O. Pyavchik</strong> created this issue
+          <span class="activity-date">&mdash; Mar 10, 2026</span>
+        </div>
+        <div class="activity-item">
+          <strong>O. Pyavchik</strong> classified as <span style="color:#d29922;font-weight:600">S2 High / P3 Low</span>
+          <span class="activity-date">&mdash; Mar 10, 2026</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── Lightbox ──────────────────────────────── -->
+    <div class="lightbox" id="lightbox" onclick="closeLightbox()">
+      <img id="lightbox-img" src="" alt="Enlarged screenshot" />
+    </div>
+
+    <script>
+      function openLightbox(src) {
+        document.getElementById('lightbox-img').src = src;
+        document.getElementById('lightbox').classList.add('open');
+      }
+      function closeLightbox() {
+        document.getElementById('lightbox').classList.remove('open');
+      }
+      document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape') closeLightbox();
+      });
+
+      function toggleMobileDetails() {
+        var el = document.getElementById('mobile-sidebar');
+        var btn = document.querySelector('.mobile-details-toggle');
+        el.classList.toggle('show');
+        btn.innerHTML = el.classList.contains('show')
+          ? '&#9652; Hide details'
+          : '&#9662; Show details';
+      }
+    </script>
+  </body>
+</html>

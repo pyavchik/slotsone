@@ -192,12 +192,23 @@
         color: #ffa198;
         border: 1px solid rgba(248,81,73,.3);
       }
+      .badge-high {
+        background: rgba(210,153,34,.15);
+        color: #d29922;
+        border: 1px solid rgba(210,153,34,.25);
+      }
+      .badge-low {
+        background: rgba(56,139,253,.1);
+        color: #58a6ff;
+        border: 1px solid rgba(56,139,253,.2);
+      }
 
       /* ── Reporter ────────────────────────────────── */
       .reporter-cell {
         display: flex;
         align-items: center;
         gap: 6px;
+        white-space: nowrap;
       }
       .avatar-circle {
         width: 22px;
@@ -239,7 +250,7 @@
       .badges-cell {
         display: flex;
         gap: 6px;
-        flex-wrap: wrap;
+        flex-wrap: nowrap;
       }
 
       /* ── Mobile cards ────────────────────────────── */
@@ -350,11 +361,11 @@
       <!-- Summary stats -->
       <div class="stats-row">
         <div class="stat-card stat-total">
-          <span class="stat-value">2</span>
+          <span class="stat-value">3</span>
           <span class="stat-label">Total Bugs</span>
         </div>
         <div class="stat-card stat-open">
-          <span class="stat-value">2</span>
+          <span class="stat-value">3</span>
           <span class="stat-label">Open</span>
         </div>
         <div class="stat-card stat-critical">
@@ -374,9 +385,9 @@
             <tr>
               <th style="width:90px">ID</th>
               <th>Title</th>
-              <th style="width:180px">Badges</th>
+              <th style="width:260px">Badges</th>
               <th style="width:120px">Component</th>
-              <th style="width:120px">Reporter</th>
+              <th style="width:140px">Reporter</th>
               <th style="width:100px">Created</th>
             </tr>
           </thead>
@@ -412,6 +423,26 @@
                 </div>
               </td>
               <td><span class="component-chip">Admin Login</span></td>
+              <td>
+                <div class="reporter-cell">
+                  <span class="avatar-circle">OP</span>
+                  <span>O. Pyavchik</span>
+                </div>
+              </td>
+              <td><span class="date-cell">2026-03-10</span></td>
+            </tr>
+            <!-- BUG-003 -->
+            <tr onclick="window.location='/bug-report-003.html'">
+              <td><a href="/bug-report-003.html" class="bug-id">BUG-003</a></td>
+              <td><a href="/bug-report-003.html" class="bug-title-link">Lobby header displays &ldquo;PyavchikCasino&rdquo; instead of &ldquo;SlotsOne&rdquo;</a></td>
+              <td>
+                <div class="badges-cell">
+                  <span class="badge badge-open">OPEN</span>
+                  <span class="badge badge-high">S2 High</span>
+                  <span class="badge badge-low">P3 Low</span>
+                </div>
+              </td>
+              <td><span class="component-chip">LobbyHeader</span></td>
               <td>
                 <div class="reporter-cell">
                   <span class="avatar-circle">OP</span>
@@ -458,6 +489,26 @@
           </div>
           <div class="card-meta">
             <span class="card-meta-item"><span class="component-chip">Admin Login</span></span>
+            <span class="card-meta-item">
+              <span class="avatar-circle" style="width:18px;height:18px;font-size:8px">OP</span>
+              O. Pyavchik
+            </span>
+            <span class="card-meta-item" style="font-family:'JetBrains Mono',monospace;font-size:11px">2026-03-10</span>
+          </div>
+        </a>
+        <!-- BUG-003 card -->
+        <a href="/bug-report-003.html" class="bug-card">
+          <div class="card-top">
+            <span class="card-id">BUG-003</span>
+          </div>
+          <div class="card-title">Lobby header displays &ldquo;PyavchikCasino&rdquo; instead of &ldquo;SlotsOne&rdquo;</div>
+          <div class="card-badges">
+            <span class="badge badge-open">OPEN</span>
+            <span class="badge badge-high">S2 High</span>
+            <span class="badge badge-low">P3 Low</span>
+          </div>
+          <div class="card-meta">
+            <span class="card-meta-item"><span class="component-chip">LobbyHeader</span></span>
             <span class="card-meta-item">
               <span class="avatar-circle" style="width:18px;height:18px;font-size:8px">OP</span>
               O. Pyavchik
