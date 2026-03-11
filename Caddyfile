@@ -2,6 +2,10 @@
   email {$ACME_EMAIL}
 }
 
+jenkins.pyavchik.space {
+  reverse_proxy http://70.34.251.44:8080
+}
+
 {$TLS_DOMAIN} {
   encode gzip zstd
 
