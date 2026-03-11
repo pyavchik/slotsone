@@ -5,6 +5,11 @@
 {$TLS_DOMAIN} {
   encode gzip zstd
 
+  handle /allure-report* {
+    uri strip_prefix /allure-report
+    reverse_proxy allure-report:80
+  }
+
   handle /admin* {
     reverse_proxy admin:3002
   }
