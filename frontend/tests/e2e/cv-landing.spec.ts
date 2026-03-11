@@ -214,6 +214,7 @@ test.describe('CV Landing – actions bar', () => {
     await expect(items.nth(5)).toHaveText('sql');
     await expect(items.nth(6)).toHaveText('test design');
     await expect(items.nth(7)).toHaveText('bug report');
-    await expect(items.nth(8)).toHaveText('Download PDF CV');
+    await expect(items.nth(8)).toHaveText('allure report');
+    await expect(items.nth(9)).toHaveText('Download PDF CV');
   });
 });

@@ -61,6 +61,7 @@ output/
 # Test artifacts
 playwright-report/
 test-results/
+allure-report/html/
 
 # Generic local certs/keys
 *.pem

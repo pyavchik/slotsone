@@ -10,6 +10,7 @@ const SWAGER_PATH = '/api-docs';
 const SQL_PATH = '/sql.html';
 const BUG_REPORT_PATH = '/bug-report.html';
 const TEST_DESIGN_PATH = '/test-design.html';
+const ALLURE_REPORT_PATH = '/allure-report/';
 
 const SKILLS = [
   'Java',
@@ -145,6 +146,15 @@ export function CVLanding() {
             </a>
             <a className="cv-link" href={BUG_REPORT_PATH} target="_blank" rel="noreferrer">
               bug report
+            </a>
+            <a
+              className="cv-link"
+              href={ALLURE_REPORT_PATH}
+              target="_blank"
+              rel="noreferrer"
+              data-testid="cv-allure-report"
+            >
+              allure report
             </a>
             <a className="cv-link" href={CV_PDF_PATH} target="_blank" rel="noreferrer">
               Download PDF CV
