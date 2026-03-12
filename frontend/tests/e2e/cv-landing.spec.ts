@@ -201,7 +201,7 @@ test.describe('CV Landing – actions bar', () => {
   });
 
   // -------------------------------------------------------------------------
-  // Action bar order: slots → requirements → test cases → postman → swagger → sql → test design → bug report → pdf
+  // Action bar order: slots → requirements → test cases → postman → swagger → sql → test design → bug report → allure report → playwright typescript → pdf
   // -------------------------------------------------------------------------
 
   test('action bar items appear in correct order', async ({ page }) => {
@@ -215,6 +215,7 @@ test.describe('CV Landing – actions bar', () => {
     await expect(items.nth(6)).toHaveText('test design');
     await expect(items.nth(7)).toHaveText('bug report');
     await expect(items.nth(8)).toHaveText('allure report');
-    await expect(items.nth(9)).toHaveText('Download PDF CV');
+    await expect(items.nth(9)).toHaveText('playwright typescript');
+    await expect(items.nth(10)).toHaveText('Download PDF CV');
   });
 });

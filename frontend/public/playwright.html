@@ -1,0 +1,558 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Playwright TypeScript — pyavchik.space</title>
+    <style>
+      *, *::before, *::after { box-sizing: border-box; }
+
+      body {
+        margin: 0;
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+        background: linear-gradient(180deg, #0f1118 0%, #0b0d13 100%);
+        color: #f8fafc;
+        min-height: 100vh;
+        font-size: 14px;
+      }
+
+      .wrap {
+        max-width: 1080px;
+        margin: 0 auto;
+        padding: 28px 18px 56px;
+        display: flex;
+        flex-direction: column;
+        gap: 14px;
+      }
+
+      /* ── Cards ───────────────────────────────────── */
+      .card {
+        border: 1px solid rgba(255,255,255,0.13);
+        border-radius: 14px;
+        background: rgba(17,20,30,0.78);
+        padding: 20px 22px;
+      }
+
+      h1 { margin: 0 0 3px; font-size: 26px; letter-spacing: -.3px; }
+      .subtitle { margin: 0 0 14px; color: #94a3b8; font-size: 13px; }
+      h2 { margin: 0 0 14px; font-size: 16px; color: #f1f5f9; }
+      h3 { margin: 0 0 10px; font-size: 14px; color: #e2e8f0; }
+      p  { margin: 0 0 10px; color: #dbe2ec; line-height: 1.55; }
+
+      /* ── Back link ───────────────────────────────── */
+      .back {
+        display: inline-flex; align-items: center; gap: 6px;
+        font-size: 13px; font-weight: 600; color: #94a3b8;
+        text-decoration: none;
+        border: 1px solid rgba(148,163,184,.3);
+        padding: 6px 12px; border-radius: 8px;
+        background: rgba(15,23,42,.5);
+        width: fit-content;
+      }
+      .back:hover { color: #f8fafc; border-color: rgba(148,163,184,.7); }
+
+      /* ── Stats ───────────────────────────────────── */
+      .stats { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 8px; }
+      .stat {
+        padding: 8px 14px; border-radius: 10px;
+        background: rgba(15,23,42,.65);
+        border: 1px solid rgba(148,163,184,.2);
+        font-size: 13px; color: #dbe2ec; text-align: center;
+      }
+      .stat strong { display: block; font-size: 22px; line-height: 1.15; color: #f8fafc; }
+
+      /* ── Badges ──────────────────────────────────── */
+      .badge {
+        display: inline-block; padding: 2px 7px;
+        border-radius: 5px; font-size: 11px; font-weight: 700;
+        white-space: nowrap; letter-spacing: .02em;
+      }
+      .badge-pom     { background: rgba(56,189,248,.15);  color: #38bdf8; }
+      .badge-fixture { background: rgba(62,224,169,.15);  color: #3ee0a9; }
+      .badge-mock    { background: rgba(245,208,106,.15); color: #f5d06a; }
+      .badge-ci      { background: rgba(167,139,250,.18); color: #a78bfa; }
+      .badge-report  { background: rgba(251,146,60,.15);  color: #fb923c; }
+      .badge-ts      { background: rgba(248,113,113,.15); color: #f87171; }
+      .badge-auth    { background: rgba(129,230,217,.15); color: #81e6d9; }
+
+      /* ── Section titles ──────────────────────────── */
+      .section-title {
+        font-size: 18px; font-weight: 700; margin: 0 0 4px;
+        color: #f1f5f9;
+      }
+      .section-desc {
+        font-size: 13px; color: #94a3b8; margin: 0 0 12px;
+      }
+
+      /* ── Technique header ────────────────────────── */
+      .tech-header {
+        display: flex; align-items: center; gap: 10px;
+        margin-bottom: 12px;
+      }
+      .tech-number {
+        width: 28px; height: 28px; border-radius: 8px;
+        display: flex; align-items: center; justify-content: center;
+        font-size: 13px; font-weight: 800;
+        flex-shrink: 0;
+      }
+      .tech-number-pom     { background: rgba(56,189,248,.15);  color: #38bdf8; }
+      .tech-number-fixture { background: rgba(62,224,169,.15);  color: #3ee0a9; }
+      .tech-number-mock    { background: rgba(245,208,106,.15); color: #f5d06a; }
+      .tech-number-ci      { background: rgba(167,139,250,.15); color: #a78bfa; }
+      .tech-number-report  { background: rgba(251,146,60,.15);  color: #fb923c; }
+      .tech-number-ts      { background: rgba(248,113,113,.15); color: #f87171; }
+      .tech-number-auth    { background: rgba(129,230,217,.15); color: #81e6d9; }
+
+      .tech-title {
+        font-size: 16px; font-weight: 700; margin: 0; color: #f1f5f9;
+      }
+      .tech-theory {
+        color: #94a3b8; font-size: 13px; line-height: 1.55;
+        margin: 0 0 14px;
+        padding: 10px 14px;
+        border-radius: 8px;
+        background: rgba(15,23,42,.45);
+        border-left: 3px solid rgba(148,163,184,.25);
+      }
+
+      /* ── Code blocks ─────────────────────────────── */
+      pre {
+        margin: 0 0 12px;
+        padding: 14px 16px;
+        border-radius: 10px;
+        background: rgba(10,12,20,.85);
+        border: 1px solid rgba(148,163,184,.15);
+        overflow-x: auto;
+        font-size: 12px;
+        line-height: 1.55;
+        color: #cbd5e1;
+      }
+      code { font-family: "JetBrains Mono", "Fira Code", "Cascadia Code", monospace; }
+      .kw  { color: #c792ea; }
+      .fn  { color: #82aaff; }
+      .str { color: #c3e88d; }
+      .cm  { color: #546e7a; }
+      .tp  { color: #ffcb6b; }
+      .num { color: #f78c6c; }
+
+      /* ── File tree ───────────────────────────────── */
+      .tree {
+        margin: 0 0 12px;
+        padding: 14px 16px;
+        border-radius: 10px;
+        background: rgba(10,12,20,.85);
+        border: 1px solid rgba(148,163,184,.15);
+        font-family: "JetBrains Mono", "Fira Code", monospace;
+        font-size: 12px;
+        line-height: 1.7;
+        color: #94a3b8;
+        white-space: pre;
+      }
+      .tree .dir  { color: #38bdf8; }
+      .tree .file { color: #cbd5e1; }
+      .tree .conf { color: #f5d06a; }
+      .tree .test { color: #3ee0a9; }
+
+      /* ── Repo link ───────────────────────────────── */
+      .repo-link {
+        display: inline-flex; align-items: center; gap: 8px;
+        padding: 10px 20px; border-radius: 10px;
+        background: rgba(56,189,248,.12);
+        border: 1px solid rgba(56,189,248,.3);
+        color: #38bdf8;
+        font-size: 14px; font-weight: 700;
+        text-decoration: none;
+        transition: all .2s;
+      }
+      .repo-link:hover {
+        background: rgba(56,189,248,.2);
+        border-color: rgba(56,189,248,.5);
+      }
+      .repo-link svg { width: 20px; height: 20px; fill: currentColor; }
+
+      /* ── Coverage grid ───────────────────────────── */
+      .cov-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+        gap: 8px;
+      }
+      .cov-item {
+        padding: 10px 14px; border-radius: 10px;
+        background: rgba(15,23,42,.55);
+        border: 1px solid rgba(148,163,184,.15);
+      }
+      .cov-item h4 { margin: 0 0 4px; font-size: 13px; color: #f1f5f9; }
+      .cov-item ul { margin: 0; padding: 0 0 0 16px; }
+      .cov-item li { font-size: 12px; color: #94a3b8; line-height: 1.6; }
+
+      /* ── Responsive ──────────────────────────────── */
+      @media (max-width: 600px) {
+        .wrap { padding: 16px 10px 40px; }
+        .card { padding: 14px 12px; }
+        h1 { font-size: 22px; }
+        .stats { gap: 6px; }
+        .stat strong { font-size: 18px; }
+        pre, .tree { font-size: 11px; padding: 10px 12px; }
+        .cov-grid { grid-template-columns: 1fr; }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="wrap">
+      <!-- Back link -->
+      <a class="back" href="/">&larr; Back to CV</a>
+
+      <!-- Header card -->
+      <div class="card">
+        <h1>Playwright TypeScript</h1>
+        <p class="subtitle">
+          E2E test automation framework for SlotsOne iGaming platform &mdash;
+          built with Playwright, TypeScript, and modern QA best practices
+        </p>
+
+        <a class="repo-link" href="https://github.com/pyavchik/slotsone-playwright" target="_blank" rel="noreferrer" style="margin-bottom: 12px;">
+          <svg viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg">
+            <path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38
+            0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52
+            -.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2
+            -3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82
+            .64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08
+            2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01
+            1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/>
+          </svg>
+          pyavchik/slotsone-playwright
+        </a>
+
+        <div class="stats">
+          <div class="stat"><strong>25+</strong>spec files</div>
+          <div class="stat"><strong>7</strong>epics</div>
+          <div class="stat"><strong>15</strong>page objects</div>
+          <div class="stat"><strong>4</strong>test projects</div>
+          <div class="stat"><strong>CI/CD</strong>Jenkins</div>
+          <div class="stat"><strong>2</strong>reporters</div>
+        </div>
+      </div>
+
+      <!-- ── 1. Page Object Model ──────────────────── -->
+      <div class="card">
+        <div class="tech-header">
+          <div class="tech-number tech-number-pom">1</div>
+          <h2 class="tech-title">Page Object Model (POM) <span class="badge badge-pom">PATTERN</span></h2>
+        </div>
+        <div class="tech-theory">
+          Every page or major component has a dedicated class in <code>pages/</code> that encapsulates
+          locators and interaction methods. Tests never reference raw selectors &mdash; they call
+          descriptive methods on page objects, making tests readable and maintenance trivial when the
+          UI changes.
+        </div>
+        <p>15 page objects covering public site, admin panel, and game screens:</p>
+        <div class="tree"><span class="dir">Public Site</span>
+  <span class="file">/cv</span>                      <span class="cm"># CV landing — title, avatar, document links</span>
+  <span class="file">/login</span>                   <span class="cm"># Login / register forms</span>
+  <span class="file">/slots</span>                   <span class="cm"># Game lobby — cards, filters, header</span>
+  <span class="file">/slots/:slug</span>             <span class="cm"># Slots gameplay — canvas, bets, HUD, paytable</span>
+  <span class="file">/history</span>                 <span class="cm"># Game history table with filters</span>
+  <span class="file">/history/:id</span>             <span class="cm"># Round detail + provably fair verification</span>
+  <span class="file">/roulette</span>                <span class="cm"># European roulette</span>
+  <span class="file">/american-roulette</span>       <span class="cm"># American roulette</span>
+
+<span class="dir">Admin Panel</span>
+  <span class="file">/admin/login</span>             <span class="cm"># Admin authentication</span>
+  <span class="file">/admin</span>                   <span class="cm"># Dashboard — widgets & charts</span>
+  <span class="file">/admin/players</span>           <span class="cm"># Player management table</span>
+  <span class="file">/admin/players/:id</span>       <span class="cm"># Individual player view & top-up</span>
+  <span class="file">/admin/transactions</span>      <span class="cm"># Transaction ledger</span>
+  <span class="file">/admin/bonuses</span>           <span class="cm"># Bonus & promotion management</span>
+  <span class="file">...</span>                      <span class="cm"># + /admin/kyc, /admin/risk, /admin/reports, /admin/settings, /admin/games</span></div>
+        <p>Example &mdash; <code>GamePage</code> class:</p>
+<pre><code><span class="kw">export class</span> <span class="tp">GamePage</span> {
+  <span class="kw">readonly</span> spinButton: <span class="tp">Locator</span>;
+  <span class="kw">readonly</span> balance: <span class="tp">Locator</span>;
+  <span class="kw">readonly</span> errorToast: <span class="tp">Locator</span>;
+
+  <span class="fn">constructor</span>(<span class="kw">private</span> page: <span class="tp">Page</span>) {
+    <span class="kw">this</span>.spinButton = page.<span class="fn">getByRole</span>(<span class="str">'button'</span>, { name: <span class="str">/spin/i</span> });
+    <span class="kw">this</span>.balance    = page.<span class="fn">getByTestId</span>(<span class="str">'hud-balance'</span>);
+    <span class="kw">this</span>.errorToast = page.<span class="fn">locator</span>(<span class="str">'.slots-error-toast'</span>);
+  }
+
+  <span class="kw">async</span> <span class="fn">goto</span>(slug: <span class="tp">string</span>) { <span class="kw">await</span> <span class="kw">this</span>.page.<span class="fn">goto</span>(<span class="str">`/slots/${slug}`</span>); }
+  <span class="kw">async</span> <span class="fn">spin</span>() { <span class="kw">await</span> <span class="kw">this</span>.spinButton.<span class="fn">click</span>(); }
+}</code></pre>
+      </div>
+
+      <!-- ── 2. Custom Base Fixtures ───────────────── -->
+      <div class="card">
+        <div class="tech-header">
+          <div class="tech-number tech-number-fixture">2</div>
+          <h2 class="tech-title">Custom Base Fixtures <span class="badge badge-fixture">ARCHITECTURE</span></h2>
+        </div>
+        <div class="tech-theory">
+          A custom <code>base.fixture.ts</code> extends Playwright's built-in <code>test</code> object.
+          Every spec imports <code>test</code> and <code>expect</code> from this fixture rather than
+          from <code>@playwright/test</code> directly. This central point injects Allure metadata
+          (epic &amp; feature labels) and captures failure screenshots automatically.
+        </div>
+<pre><code><span class="kw">export const</span> test = base.<span class="fn">extend</span>({
+  page: <span class="kw">async</span> ({ page }, use, testInfo) =&gt; {
+    <span class="cm">// Auto-label for Allure Behaviors tab</span>
+    <span class="kw">const</span> dir  = relPath.<span class="fn">split</span>(path.sep)[<span class="num">0</span>];
+    <span class="kw">const</span> file = path.<span class="fn">basename</span>(testInfo.file);
+
+    <span class="kw">if</span> (EPICS[dir])    <span class="kw">await</span> allure.<span class="fn">parentSuite</span>(EPICS[dir]);
+    <span class="kw">if</span> (FEATURES[file]) <span class="kw">await</span> allure.<span class="fn">suite</span>(FEATURES[file]);
+
+    <span class="kw">await</span> <span class="fn">use</span>(page);
+
+    <span class="cm">// Auto-attach screenshot on failure</span>
+    <span class="kw">if</span> (testInfo.status !== testInfo.expectedStatus) {
+      <span class="kw">const</span> screenshot = <span class="kw">await</span> page.<span class="fn">screenshot</span>().<span class="fn">catch</span>(() =&gt; <span class="kw">null</span>);
+      <span class="kw">if</span> (screenshot) <span class="kw">await</span> testInfo.<span class="fn">attach</span>(<span class="str">'screenshot'</span>, { body: screenshot });
+    }
+  },
+});</code></pre>
+        <p>
+          <strong>Why it matters:</strong> zero Allure boilerplate in specs, consistent failure artifacts,
+          and a single place to add cross-cutting concerns (logging, performance marks, etc.).
+        </p>
+      </div>
+
+      <!-- ── 3. API Mocking Layer ──────────────────── -->
+      <div class="card">
+        <div class="tech-header">
+          <div class="tech-number tech-number-mock">3</div>
+          <h2 class="tech-title">API Mocking &amp; Route Interception <span class="badge badge-mock">ISOLATION</span></h2>
+        </div>
+        <div class="tech-theory">
+          Tests use Playwright's <code>context.route()</code> to intercept API calls and return
+          deterministic mock responses. This decouples E2E UI tests from backend availability,
+          making the suite fast, reliable, and runnable without a live server.
+        </div>
+        <p>
+          <code>fixtures/helpers.ts</code> provides composable mock functions that can be combined per test scenario:
+        </p>
+<pre><code><span class="cm">// Individual mocks</span>
+<span class="kw">await</span> <span class="fn">mockAuth</span>(context);       <span class="cm">// auth/refresh → 200</span>
+<span class="kw">await</span> <span class="fn">mockGameInit</span>(context);   <span class="cm">// game/init → valid session</span>
+<span class="kw">await</span> <span class="fn">mockSpin</span>(context);       <span class="cm">// spin → winning result (auto-increments spin_id)</span>
+<span class="kw">await</span> <span class="fn">mockSpinError</span>(context);  <span class="cm">// spin → 500 server error</span>
+
+<span class="cm">// Convenience bundles</span>
+<span class="kw">await</span> <span class="fn">mockGameApis</span>(context);   <span class="cm">// auth + init + spin + images</span>
+<span class="kw">await</span> <span class="fn">mockRouletteApis</span>(context);
+<span class="kw">await</span> <span class="fn">mockHistoryApis</span>(context);</code></pre>
+        <p>
+          <code>fixtures/mock-data.ts</code> contains typed factory functions (<code>makeGameInitResponse</code>,
+          <code>makeSpinResponse</code>, etc.) with override support for edge-case testing:
+        </p>
+<pre><code><span class="cm">// Default winning spin</span>
+<span class="fn">makeSpinResponse</span>();
+
+<span class="cm">// Custom: no-win spin</span>
+<span class="fn">makeNoWinSpinResponse</span>();
+
+<span class="cm">// Custom: big win (12x multiplier)</span>
+<span class="fn">makeBigWinSpinResponse</span>(bet);
+
+<span class="cm">// Override any field</span>
+<span class="fn">makeSpinResponse</span>({ balance: { amount: <span class="num">0</span>, currency: <span class="str">'USD'</span> } });</code></pre>
+      </div>
+
+      <!-- ── 4. Project-Based Test Organization ───── -->
+      <div class="card">
+        <div class="tech-header">
+          <div class="tech-number tech-number-auth">4</div>
+          <h2 class="tech-title">Project-Based Test Organization <span class="badge badge-auth">CONFIG</span></h2>
+        </div>
+        <div class="tech-theory">
+          <code>playwright.config.ts</code> defines four test projects with dependency chains. The admin
+          setup project runs first to save <code>storageState</code>, which downstream admin specs reuse
+          &mdash; avoiding repeated login flows while maintaining proper test isolation.
+        </div>
+<pre><code>projects: [
+  { name: <span class="str">'Public Site'</span>,  testIgnore: <span class="str">'**/admin/**'</span> },
+  { name: <span class="str">'Admin Setup'</span>,  testMatch: <span class="str">'**/admin.setup.ts'</span> },
+  { name: <span class="str">'Admin Login'</span>,  testMatch: <span class="str">'**/admin/login.spec.ts'</span> },
+  {
+    name: <span class="str">'Admin Panel'</span>,
+    dependencies: [<span class="str">'Admin Setup'</span>],
+    use: { storageState: <span class="str">'.auth/admin.json'</span> },
+  },
+]</code></pre>
+        <p>
+          <strong>Auth setup</strong> logs in via the real admin UI, then saves browser state to
+          <code>.auth/admin.json</code>. All authenticated admin tests inherit this state without any
+          extra login steps.
+        </p>
+      </div>
+
+      <!-- ── 5. CI/CD Pipeline ─────────────────────── -->
+      <div class="card">
+        <div class="tech-header">
+          <div class="tech-number tech-number-ci">5</div>
+          <h2 class="tech-title">Jenkins CI/CD Pipeline <span class="badge badge-ci">CI/CD</span></h2>
+        </div>
+        <div class="tech-theory">
+          A declarative <code>Jenkinsfile</code> automates the full test lifecycle: install dependencies,
+          install Chromium, run tests, generate Allure reports, and publish both Allure and Playwright
+          HTML reports as build artifacts.
+        </div>
+<pre><code><span class="kw">pipeline</span> {
+  <span class="kw">stages</span> {
+    stage(<span class="str">'Clean'</span>)   { sh <span class="str">'rm -rf allure-results allure-report playwright-report'</span> }
+    stage(<span class="str">'Install'</span>) { sh <span class="str">'npm ci'</span>; sh <span class="str">'npx playwright install chromium'</span> }
+    stage(<span class="str">'Run Tests'</span>) { sh <span class="str">'npx playwright test'</span> }
+  }
+  <span class="kw">post</span> {
+    <span class="kw">always</span> {
+      sh <span class="str">'allure generate allure-results -o allure-report --clean'</span>
+      <span class="fn">publishHTML</span>(reportName: <span class="str">'Allure Report'</span>)
+      <span class="fn">publishHTML</span>(reportName: <span class="str">'Playwright Report'</span>)
+    }
+  }
+}</code></pre>
+        <p><strong>Key CI settings:</strong> <code>forbidOnly: !!process.env.CI</code> prevents
+        accidental <code>.only</code> commits; <code>retries: 2</code> in CI for flake resilience;
+        <code>workers: 1</code> for deterministic execution on shared agents.</p>
+      </div>
+
+      <!-- ── 6. Allure Reporting ───────────────────── -->
+      <div class="card">
+        <div class="tech-header">
+          <div class="tech-number tech-number-report">6</div>
+          <h2 class="tech-title">Dual Reporting: Allure + Playwright HTML <span class="badge badge-report">REPORTS</span></h2>
+        </div>
+        <div class="tech-theory">
+          Tests emit data to two parallel reporters. <strong>Allure</strong> provides rich Behaviors-tab
+          grouping (Epic &rarr; Feature &rarr; Story) thanks to auto-labeling in the base fixture.
+          <strong>Playwright HTML</strong> serves as a lightweight backup with built-in trace viewer.
+        </div>
+<pre><code>reporter: [
+  [<span class="str">'list'</span>],                            <span class="cm">// terminal output</span>
+  [<span class="str">'html'</span>, { open: <span class="str">'never'</span> }],         <span class="cm">// Playwright HTML report</span>
+  [<span class="str">'allure-playwright'</span>],               <span class="cm">// Allure integration</span>
+]</code></pre>
+        <p>
+          Environment metadata is written to <code>allure-results/environment.properties</code> at
+          config time, so every report shows the browser, base URL, and CI vs. local context.
+        </p>
+      </div>
+
+      <!-- ── 7. Smart Test Configuration ──────────── -->
+      <div class="card">
+        <div class="tech-header">
+          <div class="tech-number tech-number-ts">7</div>
+          <h2 class="tech-title">Smart Test Configuration <span class="badge badge-ts">TYPESCRIPT</span></h2>
+        </div>
+        <div class="tech-theory">
+          The config leverages <code>dotenv</code> for environment variables, conditional CI settings,
+          and built-in Playwright features like screenshot-on-every-test, video-on-failure, and
+          trace-on-first-retry for maximum debuggability.
+        </div>
+<pre><code>use: {
+  baseURL: <span class="str">'https://pyavchik.space'</span>,
+  actionTimeout: <span class="num">10_000</span>,
+  screenshot: <span class="str">'on'</span>,               <span class="cm">// every test gets a screenshot</span>
+  video: <span class="str">'retain-on-failure'</span>,      <span class="cm">// video saved only when test fails</span>
+  trace: <span class="str">'on-first-retry'</span>,         <span class="cm">// trace captured on retry for debugging</span>
+}</code></pre>
+        <p>
+          <code>.env.example</code> documents required variables (<code>ADMIN_EMAIL</code>, <code>ADMIN_PASSWORD</code>),
+          keeping secrets out of the repository while making setup straightforward for new contributors.
+        </p>
+      </div>
+
+      <!-- ── Test Coverage Overview ────────────────── -->
+      <div class="card">
+        <p class="section-title">Test Coverage Overview</p>
+        <p class="section-desc">
+          25+ spec files organized by feature domain across 7 epics
+        </p>
+
+        <div class="cov-grid">
+          <div class="cov-item">
+            <h4>/slots/:slug</h4>
+            <ul>
+              <li>Gameplay & spin flow</li>
+              <li>Paytable overlay</li>
+              <li>Keyboard controls</li>
+              <li>Error handling & retry</li>
+              <li>Win overlay animations</li>
+            </ul>
+          </div>
+          <div class="cov-item">
+            <h4>/slots</h4>
+            <ul>
+              <li>Game cards & navigation</li>
+              <li>Lobby filters</li>
+              <li>Header & branding</li>
+            </ul>
+          </div>
+          <div class="cov-item">
+            <h4>/login</h4>
+            <ul>
+              <li>Login & register flows</li>
+            </ul>
+          </div>
+          <div class="cov-item">
+            <h4>/cv</h4>
+            <ul>
+              <li>Landing page elements</li>
+            </ul>
+          </div>
+          <div class="cov-item">
+            <h4>/history</h4>
+            <ul>
+              <li>Game history table</li>
+              <li>Round detail & provably fair</li>
+            </ul>
+          </div>
+          <div class="cov-item">
+            <h4>/roulette</h4>
+            <ul>
+              <li>European roulette</li>
+              <li>American roulette</li>
+            </ul>
+          </div>
+          <div class="cov-item">
+            <h4>/admin/*</h4>
+            <ul>
+              <li>/admin/login</li>
+              <li>/admin — dashboard</li>
+              <li>/admin/players</li>
+              <li>/admin/players/:id</li>
+              <li>/admin/transactions</li>
+              <li>/admin/games</li>
+              <li>/admin/kyc</li>
+              <li>/admin/bonuses</li>
+              <li>/admin/risk</li>
+              <li>/admin/reports</li>
+              <li>/admin/settings</li>
+              <li>Navigation between pages</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── Repository Link ──────────────────────── -->
+      <div class="card" style="text-align: center;">
+        <p class="section-title">Source Code</p>
+        <p class="section-desc" style="margin-bottom: 16px;">
+          Full source code is available on GitHub
+        </p>
+        <a class="repo-link" href="https://github.com/pyavchik/slotsone-playwright" target="_blank" rel="noreferrer">
+          <svg viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg">
+            <path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38
+            0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52
+            -.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2
+            -3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82
+            .64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08
+            2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01
+            1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/>
+          </svg>
+          pyavchik/slotsone-playwright
+        </a>
+      </div>
+    </div>
+  </body>
+</html>
