@@ -10,7 +10,7 @@ const SWAGER_PATH = '/api-docs';
 const SQL_PATH = '/sql.html';
 const BUG_REPORT_PATH = '/bug-report.html';
 const TEST_DESIGN_PATH = '/test-design.html';
-const ALLURE_REPORT_PATH = '/allure-report/';
+const ALLURE_REPORT_PATH = 'https://pyavchik.github.io/slotsone-playwright/';
 const PLAYWRIGHT_PATH = '/playwright.html';
 
 const SKILLS = [
