@@ -16,6 +16,7 @@ coverage/
 !**/.env.production.example
 !/.env.production.example
 !/.env.docker.example
+!appium/.env.example
 backend/jwt_private.pem
 backend/jwt_public.pem
 
@@ -62,6 +63,9 @@ output/
 playwright-report/
 test-results/
 allure-report/html/
+appium/allure-results/
+appium/reports/
+appium/log/
 
 # Generic local certs/keys
 *.pem
