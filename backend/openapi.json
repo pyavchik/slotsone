@@ -3184,6 +3184,273 @@
         ],
         "additionalProperties": false
       },
+      "RewindTier": {
+        "type": "string",
+        "enum": [
+          "safe",
+          "standard",
+          "super"
+        ]
+      },
+      "RewindRequest": {
+        "type": "object",
+        "properties": {
+          "session_id": {
+            "type": "string"
+          },
+          "offer_id": {
+            "type": "string"
+          },
+          "tier": {
+            "$ref": "#/components/schemas/RewindTier"
+          }
+        },
+        "required": [
+          "session_id",
+          "offer_id",
+          "tier"
+        ],
+        "additionalProperties": false
+      },
+      "RewindSpinOutcome": {
+        "type": "object",
+        "properties": {
+          "spin_number": {
+            "type": "integer"
+          },
+          "outcome": {
+            "type": "object",
+            "properties": {
+              "reel_matrix": {
+                "type": "array",
+                "items": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              },
+              "win": {
+                "type": "object",
+                "properties": {
+                  "amount": {
+                    "type": "number"
+                  },
+                  "currency": {
+                    "type": "string"
+                  },
+                  "breakdown": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "type": {
+                          "type": "string",
+                          "enum": [
+                            "line"
+                          ]
+                        },
+                        "line_index": {
+                          "type": "integer"
+                        },
+                        "symbol": {
+                          "type": "string"
+                        },
+                        "count": {
+                          "type": "integer"
+                        },
+                        "payout": {
+                          "type": "number"
+                        }
+                      },
+                      "required": [
+                        "type",
+                        "line_index",
+                        "symbol",
+                        "count",
+                        "payout"
+                      ],
+                      "additionalProperties": false
+                    }
+                  }
+                },
+                "required": [
+                  "amount",
+                  "currency",
+                  "breakdown"
+                ],
+                "additionalProperties": false
+              },
+              "bonus_triggered": {
+                "type": "object",
+                "nullable": true,
+                "properties": {
+                  "type": {
+                    "type": "string",
+                    "enum": [
+                      "free_spins"
+                    ]
+                  },
+                  "free_spins_count": {
+                    "type": "integer"
+                  },
+                  "bonus_round_id": {
+                    "type": "string"
+                  },
+                  "multiplier": {
+                    "type": "number"
+                  }
+                },
+                "required": [
+                  "type",
+                  "free_spins_count",
+                  "bonus_round_id",
+                  "multiplier"
+                ],
+                "additionalProperties": false
+              }
+            },
+            "required": [
+              "reel_matrix",
+              "win",
+              "bonus_triggered"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "required": [
+          "spin_number",
+          "outcome"
+        ],
+        "additionalProperties": false
+      },
+      "RewindAggregate": {
+        "type": "object",
+        "properties": {
+          "total_wagered": {
+            "type": "number"
+          },
+          "total_won": {
+            "type": "number"
+          },
+          "net_result": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "total_wagered",
+          "total_won",
+          "net_result"
+        ],
+        "additionalProperties": false
+      },
+      "RewindOfferTier": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "$ref": "#/components/schemas/RewindTier"
+          },
+          "cost_multiplier": {
+            "type": "number"
+          },
+          "wild_boost": {
+            "type": "string"
+          },
+          "total_cost": {
+            "type": "number"
+          },
+          "available": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "name",
+          "cost_multiplier",
+          "wild_boost",
+          "total_cost",
+          "available"
+        ],
+        "additionalProperties": false
+      },
+      "RewindOffer": {
+        "type": "object",
+        "properties": {
+          "offer_id": {
+            "type": "string"
+          },
+          "tiers": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/RewindOfferTier"
+            }
+          },
+          "expires_at": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "offer_id",
+          "tiers",
+          "expires_at"
+        ],
+        "additionalProperties": false
+      },
+      "RewindResponse": {
+        "type": "object",
+        "properties": {
+          "rewind_id": {
+            "type": "string"
+          },
+          "session_id": {
+            "type": "string"
+          },
+          "game_id": {
+            "type": "string"
+          },
+          "tier": {
+            "$ref": "#/components/schemas/RewindTier"
+          },
+          "spins": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/RewindSpinOutcome"
+            }
+          },
+          "aggregate": {
+            "$ref": "#/components/schemas/RewindAggregate"
+          },
+          "balance": {
+            "type": "object",
+            "properties": {
+              "amount": {
+                "type": "number"
+              },
+              "currency": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "amount",
+              "currency"
+            ],
+            "additionalProperties": false
+          },
+          "timestamp": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "rewind_id",
+          "session_id",
+          "game_id",
+          "tier",
+          "spins",
+          "aggregate",
+          "balance",
+          "timestamp"
+        ],
+        "additionalProperties": false
+      },
       "HistorySummaryResponse": {
         "type": "object",
         "properties": {
@@ -4417,6 +4684,92 @@
           },
           "422": {
             "description": "Validation or balance error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/game/rewind": {
+      "post": {
+        "tags": [
+          "Game"
+        ],
+        "summary": "Accept Time Rewind offer",
+        "description": "Accept a rewind offer and execute 5 boosted spins. Only available for game_id: slot_time_rewind_001.",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RewindRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Rewind executed successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RewindResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden — wrong game or unauthorized session",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Offer already accepted",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "410": {
+            "description": "Offer expired",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation or business rule error",
             "content": {
               "application/json": {
                 "schema": {
