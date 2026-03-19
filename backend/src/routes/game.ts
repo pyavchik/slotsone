@@ -204,12 +204,10 @@ router.post(
     const idempotencyKey = req.headers['idempotency-key'] as string | undefined;
 
     if (!offer_id || !tier || !session_id) {
-      res
-        .status(400)
-        .json({
-          error: 'Missing required fields: offer_id, tier, session_id',
-          code: 'invalid_body',
-        });
+      res.status(400).json({
+        error: 'Missing required fields: offer_id, tier, session_id',
+        code: 'invalid_body',
+      });
       return;
     }
 
