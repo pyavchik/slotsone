@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120">
+  <defs>
+    <linearGradient id="gear-bg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#1e293b"/>
+      <stop offset="100%" stop-color="#0f172a"/>
+    </linearGradient>
+    <linearGradient id="gear-fill" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#cbd5e1"/>
+      <stop offset="100%" stop-color="#64748b"/>
+    </linearGradient>
+  </defs>
+  <rect width="120" height="120" rx="12" fill="url(#gear-bg)"/>
+  <!-- Gear teeth -->
+  <path d="M60 14 L64 14 L66 22 L68 22 L72 15 L76 17 L74 25 L76 26 L81 20 L84 23 L80 30 L82 32 L88 28 L90 32 L84 36 L85 38 L92 37 L93 41 L86 43 L86 45 L93 47 L92 51 L85 50 L84 52 L90 57 L88 60 L82 57 L80 58 L84 65 L81 68 L76 62 L74 63 L76 71 L72 73 L68 66 L66 66 L64 74 L60 74 L58 66 L56 66 L52 73 L48 71 L50 63 L48 62 L43 68 L40 65 L44 58 L42 57 L36 60 L34 57 L40 52 L39 50 L32 51 L31 47 L38 45 L38 43 L31 41 L32 37 L39 38 L40 36 L34 32 L36 28 L42 32 L44 30 L40 23 L43 20 L48 26 L50 25 L48 17 L52 15 L56 22 L58 22 Z" fill="url(#gear-fill)" stroke="#94a3b8" stroke-width="0.5"/>
+  <!-- Inner circle -->
+  <circle cx="62" cy="44" r="14" fill="#1e293b" stroke="#94a3b8" stroke-width="1.5"/>
+  <!-- Center hub -->
+  <circle cx="62" cy="44" r="6" fill="#475569" stroke="#cbd5e1" stroke-width="1"/>
+  <circle cx="62" cy="44" r="2" fill="#94a3b8"/>
+  <!-- Highlight -->
+  <circle cx="55" cy="37" r="8" fill="#cbd5e1" opacity="0.08"/>
+  <!-- Label -->
+  <text x="60" y="100" text-anchor="middle" font-family="serif" font-size="14" font-weight="bold" fill="#94a3b8">GEAR</text>
+</svg>

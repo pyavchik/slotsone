@@ -39,6 +39,18 @@ const GAMES: GameItem[] = [
     gameId: 'slot_mega_fortune_001',
   },
   {
+    slug: 'time-machine',
+    title: 'Pyavchik Time Machine',
+    category: 'slots',
+    provider: 'SlotsOne',
+    rtp: 96.0,
+    volatility: 'high',
+    status: 'available',
+    badge: 'NEW',
+    thumbnail: '/games/time-machine.png',
+    gameId: 'slot_time_rewind_001',
+  },
+  {
     slug: 'book-of-dead',
     title: 'Book of Dead',
     category: 'slots',

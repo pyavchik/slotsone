@@ -314,6 +314,68 @@ export const TopUpResponseSchema = z
   })
   .strict();
 
+export const RewindTierSchema = z.enum(['safe', 'standard', 'super']).openapi('RewindTier');
+
+export const RewindRequestSchema = z
+  .object({
+    session_id: z.string(),
+    offer_id: z.string(),
+    tier: RewindTierSchema,
+  })
+  .strict()
+  .openapi('RewindRequest');
+
+export const RewindSpinOutcomeSchema = z
+  .object({
+    spin_number: z.number().int(),
+    outcome: SpinOutcomeSchema,
+  })
+  .strict()
+  .openapi('RewindSpinOutcome');
+
+export const RewindAggregateSchema = z
+  .object({
+    total_wagered: z.number(),
+    total_won: z.number(),
+    net_result: z.number(),
+  })
+  .strict()
+  .openapi('RewindAggregate');
+
+export const RewindOfferTierSchema = z
+  .object({
+    name: RewindTierSchema,
+    cost_multiplier: z.number(),
+    wild_boost: z.string(),
+    total_cost: z.number(),
+    available: z.boolean(),
+  })
+  .strict()
+  .openapi('RewindOfferTier');
+
+export const RewindOfferSchema = z
+  .object({
+    offer_id: z.string(),
+    tiers: z.array(RewindOfferTierSchema),
+    expires_at: z.string(),
+  })
+  .strict()
+  .openapi('RewindOffer');
+
+export const RewindResponseSchema = z
+  .object({
+    rewind_id: z.string(),
+    session_id: z.string(),
+    game_id: z.string(),
+    tier: RewindTierSchema,
+    spins: z.array(RewindSpinOutcomeSchema),
+    aggregate: RewindAggregateSchema,
+    balance: BalanceSchema,
+    timestamp: z.number(),
+  })
+  .strict()
+  .openapi('RewindResponse');
+
 export type TopUpRequest = z.infer<typeof TopUpRequestSchema>;
 export type TopUpResponse = z.infer<typeof TopUpResponseSchema>;
 export type InitRequest = z.infer<typeof InitRequestSchema>;
@@ -324,3 +386,6 @@ export type HistoryResponse = z.infer<typeof HistoryResponseSchema>;
 export type EnhancedHistoryResponse = z.infer<typeof EnhancedHistoryResponseSchema>;
 export type HistorySummary = z.infer<typeof HistorySummarySchema>;
 export type RoundDetailResponse = z.infer<typeof RoundDetailResponseSchema>;
+export type RewindRequest = z.infer<typeof RewindRequestSchema>;
+export type RewindResponse = z.infer<typeof RewindResponseSchema>;
+export type RewindOffer = z.infer<typeof RewindOfferSchema>;

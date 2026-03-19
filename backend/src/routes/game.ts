@@ -7,11 +7,18 @@ import {
   getBalance,
   getHistory,
   getHistorySummary,
+  evaluateRewindOffer,
+  executeRewind,
+  getLosingStreak,
+  incrementLosingStreak,
+  resetLosingStreak,
 } from '../store.js';
 import { GAME_ID } from '../engine/gameConfig.js';
 import { buildIdleMatrix } from '../engine/spinEngine.js';
 import { BOD_GAME_ID } from '../engine/bookOfDeadConfig.js';
 import { buildBookOfDeadIdleMatrix } from '../engine/bookOfDeadEngine.js';
+import { TM_GAME_ID } from '../engine/timeMachineConfig.js';
+import { buildTimeMachineIdleMatrix } from '../engine/timeMachineEngine.js';
 import {
   EnhancedHistoryQuerySchema,
   InitRequestSchema,
@@ -77,7 +84,12 @@ router.post(
 
     log.info({ userId, gameId: game_id, sessionId: session.session_id }, 'game_session_created');
 
-    const idleMatrix = game_id === BOD_GAME_ID ? buildBookOfDeadIdleMatrix() : buildIdleMatrix();
+    const idleMatrix =
+      game_id === BOD_GAME_ID
+        ? buildBookOfDeadIdleMatrix()
+        : game_id === TM_GAME_ID
+          ? buildTimeMachineIdleMatrix()
+          : buildIdleMatrix();
 
     res.json({
       session_id: session.session_id,
@@ -146,7 +158,79 @@ router.post(
       });
       return;
     }
+
+    // Time Machine: track losing streak and potentially offer rewind
+    if (game_id === TM_GAME_ID) {
+      const spinResult = result.result;
+      const isWin = spinResult.outcome.win.amount > 0;
+
+      if (isWin) {
+        resetLosingStreak(session_id);
+      } else {
+        incrementLosingStreak(session_id);
+      }
+
+      const streak = getLosingStreak(session_id);
+      // Use a simple Math.random() for the trigger probability
+      const rngValue = Math.random();
+      const balanceCents = Math.round(spinResult.balance.amount * 100);
+      const rewindOffer = !isWin
+        ? evaluateRewindOffer(session_id, betAmount, currency, lines, balanceCents, rngValue)
+        : null;
+
+      res.status(result.code).json({
+        ...spinResult,
+        losing_streak: streak,
+        rewind_offer: rewindOffer,
+      });
+      return;
+    }
+
     res.status(result.code).json(result.result);
+  })
+);
+
+// ─── Time Rewind Endpoint ────────────────────────────────────────────────
+
+router.post(
+  '/game/rewind',
+  authMiddleware,
+  asyncHandler(async (req, res) => {
+    const userId = (req as unknown as { userId: string }).userId;
+    setUserId(userId);
+    const log = getLogger();
+
+    const { offer_id, tier, session_id } = req.body ?? {};
+    const idempotencyKey = req.headers['idempotency-key'] as string | undefined;
+
+    if (!offer_id || !tier || !session_id) {
+      res
+        .status(400)
+        .json({
+          error: 'Missing required fields: offer_id, tier, session_id',
+          code: 'invalid_body',
+        });
+      return;
+    }
+
+    if (!['safe', 'standard', 'super'].includes(tier)) {
+      res
+        .status(400)
+        .json({ error: 'Invalid tier. Must be: safe, standard, super', code: 'invalid_tier' });
+      return;
+    }
+
+    setSessionId(session_id);
+    log.info({ userId, sessionId: session_id, offerId: offer_id, tier }, 'rewind_request');
+
+    const result = await executeRewind(userId, session_id, offer_id, tier, idempotencyKey);
+
+    if ('error' in result) {
+      res.status(result.code).json({ error: result.error, code: toErrorCode(result.error) });
+      return;
+    }
+
+    res.status(200).json(result.result);
   })
 );
 

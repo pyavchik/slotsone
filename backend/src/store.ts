@@ -46,6 +46,30 @@ import {
   AMERICAN_ROULETTE_GAME_ID,
 } from './engine/americanRouletteConfig.js';
 import {
+  TM_GAME_ID,
+  TM_MIN_BET,
+  TM_MAX_BET,
+  TM_BET_LEVELS,
+  TM_PAYLINES,
+  TM_LINE_DEFS,
+  TM_REELS,
+  TM_ROWS,
+  TM_CURRENCY,
+  TM_PAYTABLE,
+  TM_SYMBOLS,
+  TM_SCATTER_FREE_SPINS,
+  REWIND_TIERS,
+  REWIND_SPINS_COUNT,
+  REWIND_STREAK_THRESHOLD,
+  REWIND_TRIGGER_PROBABILITY,
+  type RewindTier,
+} from './engine/timeMachineConfig.js';
+import {
+  runTimeMachineSpin,
+  runTimeMachineRewindSpin,
+  buildTimeMachineIdleMatrix,
+} from './engine/timeMachineEngine.js';
+import {
   validateAmericanRouletteBets,
   type AmericanRouletteBet as AmericanRouletteBetInput,
 } from './engine/americanRouletteValidation.js';
@@ -117,6 +141,26 @@ const bodPaytableConfig = {
   wild: {
     symbol: 'Book',
     substitutes_for: bodLineWins.map((item) => item.symbol),
+  },
+} as const;
+
+// Time Machine paytable config
+const tmLineWins = TM_SYMBOLS.map((symbol, index) => {
+  const [x3, x4, x5] = TM_PAYTABLE[index] ?? [0, 0, 0];
+  return { symbol, x3, x4, x5 };
+})
+  .filter((item) => item.x3 > 0 || item.x4 > 0 || item.x5 > 0)
+  .sort((a, b) => b.x5 - a.x5);
+
+const tmPaytableConfig = {
+  line_wins: tmLineWins,
+  scatter: {
+    symbol: 'VortexScatter',
+    awards: TM_SCATTER_FREE_SPINS.map(([count, freeSpins]) => ({ count, free_spins: freeSpins })),
+  },
+  wild: {
+    symbol: 'CronoWild',
+    substitutes_for: tmLineWins.map((item) => item.symbol),
   },
 } as const;
 
@@ -222,6 +266,32 @@ const SLOT_GAME_REGISTRY: Record<string, SlotGameEntry> = {
         96.21,
         'high',
         ['free_spins', 'expanding_symbol', 'wild_scatter']
+      ),
+  },
+  [TM_GAME_ID]: {
+    minBet: TM_MIN_BET,
+    maxBet: TM_MAX_BET,
+    currency: TM_CURRENCY,
+    minLines: 1,
+    maxLines: TM_PAYLINES,
+    runSpin: (betAmount, currency, lines, seed) =>
+      runTimeMachineSpin(betAmount, currency, lines, seed),
+    buildIdleMatrix: buildTimeMachineIdleMatrix,
+    getConfig: () =>
+      getSlotConfig(
+        TM_REELS,
+        TM_ROWS,
+        TM_PAYLINES,
+        [TM_CURRENCY],
+        TM_MIN_BET,
+        TM_MAX_BET,
+        TM_PAYLINES,
+        TM_LINE_DEFS,
+        TM_BET_LEVELS,
+        tmPaytableConfig,
+        96.0,
+        'high',
+        ['free_spins', 'scatter', 'time_rewind']
       ),
   },
 };
@@ -621,6 +691,324 @@ export async function executeSpin(
   } catch (err) {
     log.error({ err, userId, sessionId, gameId }, 'spin_error');
     throw err;
+  }
+}
+
+// ─── Time Rewind Mechanic ──────────────────────────────────────────────────
+
+// In-memory losing streak tracker (per session, ephemeral)
+const losingStreaks = new Map<string, number>();
+
+export function getLosingStreak(sessionId: string): number {
+  return losingStreaks.get(sessionId) ?? 0;
+}
+
+export function incrementLosingStreak(sessionId: string): number {
+  const streak = (losingStreaks.get(sessionId) ?? 0) + 1;
+  losingStreaks.set(sessionId, streak);
+  return streak;
+}
+
+export function resetLosingStreak(sessionId: string): void {
+  losingStreaks.delete(sessionId);
+}
+
+// In-memory rewind offer tracking (per session, ephemeral)
+const activeRewindOffers = new Map<
+  string,
+  {
+    offerId: string;
+    sessionId: string;
+    betAmount: number;
+    currency: string;
+    lines: number;
+    createdAt: number;
+  }
+>();
+const activeRewindsInProgress = new Set<string>();
+
+export interface RewindOffer {
+  offer_id: string;
+  tiers: {
+    name: RewindTier;
+    cost_multiplier: number;
+    wild_boost: string;
+    total_cost: number;
+    available: boolean;
+  }[];
+  expires_at: string;
+}
+
+export interface RewindSpinOutcome {
+  spin_number: number;
+  outcome: SpinOutcome;
+}
+
+export interface RewindResult {
+  rewind_id: string;
+  session_id: string;
+  game_id: string;
+  tier: RewindTier;
+  spins: RewindSpinOutcome[];
+  aggregate: {
+    total_wagered: number;
+    total_won: number;
+    net_result: number;
+  };
+  balance: { amount: number; currency: string };
+  timestamp: number;
+}
+
+/**
+ * Evaluate whether a rewind offer should be generated after a losing spin.
+ * Called after each spin that has win=0.
+ */
+export function evaluateRewindOffer(
+  sessionId: string,
+  betAmount: number,
+  currency: string,
+  lines: number,
+  balanceCents: number,
+  rngValue: number
+): RewindOffer | null {
+  const streak = getLosingStreak(sessionId);
+  if (streak < REWIND_STREAK_THRESHOLD) return null;
+  if (rngValue >= REWIND_TRIGGER_PROBABILITY) return null;
+
+  // Invalidate any previous offer for this session
+  for (const [key, offer] of activeRewindOffers) {
+    if (offer.sessionId === sessionId) activeRewindOffers.delete(key);
+  }
+
+  const offerId = `rw_${randomUUID().slice(0, 12)}`;
+  const tiers = (Object.keys(REWIND_TIERS) as RewindTier[]).map((name) => {
+    const tier = REWIND_TIERS[name];
+    const totalCost = Math.round(betAmount * tier.costMultiplier * REWIND_SPINS_COUNT * 100) / 100;
+    const totalCostCents = Math.round(totalCost * 100);
+    return {
+      name,
+      cost_multiplier: tier.costMultiplier,
+      wild_boost: tier.wildBoostLabel,
+      total_cost: totalCost,
+      available: balanceCents >= totalCostCents,
+    };
+  });
+
+  const expiresAt = new Date(Date.now() + 30_000).toISOString(); // 30 seconds
+
+  activeRewindOffers.set(offerId, {
+    offerId,
+    sessionId,
+    betAmount,
+    currency,
+    lines,
+    createdAt: Date.now(),
+  });
+
+  return { offer_id: offerId, tiers, expires_at: expiresAt };
+}
+
+/**
+ * Execute a Time Rewind: accept an offer, debit wallet, run 5 boosted spins.
+ */
+export async function executeRewind(
+  userId: string,
+  sessionId: string,
+  offerId: string,
+  tier: RewindTier,
+  idempotencyKey?: string
+): Promise<
+  { result: RewindResult; code: 200 } | { error: string; code: 400 | 403 | 409 | 410 | 422 }
+> {
+  const log = getLogger();
+
+  // Validate offer exists and hasn't expired
+  const offer = activeRewindOffers.get(offerId);
+  if (!offer) {
+    return { error: 'Rewind offer not found or expired', code: 410 };
+  }
+  if (offer.sessionId !== sessionId) {
+    return { error: 'Rewind offer does not belong to this session', code: 403 };
+  }
+  if (Date.now() - offer.createdAt > 30_000) {
+    activeRewindOffers.delete(offerId);
+    resetLosingStreak(sessionId);
+    return { error: 'Rewind offer expired', code: 410 };
+  }
+
+  // Validate session belongs to Time Machine game
+  const session = await getSession(sessionId);
+  if (!session || session.user_id !== userId) {
+    return { error: 'Session not found or forbidden', code: 403 };
+  }
+  if (session.game_id !== TM_GAME_ID) {
+    return { error: 'Rewind is only available for Time Machine game', code: 400 };
+  }
+
+  // Prevent concurrent rewinds
+  if (activeRewindsInProgress.has(sessionId)) {
+    return { error: 'Rewind already in progress', code: 409 };
+  }
+
+  // Validate tier
+  if (!(tier in REWIND_TIERS)) {
+    return { error: 'Invalid rewind tier', code: 400 };
+  }
+
+  const tierConfig = REWIND_TIERS[tier];
+  const betPerSpin = offer.betAmount * tierConfig.costMultiplier;
+  const totalCost = betPerSpin * REWIND_SPINS_COUNT;
+  const totalCostCents = Math.round(totalCost * 100);
+
+  // Check idempotency
+  if (idempotencyKey) {
+    const scopedKey = idempotencyKeyForUser(userId, idempotencyKey);
+    const now = Date.now();
+    const cutoff = now - TTL_IDEMPOTENCY_MS;
+    const { rows } = await getPool().query<{
+      response: unknown;
+      created_at: string;
+    }>(`SELECT response, created_at FROM idempotency_keys WHERE scoped_key = $1`, [scopedKey]);
+    if (rows.length > 0) {
+      const existing = rows[0];
+      if (Number(existing.created_at) > cutoff) {
+        return { result: existing.response as RewindResult, code: 200 };
+      }
+      await getPool().query('DELETE FROM idempotency_keys WHERE scoped_key = $1', [scopedKey]);
+    }
+  }
+
+  // Validate balance
+  const wallet = await getOrCreateWallet(userId);
+  if (wallet.balance_cents < totalCostCents) {
+    return { error: 'Insufficient balance for rewind', code: 422 };
+  }
+
+  activeRewindsInProgress.add(sessionId);
+  try {
+    // Atomic debit for total rewind cost
+    const debitedWallet = await debitWallet(userId, totalCostCents, wallet.version);
+    if (!debitedWallet) {
+      return { error: 'Insufficient balance for rewind', code: 422 };
+    }
+
+    log.info(
+      {
+        userId,
+        sessionId,
+        tier,
+        totalCostCents,
+        balanceBeforeCents: wallet.balance_cents,
+        balanceAfterCents: debitedWallet.balance_cents,
+      },
+      'rewind_debit'
+    );
+
+    // Execute 5 spins with boosted reel strips
+    const spins: RewindSpinOutcome[] = [];
+    let totalWonCents = 0;
+    let currentWallet = debitedWallet;
+
+    for (let i = 0; i < REWIND_SPINS_COUNT; i++) {
+      const seedPair = await getOrCreateActiveSeedPair(userId);
+      const nonce = await incrementNonce(seedPair.id);
+      const spinSeed = deriveSpinSeed(seedPair.server_seed, seedPair.client_seed, nonce);
+
+      const { outcome } = runTimeMachineRewindSpin(
+        betPerSpin,
+        offer.currency,
+        offer.lines,
+        tier,
+        spinSeed
+      );
+
+      const winCents = Math.round(outcome.win.amount * 100);
+      totalWonCents += winCents;
+
+      if (winCents > 0) {
+        currentWallet = await creditWallet(userId, winCents);
+      }
+
+      const betPerSpinCents = Math.round(betPerSpin * 100);
+      const balanceBeforeThisSpin =
+        i === 0
+          ? wallet.balance_cents
+          : currentWallet.balance_cents - (winCents > 0 ? winCents : 0);
+
+      await createRound({
+        userId,
+        sessionId,
+        gameId: TM_GAME_ID,
+        seedPairId: seedPair.id,
+        nonce,
+        betCents: betPerSpinCents,
+        winCents,
+        currency: offer.currency,
+        lines: offer.lines,
+        balanceBeforeCents: balanceBeforeThisSpin,
+        balanceAfterCents: currentWallet.balance_cents,
+        reelMatrix: outcome.reel_matrix,
+        winBreakdown: outcome.win.breakdown,
+        bonusTriggered: outcome.bonus_triggered,
+        outcomeHash: hashOutcome(outcome),
+        balanceAfterBetCents: balanceBeforeThisSpin,
+        isRewind: true,
+        rewindTier: tier,
+      });
+
+      spins.push({ spin_number: i + 1, outcome });
+    }
+
+    // Cleanup
+    activeRewindOffers.delete(offerId);
+    resetLosingStreak(sessionId);
+
+    const totalWagered = totalCost;
+    const totalWon = totalWonCents / 100;
+    const finishedAt = Date.now();
+
+    const result: RewindResult = {
+      rewind_id: `rw_${randomUUID().slice(0, 12)}`,
+      session_id: sessionId,
+      game_id: TM_GAME_ID,
+      tier,
+      spins,
+      aggregate: {
+        total_wagered: Math.round(totalWagered * 100) / 100,
+        total_won: Math.round(totalWon * 100) / 100,
+        net_result: Math.round((totalWon - totalWagered) * 100) / 100,
+      },
+      balance: { amount: currentWallet.balance_cents / 100, currency: offer.currency },
+      timestamp: finishedAt,
+    };
+
+    log.info(
+      {
+        userId,
+        sessionId,
+        tier,
+        totalWageredCents: totalCostCents,
+        totalWonCents,
+        netCents: totalWonCents - totalCostCents,
+        spinsCount: REWIND_SPINS_COUNT,
+      },
+      'rewind_completed'
+    );
+
+    // Cache for idempotency
+    if (idempotencyKey) {
+      const scopedKey = idempotencyKeyForUser(userId, idempotencyKey);
+      await getPool().query(
+        `INSERT INTO idempotency_keys (scoped_key, user_id, request_fingerprint, response, created_at)
+         VALUES ($1,$2,$3,$4,$5)
+         ON CONFLICT (scoped_key) DO NOTHING`,
+        [scopedKey, userId, `rewind:${offerId}:${tier}`, JSON.stringify(result), finishedAt]
+      );
+    }
+
+    return { result, code: 200 };
+  } finally {
+    activeRewindsInProgress.delete(sessionId);
   }
 }
 

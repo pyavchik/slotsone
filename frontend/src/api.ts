@@ -160,6 +160,59 @@ export async function spin(
 }
 
 // ---------------------------------------------------------------------------
+// Time Rewind API
+// ---------------------------------------------------------------------------
+
+export interface RewindResponse {
+  rewind_id: string;
+  session_id: string;
+  game_id: string;
+  tier: 'safe' | 'standard' | 'super';
+  spins: {
+    spin_number: number;
+    outcome: SpinResponse['outcome'];
+  }[];
+  aggregate: {
+    total_wagered: number;
+    total_won: number;
+    net_result: number;
+  };
+  balance: { amount: number; currency: string };
+  timestamp: number;
+}
+
+export async function acceptRewind(
+  token: string,
+  sessionId: string,
+  offerId: string,
+  tier: 'safe' | 'standard' | 'super',
+  idempotencyKey?: string
+): Promise<RewindResponse> {
+  const body = {
+    session_id: sessionId,
+    offer_id: offerId,
+    tier,
+  };
+
+  const headers: Record<string, string> = {
+    'Content-Type': 'application/json',
+    ...authHeaders(token),
+  };
+  if (idempotencyKey) headers['Idempotency-Key'] = idempotencyKey;
+
+  const res = await fetch(`${API_BASE}/game/rewind`, {
+    method: 'POST',
+    headers,
+    body: JSON.stringify(body),
+  });
+  if (!res.ok) {
+    const err = (await res.json().catch(() => ({}))) as Partial<ErrorResponse>;
+    throw new ApiError(err.error ?? err.code ?? res.statusText, res.status);
+  }
+  return (await res.json()) as RewindResponse;
+}
+
+// ---------------------------------------------------------------------------
 // History API
 // ---------------------------------------------------------------------------
 

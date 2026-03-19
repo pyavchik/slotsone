@@ -1,0 +1,53 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120">
+  <defs>
+    <linearGradient id="cw-bg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#3b0764"/>
+      <stop offset="100%" stop-color="#1e0338"/>
+    </linearGradient>
+    <radialGradient id="cw-glow" cx="50%" cy="45%" r="40%">
+      <stop offset="0%" stop-color="#f5d0fe" stop-opacity="0.4"/>
+      <stop offset="50%" stop-color="#e879f9" stop-opacity="0.15"/>
+      <stop offset="100%" stop-color="#701a75" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="cw-ring" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#f0abfc"/>
+      <stop offset="100%" stop-color="#c026d3"/>
+    </linearGradient>
+  </defs>
+  <rect width="120" height="120" rx="12" fill="url(#cw-bg)"/>
+  <!-- Background glow -->
+  <circle cx="60" cy="48" r="42" fill="url(#cw-glow)"/>
+  <!-- Outer clock ring -->
+  <circle cx="60" cy="48" r="32" fill="none" stroke="url(#cw-ring)" stroke-width="2.5"/>
+  <circle cx="60" cy="48" r="28" fill="#1e0338" stroke="#d946ef" stroke-width="1"/>
+  <!-- Hour markers with glow -->
+  <line x1="60" y1="22" x2="60" y2="26" stroke="#f0abfc" stroke-width="2" stroke-linecap="round"/>
+  <line x1="60" y1="70" x2="60" y2="74" stroke="#f0abfc" stroke-width="2" stroke-linecap="round"/>
+  <line x1="34" y1="48" x2="38" y2="48" stroke="#f0abfc" stroke-width="2" stroke-linecap="round"/>
+  <line x1="82" y1="48" x2="86" y2="48" stroke="#f0abfc" stroke-width="2" stroke-linecap="round"/>
+  <!-- Diagonal markers -->
+  <circle cx="78" cy="30" r="1.5" fill="#e879f9" opacity="0.7"/>
+  <circle cx="42" cy="30" r="1.5" fill="#e879f9" opacity="0.7"/>
+  <circle cx="78" cy="66" r="1.5" fill="#e879f9" opacity="0.7"/>
+  <circle cx="42" cy="66" r="1.5" fill="#e879f9" opacity="0.7"/>
+  <!-- Clock hands (frozen/dramatic) -->
+  <line x1="60" y1="48" x2="55" y2="30" stroke="#f5d0fe" stroke-width="2.5" stroke-linecap="round"/>
+  <line x1="60" y1="48" x2="74" y2="42" stroke="#e879f9" stroke-width="1.5" stroke-linecap="round"/>
+  <!-- Big W in center -->
+  <text x="60" y="56" text-anchor="middle" font-family="sans-serif" font-size="22" font-weight="bold" fill="#f5d0fe" opacity="0.9">W</text>
+  <!-- Center dot -->
+  <circle cx="60" cy="48" r="2.5" fill="#f0abfc"/>
+  <!-- Energy burst rays -->
+  <line x1="60" y1="12" x2="60" y2="8" stroke="#e879f9" stroke-width="1" opacity="0.5" stroke-linecap="round"/>
+  <line x1="92" y1="48" x2="96" y2="48" stroke="#e879f9" stroke-width="1" opacity="0.5" stroke-linecap="round"/>
+  <line x1="28" y1="48" x2="24" y2="48" stroke="#e879f9" stroke-width="1" opacity="0.5" stroke-linecap="round"/>
+  <line x1="60" y1="84" x2="60" y2="88" stroke="#e879f9" stroke-width="1" opacity="0.5" stroke-linecap="round"/>
+  <line x1="82" y1="24" x2="85" y2="21" stroke="#e879f9" stroke-width="1" opacity="0.3" stroke-linecap="round"/>
+  <line x1="38" y1="24" x2="35" y2="21" stroke="#e879f9" stroke-width="1" opacity="0.3" stroke-linecap="round"/>
+  <!-- Sparkles -->
+  <circle cx="44" cy="18" r="1" fill="#fae8ff" opacity="0.8"/>
+  <circle cx="80" cy="76" r="1" fill="#fae8ff" opacity="0.6"/>
+  <circle cx="26" cy="56" r="0.8" fill="#fae8ff" opacity="0.5"/>
+  <!-- Label -->
+  <text x="60" y="104" text-anchor="middle" font-family="serif" font-size="9" font-weight="bold" fill="#e879f9">CHRONO WILD</text>
+</svg>

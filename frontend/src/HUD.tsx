@@ -15,6 +15,10 @@ export function HUD({ onLogout, onHistory, onLobby }: HUDProps) {
   const currency = useGameStore((s) => s.currency);
   const lastWinAmount = useGameStore((s) => s.lastWinAmount);
   const spinning = useGameStore((s) => s.spinning);
+  const losingStreak = useGameStore((s) => s.losingStreak);
+  const rewindInProgress = useGameStore((s) => s.rewindInProgress);
+  const gameId = useGameStore((s) => s.gameId);
+  const isTimeMachine = gameId === 'slot_time_rewind_001';
 
   const [displayBalance, setDisplayBalance] = useState(balance);
   const [displayWin, setDisplayWin] = useState(0);
@@ -116,6 +120,11 @@ export function HUD({ onLogout, onHistory, onLobby }: HUDProps) {
         {showNoWin && (
           <div className="hud-nowin-badge" data-testid="hud-nowin-badge">
             NO WIN
+          </div>
+        )}
+        {isTimeMachine && losingStreak > 0 && !rewindInProgress && (
+          <div className="hud-streak-badge" data-testid="hud-streak">
+            Streak: {losingStreak}/5
           </div>
         )}
         <span className="hud-tip" aria-hidden="true">

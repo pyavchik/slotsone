@@ -1,6 +1,6 @@
 import { useEffect, useState, useCallback, useRef } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { initGame, spin, refreshAccessToken, logout, ApiError } from '@/api';
+import { initGame, spin, acceptRewind, refreshAccessToken, logout, ApiError } from '@/api';
 import { useGameStore } from '@/store';
 import { getGameBySlug } from '@/data/catalog';
 import { setActiveGameSymbols } from '@/symbols';
@@ -9,6 +9,8 @@ import { BetPanel } from '@/BetPanel';
 import { HUD } from '@/HUD';
 import { WinOverlay } from '@/WinOverlay';
 import { PayTable } from '@/PayTable';
+import { RewindModal, RewindProgressOverlay } from '@/RewindModal';
+import '@/rewind.css';
 import { playSpinSound, playWinSound } from '@/audio';
 
 const DEMO_TOKEN = import.meta.env.VITE_DEMO_JWT;
@@ -42,6 +44,14 @@ export default function GamePage() {
   const error = useGameStore((s) => s.error);
   const spinning = useGameStore((s) => s.spinning);
   const lastWinAmount = useGameStore((s) => s.lastWinAmount);
+  const rewindOffer = useGameStore((s) => s.rewindOffer);
+  const rewindInProgress = useGameStore((s) => s.rewindInProgress);
+  const rewindSpinIndex = useGameStore((s) => s.rewindSpinIndex);
+  const rewindTotalSpins = useGameStore((s) => s.rewindTotalSpins);
+  const setRewindOffer = useGameStore((s) => s.setRewindOffer);
+  const setLosingStreak = useGameStore((s) => s.setLosingStreak);
+  const setRewindInProgress = useGameStore((s) => s.setRewindInProgress);
+  const clearRewindState = useGameStore((s) => s.clearRewindState);
 
   const [size, setSize] = useState(() => ({
     w: typeof window !== 'undefined' ? window.innerWidth : 800,
@@ -177,7 +187,17 @@ export default function GamePage() {
     const spinToken = DEMO_TOKEN === 'e2e.mock.token' ? DEMO_TOKEN : token;
     const idempotencyKey = `spin-${Date.now()}-${Math.random().toString(36).slice(2)}`;
     spin(spinToken, sessionId, gameId, { amount: bet, currency, lines }, idempotencyKey)
-      .then((data) => setSpinResult(data))
+      .then((data) => {
+        setSpinResult(data);
+        // Handle Time Machine rewind data in spin response
+        const extended = data as typeof data & { losing_streak?: number; rewind_offer?: unknown };
+        if (typeof extended.losing_streak === 'number') {
+          setLosingStreak(extended.losing_streak);
+        }
+        if (extended.rewind_offer && typeof extended.rewind_offer === 'object') {
+          setRewindOffer(extended.rewind_offer as typeof rewindOffer);
+        }
+      })
       .catch((e: unknown) => {
         if (e instanceof ApiError && e.status === 401) {
           setSpinning(false);
@@ -210,6 +230,65 @@ export default function GamePage() {
     spinCooldown,
     navigate,
   ]);
+
+  // -------------------------------------------------------------------------
+  // Rewind accept / skip
+  // -------------------------------------------------------------------------
+
+  const handleRewindAccept = useCallback(
+    (tier: 'safe' | 'standard' | 'super') => {
+      if (!sessionId || !rewindOffer) return;
+      const spinToken = DEMO_TOKEN === 'e2e.mock.token' ? DEMO_TOKEN : token;
+      const idempKey = `rewind-${Date.now()}-${Math.random().toString(36).slice(2)}`;
+      setRewindOffer(null);
+      setRewindInProgress(true, 0, 5);
+
+      acceptRewind(spinToken, sessionId, rewindOffer.offer_id, tier, idempKey)
+        .then((data) => {
+          // Animate through each spin result
+          let i = 0;
+          const playNext = () => {
+            if (i >= data.spins.length) {
+              setRewindInProgress(false);
+              clearRewindState();
+              useGameStore.setState({ balance: data.balance.amount });
+              return;
+            }
+            const spinData = data.spins[i]!;
+            setRewindInProgress(true, spinData.spin_number, data.spins.length);
+            setSpinning(true);
+            useGameStore.setState({
+              lastOutcome: spinData.outcome,
+              pendingWinAmount: spinData.outcome.win.amount,
+            });
+            i++;
+            // Small delay for each rewind spin animation
+            window.setTimeout(playNext, 1800);
+          };
+          playNext();
+        })
+        .catch((e: unknown) => {
+          setRewindInProgress(false);
+          clearRewindState();
+          setError(e instanceof Error ? e.message : 'Rewind failed');
+        });
+    },
+    [
+      token,
+      sessionId,
+      rewindOffer,
+      setRewindOffer,
+      setRewindInProgress,
+      clearRewindState,
+      setSpinning,
+      setError,
+    ]
+  );
+
+  const handleRewindSkip = useCallback(() => {
+    setRewindOffer(null);
+    setLosingStreak(0);
+  }, [setRewindOffer, setLosingStreak]);
 
   // -------------------------------------------------------------------------
   // Logout
@@ -380,6 +459,12 @@ export default function GamePage() {
         />
       </div>
       <WinOverlay />
+      {rewindOffer && !spinning && (
+        <RewindModal offer={rewindOffer} onAccept={handleRewindAccept} onSkip={handleRewindSkip} />
+      )}
+      {rewindInProgress && (
+        <RewindProgressOverlay spinIndex={rewindSpinIndex} totalSpins={rewindTotalSpins} />
+      )}
       {error && (
         <div className="slots-error-toast" role="alert" aria-live="assertive">
           <span className="slots-error-message">{error}</span>

@@ -1,0 +1,37 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120">
+  <defs>
+    <linearGradient id="vortex-bg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#134e4a"/>
+      <stop offset="100%" stop-color="#042f2e"/>
+    </linearGradient>
+    <radialGradient id="vortex-glow" cx="50%" cy="44%" r="38%">
+      <stop offset="0%" stop-color="#ecfeff" stop-opacity="0.5"/>
+      <stop offset="40%" stop-color="#22d3ee" stop-opacity="0.2"/>
+      <stop offset="100%" stop-color="#083344" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+  <rect width="120" height="120" rx="12" fill="url(#vortex-bg)"/>
+  <!-- Background glow -->
+  <circle cx="60" cy="48" r="42" fill="url(#vortex-glow)"/>
+  <!-- Spiral arms - outer to inner -->
+  <path d="M60 10 Q92 14 96 48 Q92 82 60 84 Q28 80 26 50 Q28 24 52 20" fill="none" stroke="#22d3ee" stroke-width="1.5" opacity="0.3" stroke-linecap="round"/>
+  <path d="M52 20 Q78 18 84 44 Q82 70 60 74 Q38 72 34 50 Q36 30 54 26" fill="none" stroke="#22d3ee" stroke-width="1.8" opacity="0.4" stroke-linecap="round"/>
+  <path d="M54 26 Q72 24 76 44 Q74 62 60 66 Q46 64 42 50 Q44 36 56 32" fill="none" stroke="#67e8f9" stroke-width="2" opacity="0.55" stroke-linecap="round"/>
+  <path d="M56 32 Q68 30 70 44 Q68 56 60 58 Q52 56 50 48 Q52 40 58 38" fill="none" stroke="#67e8f9" stroke-width="2.2" opacity="0.7" stroke-linecap="round"/>
+  <path d="M58 38 Q64 36 66 44 Q64 50 60 52 Q56 50 55 46 Q56 42 60 42" fill="none" stroke="#a5f3fc" stroke-width="2.5" opacity="0.85" stroke-linecap="round"/>
+  <!-- Center bright point -->
+  <circle cx="60" cy="46" r="5" fill="#cffafe" opacity="0.6"/>
+  <circle cx="60" cy="46" r="3" fill="#ecfeff" opacity="0.8"/>
+  <circle cx="60" cy="46" r="1.5" fill="#fff" opacity="0.9"/>
+  <!-- Flying particles along spiral -->
+  <circle cx="88" cy="30" r="1.5" fill="#22d3ee" opacity="0.6"/>
+  <circle cx="32" cy="64" r="1.5" fill="#22d3ee" opacity="0.6"/>
+  <circle cx="76" cy="66" r="1.2" fill="#67e8f9" opacity="0.5"/>
+  <circle cx="40" cy="28" r="1.2" fill="#67e8f9" opacity="0.5"/>
+  <circle cx="70" cy="22" r="1" fill="#a5f3fc" opacity="0.7"/>
+  <circle cx="48" cy="72" r="1" fill="#a5f3fc" opacity="0.7"/>
+  <circle cx="90" cy="52" r="0.8" fill="#cffafe" opacity="0.4"/>
+  <circle cx="30" cy="42" r="0.8" fill="#cffafe" opacity="0.4"/>
+  <!-- Label -->
+  <text x="60" y="102" text-anchor="middle" font-family="serif" font-size="12" font-weight="bold" fill="#22d3ee">VORTEX</text>
+</svg>

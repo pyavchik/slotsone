@@ -62,6 +62,9 @@ export interface CreateRoundParams {
     winningNumber: number;
     winningColor: string;
   };
+  // Time Rewind metadata
+  isRewind?: boolean;
+  rewindTier?: string;
 }
 
 export async function createRound(params: CreateRoundParams): Promise<GameRound> {
