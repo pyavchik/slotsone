@@ -1,0 +1,47 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120">
+  <defs>
+    <linearGradient id="tm-bg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#3d2a0f"/>
+      <stop offset="100%" stop-color="#1a1005"/>
+    </linearGradient>
+    <linearGradient id="tm-metal" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#fcd34d"/>
+      <stop offset="100%" stop-color="#b45309"/>
+    </linearGradient>
+    <radialGradient id="tm-glow" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#fef3c7" stop-opacity="0.4"/>
+      <stop offset="100%" stop-color="#92400e" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+  <rect width="120" height="120" rx="12" fill="url(#tm-bg)"/>
+  <!-- Base platform -->
+  <ellipse cx="60" cy="80" rx="34" ry="8" fill="#78350f" stroke="#f59e0b" stroke-width="1"/>
+  <!-- Vertical pillars -->
+  <rect x="30" y="30" width="5" height="50" rx="2" fill="url(#tm-metal)" stroke="#d97706" stroke-width="0.5"/>
+  <rect x="85" y="30" width="5" height="50" rx="2" fill="url(#tm-metal)" stroke="#d97706" stroke-width="0.5"/>
+  <!-- Top arch -->
+  <path d="M32 32 Q32 10 60 8 Q88 10 88 32" fill="none" stroke="#f59e0b" stroke-width="3" stroke-linecap="round"/>
+  <path d="M34 32 Q34 14 60 12 Q86 14 86 32" fill="none" stroke="#fcd34d" stroke-width="1" opacity="0.4"/>
+  <!-- Central disk/portal -->
+  <circle cx="60" cy="48" r="20" fill="#1a1005" stroke="#f59e0b" stroke-width="2"/>
+  <circle cx="60" cy="48" r="16" fill="url(#tm-glow)" stroke="#d97706" stroke-width="1"/>
+  <!-- Inner clock face on device -->
+  <circle cx="60" cy="48" r="10" fill="none" stroke="#fcd34d" stroke-width="0.8"/>
+  <line x1="60" y1="48" x2="60" y2="40" stroke="#fcd34d" stroke-width="1.5" stroke-linecap="round"/>
+  <line x1="60" y1="48" x2="67" y2="44" stroke="#f59e0b" stroke-width="1" stroke-linecap="round"/>
+  <circle cx="60" cy="48" r="2" fill="#fcd34d"/>
+  <!-- Decorative bolts -->
+  <circle cx="38" cy="55" r="2.5" fill="#d97706" stroke="#fcd34d" stroke-width="0.5"/>
+  <circle cx="82" cy="55" r="2.5" fill="#d97706" stroke="#fcd34d" stroke-width="0.5"/>
+  <circle cx="60" cy="8" r="3" fill="#f59e0b" stroke="#fcd34d" stroke-width="0.5"/>
+  <!-- Small gears -->
+  <circle cx="42" cy="68" r="5" fill="none" stroke="#d97706" stroke-width="1.5"/>
+  <circle cx="42" cy="68" r="2" fill="#b45309"/>
+  <circle cx="78" cy="68" r="4" fill="none" stroke="#d97706" stroke-width="1.5"/>
+  <circle cx="78" cy="68" r="1.5" fill="#b45309"/>
+  <!-- Energy sparks -->
+  <circle cx="48" cy="24" r="1" fill="#fef3c7" opacity="0.7"/>
+  <circle cx="72" cy="24" r="1" fill="#fef3c7" opacity="0.7"/>
+  <!-- Label -->
+  <text x="60" y="102" text-anchor="middle" font-family="serif" font-size="9" font-weight="bold" fill="#f59e0b">TIME MACHINE</text>
+</svg>

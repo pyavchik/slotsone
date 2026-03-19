@@ -21,6 +21,13 @@ import {
   TopUpResponseSchema,
   TransactionSchema,
   WinBreakdownItemSchema,
+  RewindTierSchema,
+  RewindRequestSchema,
+  RewindSpinOutcomeSchema,
+  RewindAggregateSchema,
+  RewindOfferTierSchema,
+  RewindOfferSchema,
+  RewindResponseSchema,
 } from '../contracts/gameContract.js';
 import {
   RegisterRequestSchema,
@@ -122,6 +129,13 @@ const AmericanRouletteInitResponseRef = registry.register(
   AmericanRouletteInitResponseSchema
 );
 registry.register('AmericanRouletteConfig', AmericanRouletteConfigSchema);
+registry.register('RewindTier', RewindTierSchema);
+const RewindRequestRef = registry.register('RewindRequest', RewindRequestSchema);
+registry.register('RewindSpinOutcome', RewindSpinOutcomeSchema);
+registry.register('RewindAggregate', RewindAggregateSchema);
+registry.register('RewindOfferTier', RewindOfferTierSchema);
+registry.register('RewindOffer', RewindOfferSchema);
+const RewindResponseRef = registry.register('RewindResponse', RewindResponseSchema);
 
 registry.registerPath({
   method: 'post',
@@ -1001,6 +1015,78 @@ registry.registerPath({
     },
     422: {
       description: 'Validation or balance error',
+      content: {
+        'application/json': {
+          schema: ErrorResponseRef,
+        },
+      },
+    },
+  },
+});
+
+// ── Time Rewind ──
+
+registry.registerPath({
+  method: 'post',
+  path: '/api/v1/game/rewind',
+  tags: ['Game'],
+  summary: 'Accept Time Rewind offer',
+  description:
+    'Accept a rewind offer and execute 5 boosted spins. Only available for game_id: slot_time_rewind_001.',
+  security: [{ bearerAuth: [] }],
+  request: {
+    body: {
+      required: true,
+      content: {
+        'application/json': {
+          schema: RewindRequestRef,
+        },
+      },
+    },
+  },
+  responses: {
+    200: {
+      description: 'Rewind executed successfully',
+      content: {
+        'application/json': {
+          schema: RewindResponseRef,
+        },
+      },
+    },
+    400: {
+      description: 'Invalid request',
+      content: {
+        'application/json': {
+          schema: ErrorResponseRef,
+        },
+      },
+    },
+    403: {
+      description: 'Forbidden — wrong game or unauthorized session',
+      content: {
+        'application/json': {
+          schema: ErrorResponseRef,
+        },
+      },
+    },
+    409: {
+      description: 'Offer already accepted',
+      content: {
+        'application/json': {
+          schema: ErrorResponseRef,
+        },
+      },
+    },
+    410: {
+      description: 'Offer expired',
+      content: {
+        'application/json': {
+          schema: ErrorResponseRef,
+        },
+      },
+    },
+    422: {
+      description: 'Validation or business rule error',
       content: {
         'application/json': {
           schema: ErrorResponseRef,

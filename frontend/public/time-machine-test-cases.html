@@ -1,0 +1,1602 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Pyavchik Time Machine — Test Cases</title>
+    <style>
+      *, *::before, *::after { box-sizing: border-box; }
+
+      body {
+        margin: 0;
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+        background: linear-gradient(180deg, #0f1118 0%, #0b0d13 100%);
+        color: #f8fafc;
+        min-height: 100vh;
+        font-size: 14px;
+      }
+
+      .wrap {
+        max-width: 1080px;
+        margin: 0 auto;
+        padding: 28px 18px 56px;
+        display: flex;
+        flex-direction: column;
+        gap: 14px;
+      }
+
+      /* ── Cards ───────────────────────────────────── */
+      .card {
+        border: 1px solid rgba(255,255,255,0.13);
+        border-radius: 14px;
+        background: rgba(17,20,30,0.78);
+        padding: 20px 22px;
+      }
+
+      h1 { margin: 0 0 3px; font-size: 26px; letter-spacing: -.3px; }
+      .subtitle { margin: 0 0 14px; color: #94a3b8; font-size: 13px; }
+      h2 { margin: 0 0 14px; font-size: 16px; color: #f1f5f9; }
+      p  { margin: 0 0 10px; color: #dbe2ec; line-height: 1.55; }
+
+      /* ── Back link ───────────────────────────────── */
+      .back {
+        display: inline-flex; align-items: center; gap: 6px;
+        font-size: 13px; font-weight: 600; color: #94a3b8;
+        text-decoration: none;
+        border: 1px solid rgba(148,163,184,.3);
+        padding: 6px 12px; border-radius: 8px;
+        background: rgba(15,23,42,.5);
+        width: fit-content;
+      }
+      .back:hover { color: #f8fafc; border-color: rgba(148,163,184,.7); }
+
+      /* ── Stats ───────────────────────────────────── */
+      .stats { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 8px; }
+      .stat {
+        padding: 8px 14px; border-radius: 10px;
+        background: rgba(15,23,42,.65);
+        border: 1px solid rgba(148,163,184,.2);
+        font-size: 13px; color: #dbe2ec; text-align: center;
+      }
+      .stat strong { display: block; font-size: 22px; line-height: 1.15; color: #f8fafc; }
+
+      /* ── Controls ────────────────────────────────── */
+      .controls { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+
+      .filter-tabs { display: flex; flex-wrap: wrap; gap: 6px; flex: 1; }
+      .tab {
+        padding: 6px 14px; border-radius: 999px;
+        border: 1px solid rgba(148,163,184,.3);
+        background: transparent; color: #94a3b8;
+        font-size: 12px; font-weight: 700; cursor: pointer;
+        transition: border-color .15s, color .15s, background .15s;
+        white-space: nowrap;
+      }
+      .tab:hover { border-color: rgba(248,250,252,.5); color: #f8fafc; }
+      .tab.active {
+        border-color: rgba(248,250,252,.7); color: #f8fafc;
+        background: rgba(248,250,252,.08);
+      }
+
+      .search-wrap { position: relative; }
+      .search-wrap svg {
+        position: absolute; left: 10px; top: 50%; transform: translateY(-50%);
+        color: #64748b; pointer-events: none;
+      }
+      #search {
+        padding: 7px 10px 7px 32px; border-radius: 8px;
+        border: 1px solid rgba(148,163,184,.3);
+        background: rgba(15,23,42,.65); color: #f8fafc;
+        font-size: 13px; width: 220px; outline: none;
+      }
+      #search:focus { border-color: rgba(148,163,184,.7); }
+      #search::placeholder { color: #475569; }
+
+      .count-label { font-size: 12px; color: #475569; white-space: nowrap; }
+
+      /* ── Badges ──────────────────────────────────── */
+      .badge {
+        display: inline-block; padding: 2px 7px;
+        border-radius: 5px; font-size: 11px; font-weight: 700;
+        white-space: nowrap; letter-spacing: .02em;
+      }
+      .badge-core   { background: rgba(245,208,106,.15); color: #f5d06a; }
+      .badge-rewind { background: rgba(244,114,182,.15); color: #f472b6; }
+      .badge-math   { background: rgba(251,146,60,.15);  color: #fb923c; }
+      .badge-ui     { background: rgba(167,139,250,.18); color: #a78bfa; }
+      .badge-api    { background: rgba(62,224,169,.15);  color: #3ee0a9; }
+      .badge-nfr    { background: rgba(248,113,113,.15); color: #f87171; }
+
+      .prio { font-size: 11px; font-weight: 800; white-space: nowrap; }
+      .prio-HIGH { color: #f87171; }
+      .prio-MED  { color: #fbbf24; }
+      .prio-LOW  { color: #64748b; }
+
+      .status-badge {
+        padding: 2px 8px; border-radius: 5px; font-size: 11px; font-weight: 700; white-space: nowrap;
+      }
+      .status-not-run { background: rgba(100,116,139,.2); color: #94a3b8; }
+      .status-pass    { background: rgba(34,197,94,.15);  color: #4ade80; }
+      .status-fail    { background: rgba(248,113,113,.15);color: #f87171; }
+      .status-blocked { background: rgba(251,191,36,.15); color: #fbbf24; }
+
+      /* ── Table ───────────────────────────────────── */
+      .tc-table { width: 100%; border-collapse: collapse; }
+
+      .tc-table thead th {
+        text-align: left; padding: 9px 12px;
+        color: #64748b; font-size: 11px; font-weight: 700;
+        text-transform: uppercase; letter-spacing: .07em;
+        border-bottom: 1px solid rgba(255,255,255,.1);
+      }
+
+      .tc-row {
+        cursor: pointer;
+        transition: background .1s;
+      }
+      .tc-row:hover td { background: rgba(255,255,255,.04); }
+      .tc-row td {
+        padding: 10px 12px;
+        border-bottom: 1px solid rgba(255,255,255,.06);
+        vertical-align: middle;
+        color: #dbe2ec;
+      }
+      .tc-row.open td { border-bottom: none; }
+
+      .tc-id {
+        font-family: ui-monospace, monospace; font-size: 12px;
+        color: #62d7ff; white-space: nowrap;
+      }
+      .tc-title { color: #f1f5f9; line-height: 1.4; }
+      .tc-chevron {
+        transition: transform .2s; color: #475569;
+        display: inline-block;
+      }
+      .tc-row.open .tc-chevron { transform: rotate(90deg); }
+
+      /* ── Detail panel ────────────────────────────── */
+      .tc-detail-row td {
+        padding: 0;
+        border-bottom: 1px solid rgba(255,255,255,.08);
+      }
+      .tc-detail-panel {
+        display: none;
+        padding: 0 12px 18px 48px;
+        background: rgba(11,13,19,.6);
+      }
+      .tc-detail-panel.open { display: block; }
+
+      .detail-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 12px;
+        margin-top: 14px;
+      }
+      .detail-grid .full { grid-column: 1 / -1; }
+
+      .detail-field { display: flex; flex-direction: column; gap: 5px; }
+      .detail-label {
+        font-size: 10px; font-weight: 700; text-transform: uppercase;
+        letter-spacing: .08em; color: #64748b;
+      }
+      .detail-value {
+        color: #dbe2ec; line-height: 1.5; font-size: 13px;
+        padding: 8px 10px; border-radius: 8px;
+        background: rgba(15,23,42,.55);
+        border: 1px solid rgba(148,163,184,.12);
+      }
+      .detail-value.none { color: #475569; font-style: italic; }
+      .detail-value code {
+        font-family: ui-monospace, monospace;
+        font-size: 12px; color: #a78bfa;
+        background: rgba(167,139,250,.1);
+        padding: 1px 4px; border-radius: 3px;
+      }
+
+      .steps-list {
+        margin: 0; padding: 0; list-style: none;
+        display: flex; flex-direction: column; gap: 5px;
+      }
+      .steps-list li {
+        display: flex; gap: 8px; align-items: flex-start;
+        font-size: 13px; color: #dbe2ec; line-height: 1.5;
+      }
+      .step-num {
+        min-width: 20px; height: 20px; border-radius: 999px;
+        background: rgba(98,215,255,.15); color: #62d7ff;
+        font-size: 10px; font-weight: 800;
+        display: flex; align-items: center; justify-content: center;
+        margin-top: 1px; flex-shrink: 0;
+      }
+
+      .actual-placeholder { color: #475569; font-style: italic; }
+
+      /* ── Empty state ─────────────────────────────── */
+      .empty-row td {
+        padding: 40px 12px; text-align: center;
+        color: #475569; font-style: italic;
+        border-bottom: none;
+      }
+
+      /* ── Legend ──────────────────────────────────── */
+      .legend {
+        display: flex; flex-wrap: wrap; gap: 10px;
+        align-items: center; font-size: 12px; color: #64748b;
+      }
+      .legend-sep { width: 1px; height: 14px; background: rgba(255,255,255,.1); }
+
+      /* ── Responsive ──────────────────────────────── */
+      @media (max-width: 700px) {
+        .wrap { padding: 14px 12px 40px; }
+        .card { padding: 16px; }
+        .detail-grid { grid-template-columns: 1fr; }
+        .detail-grid .full { grid-column: auto; }
+        .tc-detail-panel { padding-left: 12px; }
+        #search { width: 100%; }
+        .search-wrap { width: 100%; }
+        .col-module, .col-prio, .col-status { display: none; }
+      }
+    </style>
+  </head>
+  <body>
+    <main class="wrap">
+      <a class="back" href="/">&#8592; Back to CV</a>
+
+      <!-- Header -->
+      <section class="card">
+        <h1>Pyavchik Time Machine &mdash; Test Cases</h1>
+        <p class="subtitle">SlotsOne &mdash; Time Rewind Slot Game | v1.0 | Last updated: 2026-03-19</p>
+        <div class="stats" id="stats-row">
+          <!-- populated by JS -->
+        </div>
+      </section>
+
+      <!-- Controls -->
+      <section class="card">
+        <div class="controls">
+          <div class="filter-tabs" id="filter-tabs">
+            <button class="tab active" data-module="ALL">All</button>
+            <button class="tab" data-module="Core">Core</button>
+            <button class="tab" data-module="Rewind">Rewind</button>
+            <button class="tab" data-module="Math">Math</button>
+            <button class="tab" data-module="UI">UI</button>
+            <button class="tab" data-module="API">API</button>
+            <button class="tab" data-module="NFR">NFR</button>
+          </div>
+          <div class="search-wrap">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+              <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
+            </svg>
+            <input id="search" type="text" placeholder="Search test cases…" autocomplete="off" />
+          </div>
+          <span class="count-label" id="count-label"></span>
+        </div>
+      </section>
+
+      <!-- Table -->
+      <section class="card" style="padding: 0 0 4px;">
+        <table class="tc-table">
+          <thead>
+            <tr>
+              <th style="width:120px">ID</th>
+              <th class="col-module" style="width:80px">Module</th>
+              <th>Title</th>
+              <th class="col-prio" style="width:60px">Priority</th>
+              <th class="col-status" style="width:80px">Status</th>
+              <th style="width:30px"></th>
+            </tr>
+          </thead>
+          <tbody id="tc-tbody">
+            <!-- populated by JS -->
+          </tbody>
+        </table>
+      </section>
+
+      <!-- Legend -->
+      <section class="card">
+        <div class="legend">
+          <span><span class="badge badge-core">CORE</span> Core Mechanics</span>
+          <span><span class="badge badge-rewind">REWIND</span> Time Rewind</span>
+          <span><span class="badge badge-math">MATH</span> Math Model</span>
+          <span><span class="badge badge-ui">UI</span> User Interface</span>
+          <span><span class="badge badge-api">API</span> API Endpoints</span>
+          <span><span class="badge badge-nfr">NFR</span> Non-Functional</span>
+          <span class="legend-sep"></span>
+          <span class="prio prio-HIGH">HIGH</span>
+          <span class="prio prio-MED">MED</span>
+          <span class="prio prio-LOW">LOW</span>
+          <span class="legend-sep"></span>
+          <a href="/time-machine-requirements.html" target="_blank" rel="noreferrer" style="color:#62d7ff">Requirements</a>
+        </div>
+      </section>
+    </main>
+
+    <script>
+      /* ─────────────────────────────────────────────────────────────────────
+         TEST CASE DATA
+         Fields: id, module, priority, title, preconditions,
+                 steps (array), testData (string|null), expected
+      ───────────────────────────────────────────────────────────────────── */
+      const CASES = [
+
+        /* ═══════════════════  Core — Core Mechanics  ══════════════════════ */
+        {
+          id: 'TC-TR-CORE-01', module: 'Core', priority: 'HIGH',
+          title: 'Verify 5x3 reel grid displays 15 symbols across 15 paylines',
+          preconditions: 'Game loaded. Session initialized via POST /game/init. Valid JWT.',
+          steps: [
+            'Send POST /api/v1/game/init with a valid Authorization header.',
+            'Verify response contains config.reels = 5 and config.rows = 3.',
+            'Verify config.paylines = 15.',
+            'Perform a spin and inspect outcome.reel_matrix dimensions.',
+            'Confirm reel_matrix is a 5-column by 3-row grid (15 total cells).'
+          ],
+          testData: 'config.reels = 5, config.rows = 3, config.paylines = 15',
+          expected: 'Init response config shows reels=5, rows=3, paylines=15. Spin outcome reel_matrix is an array of 5 columns, each with 3 symbols. Total visible symbols = 15.'
+        },
+        {
+          id: 'TC-TR-CORE-02', module: 'Core', priority: 'HIGH',
+          title: 'Verify all 9 symbols render correctly on the reel grid',
+          preconditions: 'Game loaded. Session initialized. Paytable accessible from config.',
+          steps: [
+            'Retrieve paytable from init response config.',
+            'Verify paytable contains exactly 9 symbol entries.',
+            'Confirm symbols: Gear, Hourglass, Clock, Compass, Crystal, Portal, TimeMachine, ChronoWild, VortexScatter.',
+            'Perform 50 spins and collect all symbols that appear in reel_matrix.',
+            'Verify all 9 symbol types appear at least once across the 50 spins.'
+          ],
+          testData: 'Expected symbols: [Gear, Hourglass, Clock, Compass, Crystal, Portal, TimeMachine, ChronoWild, VortexScatter]',
+          expected: 'Paytable contains exactly 9 symbol definitions. After sufficient spins, all 9 symbol types appear in the reel_matrix. Each symbol renders without visual glitches on the PixiJS canvas.'
+        },
+        {
+          id: 'TC-TR-CORE-03', module: 'Core', priority: 'HIGH',
+          title: 'Verify Chrono Wild substitutes for all symbols except Vortex Scatter',
+          preconditions: 'Game loaded. Active session with sufficient balance.',
+          steps: [
+            'Verify paytable defines ChronoWild with substitutes_all_except = ["VortexScatter"].',
+            'Perform spins until a ChronoWild appears on a payline adjacent to paying symbols.',
+            'Verify the win breakdown credits the ChronoWild as the substituted symbol.',
+            'Verify that ChronoWild does NOT substitute for VortexScatter (free spin trigger requires actual scatter symbols).',
+            'Confirm ChronoWild alone does not form its own winning combination.'
+          ],
+          testData: 'ChronoWild.substitutes_all_except = ["VortexScatter"]',
+          expected: 'ChronoWild substitutes for any symbol on a payline except VortexScatter. Win breakdown includes ChronoWild as part of the matched combination. Scatter trigger count does not include ChronoWild.'
+        },
+        {
+          id: 'TC-TR-CORE-04', module: 'Core', priority: 'HIGH',
+          title: 'Verify Vortex Scatter free spins trigger (3=8, 4=12, 5=20)',
+          preconditions: 'Game loaded. Active session with sufficient balance for many spins.',
+          steps: [
+            'Perform repeated spins until bonus_triggered is not null.',
+            'When 3 VortexScatter symbols land, verify bonus_triggered.free_spins_count = 8.',
+            'Continue spinning until 4 VortexScatter symbols land; verify free_spins_count = 12.',
+            'Continue spinning until 5 VortexScatter symbols land; verify free_spins_count = 20.',
+            'Verify scatter symbols are counted across all reels regardless of payline position.'
+          ],
+          testData: 'Scatter trigger map: {3: 8, 4: 12, 5: 20} free spins',
+          expected: '3 scatters = 8 free spins, 4 scatters = 12 free spins, 5 scatters = 20 free spins. bonus_triggered.type = "free_spins". Scatters counted anywhere on the grid, not restricted to paylines.'
+        },
+        {
+          id: 'TC-TR-CORE-05', module: 'Core', priority: 'HIGH',
+          title: 'Verify paytable multipliers for 3/4/5 of a kind',
+          preconditions: 'Game loaded. Paytable accessible from init config.',
+          steps: [
+            'Retrieve paytable from init response.',
+            'For each symbol, verify multiplier values for 3, 4, and 5 of a kind.',
+            'Verify low symbols (Gear, Hourglass, Clock): 3x=5-8, 4x=15-25, 5x=40-75.',
+            'Verify mid symbols (Compass, Crystal): 3x=10-15, 4x=30-50, 5x=100-150.',
+            'Verify high symbols (Portal, TimeMachine): 3x=20-25, 4x=75-100, 5x=250-500.',
+            'Confirm multipliers are strictly increasing: 3-of-a-kind < 4-of-a-kind < 5-of-a-kind for every symbol.'
+          ],
+          testData: 'Paytable from config response. Low: Gear/Hourglass/Clock, Mid: Compass/Crystal, High: Portal/TimeMachine.',
+          expected: 'All 7 paying symbols have defined multipliers for 3, 4, and 5 of a kind. Multipliers increase monotonically. Low < Mid < High tier ordering is maintained.'
+        },
+        {
+          id: 'TC-TR-CORE-06', module: 'Core', priority: 'HIGH',
+          title: 'Verify bet levels $0.15 to $150',
+          preconditions: 'Game loaded. Init response available.',
+          steps: [
+            'Retrieve config.bet_levels from init response.',
+            'Verify minimum bet = $0.15 (15 lines x $0.01 per line).',
+            'Verify maximum bet = $150.00 (15 lines x $10.00 per line).',
+            'Verify all intermediate bet levels are present and sorted ascending.',
+            'Perform a spin with each bet level and confirm acceptance.'
+          ],
+          testData: 'config.bet_levels: min = 0.15, max = 150.00',
+          expected: 'bet_levels array starts at 0.15, ends at 150.00. All bet levels are accepted by the spin endpoint. Array is sorted in ascending order with no duplicates.'
+        },
+        {
+          id: 'TC-TR-CORE-07', module: 'Core', priority: 'HIGH',
+          title: 'Verify min/max bet validation returns 400',
+          preconditions: 'Game loaded. Active session.',
+          steps: [
+            'Send a spin request with bet.amount = 0.01 (below minimum 0.15).',
+            'Verify HTTP 400 response with appropriate error code.',
+            'Send a spin request with bet.amount = 200.00 (above maximum 150.00).',
+            'Verify HTTP 400 response with appropriate error code.',
+            'Verify balance is unchanged after both rejected requests.'
+          ],
+          testData: 'Below min: bet.amount = 0.01. Above max: bet.amount = 200.00. Valid range: 0.15-150.00.',
+          expected: 'HTTP 400 for both requests. Error code indicates invalid bet amount. Balance remains unchanged. No spin is recorded in history.'
+        },
+        {
+          id: 'TC-TR-CORE-08', module: 'Core', priority: 'HIGH',
+          title: 'Verify left-to-right payline evaluation (longest match only)',
+          preconditions: 'Game loaded. Active session with sufficient balance.',
+          steps: [
+            'Perform spins until a payline has 3-of-a-kind from the left.',
+            'Verify win_breakdown shows the 3-of-a-kind payout for that payline.',
+            'Perform spins until a payline has 4-of-a-kind from the left.',
+            'Verify win_breakdown shows the 4-of-a-kind payout (not 3-of-a-kind + separate match).',
+            'Verify no right-to-left matches are evaluated.',
+            'Verify only the longest contiguous left-to-right match is paid per payline.'
+          ],
+          testData: null,
+          expected: 'Paylines are evaluated left-to-right only. The longest contiguous match from reel 1 determines the payout. A 4-of-a-kind pays the 4x multiplier, not a 3x plus a separate match. No right-to-left evaluation occurs.'
+        },
+        {
+          id: 'TC-TR-CORE-09', module: 'Core', priority: 'HIGH',
+          title: 'Verify win calculation formula (bet_per_line x multiplier)',
+          preconditions: 'Game loaded. Active session. Paytable known.',
+          steps: [
+            'Set bet.amount = 1.50 (15 lines x $0.10 per line).',
+            'Perform a spin that results in a win.',
+            'From win_breakdown, identify the symbol, match count, and payline.',
+            'Look up the multiplier from the paytable for that symbol/match count.',
+            'Calculate expected: bet_per_line ($0.10) x multiplier = expected_line_win.',
+            'Verify the line win in win_breakdown matches the calculated value.',
+            'Verify total win = sum of all line wins.'
+          ],
+          testData: 'bet.amount = 1.50, lines = 15, bet_per_line = 0.10',
+          expected: 'Each line win = bet_per_line x paytable_multiplier for the matched symbol/count. Total win = sum of all winning paylines. Values match to 2 decimal places.'
+        },
+        {
+          id: 'TC-TR-CORE-10', module: 'Core', priority: 'HIGH',
+          title: 'Verify RNG independence (fresh seed per spin, Mulberry32)',
+          preconditions: 'Game loaded. Provably fair seed pair active.',
+          steps: [
+            'Retrieve current seed pair via GET /game/provably-fair/current.',
+            'Note the nonce value.',
+            'Perform 3 consecutive spins.',
+            'Retrieve the updated seed pair and verify nonce incremented by 3.',
+            'Rotate the seed pair to reveal the server_seed.',
+            'For each spin, compute HMAC-SHA256(server_seed, client_seed:nonce) and verify it produces the same reel_matrix.',
+            'Verify each spin used a unique nonce (no nonce reuse).'
+          ],
+          testData: 'Seed derivation: HMAC-SHA256(server_seed, client_seed:nonce). RNG: Mulberry32.',
+          expected: 'Each spin uses a unique nonce (incremented by 1). The derived seed produces a deterministic reel_matrix via Mulberry32 PRNG. No two spins share the same derived seed. Outcomes are independently verifiable.'
+        },
+        {
+          id: 'TC-TR-CORE-11', module: 'Core', priority: 'LOW',
+          title: 'Verify idle matrix is cosmetic (non-deterministic)',
+          preconditions: 'Game loaded. Init response available.',
+          steps: [
+            'Call POST /game/init and record idle_matrix from the response.',
+            'Call POST /game/init again (new session) and record the second idle_matrix.',
+            'Compare the two idle matrices.',
+            'Verify idle_matrix is 5x3 grid of valid symbols.',
+            'Verify idle_matrix has no effect on the first spin outcome.'
+          ],
+          testData: null,
+          expected: 'idle_matrix is a 5x3 grid of valid symbol IDs. Two consecutive init calls may produce different idle matrices (non-deterministic). The idle matrix is purely cosmetic and does not influence spin outcomes.'
+        },
+        {
+          id: 'TC-TR-CORE-12', module: 'Core', priority: 'HIGH',
+          title: 'Verify session init returns game config, balance, and idle matrix',
+          preconditions: 'Valid JWT. Backend running.',
+          steps: [
+            'Send POST /api/v1/game/init with Authorization header.',
+            'Verify response contains session_id (string).',
+            'Verify response contains game_id = "time_machine".',
+            'Verify config includes: reels=5, rows=3, paylines=15, bet_levels[], paytable.',
+            'Verify balance contains amount (number) and currency ("USD").',
+            'Verify idle_matrix is a 5x3 array of symbol identifiers.',
+            'Verify expires_at is a valid ISO timestamp in the future.'
+          ],
+          testData: 'Authorization: Bearer <valid JWT>.',
+          expected: 'HTTP 200. Body: { session_id, game_id: "time_machine", config: { reels: 5, rows: 3, paylines: 15, bet_levels, paytable }, balance: { amount, currency: "USD" }, idle_matrix: 5x3, expires_at }.'
+        },
+        {
+          id: 'TC-TR-CORE-13', module: 'Core', priority: 'HIGH',
+          title: 'Verify balance = previous - bet + winnings',
+          preconditions: 'Game loaded. Active session. Balance known.',
+          steps: [
+            'Record balance_before from the most recent response.',
+            'Send a spin with bet.amount = 1.50.',
+            'Record win.amount and balance.amount from the spin response.',
+            'Calculate expected_balance = balance_before - 1.50 + win.amount.',
+            'Compare expected_balance with actual balance.amount.',
+            'Repeat for 10 consecutive spins, checking each transition.'
+          ],
+          testData: 'bet.amount = 1.50, currency = "USD".',
+          expected: 'For every spin: balance_after = balance_before - bet.amount + win.amount. Values match to 2 decimal places (tolerance: +/- 0.001). No rounding drift over 10 spins.'
+        },
+        {
+          id: 'TC-TR-CORE-14', module: 'Core', priority: 'HIGH',
+          title: 'Verify insufficient balance returns 400 INSUFFICIENT_BALANCE',
+          preconditions: 'Active session. Balance below the requested bet amount.',
+          steps: [
+            'Drain the balance to near-zero by performing spins.',
+            'Attempt a spin with bet.amount exceeding the remaining balance.',
+            'Check the HTTP response status code and error code.',
+            'Verify balance remains unchanged after the rejected spin.'
+          ],
+          testData: 'Remaining balance < bet.amount requested.',
+          expected: 'HTTP 400. Body: { error: "Insufficient balance", code: "INSUFFICIENT_BALANCE" }. Balance unchanged. No spin recorded.'
+        },
+        {
+          id: 'TC-TR-CORE-15', module: 'Core', priority: 'HIGH',
+          title: 'Verify spin idempotency (same key = same result)',
+          preconditions: 'Active session. Sufficient balance.',
+          steps: [
+            'Send POST /api/v1/spin with Idempotency-Key: "idem-tr-001".',
+            'Record spin_id, reel_matrix, win, and balance from the response.',
+            'Send the exact same request with the same Idempotency-Key: "idem-tr-001".',
+            'Compare all fields from both responses.',
+            'Verify balance was debited only once.'
+          ],
+          testData: 'Idempotency-Key: "idem-tr-001". Same request body both times.',
+          expected: 'Both responses return identical spin_id, reel_matrix, and win values. Balance is debited exactly once. Second request returns cached result without re-executing the spin.'
+        },
+
+        /* ═══════════════════  Rewind — Time Rewind Feature  ══════════════════════ */
+        {
+          id: 'TC-TR-REWIND-01', module: 'Rewind', priority: 'HIGH',
+          title: 'Verify losing streak increments on zero-win spins',
+          preconditions: 'Active session. Sufficient balance for multiple spins.',
+          steps: [
+            'Record the current losing_streak value (0 at session start).',
+            'Perform a spin that results in zero win (win.amount = 0).',
+            'Verify the spin response includes losing_streak incremented by 1.',
+            'Perform another zero-win spin.',
+            'Verify losing_streak incremented to 2.',
+            'Perform a winning spin (win.amount > 0).',
+            'Verify losing_streak resets to 0.'
+          ],
+          testData: 'Win threshold for streak: win.amount = 0.',
+          expected: 'Each consecutive zero-win spin increments losing_streak by 1. Any winning spin resets losing_streak to 0. The counter is accurately tracked in the spin response.'
+        },
+        {
+          id: 'TC-TR-REWIND-02', module: 'Rewind', priority: 'HIGH',
+          title: 'Verify rewind triggers after 5 consecutive losses with 35% probability',
+          preconditions: 'Active session. losing_streak >= 5.',
+          steps: [
+            'Perform spins until losing_streak reaches 5.',
+            'Check if the spin response contains rewind_offer (non-null).',
+            'If no offer, continue spinning (each subsequent loss also has 35% chance).',
+            'Repeat the experiment 100 times across sessions.',
+            'Calculate the observed trigger rate.',
+            'Verify the trigger rate falls within the expected statistical range (35% +/- 10% at p=0.05).'
+          ],
+          testData: 'Trigger threshold: losing_streak >= 5. Probability: 35% per eligible spin.',
+          expected: 'Rewind offer appears only when losing_streak >= 5. Over 100 trials, the trigger rate is approximately 35% (within statistical tolerance). The offer never triggers before 5 consecutive losses.'
+        },
+        {
+          id: 'TC-TR-REWIND-03', module: 'Rewind', priority: 'HIGH',
+          title: 'Verify rewind modal displays 3 tiers plus skip button',
+          preconditions: 'Rewind offer triggered in the spin response.',
+          steps: [
+            'Perform spins until rewind_offer is non-null in the response.',
+            'Verify rewind_offer contains exactly 3 tier objects.',
+            'Verify tier 1 (Safe): cost_multiplier=1.5, wild_boost=0.10, spins=5.',
+            'Verify tier 2 (Standard): cost_multiplier=2.0, wild_boost=0.15, spins=5.',
+            'Verify tier 3 (Super): cost_multiplier=3.0, wild_boost=0.25, spins=5.',
+            'Verify each tier includes a descriptive label and calculated cost.',
+            'Verify a skip option is available (can_skip = true).'
+          ],
+          testData: 'rewind_offer: { tiers: [Safe, Standard, Super], can_skip: true }',
+          expected: 'Three tiers presented with correct cost multipliers, wild boosts, and spin counts. Each tier cost = current_bet x cost_multiplier. Skip option always available. Modal displays all information clearly.'
+        },
+        {
+          id: 'TC-TR-REWIND-04', module: 'Rewind', priority: 'HIGH',
+          title: 'Verify Standard rewind: 2x bet cost, +15% wild boost, 5 spins',
+          preconditions: 'Rewind offer triggered. Sufficient balance for Standard tier.',
+          steps: [
+            'Note balance_before and current bet amount.',
+            'Select the Standard rewind tier via POST /game/rewind.',
+            'Verify the debit amount = bet x 2.0.',
+            'Verify the response indicates 5 rewind spins will be played.',
+            'Verify each rewind spin has boosted wild probability (+15%).',
+            'After all 5 spins complete, verify aggregated results returned.',
+            'Verify balance = balance_before - (bet x 2.0) + total_rewind_winnings.'
+          ],
+          testData: 'Standard tier: cost_multiplier=2.0, wild_boost=0.15, spins=5.',
+          expected: 'Wallet debited by bet x 2.0 atomically. 5 rewind spins executed with +15% wild frequency boost. Aggregated results show total_wagered, total_won, and net_result. Balance correctly reflects all transactions.'
+        },
+        {
+          id: 'TC-TR-REWIND-05', module: 'Rewind', priority: 'HIGH',
+          title: 'Verify Safe rewind: 1.5x bet cost, +10% wild boost, 5 spins',
+          preconditions: 'Rewind offer triggered. Sufficient balance for Safe tier.',
+          steps: [
+            'Note balance_before and current bet amount.',
+            'Select the Safe rewind tier via POST /game/rewind.',
+            'Verify the debit amount = bet x 1.5.',
+            'Verify 5 rewind spins are executed.',
+            'Verify wild frequency is boosted by +10% on reel strips.',
+            'After completion, verify aggregated results.',
+            'Verify final balance matches expected calculation.'
+          ],
+          testData: 'Safe tier: cost_multiplier=1.5, wild_boost=0.10, spins=5.',
+          expected: 'Wallet debited by bet x 1.5 atomically. 5 rewind spins with +10% wild boost. Total cost is the lowest of all tiers. Balance after = balance_before - (bet x 1.5) + total_rewind_winnings.'
+        },
+        {
+          id: 'TC-TR-REWIND-06', module: 'Rewind', priority: 'HIGH',
+          title: 'Verify Super rewind: 3x bet cost, +25% wild boost, 5 spins',
+          preconditions: 'Rewind offer triggered. Sufficient balance for Super tier.',
+          steps: [
+            'Note balance_before and current bet amount.',
+            'Select the Super rewind tier via POST /game/rewind.',
+            'Verify the debit amount = bet x 3.0.',
+            'Verify 5 rewind spins are executed.',
+            'Verify wild frequency is boosted by +25% on reel strips.',
+            'After completion, verify aggregated results.',
+            'Verify final balance matches expected calculation.'
+          ],
+          testData: 'Super tier: cost_multiplier=3.0, wild_boost=0.25, spins=5.',
+          expected: 'Wallet debited by bet x 3.0 atomically. 5 rewind spins with +25% wild boost (highest boost). Total cost is the highest of all tiers. Balance after = balance_before - (bet x 3.0) + total_rewind_winnings.'
+        },
+        {
+          id: 'TC-TR-REWIND-07', module: 'Rewind', priority: 'HIGH',
+          title: 'Verify player can skip rewind offer',
+          preconditions: 'Rewind offer triggered. Balance sufficient for any tier.',
+          steps: [
+            'Note balance_before when rewind offer appears.',
+            'Send POST /game/rewind with tier = "skip".',
+            'Verify HTTP 200 response with rewind_skipped = true.',
+            'Verify balance remains unchanged (no debit).',
+            'Verify the losing streak is reset.',
+            'Verify the next spin proceeds normally without rewind context.'
+          ],
+          testData: 'tier = "skip"',
+          expected: 'HTTP 200. rewind_skipped = true. Balance unchanged. Losing streak resets to 0. Game resumes normal play on the next spin.'
+        },
+        {
+          id: 'TC-TR-REWIND-08', module: 'Rewind', priority: 'HIGH',
+          title: 'Verify fresh RNG seed per rewind spin',
+          preconditions: 'Rewind accepted. Provably fair seed pair active.',
+          steps: [
+            'Accept a rewind (any tier) and let 5 rewind spins execute.',
+            'After rewind completes, rotate the seed pair to reveal the server_seed.',
+            'For each rewind spin, verify the nonce used was unique and sequential.',
+            'Compute HMAC-SHA256(server_seed, client_seed:nonce) for each rewind spin.',
+            'Verify each derived seed produces the matching reel_matrix.'
+          ],
+          testData: 'Seed derivation: HMAC-SHA256(server_seed, client_seed:nonce). Nonces sequential.',
+          expected: 'Each of the 5 rewind spins uses a unique, sequential nonce. Derived seeds are all different. Each reel_matrix is independently verifiable via the provably fair algorithm.'
+        },
+        {
+          id: 'TC-TR-REWIND-09', module: 'Rewind', priority: 'HIGH',
+          title: 'Verify atomic wallet debit for total rewind cost',
+          preconditions: 'Rewind offer triggered. Balance sufficient.',
+          steps: [
+            'Note balance_before.',
+            'Accept the Standard rewind (cost = bet x 2.0).',
+            'Verify a single debit transaction is recorded (not 5 individual debits).',
+            'Query GET /game/history and verify the rewind has one cost transaction.',
+            'Verify the debit amount matches exactly bet x cost_multiplier.',
+            'Verify wallet version incremented by 1 (single atomic operation).'
+          ],
+          testData: 'Standard tier: total_cost = bet x 2.0. Single atomic debit.',
+          expected: 'One debit transaction recorded for the full rewind cost. Not split into per-spin debits. Wallet version incremented once. Transaction amount = bet x cost_multiplier exactly.'
+        },
+        {
+          id: 'TC-TR-REWIND-10', module: 'Rewind', priority: 'HIGH',
+          title: 'Verify boosted wild frequency on reel strips during rewind',
+          preconditions: 'Active session. Ability to run statistical analysis over many rewinds.',
+          steps: [
+            'Perform 100 Standard rewinds (500 total rewind spins) and count ChronoWild appearances.',
+            'Perform 100 normal spins and count ChronoWild appearances.',
+            'Calculate wild frequency for rewind spins vs. normal spins.',
+            'Verify rewind wild frequency is approximately 15% higher than base.',
+            'Repeat for Safe (+10%) and Super (+25%) tiers.',
+            'Verify the boost magnitude corresponds to the tier selected.'
+          ],
+          testData: 'Base wild frequency ~X%. Safe boost: +10%, Standard: +15%, Super: +25%.',
+          expected: 'Rewind spins show statistically higher wild frequency than base game. Standard boost is approximately +15% over base. Safe is +10%, Super is +25%. Results are within expected statistical variance.'
+        },
+        {
+          id: 'TC-TR-REWIND-11', module: 'Rewind', priority: 'HIGH',
+          title: 'Verify streak resets after rewind (accept or skip)',
+          preconditions: 'Rewind offer triggered. losing_streak >= 5.',
+          steps: [
+            'Verify losing_streak >= 5 before rewind offer.',
+            'Accept the rewind offer (any tier).',
+            'After rewind completes, perform a new spin.',
+            'Verify the spin response shows losing_streak = 0.',
+            'Repeat the test but skip the rewind offer instead.',
+            'Verify losing_streak also resets to 0 after skipping.'
+          ],
+          testData: null,
+          expected: 'Whether the player accepts or skips the rewind offer, losing_streak resets to 0. The next spin starts with a clean streak counter.'
+        },
+        {
+          id: 'TC-TR-REWIND-12', module: 'Rewind', priority: 'HIGH',
+          title: 'Verify balance validation per tier availability',
+          preconditions: 'Rewind offer triggered. Balance known.',
+          steps: [
+            'Set balance to exactly bet x 2.0 (enough for Safe and Standard, not Super).',
+            'Trigger a rewind offer.',
+            'Verify Safe tier (cost = bet x 1.5) is marked as available.',
+            'Verify Standard tier (cost = bet x 2.0) is marked as available.',
+            'Verify Super tier (cost = bet x 3.0) is marked as unavailable/disabled.',
+            'Attempt to select Super tier via API.',
+            'Verify HTTP 400 with INSUFFICIENT_BALANCE error.'
+          ],
+          testData: 'Balance = bet x 2.0. Safe cost = bet x 1.5, Standard cost = bet x 2.0, Super cost = bet x 3.0.',
+          expected: 'Tiers with cost <= balance are available. Tiers with cost > balance are marked unavailable. Attempting to select an unaffordable tier returns HTTP 400 INSUFFICIENT_BALANCE.'
+        },
+        {
+          id: 'TC-TR-REWIND-13', module: 'Rewind', priority: 'HIGH',
+          title: 'Verify rewind result aggregation (total wagered/won/net)',
+          preconditions: 'Rewind accepted and completed.',
+          steps: [
+            'Accept a Standard rewind and let all 5 spins complete.',
+            'Inspect the rewind response for aggregated results.',
+            'Verify total_wagered = rewind cost (bet x cost_multiplier).',
+            'Verify total_won = sum of all 5 rewind spin win amounts.',
+            'Verify net_result = total_won - total_wagered.',
+            'Verify individual spin results are included in the spins[] array.',
+            'Verify each spin in spins[] has reel_matrix, win, and is_rewind=true.'
+          ],
+          testData: 'Standard rewind: 5 spins, cost_multiplier=2.0.',
+          expected: 'Response includes: total_wagered, total_won, net_result, and spins[] array with 5 entries. total_won = sum(spins[].win.amount). net_result = total_won - total_wagered. Each spin flagged with is_rewind=true.'
+        },
+        {
+          id: 'TC-TR-REWIND-14', module: 'Rewind', priority: 'MED',
+          title: 'Verify rewind spins flagged with is_rewind in history',
+          preconditions: 'At least one rewind completed. Valid access_token.',
+          steps: [
+            'Complete a rewind with 5 spins.',
+            'Send GET /api/v1/game/history.',
+            'Locate the rewind spin records in the history.',
+            'Verify each rewind spin has is_rewind = true.',
+            'Verify normal spins before/after have is_rewind = false or absent.',
+            'Verify round detail for a rewind spin also includes is_rewind flag.'
+          ],
+          testData: null,
+          expected: 'Rewind spins in history have is_rewind = true. Normal spins have is_rewind = false. The flag allows filtering and distinguishing rewind spins from regular play in history views.'
+        },
+        {
+          id: 'TC-TR-REWIND-15', module: 'Rewind', priority: 'HIGH',
+          title: 'Verify rewind idempotency key',
+          preconditions: 'Rewind offer triggered. Sufficient balance.',
+          steps: [
+            'Send POST /game/rewind with Idempotency-Key: "rewind-idem-001" and tier = "standard".',
+            'Record the complete response.',
+            'Send the exact same request with the same Idempotency-Key.',
+            'Verify the second response is identical to the first.',
+            'Verify the wallet was debited only once.',
+            'Send the same Idempotency-Key with a different tier.',
+            'Verify HTTP 409 conflict response.'
+          ],
+          testData: 'Idempotency-Key: "rewind-idem-001". Same request body.',
+          expected: 'Duplicate request returns identical cached response. Wallet debited once. Reusing the key with a different tier returns HTTP 409.'
+        },
+        {
+          id: 'TC-TR-REWIND-16', module: 'Rewind', priority: 'MED',
+          title: 'Verify rewind only available for Time Machine game_id',
+          preconditions: 'Two sessions: one for time_machine, one for another game.',
+          steps: [
+            'Initialize a session for game_id = "time_machine".',
+            'Trigger a rewind offer on the time_machine session.',
+            'Verify rewind_offer is present in the spin response.',
+            'Initialize a session for a different game_id (e.g., "mega_fortune").',
+            'Perform losing spins on the other game.',
+            'Verify rewind_offer is never triggered for non-time_machine games.'
+          ],
+          testData: 'game_id: "time_machine" vs. other game IDs.',
+          expected: 'Rewind offers only appear for game_id = "time_machine". Other games never include rewind_offer in their spin responses, regardless of losing streak length.'
+        },
+        {
+          id: 'TC-TR-REWIND-17', module: 'Rewind', priority: 'MED',
+          title: 'Verify rewind offer expires after 30 seconds',
+          preconditions: 'Rewind offer triggered.',
+          steps: [
+            'Record the timestamp when rewind_offer appears.',
+            'Wait 31 seconds without making a rewind selection.',
+            'Send POST /game/rewind with tier = "standard".',
+            'Verify the response indicates the offer has expired.',
+            'Verify balance was not debited.',
+            'Verify the losing streak is reset (offer consumed by timeout).'
+          ],
+          testData: 'rewind_offer.expires_at = 30 seconds from offer time.',
+          expected: 'After 30 seconds, the rewind offer expires. Attempting to accept returns HTTP 410 Gone or equivalent error. Balance unchanged. Streak resets.'
+        },
+        {
+          id: 'TC-TR-REWIND-18', module: 'Rewind', priority: 'HIGH',
+          title: 'Verify concurrent rewind prevention (409 Conflict)',
+          preconditions: 'Rewind offer triggered.',
+          steps: [
+            'Send two simultaneous POST /game/rewind requests with different Idempotency-Keys but the same session.',
+            'First request: tier = "standard", key = "conc-001".',
+            'Second request: tier = "safe", key = "conc-002".',
+            'Verify one request succeeds (HTTP 200) and the other fails.',
+            'Verify the failing request returns HTTP 409 Conflict.',
+            'Verify only one rewind was executed and the wallet was debited once.'
+          ],
+          testData: 'Two concurrent rewind requests: different keys, same session.',
+          expected: 'Exactly one request succeeds. The other returns HTTP 409 Conflict. Only one set of rewind spins is executed. Wallet debited for exactly one rewind cost.'
+        },
+
+        /* ═══════════════════  Math — Mathematical Model  ══════════════════════ */
+        {
+          id: 'TC-TR-MATH-01', module: 'Math', priority: 'HIGH',
+          title: 'Verify base game RTP 94-95% over 10M simulated spins',
+          preconditions: 'Simulation environment available. Paytable and reel strip weights configured.',
+          steps: [
+            'Configure simulation with 10,000,000 spins at fixed bet amount.',
+            'Use the production reel strip weights and paytable.',
+            'Run simulation excluding rewind feature (base game only).',
+            'Calculate RTP = (total_won / total_wagered) x 100.',
+            'Verify RTP falls within 94.0% - 95.0%.',
+            'Record confidence interval at 95% significance level.'
+          ],
+          testData: '10M spins. Fixed bet. Base game only (no rewind). Production reel strips.',
+          expected: 'Base game RTP = 94.0% - 95.0%. Confidence interval at 95% significance level confirms the range. Standard deviation is within acceptable bounds for 10M samples.'
+        },
+        {
+          id: 'TC-TR-MATH-02', module: 'Math', priority: 'HIGH',
+          title: 'Verify rewind RTP contribution +1-2%',
+          preconditions: 'Simulation environment with rewind feature enabled.',
+          steps: [
+            'Configure simulation with 10M spins including rewind triggers.',
+            'Track total wagered and total won from rewind spins separately.',
+            'Calculate rewind RTP contribution = (rewind_won / total_base_wagered) x 100.',
+            'Verify rewind contribution falls within 1.0% - 2.0%.',
+            'Verify the combined effect of all three tiers is balanced.'
+          ],
+          testData: '10M spins with rewind enabled. Track rewind wins separately.',
+          expected: 'Rewind feature contributes 1.0% - 2.0% additional RTP on top of the base game. The contribution varies by tier selection distribution.'
+        },
+        {
+          id: 'TC-TR-MATH-03', module: 'Math', priority: 'HIGH',
+          title: 'Verify combined RTP 95.5-96.5%',
+          preconditions: 'Simulation environment with all features enabled.',
+          steps: [
+            'Configure simulation with 10M spins, all features enabled (base + free spins + rewind).',
+            'Calculate combined RTP = (total_won / total_wagered) x 100.',
+            'Verify combined RTP falls within 95.5% - 96.5%.',
+            'Verify RTP = base_rtp + free_spins_contribution + rewind_contribution.',
+            'Record breakdown by component.'
+          ],
+          testData: '10M spins. All features enabled. Production configuration.',
+          expected: 'Combined RTP = 95.5% - 96.5%. Breakdown shows base game ~94-95%, free spins included in base, rewind adds ~1-2%. Total within regulatory compliance range.'
+        },
+        {
+          id: 'TC-TR-MATH-04', module: 'Math', priority: 'MED',
+          title: 'Verify medium-high volatility classification',
+          preconditions: 'Simulation data from 10M spins available.',
+          steps: [
+            'Calculate the standard deviation of win amounts per spin.',
+            'Calculate the coefficient of variation (CV = std_dev / mean_win).',
+            'Classify volatility based on CV: low < 5, medium 5-10, high > 10.',
+            'Verify the game falls in the medium-high range (CV approximately 7-12).',
+            'Verify the win distribution shows a heavy tail (large wins are rare but significant).'
+          ],
+          testData: 'Win distribution data from 10M simulated spins.',
+          expected: 'Coefficient of variation indicates medium-high volatility. Win distribution is right-skewed with a heavy tail. Large wins (> 100x bet) occur at low frequency but contribute significantly to total RTP.'
+        },
+        {
+          id: 'TC-TR-MATH-05', module: 'Math', priority: 'MED',
+          title: 'Verify hit frequency 28-32%',
+          preconditions: 'Simulation data from 10M spins available.',
+          steps: [
+            'Count the number of spins with win.amount > 0.',
+            'Calculate hit_frequency = (winning_spins / total_spins) x 100.',
+            'Verify hit_frequency falls within 28% - 32%.',
+            'Verify the hit frequency is consistent across different bet levels.',
+            'Verify free spin triggers are included in the hit frequency count.'
+          ],
+          testData: '10M spins. Count spins where win.amount > 0.',
+          expected: 'Hit frequency = 28% - 32%. Approximately 1 in 3 to 1 in 3.5 spins produces a win. Consistent across bet levels. Free spin trigger counts as a hit.'
+        },
+        {
+          id: 'TC-TR-MATH-06', module: 'Math', priority: 'MED',
+          title: 'Verify free spins included in base RTP calculation',
+          preconditions: 'Simulation data available with free spin tracking.',
+          steps: [
+            'Run simulation tracking free spin triggers and payouts separately.',
+            'Calculate free_spin_contribution = (free_spin_wins / total_wagered) x 100.',
+            'Verify free spin wins are included in the base RTP (94-95% target).',
+            'Verify free spins do not require additional bet from the player.',
+            'Verify the scatter trigger frequency aligns with the expected free spin contribution.'
+          ],
+          testData: 'Free spin wins tracked separately. Scatter trigger frequency data.',
+          expected: 'Free spin winnings are included in the base RTP calculation (not separate). Free spins are wagered at the triggering bet amount. Total base RTP (including free spins) = 94-95%.'
+        },
+        {
+          id: 'TC-TR-MATH-07', module: 'Math', priority: 'HIGH',
+          title: 'Verify 5000x win cap',
+          preconditions: 'Simulation environment. Knowledge of maximum possible combination.',
+          steps: [
+            'Calculate the theoretical maximum win: best symbol (TimeMachine) x 5-of-a-kind x 15 paylines.',
+            'Verify the theoretical max does not exceed 5000x the total bet.',
+            'Run 10M spins and record the maximum win achieved.',
+            'Verify no spin result exceeds 5000x the bet amount.',
+            'If the theoretical max exceeds 5000x, verify a cap is applied.'
+          ],
+          testData: 'Win cap: 5000x total bet. TimeMachine 5-of-a-kind multiplier x 15 paylines.',
+          expected: 'No single spin can produce a win exceeding 5000x the total bet. If the raw calculation exceeds 5000x, the payout is capped. The cap is clearly documented in the paytable.'
+        },
+        {
+          id: 'TC-TR-MATH-08', module: 'Math', priority: 'MED',
+          title: 'Verify paytable balance (low < mid < high)',
+          preconditions: 'Paytable accessible from game config.',
+          steps: [
+            'Extract all symbol multipliers from the paytable.',
+            'Group symbols by tier: low (Gear, Hourglass, Clock), mid (Compass, Crystal), high (Portal, TimeMachine).',
+            'For each match count (3, 4, 5), verify max(low) < min(mid) < min(high).',
+            'Verify no overlapping multiplier ranges between tiers.',
+            'Verify the progression feels natural and rewarding.'
+          ],
+          testData: 'Low: Gear/Hourglass/Clock. Mid: Compass/Crystal. High: Portal/TimeMachine.',
+          expected: 'Multiplier ordering is strictly maintained: low tier max < mid tier min < high tier min, for each match count. No tier overlap. TimeMachine has the highest multipliers across all match counts.'
+        },
+        {
+          id: 'TC-TR-MATH-09', module: 'Math', priority: 'MED',
+          title: 'Verify wild distribution balanced across all 5 reels',
+          preconditions: 'Simulation data from 10M spins.',
+          steps: [
+            'Count ChronoWild appearances per reel position across 10M spins.',
+            'Calculate wild frequency per reel: count_per_reel / total_spins.',
+            'Verify wild frequency is approximately equal across all 5 reels.',
+            'Verify no single reel has disproportionately more or fewer wilds.',
+            'Apply chi-squared test for uniformity across reels.'
+          ],
+          testData: 'ChronoWild count per reel over 10M spins.',
+          expected: 'Wild distribution is approximately uniform across all 5 reels. Chi-squared test confirms no statistically significant deviation from expected distribution (p > 0.05). No reel is starved of or flooded with wilds.'
+        },
+        {
+          id: 'TC-TR-MATH-10', module: 'Math', priority: 'MED',
+          title: 'Verify VortexScatter can appear on all 5 reels',
+          preconditions: 'Simulation data or sufficient number of real spins.',
+          steps: [
+            'Track VortexScatter appearances per reel across many spins.',
+            'Verify VortexScatter has appeared at least once on each of the 5 reels.',
+            'Verify the scatter frequency is balanced enough to make 3+ scatter hits achievable.',
+            'Verify 5-scatter (all reels) is theoretically possible.',
+            'Check reel strip definitions confirm scatter is present on all 5 strips.'
+          ],
+          testData: 'VortexScatter presence per reel. Reel strip definitions.',
+          expected: 'VortexScatter appears on all 5 reels. The scatter is included in each reel strip definition. 5-scatter (maximum free spins trigger) is theoretically possible. Observed scatter distribution matches expected rates.'
+        },
+
+        /* ═══════════════════  UI — User Interface  ══════════════════════ */
+        {
+          id: 'TC-TR-UI-01', module: 'UI', priority: 'HIGH',
+          title: 'Verify reel spin animation plays smoothly at 60fps',
+          preconditions: 'Game loaded on desktop browser. PixiJS canvas rendered.',
+          steps: [
+            'Open DevTools Performance tab.',
+            'Click the Spin button to trigger a spin.',
+            'Record the frame rate during the reel animation.',
+            'Verify all 5 reels animate with a cascading start delay.',
+            'Verify the animation maintains 60fps (no dropped frames).',
+            'Verify reels stop sequentially from left to right.'
+          ],
+          testData: 'Target: 60fps during animation. 5 reels with staggered stop.',
+          expected: 'Reel animation runs at consistent 60fps. No frame drops or stuttering. Reels start and stop with a cascading effect (reel 1 stops first, reel 5 stops last). Total animation duration 1.5-3 seconds.'
+        },
+        {
+          id: 'TC-TR-UI-02', module: 'UI', priority: 'HIGH',
+          title: 'Verify rewind reverse animation plays when rewind is triggered',
+          preconditions: 'Game loaded. Rewind offer triggered and accepted.',
+          steps: [
+            'Accept a rewind offer.',
+            'Observe the reel animation when rewind begins.',
+            'Verify reels spin in reverse direction (bottom-to-top) briefly.',
+            'Verify the reverse animation transitions into forward rewind spins.',
+            'Verify the visual effect clearly communicates "time going backwards".',
+            'Verify the animation does not cause frame drops.'
+          ],
+          testData: null,
+          expected: 'Reverse reel animation plays when rewind begins. Reels spin upward briefly before transitioning to rewind spins. The effect is visually distinct from normal spins. Animation maintains 60fps.'
+        },
+        {
+          id: 'TC-TR-UI-03', module: 'UI', priority: 'MED',
+          title: 'Verify losing streak counter displays in HUD',
+          preconditions: 'Game loaded. Active session.',
+          steps: [
+            'Locate the streak counter element in the HUD.',
+            'Verify it shows "0" at the start of a session.',
+            'Perform a losing spin (win.amount = 0).',
+            'Verify the counter updates to "1".',
+            'Perform another losing spin.',
+            'Verify the counter updates to "2".',
+            'Perform a winning spin.',
+            'Verify the counter resets to "0".'
+          ],
+          testData: null,
+          expected: 'Streak counter is visible in the HUD. It increments on each consecutive loss and resets on any win. Counter updates are animated and clearly visible to the player.'
+        },
+        {
+          id: 'TC-TR-UI-04', module: 'UI', priority: 'HIGH',
+          title: 'Verify rewind overlay dims the background during rewind',
+          preconditions: 'Game loaded. Rewind offer triggered.',
+          steps: [
+            'Trigger a rewind offer.',
+            'Verify a semi-transparent overlay appears over the game canvas.',
+            'Verify the rewind tier selection modal appears on top of the overlay.',
+            'Verify the spin button is disabled/inaccessible behind the overlay.',
+            'Accept a rewind and verify the overlay persists during rewind spins.',
+            'After rewind completes, verify the overlay is removed.'
+          ],
+          testData: null,
+          expected: 'Semi-transparent overlay (opacity 0.5-0.7) covers the game canvas. Modal appears centered above the overlay. No interaction with underlying elements possible. Overlay removed after rewind completes or is skipped.'
+        },
+        {
+          id: 'TC-TR-UI-05', module: 'UI', priority: 'HIGH',
+          title: 'Verify rewind tier selection modal layout and interactions',
+          preconditions: 'Rewind offer triggered.',
+          steps: [
+            'Verify the modal displays a title (e.g., "Time Rewind Activated!").',
+            'Verify 3 tier cards are displayed side by side.',
+            'Verify each tier card shows: name, cost, wild boost percentage, spin count.',
+            'Verify unaffordable tiers are visually disabled/grayed out.',
+            'Verify the Skip button is visible and clickable.',
+            'Click a tier card and verify it triggers the rewind.',
+            'Verify the modal closes after selection.'
+          ],
+          testData: null,
+          expected: 'Modal is centered, well-styled, and clearly presents all 3 tiers. Affordable tiers are interactive, unaffordable tiers are disabled. Skip button always available. Modal closes on selection or skip.'
+        },
+        {
+          id: 'TC-TR-UI-06', module: 'UI', priority: 'MED',
+          title: 'Verify winning paylines highlight with animation',
+          preconditions: 'Game loaded. A winning spin has occurred.',
+          steps: [
+            'Perform a spin that results in a win.',
+            'Observe the winning payline display after reels stop.',
+            'Verify winning symbols are highlighted or animated.',
+            'Verify the payline path is visually traced across the reels.',
+            'If multiple paylines win, verify they cycle through one at a time.',
+            'Verify the win amount is displayed alongside the payline animation.'
+          ],
+          testData: null,
+          expected: 'Winning symbols pulse or glow. Payline path is drawn across the reels. Multiple winning paylines cycle through sequentially. Win amount is displayed clearly. Animations do not interfere with each other.'
+        },
+        {
+          id: 'TC-TR-UI-07', module: 'UI', priority: 'HIGH',
+          title: 'Verify balance updates in real-time after spin and rewind',
+          preconditions: 'Game loaded. Active session with known balance.',
+          steps: [
+            'Note the displayed balance before a spin.',
+            'Perform a spin.',
+            'Verify the balance updates immediately after reels stop.',
+            'Note the new balance before triggering a rewind.',
+            'Accept a rewind and let it complete.',
+            'Verify the balance updates to reflect the rewind cost and winnings.',
+            'Verify no intermediate "stale" balance is shown.'
+          ],
+          testData: null,
+          expected: 'Balance updates immediately after each spin completes. After rewind, balance reflects the atomic debit and accumulated winnings. No flash of incorrect balance. Updates animate smoothly (count up/down).'
+        },
+        {
+          id: 'TC-TR-UI-08', module: 'UI', priority: 'HIGH',
+          title: 'Verify spin button states (idle, spinning, disabled)',
+          preconditions: 'Game loaded. Active session.',
+          steps: [
+            'Verify the spin button is enabled and shows "SPIN" text when idle.',
+            'Click the spin button.',
+            'Verify the button changes to a "spinning" state (disabled, shows spinner or "STOP").',
+            'Verify clicking during spin does not trigger another spin.',
+            'After reels stop, verify the button returns to idle state.',
+            'When balance is insufficient, verify the button is disabled with visual indication.'
+          ],
+          testData: null,
+          expected: 'Three distinct button states: idle (enabled, "SPIN"), spinning (disabled or shows stop), insufficient balance (disabled, dimmed). State transitions are immediate and clear. No double-spin possible.'
+        },
+        {
+          id: 'TC-TR-UI-09', module: 'UI', priority: 'LOW',
+          title: 'Verify sound effects play for spin, win, and rewind events',
+          preconditions: 'Game loaded. Audio not muted. Browser allows autoplay.',
+          steps: [
+            'Verify a reel spin sound plays when the spin button is clicked.',
+            'Verify a reel stop sound plays when each reel stops.',
+            'Verify a win sound plays when a winning combination lands.',
+            'Verify a distinct rewind activation sound plays when rewind triggers.',
+            'Verify a reverse reel sound plays during rewind animation.',
+            'Verify the mute button silences all sounds.',
+            'Verify unmuting restores sounds.'
+          ],
+          testData: null,
+          expected: 'Appropriate sound effects play for each game event. Sounds do not overlap or clip. Mute button works globally. Volume levels are balanced. No audio errors in the console.'
+        },
+        {
+          id: 'TC-TR-UI-10', module: 'UI', priority: 'MED',
+          title: 'Verify responsive layout at 375px, 768px, and 1440px viewports',
+          preconditions: 'Game loaded. Browser DevTools available.',
+          steps: [
+            'Set viewport to 375px (mobile). Verify game canvas scales to fit.',
+            'Verify HUD elements (balance, bet, streak) are visible and readable.',
+            'Verify the spin button is large enough for touch interaction.',
+            'Set viewport to 768px (tablet). Verify layout adjusts appropriately.',
+            'Set viewport to 1440px (desktop). Verify full layout with all elements.',
+            'Verify no horizontal scrollbar at any viewport.'
+          ],
+          testData: 'Viewports: 375x812, 768x1024, 1440x900.',
+          expected: 'Game scales proportionally at all viewports. No overflow or hidden elements. Touch targets >= 44px on mobile. All HUD information visible. No horizontal scroll.'
+        },
+        {
+          id: 'TC-TR-UI-11', module: 'UI', priority: 'MED',
+          title: 'Verify rewind progress indicator shows spin count (e.g., 3/5)',
+          preconditions: 'Rewind accepted. Rewind spins in progress.',
+          steps: [
+            'Accept a rewind offer.',
+            'During the first rewind spin, verify a progress indicator shows "1/5".',
+            'After the first rewind spin completes, verify it updates to "2/5".',
+            'Continue through all 5 spins, verifying the counter updates each time.',
+            'After the 5th spin, verify the indicator shows "5/5" then transitions to results.',
+            'Verify a running total of rewind winnings is displayed.'
+          ],
+          testData: 'Progress format: "N/5" where N = current spin number.',
+          expected: 'Progress indicator visible during all rewind spins. Updates from 1/5 through 5/5. Running total of winnings displayed alongside progress. Clear visual indication when rewind completes.'
+        },
+        {
+          id: 'TC-TR-UI-12', module: 'UI', priority: 'LOW',
+          title: 'Verify prefers-reduced-motion disables non-essential animations',
+          preconditions: 'Game loaded. OS or browser configured with prefers-reduced-motion: reduce.',
+          steps: [
+            'Enable "Reduce motion" in OS accessibility settings.',
+            'Load the game.',
+            'Perform a spin and observe animations.',
+            'Verify reel spin animation is simplified (instant or fade transition).',
+            'Verify win line animations are reduced or static.',
+            'Verify rewind reverse animation is simplified.',
+            'Verify the game remains fully functional despite reduced animations.'
+          ],
+          testData: 'CSS: @media (prefers-reduced-motion: reduce).',
+          expected: 'Non-essential animations are disabled or simplified. Reels may use a fade or instant stop instead of scrolling. Win lines may highlight without pulsing. Game remains fully playable. No accessibility barriers introduced.'
+        },
+
+        /* ═══════════════════  API — API Endpoints  ══════════════════════ */
+        {
+          id: 'TC-TR-API-01', module: 'API', priority: 'HIGH',
+          title: 'Verify POST /game/init returns Time Machine config with rewind parameters',
+          preconditions: 'Valid JWT. Backend running.',
+          steps: [
+            'Send POST /api/v1/game/init with Authorization header.',
+            'Verify HTTP 200 response.',
+            'Verify game_id = "time_machine".',
+            'Verify config includes rewind_config: { streak_threshold: 5, trigger_probability: 0.35, tiers: [...] }.',
+            'Verify config includes standard slot config (reels, rows, paylines, bet_levels, paytable).',
+            'Verify balance and session_id are present.'
+          ],
+          testData: 'Authorization: Bearer <valid JWT>.',
+          expected: 'HTTP 200. game_id = "time_machine". Config includes rewind_config with streak_threshold=5, trigger_probability=0.35, and 3 tier definitions. Standard slot config also present.'
+        },
+        {
+          id: 'TC-TR-API-02', module: 'API', priority: 'HIGH',
+          title: 'Verify spin response includes rewind_offer when triggered',
+          preconditions: 'Active session. losing_streak >= 5. Rewind probability triggers.',
+          steps: [
+            'Perform spins until losing_streak >= 5 and rewind_offer is non-null.',
+            'Verify the spin response structure includes rewind_offer object.',
+            'Verify rewind_offer contains: offer_id, tiers[], expires_at, can_skip.',
+            'Verify each tier in tiers[] has: id, name, cost_multiplier, wild_boost, spins, total_cost.',
+            'Verify expires_at is 30 seconds from the response timestamp.'
+          ],
+          testData: 'Spin response with rewind_offer triggered.',
+          expected: 'rewind_offer: { offer_id: <uuid>, tiers: [{ id, name, cost_multiplier, wild_boost, spins, total_cost }], expires_at: <ISO+30s>, can_skip: true }. All fields present and correctly typed.'
+        },
+        {
+          id: 'TC-TR-API-03', module: 'API', priority: 'HIGH',
+          title: 'Verify POST /game/rewind accepts tier selection and returns results',
+          preconditions: 'Active rewind offer (not expired).',
+          steps: [
+            'Send POST /api/v1/game/rewind with body: { offer_id, tier: "standard", idempotency_key: "rw-001" }.',
+            'Verify HTTP 200 response.',
+            'Verify response contains: rewind_id, tier, total_cost, spins[], total_wagered, total_won, net_result, balance.',
+            'Verify spins[] has exactly 5 entries.',
+            'Verify each spin entry has: spin_id, reel_matrix, win, is_rewind=true.',
+            'Verify balance reflects the final state after all rewind spins.'
+          ],
+          testData: 'Body: { offer_id: <uuid>, tier: "standard", idempotency_key: "rw-001" }.',
+          expected: 'HTTP 200. Complete rewind result with 5 spin entries, aggregated totals, and updated balance. All spin entries flagged as is_rewind=true.'
+        },
+        {
+          id: 'TC-TR-API-04', module: 'API', priority: 'HIGH',
+          title: 'Verify all endpoints require authentication (401 without JWT)',
+          preconditions: 'Backend running. No authorization token.',
+          steps: [
+            'Send POST /api/v1/game/init without Authorization header. Expect 401.',
+            'Send POST /api/v1/spin without Authorization header. Expect 401.',
+            'Send POST /api/v1/game/rewind without Authorization header. Expect 401.',
+            'Send GET /api/v1/game/history without Authorization header. Expect 401.',
+            'Send GET /api/v1/game/provably-fair/current without Authorization header. Expect 401.'
+          ],
+          testData: 'No Authorization header on any request.',
+          expected: 'All 5 endpoints return HTTP 401 Unauthorized when no JWT is provided. Response body contains an appropriate error message.'
+        },
+        {
+          id: 'TC-TR-API-05', module: 'API', priority: 'MED',
+          title: 'Verify error response shape matches { error, code } contract',
+          preconditions: 'Backend running. Ability to trigger various error conditions.',
+          steps: [
+            'Trigger a 400 error (invalid bet amount).',
+            'Verify response: { error: <string>, code: <string> }.',
+            'Trigger a 401 error (missing auth).',
+            'Verify same error shape.',
+            'Trigger a 409 error (idempotency conflict).',
+            'Verify same error shape.',
+            'Trigger a 429 error (rate limit).',
+            'Verify same error shape.'
+          ],
+          testData: 'Trigger errors: 400, 401, 409, 429.',
+          expected: 'All error responses follow the { error: <human-readable string>, code: <machine-readable string> } shape. No stack traces or internal details exposed in production.'
+        },
+        {
+          id: 'TC-TR-API-06', module: 'API', priority: 'MED',
+          title: 'Verify rate limiting on spin endpoint (429 after threshold)',
+          preconditions: 'Valid JWT. Active session.',
+          steps: [
+            'Send 50 POST /api/v1/spin requests in rapid succession (< 5 seconds).',
+            'Each request uses a unique Idempotency-Key.',
+            'Monitor response status codes.',
+            'When HTTP 429 is received, inspect the Retry-After header.',
+            'Wait for the Retry-After duration and retry.',
+            'Verify the retry succeeds.'
+          ],
+          testData: '50 rapid spin requests, each with a unique Idempotency-Key.',
+          expected: 'After exceeding the rate limit threshold: HTTP 429 Too Many Requests. Retry-After header present. Waiting and retrying succeeds with HTTP 200.'
+        },
+        {
+          id: 'TC-TR-API-07', module: 'API', priority: 'HIGH',
+          title: 'Verify Idempotency-Key prevents duplicate spin execution',
+          preconditions: 'Active session. Sufficient balance.',
+          steps: [
+            'Send POST /api/v1/spin with Idempotency-Key: "idem-api-001".',
+            'Record the complete response (spin_id, balance, win).',
+            'Send the identical request with the same Idempotency-Key.',
+            'Verify the response is identical to the first.',
+            'Verify the balance was debited only once.',
+            'Send the same key with a different body.',
+            'Verify HTTP 409 Conflict.'
+          ],
+          testData: 'Idempotency-Key: "idem-api-001". Same body for duplicate, different body for conflict.',
+          expected: 'Duplicate: identical cached response, single debit. Different body with same key: HTTP 409 Conflict. Idempotency guarantees exactly-once spin execution.'
+        },
+        {
+          id: 'TC-TR-API-08', module: 'API', priority: 'MED',
+          title: 'Verify Zod validation rejects malformed request bodies',
+          preconditions: 'Active session. Valid JWT.',
+          steps: [
+            'Send POST /api/v1/spin with bet.amount as a string: { bet: { amount: "not-a-number" } }.',
+            'Verify HTTP 400 with validation error details.',
+            'Send POST /api/v1/spin with missing required field session_id.',
+            'Verify HTTP 400.',
+            'Send POST /api/v1/game/rewind with tier = "invalid_tier".',
+            'Verify HTTP 400.',
+            'Verify error messages reference the specific invalid field.'
+          ],
+          testData: 'Malformed bodies: string amount, missing session_id, invalid tier name.',
+          expected: 'HTTP 400 for all malformed requests. Error response includes field-level validation details from Zod. No 500 errors. Invalid data never reaches business logic.'
+        },
+        {
+          id: 'TC-TR-API-09', module: 'API', priority: 'HIGH',
+          title: 'Verify POST /game/rewind response structure matches contract',
+          preconditions: 'Rewind offer triggered and accepted.',
+          steps: [
+            'Accept a rewind (any tier).',
+            'Validate the response against the expected JSON schema.',
+            'Verify rewind_id is a UUID.',
+            'Verify tier matches the selected tier name.',
+            'Verify total_cost = bet x cost_multiplier.',
+            'Verify spins[] has exactly 5 objects, each with spin_id, reel_matrix (5x3), win, is_rewind.',
+            'Verify total_wagered = total_cost, total_won = sum(spins[].win.amount).',
+            'Verify balance.amount and balance.currency are present.'
+          ],
+          testData: 'POST /game/rewind response.',
+          expected: 'Response matches the documented JSON schema exactly. All fields are present and correctly typed. No extra or missing fields. Aggregated totals are mathematically consistent with individual spin results.'
+        },
+        {
+          id: 'TC-TR-API-10', module: 'API', priority: 'LOW',
+          title: 'Verify GET /health returns 200 with service status',
+          preconditions: 'Backend running.',
+          steps: [
+            'Send GET /api/v1/health (no authentication required).',
+            'Verify HTTP 200 response.',
+            'Verify response includes: status = "ok", timestamp, version.',
+            'Verify the endpoint responds within 100ms.',
+            'Verify no sensitive information is exposed in the health check.'
+          ],
+          testData: 'No authentication required.',
+          expected: 'HTTP 200. Body: { status: "ok", timestamp: <ISO>, version: <semver> }. Response time < 100ms. No DB credentials, internal IPs, or stack traces exposed.'
+        },
+
+        /* ═══════════════════  NFR — Non-Functional Requirements  ══════════════════════ */
+        {
+          id: 'TC-TR-NFR-01', module: 'NFR', priority: 'HIGH',
+          title: 'Verify spin endpoint P95 latency < 200ms',
+          preconditions: 'Backend running. Load testing tool available (k6, Artillery, or JMeter).',
+          steps: [
+            'Configure load test: 100 concurrent users, 60-second duration.',
+            'Each virtual user sends POST /api/v1/spin with valid auth and unique Idempotency-Keys.',
+            'Collect response time percentiles after the test completes.',
+            'Verify P50 latency < 100ms.',
+            'Verify P95 latency < 200ms.',
+            'Verify P99 latency < 500ms.',
+            'Verify error rate < 1% (excluding rate-limiting 429s).'
+          ],
+          testData: '100 concurrent users, 60s duration. Valid auth per user.',
+          expected: 'P50 < 100ms, P95 < 200ms, P99 < 500ms. Error rate < 1%. No timeouts. Server remains stable throughout the test.'
+        },
+        {
+          id: 'TC-TR-NFR-02', module: 'NFR', priority: 'HIGH',
+          title: 'Verify rewind endpoint P95 latency < 800ms',
+          preconditions: 'Backend running. Load testing tool available. Active rewind offers for test users.',
+          steps: [
+            'Configure load test: 50 concurrent users each accepting a rewind.',
+            'Measure end-to-end latency from POST /game/rewind to full response (5 spins).',
+            'Collect response time percentiles.',
+            'Verify P50 latency < 400ms.',
+            'Verify P95 latency < 800ms.',
+            'Verify P99 latency < 1500ms.',
+            'Verify all 5 rewind spins are included in the response (no partial results).'
+          ],
+          testData: '50 concurrent users with active rewind offers. Standard tier.',
+          expected: 'P50 < 400ms, P95 < 800ms, P99 < 1500ms. All responses contain complete 5-spin results. No partial responses or timeouts. Wallet debits are atomic under load.'
+        },
+        {
+          id: 'TC-TR-NFR-03', module: 'NFR', priority: 'HIGH',
+          title: 'Verify no client-side RNG (all randomness server-generated)',
+          preconditions: 'Game loaded. Browser DevTools available.',
+          steps: [
+            'Open DevTools Sources tab.',
+            'Search the frontend JavaScript bundle for Math.random() calls.',
+            'Search for crypto.getRandomValues() calls.',
+            'Search for any seeded PRNG implementations in the client code.',
+            'Intercept network requests during a spin and verify reel_matrix comes from the server.',
+            'Disconnect the network and attempt a spin; verify no result is generated locally.'
+          ],
+          testData: 'Frontend JavaScript bundle analysis.',
+          expected: 'No Math.random(), crypto.getRandomValues(), or PRNG implementations found in the frontend code that determine spin outcomes. All reel_matrix data comes from the server response. Offline spin attempt fails with a network error.'
+        },
+        {
+          id: 'TC-TR-NFR-04', module: 'NFR', priority: 'HIGH',
+          title: 'Verify provably fair seed integrity for rewind spins',
+          preconditions: 'Completed rewind with known seed pair. Seed pair rotated to reveal server_seed.',
+          steps: [
+            'Record the server_seed_hash before the rewind.',
+            'Complete a rewind (5 spins) and record nonces used.',
+            'Rotate the seed pair to reveal the server_seed.',
+            'Verify SHA-256(server_seed) = server_seed_hash.',
+            'For each rewind spin, compute HMAC-SHA256(server_seed, client_seed:nonce).',
+            'Feed each derived seed into Mulberry32 PRNG.',
+            'Verify the generated reel_matrix matches the server response for each spin.'
+          ],
+          testData: 'Revealed server_seed, client_seed, nonces for 5 rewind spins.',
+          expected: 'SHA-256(server_seed) matches the previously committed hash. All 5 rewind spins are independently verifiable. Each derived seed produces the exact same reel_matrix as returned by the server. Provably fair guarantee extends to rewind spins.'
+        },
+        {
+          id: 'TC-TR-NFR-05', module: 'NFR', priority: 'HIGH',
+          title: 'Verify atomic transaction for rewind wallet operations',
+          preconditions: 'Active session. Rewind offer available.',
+          steps: [
+            'Record balance_before.',
+            'Accept a rewind (Standard tier, cost = bet x 2.0).',
+            'Immediately after acceptance, simulate a server crash (kill the backend process mid-rewind).',
+            'Restart the backend.',
+            'Check the wallet balance.',
+            'Verify either: (a) the rewind completed fully and balance reflects all 5 spins, or (b) the rewind was rolled back and balance = balance_before.'
+          ],
+          testData: 'Simulated crash during rewind execution.',
+          expected: 'Transaction is atomic: either fully committed (all 5 spins + debit) or fully rolled back (no debit, no spins recorded). No partial state where some spins are recorded but not others. Balance is consistent.'
+        },
+        {
+          id: 'TC-TR-NFR-06', module: 'NFR', priority: 'HIGH',
+          title: 'Verify RNG independence between consecutive spins',
+          preconditions: 'Active session. Provably fair seed pair known.',
+          steps: [
+            'Perform 1000 consecutive spins and record all reel_matrix results.',
+            'Run autocorrelation analysis on the outcome sequence.',
+            'Verify no statistically significant correlation between consecutive outcomes.',
+            'Run runs test for randomness on the win/loss sequence.',
+            'Verify p-value > 0.05 for all statistical tests.',
+            'Verify that knowing spin N gives no predictive advantage for spin N+1.'
+          ],
+          testData: '1000 consecutive spin outcomes.',
+          expected: 'Autocorrelation analysis shows no significant correlation (all coefficients within +/- 2/sqrt(N)). Runs test p-value > 0.05. Each spin outcome is statistically independent of previous outcomes.'
+        },
+        {
+          id: 'TC-TR-NFR-07', module: 'NFR', priority: 'MED',
+          title: 'Verify responsible gaming: session duration and loss limit warnings',
+          preconditions: 'Game loaded. Active session. Responsible gaming config available.',
+          steps: [
+            'Play for the configured session duration warning threshold (e.g., 60 minutes).',
+            'Verify a session duration reminder notification appears.',
+            'Verify the notification can be dismissed but returns at the next interval.',
+            'Accumulate losses reaching the loss limit warning threshold.',
+            'Verify a loss limit warning notification appears.',
+            'Verify the player can still continue playing after acknowledging the warning.'
+          ],
+          testData: 'Session duration threshold and loss limit threshold from config.',
+          expected: 'Session duration warning appears at configured intervals. Loss limit warning appears when cumulative losses reach the threshold. Both warnings are non-blocking but clearly visible. Player can continue after acknowledgment.'
+        },
+        {
+          id: 'TC-TR-NFR-08', module: 'NFR', priority: 'HIGH',
+          title: 'Verify 30-second rewind offer timeout is enforced server-side',
+          preconditions: 'Rewind offer triggered. Server clock available for comparison.',
+          steps: [
+            'Trigger a rewind offer and record the server timestamp.',
+            'Verify expires_at in the offer is exactly 30 seconds after the response timestamp.',
+            'Wait 25 seconds and accept the offer. Verify it succeeds.',
+            'Trigger another rewind offer.',
+            'Wait 31 seconds and attempt to accept.',
+            'Verify the server rejects the request (HTTP 410 or equivalent).',
+            'Verify the timeout is enforced server-side, not just client-side.'
+          ],
+          testData: 'Rewind offer expires_at = response_timestamp + 30s.',
+          expected: 'Accept at 25s: succeeds. Accept at 31s: rejected by server with HTTP 410 Gone. Timeout is enforced server-side regardless of client clock. Manipulating the client clock does not extend the offer window.'
+        }
+      ];
+
+      /* ─────────────────────────────────────────────────────────────────────
+         HELPERS
+      ───────────────────────────────────────────────────────────────────── */
+      function esc(str) {
+        if (!str) return '';
+        return String(str)
+          .replace(/&/g, '&amp;')
+          .replace(/</g, '&lt;')
+          .replace(/>/g, '&gt;')
+          .replace(/"/g, '&quot;');
+      }
+
+      const MODULE_BADGE = {
+        Core:   'badge-core',
+        Rewind: 'badge-rewind',
+        Math:   'badge-math',
+        UI:     'badge-ui',
+        API:    'badge-api',
+        NFR:    'badge-nfr',
+      };
+      const MODULE_LABEL = { Core: 'Core', Rewind: 'Rewind', Math: 'Math', UI: 'UI', API: 'API', NFR: 'NFR' };
+
+      /* ─────────────────────────────────────────────────────────────────────
+         STATS
+      ───────────────────────────────────────────────────────────────────── */
+      function renderStats() {
+        const counts = { ALL: CASES.length, Core: 0, Rewind: 0, Math: 0, UI: 0, API: 0, NFR: 0 };
+        CASES.forEach(c => counts[c.module]++);
+        const labels = [
+          ['ALL',    'Total'],
+          ['Core',   'Core'],
+          ['Rewind', 'Rewind'],
+          ['Math',   'Math'],
+          ['UI',     'UI'],
+          ['API',    'API'],
+          ['NFR',    'NFR'],
+        ];
+        document.getElementById('stats-row').innerHTML = labels.map(([key, label]) =>
+          `<div class="stat"><strong>${counts[key]}</strong>${label}</div>`
+        ).join('');
+      }
+
+      /* ─────────────────────────────────────────────────────────────────────
+         RENDER TABLE
+      ───────────────────────────────────────────────────────────────────── */
+      let activeModule = 'ALL';
+      let searchQuery  = '';
+
+      function filteredCases() {
+        const q = searchQuery.toLowerCase();
+        return CASES.filter(c => {
+          const matchModule = activeModule === 'ALL' || c.module === activeModule;
+          const matchSearch = !q ||
+            c.id.toLowerCase().includes(q) ||
+            c.title.toLowerCase().includes(q) ||
+            (c.testData || '').toLowerCase().includes(q) ||
+            c.expected.toLowerCase().includes(q) ||
+            c.preconditions.toLowerCase().includes(q);
+          return matchModule && matchSearch;
+        });
+      }
+
+      function renderTable() {
+        const cases = filteredCases();
+        const tbody = document.getElementById('tc-tbody');
+
+        document.getElementById('count-label').textContent =
+          cases.length === CASES.length
+            ? `${CASES.length} test cases`
+            : `${cases.length} of ${CASES.length} test cases`;
+
+        if (cases.length === 0) {
+          tbody.innerHTML = `<tr class="empty-row"><td colspan="6">No test cases match your filter.</td></tr>`;
+          return;
+        }
+
+        tbody.innerHTML = cases.map(c => {
+          const stepRows = c.steps.map((s, i) =>
+            `<li><span class="step-num">${i + 1}</span><span>${esc(s)}</span></li>`
+          ).join('');
+
+          const testDataHtml = c.testData
+            ? esc(c.testData).replace(/(&quot;[^&]*&quot;)/g, '<code>$1</code>')
+            : '<span class="none">None — no specific input data required.</span>';
+
+          return `
+            <tr class="tc-row" data-id="${esc(c.id)}">
+              <td class="tc-id">${esc(c.id)}</td>
+              <td class="col-module"><span class="badge ${MODULE_BADGE[c.module]}">${MODULE_LABEL[c.module]}</span></td>
+              <td class="tc-title">${esc(c.title)}</td>
+              <td class="col-prio"><span class="prio prio-${c.priority}">${c.priority}</span></td>
+              <td class="col-status"><span class="status-badge status-not-run">Not Run</span></td>
+              <td><span class="tc-chevron">&#9654;</span></td>
+            </tr>
+            <tr class="tc-detail-row" data-for="${esc(c.id)}">
+              <td colspan="6">
+                <div class="tc-detail-panel" id="panel-${esc(c.id)}">
+                  <div class="detail-grid">
+                    <div class="detail-field full">
+                      <span class="detail-label">Preconditions</span>
+                      <div class="detail-value">${esc(c.preconditions)}</div>
+                    </div>
+                    <div class="detail-field">
+                      <span class="detail-label">Test Data</span>
+                      <div class="detail-value">${testDataHtml}</div>
+                    </div>
+                    <div class="detail-field">
+                      <span class="detail-label">Expected Result</span>
+                      <div class="detail-value">${esc(c.expected)}</div>
+                    </div>
+                    <div class="detail-field full">
+                      <span class="detail-label">Test Steps</span>
+                      <div class="detail-value">
+                        <ol class="steps-list">${stepRows}</ol>
+                      </div>
+                    </div>
+                    <div class="detail-field">
+                      <span class="detail-label">Actual Result</span>
+                      <div class="detail-value actual-placeholder">— (fill in during execution)</div>
+                    </div>
+                    <div class="detail-field">
+                      <span class="detail-label">Status</span>
+                      <div class="detail-value"><span class="status-badge status-not-run">Not Run</span></div>
+                    </div>
+                  </div>
+                </div>
+              </td>
+            </tr>`;
+        }).join('');
+
+        /* re-attach row click handlers */
+        tbody.querySelectorAll('.tc-row').forEach(row => {
+          row.addEventListener('click', () => {
+            const id = row.dataset.id;
+            const panel = document.getElementById('panel-' + id);
+            const isOpen = panel.classList.contains('open');
+            panel.classList.toggle('open', !isOpen);
+            row.classList.toggle('open', !isOpen);
+          });
+        });
+      }
+
+      /* ─────────────────────────────────────────────────────────────────────
+         FILTER TABS
+      ───────────────────────────────────────────────────────────────────── */
+      document.getElementById('filter-tabs').addEventListener('click', e => {
+        const btn = e.target.closest('.tab');
+        if (!btn) return;
+        activeModule = btn.dataset.module;
+        document.querySelectorAll('.tab').forEach(t => t.classList.toggle('active', t === btn));
+        renderTable();
+      });
+
+      /* ─────────────────────────────────────────────────────────────────────
+         SEARCH
+      ───────────────────────────────────────────────────────────────────── */
+      document.getElementById('search').addEventListener('input', e => {
+        searchQuery = e.target.value;
+        renderTable();
+      });
+
+      /* ─────────────────────────────────────────────────────────────────────
+         INIT
+      ───────────────────────────────────────────────────────────────────── */
+      renderStats();
+      renderTable();
+    </script>
+  </body>
+</html>

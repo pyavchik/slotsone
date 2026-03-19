@@ -1206,6 +1206,94 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/game/rewind": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Accept Time Rewind offer
+         * @description Accept a rewind offer and execute 5 boosted spins. Only available for game_id: slot_time_rewind_001.
+         */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": components["schemas"]["RewindRequest"];
+                };
+            };
+            responses: {
+                /** @description Rewind executed successfully */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["RewindResponse"];
+                    };
+                };
+                /** @description Invalid request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
+                };
+                /** @description Forbidden — wrong game or unauthorized session */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
+                };
+                /** @description Offer already accepted */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
+                };
+                /** @description Offer expired */
+                410: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
+                };
+                /** @description Validation or business rule error */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/images/jobs/{jobId}": {
         parameters: {
             query?: never;
@@ -2002,6 +2090,68 @@ export interface components {
             number_colors: {
                 [key: string]: "red" | "black" | "green";
             };
+        };
+        /** @enum {string} */
+        RewindTier: "safe" | "standard" | "super";
+        RewindRequest: {
+            session_id: string;
+            offer_id: string;
+            tier: components["schemas"]["RewindTier"];
+        };
+        RewindSpinOutcome: {
+            spin_number: number;
+            outcome: {
+                reel_matrix: string[][];
+                win: {
+                    amount: number;
+                    currency: string;
+                    breakdown: {
+                        /** @enum {string} */
+                        type: "line";
+                        line_index: number;
+                        symbol: string;
+                        count: number;
+                        payout: number;
+                    }[];
+                };
+                bonus_triggered: {
+                    /** @enum {string} */
+                    type: "free_spins";
+                    free_spins_count: number;
+                    bonus_round_id: string;
+                    multiplier: number;
+                } | null;
+            };
+        };
+        RewindAggregate: {
+            total_wagered: number;
+            total_won: number;
+            net_result: number;
+        };
+        RewindOfferTier: {
+            name: components["schemas"]["RewindTier"];
+            cost_multiplier: number;
+            wild_boost: string;
+            total_cost: number;
+            available: boolean;
+        };
+        RewindOffer: {
+            offer_id: string;
+            tiers: components["schemas"]["RewindOfferTier"][];
+            expires_at: string;
+        };
+        RewindResponse: {
+            rewind_id: string;
+            session_id: string;
+            game_id: string;
+            tier: components["schemas"]["RewindTier"];
+            spins: components["schemas"]["RewindSpinOutcome"][];
+            aggregate: components["schemas"]["RewindAggregate"];
+            balance: {
+                amount: number;
+                currency: string;
+            };
+            timestamp: number;
         };
         HistorySummaryResponse: {
             total_rounds: number;

@@ -1,0 +1,38 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120">
+  <defs>
+    <linearGradient id="hg-bg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#292524"/>
+      <stop offset="100%" stop-color="#1c1917"/>
+    </linearGradient>
+    <linearGradient id="hg-glass" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#fde68a" stop-opacity="0.3"/>
+      <stop offset="100%" stop-color="#92400e" stop-opacity="0.15"/>
+    </linearGradient>
+    <linearGradient id="hg-sand" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#fbbf24"/>
+      <stop offset="100%" stop-color="#d97706"/>
+    </linearGradient>
+  </defs>
+  <rect width="120" height="120" rx="12" fill="url(#hg-bg)"/>
+  <!-- Top cap -->
+  <rect x="32" y="12" width="56" height="6" rx="2" fill="#d97706" stroke="#fbbf24" stroke-width="0.5"/>
+  <!-- Bottom cap -->
+  <rect x="32" y="82" width="56" height="6" rx="2" fill="#d97706" stroke="#fbbf24" stroke-width="0.5"/>
+  <!-- Glass outline -->
+  <path d="M38 18 L38 35 Q38 48 60 50 Q82 48 82 35 L82 18" fill="url(#hg-glass)" stroke="#fbbf24" stroke-width="1.5"/>
+  <path d="M38 82 L38 65 Q38 52 60 50 Q82 52 82 65 L82 82" fill="url(#hg-glass)" stroke="#fbbf24" stroke-width="1.5"/>
+  <!-- Top sand -->
+  <path d="M44 18 L44 32 Q44 44 60 47 Q76 44 76 32 L76 18 Z" fill="url(#hg-sand)" opacity="0.4"/>
+  <!-- Sand stream -->
+  <line x1="60" y1="47" x2="60" y2="62" stroke="#fbbf24" stroke-width="2" opacity="0.7"/>
+  <!-- Bottom sand pile -->
+  <path d="M42 82 L42 72 Q50 64 60 62 Q70 64 78 72 L78 82 Z" fill="url(#hg-sand)" opacity="0.8"/>
+  <!-- Sand particles -->
+  <circle cx="58" cy="53" r="1" fill="#fbbf24" opacity="0.6"/>
+  <circle cx="62" cy="56" r="0.8" fill="#fbbf24" opacity="0.5"/>
+  <circle cx="60" cy="59" r="0.7" fill="#fbbf24" opacity="0.4"/>
+  <!-- Glow -->
+  <ellipse cx="60" cy="50" rx="8" ry="4" fill="#fbbf24" opacity="0.1"/>
+  <!-- Label -->
+  <text x="60" y="104" text-anchor="middle" font-family="serif" font-size="11" font-weight="bold" fill="#fbbf24">HOURGLASS</text>
+</svg>

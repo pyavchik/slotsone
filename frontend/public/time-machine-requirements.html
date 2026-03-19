@@ -1,0 +1,1505 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Pyavchik Time Machine — Software Requirements Specification</title>
+    <style>
+      *, *::before, *::after { box-sizing: border-box; }
+
+      body {
+        margin: 0;
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+        background: linear-gradient(180deg, #0f1118 0%, #0b0d13 100%);
+        color: #f8fafc;
+        min-height: 100vh;
+        font-size: 14px;
+      }
+
+      .wrap {
+        max-width: 1080px;
+        margin: 0 auto;
+        padding: 28px 18px 56px;
+        display: flex;
+        flex-direction: column;
+        gap: 14px;
+      }
+
+      /* ── Cards ───────────────────────────────────── */
+      .card {
+        border: 1px solid rgba(255,255,255,0.13);
+        border-radius: 14px;
+        background: rgba(17,20,30,0.78);
+        padding: 20px 22px;
+      }
+
+      h1 { margin: 0 0 3px; font-size: 26px; letter-spacing: -.3px; }
+      .subtitle { margin: 0 0 14px; color: #94a3b8; font-size: 13px; }
+      h2 { margin: 0 0 14px; font-size: 16px; color: #f1f5f9; }
+      h3 { margin: 0 0 10px; font-size: 14px; color: #e2e8f0; }
+      p  { margin: 0 0 10px; color: #dbe2ec; line-height: 1.55; }
+
+      /* ── Back link ───────────────────────────────── */
+      .back {
+        display: inline-flex; align-items: center; gap: 6px;
+        font-size: 13px; font-weight: 600; color: #94a3b8;
+        text-decoration: none;
+        border: 1px solid rgba(148,163,184,.3);
+        padding: 6px 12px; border-radius: 8px;
+        background: rgba(15,23,42,.5);
+        width: fit-content;
+      }
+      .back:hover { color: #f8fafc; border-color: rgba(148,163,184,.7); }
+
+      /* ── Stats ───────────────────────────────────── */
+      .stats { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 8px; }
+      .stat {
+        padding: 8px 14px; border-radius: 10px;
+        background: rgba(15,23,42,.65);
+        border: 1px solid rgba(148,163,184,.2);
+        font-size: 13px; color: #dbe2ec; text-align: center;
+      }
+      .stat strong { display: block; font-size: 22px; line-height: 1.15; color: #f8fafc; }
+
+      /* ── Controls ────────────────────────────────── */
+      .controls { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+
+      .filter-tabs { display: flex; flex-wrap: wrap; gap: 6px; flex: 1; }
+      .tab {
+        padding: 6px 14px; border-radius: 999px;
+        border: 1px solid rgba(148,163,184,.3);
+        background: transparent; color: #94a3b8;
+        font-size: 12px; font-weight: 700; cursor: pointer;
+        transition: border-color .15s, color .15s, background .15s;
+        white-space: nowrap;
+      }
+      .tab:hover { border-color: rgba(248,250,252,.5); color: #f8fafc; }
+      .tab.active {
+        border-color: rgba(248,250,252,.7); color: #f8fafc;
+        background: rgba(248,250,252,.08);
+      }
+
+      .search-wrap { position: relative; }
+      .search-wrap svg {
+        position: absolute; left: 10px; top: 50%; transform: translateY(-50%);
+        color: #64748b; pointer-events: none;
+      }
+      #search {
+        padding: 7px 10px 7px 32px; border-radius: 8px;
+        border: 1px solid rgba(148,163,184,.3);
+        background: rgba(15,23,42,.65); color: #f8fafc;
+        font-size: 13px; width: 220px; outline: none;
+      }
+      #search:focus { border-color: rgba(148,163,184,.7); }
+      #search::placeholder { color: #475569; }
+
+      .count-label { font-size: 12px; color: #475569; white-space: nowrap; }
+
+      /* ── Badges ──────────────────────────────────── */
+      .badge {
+        display: inline-block; padding: 2px 7px;
+        border-radius: 5px; font-size: 11px; font-weight: 700;
+        white-space: nowrap; letter-spacing: .02em;
+      }
+      .badge-core   { background: rgba(245,208,106,.15); color: #f5d06a; }
+      .badge-rewind { background: rgba(244,114,182,.15); color: #f472b6; }
+      .badge-math   { background: rgba(251,146,60,.15);  color: #fb923c; }
+      .badge-ui     { background: rgba(167,139,250,.18); color: #a78bfa; }
+      .badge-api    { background: rgba(62,224,169,.15);  color: #3ee0a9; }
+      .badge-nfr    { background: rgba(248,113,113,.15); color: #f87171; }
+
+      .prio { font-size: 11px; font-weight: 800; white-space: nowrap; }
+      .prio-must   { color: #f87171; }
+      .prio-should { color: #fbbf24; }
+      .prio-could  { color: #64748b; }
+
+      /* ── Table ───────────────────────────────────── */
+      .req-table { width: 100%; border-collapse: collapse; }
+
+      .req-table thead th {
+        text-align: left; padding: 9px 12px;
+        color: #64748b; font-size: 11px; font-weight: 700;
+        text-transform: uppercase; letter-spacing: .07em;
+        border-bottom: 1px solid rgba(255,255,255,.1);
+      }
+
+      .req-row {
+        cursor: pointer;
+        transition: background .1s;
+      }
+      .req-row:hover td { background: rgba(255,255,255,.04); }
+      .req-row td {
+        padding: 10px 12px;
+        border-bottom: 1px solid rgba(255,255,255,.06);
+        vertical-align: middle;
+        color: #dbe2ec;
+      }
+      .req-row.open td { border-bottom: none; }
+
+      .req-id {
+        font-family: ui-monospace, monospace; font-size: 12px;
+        color: #62d7ff; white-space: nowrap;
+      }
+      .req-title { color: #f1f5f9; line-height: 1.4; }
+      .req-chevron {
+        transition: transform .2s; color: #475569;
+        display: inline-block;
+      }
+      .req-row.open .req-chevron { transform: rotate(90deg); }
+
+      /* ── Detail panel ────────────────────────────── */
+      .req-detail-row td {
+        padding: 0;
+        border-bottom: 1px solid rgba(255,255,255,.08);
+      }
+      .req-detail-panel {
+        display: none;
+        padding: 0 12px 18px 48px;
+        background: rgba(11,13,19,.6);
+      }
+      .req-detail-panel.open { display: block; }
+
+      .detail-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 12px;
+        margin-top: 14px;
+      }
+      .detail-grid .full { grid-column: 1 / -1; }
+
+      .detail-field { display: flex; flex-direction: column; gap: 5px; }
+      .detail-label {
+        font-size: 10px; font-weight: 700; text-transform: uppercase;
+        letter-spacing: .08em; color: #64748b;
+      }
+      .detail-value {
+        color: #dbe2ec; line-height: 1.5; font-size: 13px;
+        padding: 8px 10px; border-radius: 8px;
+        background: rgba(15,23,42,.55);
+        border: 1px solid rgba(148,163,184,.12);
+      }
+      .detail-value code {
+        font-family: ui-monospace, monospace;
+        font-size: 12px; color: #a78bfa;
+        background: rgba(167,139,250,.1);
+        padding: 1px 4px; border-radius: 3px;
+      }
+
+      .bdd-list {
+        margin: 0; padding: 0; list-style: none;
+        display: flex; flex-direction: column; gap: 5px;
+      }
+      .bdd-list li {
+        display: flex; gap: 8px; align-items: flex-start;
+        font-size: 13px; line-height: 1.45;
+      }
+      .bdd-list li::before {
+        content: attr(data-keyword);
+        font-weight: 700; font-size: 11px;
+        color: #a78bfa; min-width: 50px; flex-shrink: 0;
+        padding-top: 1px;
+      }
+
+      .trace-link {
+        color: #62d7ff; text-decoration: none; font-size: 12px;
+        font-family: ui-monospace, monospace;
+      }
+      .trace-link:hover { text-decoration: underline; }
+
+      /* ── Section titles ──────────────────────────── */
+      .section-title {
+        font-size: 18px; font-weight: 700; margin: 0 0 4px;
+        color: #f1f5f9;
+      }
+      .section-desc {
+        font-size: 13px; color: #94a3b8; margin: 0 0 12px;
+      }
+
+      /* ── Glossary / Info lists ────────────────────── */
+      .info-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 10px;
+      }
+      .info-item {
+        padding: 10px 14px; border-radius: 10px;
+        background: rgba(15,23,42,.55);
+        border: 1px solid rgba(148,163,184,.12);
+      }
+      .info-item dt {
+        font-size: 11px; font-weight: 700; text-transform: uppercase;
+        letter-spacing: .06em; color: #62d7ff; margin-bottom: 4px;
+      }
+      .info-item dd {
+        margin: 0; color: #dbe2ec; font-size: 13px; line-height: 1.5;
+      }
+
+      /* ── Context diagram ──────────────────────────── */
+      .diagram {
+        font-family: ui-monospace, monospace;
+        font-size: 12px; line-height: 1.5;
+        color: #94a3b8;
+        padding: 16px;
+        border-radius: 10px;
+        background: rgba(15,23,42,.65);
+        border: 1px solid rgba(148,163,184,.15);
+        overflow-x: auto;
+        white-space: pre;
+      }
+
+      /* ── Traceability matrix ──────────────────────── */
+      .matrix-table { width: 100%; border-collapse: collapse; }
+      .matrix-table th {
+        text-align: left; padding: 8px 12px;
+        color: #64748b; font-size: 11px; font-weight: 700;
+        text-transform: uppercase; letter-spacing: .07em;
+        border-bottom: 1px solid rgba(255,255,255,.1);
+      }
+      .matrix-table td {
+        padding: 8px 12px;
+        border-bottom: 1px solid rgba(255,255,255,.06);
+        font-size: 13px; color: #dbe2ec;
+      }
+      .matrix-table td:first-child {
+        font-family: ui-monospace, monospace;
+        font-size: 12px; color: #62d7ff;
+      }
+
+      /* ── Responsive ──────────────────────────────── */
+      @media (max-width: 640px) {
+        .info-grid { grid-template-columns: 1fr; }
+        .detail-grid { grid-template-columns: 1fr; }
+        #search { width: 100%; }
+        .controls { flex-direction: column; align-items: stretch; }
+        .diagram { font-size: 10px; }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="wrap">
+
+      <!-- Back link -->
+      <a class="back" href="/">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5"/><path d="M12 19l-7-7 7-7"/></svg>
+        Back to CV
+      </a>
+
+      <!-- ────────────────────────────────────────────────────────────────────── -->
+      <!-- HEADER CARD                                                           -->
+      <!-- ────────────────────────────────────────────────────────────────────── -->
+      <div class="card">
+        <h1>Pyavchik Time Machine &mdash; Software Requirements Specification</h1>
+        <p class="subtitle">SlotsOne &mdash; Time Rewind Slot Game &nbsp;|&nbsp; v1.0 &nbsp;|&nbsp; Last updated: 2026-03-19</p>
+
+        <p>This document specifies the functional and non-functional requirements for the Pyavchik Time Machine slot game, featuring the original <strong>Time Rewind Gamble</strong> mechanic.</p>
+        <div class="stats" id="stats">
+          <!-- filled by JS -->
+        </div>
+      </div>
+
+      <!-- ────────────────────────────────────────────────────────────────────── -->
+      <!-- 1. INTRODUCTION                                                       -->
+      <!-- ────────────────────────────────────────────────────────────────────── -->
+      <div class="card">
+        <h2>1. Introduction</h2>
+
+        <h3>1.1 Purpose</h3>
+        <p>Define verifiable requirements for the Pyavchik Time Machine slot game so that development, QA, and
+           stakeholders share a single source of truth. Each requirement is traceable to at least one
+           test case. This document demonstrates the QA ability to write formal SRS-style requirements
+           for a custom iGaming mechanic.</p>
+
+        <h3>1.2 Scope</h3>
+        <p>Pyavchik Time Machine is a 5&times;3 reel, 15-payline video slot with a unique <strong>Time Rewind Gamble</strong>
+           feature. After a losing streak, players may be offered the chance to &ldquo;rewind time&rdquo; &mdash; paying a premium
+           to replay 5 spins with boosted wild frequencies. The game uses a React/PixiJS frontend and an
+           Express/TypeScript backend (RGS) with provably fair mechanics.</p>
+
+        <h3>1.3 Intended Audience</h3>
+        <p>QA engineers, game designers, developers, regulators evaluating RNG compliance,
+           and hiring managers reviewing this portfolio for iGaming QA competence.</p>
+
+        <h3>1.4 Glossary</h3>
+        <dl class="info-grid">
+          <div class="info-item"><dt>RGS</dt><dd>Remote Game Server &mdash; the backend that processes spins, rewinds, and manages state</dd></div>
+          <div class="info-item"><dt>Time Rewind</dt><dd>The original gamble mechanic: after a losing streak, replay 5 spins at a premium with boosted wild frequency</dd></div>
+          <div class="info-item"><dt>Rewind Tier</dt><dd>One of three rewind options (Standard, Safe, Super) differing in cost multiplier and wild boost</dd></div>
+          <div class="info-item"><dt>Wild Boost</dt><dd>Increased wild symbol frequency on reel strips during rewind spins (e.g., +15% for Standard tier)</dd></div>
+          <div class="info-item"><dt>Losing Streak</dt><dd>Consecutive spins where the total win is zero; tracked server-side per session</dd></div>
+          <div class="info-item"><dt>RTP</dt><dd>Return To Player &mdash; the theoretical percentage of wagered money returned over time</dd></div>
+          <div class="info-item"><dt>Mulberry32</dt><dd>A 32-bit PRNG used to generate spin outcomes from a cryptographically derived seed</dd></div>
+          <div class="info-item"><dt>Provably Fair</dt><dd>HMAC-SHA256 seed derivation allowing players to verify outcome integrity after seed rotation</dd></div>
+          <div class="info-item"><dt>Payline</dt><dd>A line across the reels that determines winning combinations (15 fixed paylines)</dd></div>
+          <div class="info-item"><dt>Scatter</dt><dd>Vortex symbol &mdash; triggers free spins regardless of payline position</dd></div>
+          <div class="info-item"><dt>Idempotency Key</dt><dd>A client-generated UUID ensuring repeated identical requests produce the same result without side effects</dd></div>
+          <div class="info-item"><dt>BDD</dt><dd>Behaviour-Driven Development &mdash; Given/When/Then acceptance criteria</dd></div>
+        </dl>
+      </div>
+
+      <!-- ────────────────────────────────────────────────────────────────────── -->
+      <!-- 2. PRODUCT OVERVIEW                                                   -->
+      <!-- ────────────────────────────────────────────────────────────────────── -->
+      <div class="card">
+        <h2>2. Product Overview</h2>
+
+        <h3>2.1 System Context</h3>
+        <div class="diagram">
++------------------+          HTTPS          +------------------+
+|                  | ----------------------> |                  |
+|   Browser        |    REST API (JSON)      |   Express RGS    |
+|   (React + Pixi) | <---------------------- |   (TypeScript)   |
+|                  |                         |                  |
++------------------+                         +--------+---------+
+        |                                             |
+        | Time Rewind UI                              | SQL + Rewind Logic
+        | (modal, streak HUD,                         |
+        |  rewind animation)                          v
+        |                                    +------------------+
+        |                                    |   PostgreSQL 16  |
+        |                                    | (wallets, rounds |
+        |                                    |  seeds, rewinds) |
+        +------------------------------------+------------------+</div>
+
+        <h3>2.2 Game Description</h3>
+        <p>Pyavchik Time Machine is a medium-high volatility video slot themed around time travel. The
+           5&times;3 grid features 9 symbols including the Chrono Wild (substitutes all except Vortex Scatter)
+           and the Vortex Scatter (triggers free spins). The game runs on 15 fixed paylines with
+           configurable bet levels from $0.15 to $150.</p>
+
+        <h3>2.3 Unique Mechanic: Time Rewind Gamble</h3>
+        <p>After 5 consecutive losing spins, the system has a 35% chance of offering the player a
+           <strong>Time Rewind</strong> &mdash; a set of 5 additional spins played at a premium cost with boosted
+           wild symbol frequency. Three tiers are available:</p>
+        <dl class="info-grid">
+          <div class="info-item"><dt>Standard Rewind</dt><dd>2&times; bet per spin, +15% wild boost, 5 spins</dd></div>
+          <div class="info-item"><dt>Safe Rewind</dt><dd>1.5&times; bet per spin, +10% wild boost, 5 spins</dd></div>
+          <div class="info-item"><dt>Super Rewind</dt><dd>3&times; bet per spin, +25% wild boost, 5 spins</dd></div>
+        </dl>
+        <p style="margin-top:10px">The total rewind wager is deducted atomically before the 5 spins execute.
+           Each rewind spin uses a fresh RNG seed for regulatory compliance. Players may always skip the offer.</p>
+
+        <h3>2.4 Constraints</h3>
+        <p>The application uses virtual currency only (no real-money gambling). Wallets and game rounds
+           persist in PostgreSQL. The rewind feature is exclusive to the Time Machine game
+           (<code>game_id: slot_time_rewind_001</code>).</p>
+
+        <h3>2.5 Assumptions</h3>
+        <p>Users have a modern browser (Chrome, Firefox, Safari, or Edge, latest two major versions) with
+           WebGL support. The server runs on a single instance behind a Caddy reverse proxy with automatic HTTPS.</p>
+      </div>
+
+      <!-- ────────────────────────────────────────────────────────────────────── -->
+      <!-- CONTROLS (filter + search)                                            -->
+      <!-- ────────────────────────────────────────────────────────────────────── -->
+      <div class="card">
+        <div class="controls">
+          <div class="filter-tabs" id="filters">
+            <button class="tab active" data-filter="all">All</button>
+            <button class="tab" data-filter="core">Core</button>
+            <button class="tab" data-filter="rewind">Rewind</button>
+            <button class="tab" data-filter="math">Math</button>
+            <button class="tab" data-filter="ui">UI</button>
+            <button class="tab" data-filter="api">API</button>
+            <button class="tab" data-filter="nfr">NFR</button>
+          </div>
+          <div class="search-wrap">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+            <input type="text" id="search" placeholder="Search requirements..." />
+          </div>
+          <span class="count-label" id="count-label"></span>
+        </div>
+      </div>
+
+      <!-- ────────────────────────────────────────────────────────────────────── -->
+      <!-- REQUIREMENTS TABLE                                                    -->
+      <!-- ────────────────────────────────────────────────────────────────────── -->
+      <div class="card" style="padding: 0; overflow: hidden;">
+        <table class="req-table" id="req-table">
+          <thead>
+            <tr>
+              <th style="width:36px"></th>
+              <th>ID</th>
+              <th>Module</th>
+              <th>Priority</th>
+              <th>Requirement</th>
+            </tr>
+          </thead>
+          <tbody id="req-body">
+            <!-- filled by JS -->
+          </tbody>
+        </table>
+      </div>
+
+      <!-- ────────────────────────────────────────────────────────────────────── -->
+      <!-- 6. EXTERNAL INTERFACE REQUIREMENTS                                    -->
+      <!-- ────────────────────────────────────────────────────────────────────── -->
+      <div class="card">
+        <h2>6. External Interface Requirements</h2>
+
+        <h3>6.1 API Contracts</h3>
+        <p>All endpoints live under <code>/api/v1/</code>. Request and response bodies are validated with
+           Zod schemas. The Time Rewind endpoint (<code>POST /api/v1/game/rewind</code>) is exclusive to
+           <code>game_id: slot_time_rewind_001</code>. The full OpenAPI 3.0 specification is served at
+           <a href="/api-docs" style="color:#62d7ff">/api-docs</a>.</p>
+
+        <h3>6.2 Database</h3>
+        <p>PostgreSQL 16+ stores wallets, seed pairs, game rounds, and transactions. Rewind spins
+           are flagged with <code>is_rewind: true</code> in the game_rounds table. All monetary values
+           are stored as BIGINT cents with conversion at the API boundary.</p>
+
+        <h3>6.3 Browser Support</h3>
+        <p>Latest two major versions of Chrome, Firefox, Safari, and Edge. WebGL is required for the
+           PixiJS canvas renderer. The rewind animation requires CSS transitions support.</p>
+      </div>
+
+      <!-- ────────────────────────────────────────────────────────────────────── -->
+      <!-- 7. TRACEABILITY MATRIX                                                -->
+      <!-- ────────────────────────────────────────────────────────────────────── -->
+      <div class="card">
+        <h2>7. Traceability Matrix</h2>
+        <p class="section-desc">Maps requirements to test cases. Click a test case ID to view it in the
+           <a href="/test-cases.html" style="color:#62d7ff">Test Cases</a> page (TC-TR = Time Rewind).</p>
+        <div style="overflow-x:auto">
+          <table class="matrix-table" id="matrix-table">
+            <thead>
+              <tr>
+                <th>Requirement</th>
+                <th>Title</th>
+                <th>Test Cases</th>
+              </tr>
+            </thead>
+            <tbody id="matrix-body">
+              <!-- filled by JS -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+    </div>
+
+    <script>
+    /* ======================================================================= */
+    /*  REQUIREMENTS DATA                                                      */
+    /* ======================================================================= */
+    const REQS = [
+      // ── Core Game Mechanics ─────────────────────────────────────────────
+      {
+        id: 'FR-CORE-01', module: 'core', prio: 'must',
+        title: '5x3 reel grid with 15 paylines',
+        desc: 'The game shall display a 5-column, 3-row reel grid with 15 fixed paylines. All paylines are active on every spin.',
+        bdd: [
+          { kw: 'Given', text: 'a player on the Time Machine game screen' },
+          { kw: 'When',  text: 'the game initialises' },
+          { kw: 'Then',  text: 'a 5\u00d73 grid is rendered with 15 paylines active' },
+          { kw: 'And',   text: 'the payline count is displayed in the bet panel' },
+        ],
+        tests: ['TC-TR-CORE-01'],
+      },
+      {
+        id: 'FR-CORE-02', module: 'core', prio: 'must',
+        title: 'Symbol set definition (9 symbols)',
+        desc: 'The game shall use 9 distinct symbols: Gear (low), Hourglass (low), Clock (low), Compass (mid), Crystal (mid), Portal (high), TimeMachine (high), Chrono Wild (special), and Vortex Scatter (special). Each symbol has unique artwork and a defined position in the paytable hierarchy.',
+        bdd: [
+          { kw: 'Given', text: 'the game is loaded' },
+          { kw: 'When',  text: 'symbols appear on the reels' },
+          { kw: 'Then',  text: 'all 9 symbols are visually distinct and correctly mapped to paytable values' },
+        ],
+        tests: ['TC-TR-CORE-02'],
+      },
+      {
+        id: 'FR-CORE-03', module: 'core', prio: 'must',
+        title: 'Chrono Wild substitution',
+        desc: 'The Chrono Wild symbol shall substitute for all symbols except the Vortex Scatter when forming winning combinations on a payline.',
+        bdd: [
+          { kw: 'Given', text: 'a payline containing Chrono Wild and regular symbols' },
+          { kw: 'When',  text: 'wins are evaluated' },
+          { kw: 'Then',  text: 'Chrono Wild counts as the best matching regular symbol' },
+          { kw: 'And',   text: 'Chrono Wild does not substitute for Vortex Scatter' },
+        ],
+        tests: ['TC-TR-CORE-03'],
+      },
+      {
+        id: 'FR-CORE-04', module: 'core', prio: 'must',
+        title: 'Vortex Scatter free spins trigger',
+        desc: 'When 3 or more Vortex Scatter symbols appear anywhere on the reels, the system shall award free spins: 3 scatters = 8 free spins, 4 scatters = 12 free spins, 5 scatters = 20 free spins.',
+        bdd: [
+          { kw: 'Given', text: 'a spin result with 3 Vortex Scatter symbols' },
+          { kw: 'When',  text: 'the result is evaluated' },
+          { kw: 'Then',  text: '8 free spins are awarded' },
+          { kw: 'And',   text: '4 scatters award 12 and 5 scatters award 20 free spins' },
+        ],
+        tests: ['TC-TR-CORE-04'],
+      },
+      {
+        id: 'FR-CORE-05', module: 'core', prio: 'must',
+        title: 'Paytable multipliers (3/4/5 of a kind)',
+        desc: 'Each symbol shall have defined multipliers for 3, 4, and 5 of a kind matches. Low symbols (Gear, Hourglass, Clock): 0.2\u20131x / 0.5\u20132x / 1\u20134x. Mid symbols (Compass, Crystal): 0.5\u20131x / 1\u20133x / 2\u20136x. High symbols (Portal, TimeMachine): 1\u20132x / 3\u20135x / 5\u201315x.',
+        bdd: [
+          { kw: 'Given', text: 'a payline with 3, 4, or 5 matching symbols' },
+          { kw: 'When',  text: 'the win is calculated' },
+          { kw: 'Then',  text: 'the payout equals bet_per_line \u00d7 paytable_multiplier for the matched symbol count' },
+        ],
+        tests: ['TC-TR-CORE-05'],
+      },
+      {
+        id: 'FR-CORE-06', module: 'core', prio: 'must',
+        title: 'Bet levels ($0.15 \u2013 $150)',
+        desc: 'The game shall support bet levels ranging from $0.15 (min) to $150 (max) total bet. With 15 paylines, the bet-per-line ranges from $0.01 to $10.00.',
+        bdd: [
+          { kw: 'Given', text: 'a player adjusting bet controls' },
+          { kw: 'When',  text: 'they set the bet amount' },
+          { kw: 'Then',  text: 'the total bet is between $0.15 and $150' },
+          { kw: 'And',   text: 'the bet-per-line is total_bet / 15' },
+        ],
+        tests: ['TC-TR-CORE-06'],
+      },
+      {
+        id: 'FR-CORE-07', module: 'core', prio: 'must',
+        title: 'Min/max bet validation',
+        desc: 'The server shall reject spin requests with a bet below $0.15 or above $150, returning HTTP 400 with code INVALID_BET.',
+        bdd: [
+          { kw: 'Given', text: 'a spin request with bet = $0.05' },
+          { kw: 'When',  text: 'the server validates the request' },
+          { kw: 'Then',  text: 'HTTP 400 is returned with code INVALID_BET' },
+        ],
+        tests: ['TC-TR-CORE-07'],
+      },
+      {
+        id: 'FR-CORE-08', module: 'core', prio: 'must',
+        title: 'Left-to-right payline evaluation (longest match)',
+        desc: 'Paylines shall be evaluated left-to-right, starting from reel 1. Only the longest matching sequence on each payline is paid (no sub-combinations).',
+        bdd: [
+          { kw: 'Given', text: 'a payline with symbols A-A-A-B-A' },
+          { kw: 'When',  text: 'the payline is evaluated' },
+          { kw: 'Then',  text: 'a 3-of-a-kind for symbol A is paid (not also a 2-of-a-kind)' },
+        ],
+        tests: ['TC-TR-CORE-08'],
+      },
+      {
+        id: 'FR-CORE-09', module: 'core', prio: 'must',
+        title: 'Win calculation formula',
+        desc: 'Win amount for each payline shall be calculated as: bet_per_line \u00d7 paytable_multiplier. Total spin win is the sum of all winning payline amounts.',
+        bdd: [
+          { kw: 'Given', text: 'a spin with bet_per_line = $1.00 and two winning paylines' },
+          { kw: 'When',  text: 'wins are aggregated' },
+          { kw: 'Then',  text: 'total_win = sum of (bet_per_line \u00d7 multiplier) for each winning payline' },
+        ],
+        tests: ['TC-TR-CORE-09'],
+      },
+      {
+        id: 'FR-CORE-10', module: 'core', prio: 'must',
+        title: 'RNG independence (Mulberry32, fresh seed per spin)',
+        desc: 'Each spin shall use a fresh PRNG seed derived from HMAC-SHA256(server_seed, client_seed:nonce). The Mulberry32 PRNG produces independent, non-deterministic outcomes. No spin outcome shall depend on previous outcomes.',
+        bdd: [
+          { kw: 'Given', text: 'two consecutive spins by the same player' },
+          { kw: 'When',  text: 'the RNG seeds are inspected' },
+          { kw: 'Then',  text: 'each spin uses a unique seed derived from an incremented nonce' },
+          { kw: 'And',   text: 'the outcomes are statistically independent' },
+        ],
+        tests: ['TC-TR-CORE-10'],
+      },
+      {
+        id: 'FR-CORE-11', module: 'core', prio: 'should',
+        title: 'Idle matrix display (cosmetic, non-deterministic)',
+        desc: 'When the game initialises, the reel grid should display a randomly generated idle matrix for cosmetic purposes. This matrix does not represent an actual spin result.',
+        bdd: [
+          { kw: 'Given', text: 'a player opening the game for the first time in a session' },
+          { kw: 'When',  text: 'the init response is received' },
+          { kw: 'Then',  text: 'a cosmetic reel matrix is displayed on the grid' },
+          { kw: 'And',   text: 'the matrix is not treated as a spin result' },
+        ],
+        tests: ['TC-TR-CORE-11'],
+      },
+      {
+        id: 'FR-CORE-12', module: 'core', prio: 'must',
+        title: 'Session initialisation (game config, balance, idle matrix)',
+        desc: 'The init endpoint shall return the game configuration (game_id, paylines, bet limits, symbol definitions), current wallet balance, and an idle reel matrix.',
+        bdd: [
+          { kw: 'Given', text: 'an authenticated player' },
+          { kw: 'When',  text: 'they call POST /api/v1/game/init with game_id: slot_time_rewind_001' },
+          { kw: 'Then',  text: 'session details, game config, balance, and idle matrix are returned' },
+        ],
+        tests: ['TC-TR-CORE-12'],
+      },
+      {
+        id: 'FR-CORE-13', module: 'core', prio: 'must',
+        title: 'Balance deduction before spin, win credit after',
+        desc: 'The total bet shall be deducted from the wallet before the spin executes. Any winnings are credited after evaluation. Balance = previous_balance - bet + winnings.',
+        bdd: [
+          { kw: 'Given', text: 'a player with balance $100 and total bet $1.50' },
+          { kw: 'When',  text: 'they spin and win $3.00' },
+          { kw: 'Then',  text: 'new balance = $100 - $1.50 + $3.00 = $101.50' },
+        ],
+        tests: ['TC-TR-CORE-13'],
+      },
+      {
+        id: 'FR-CORE-14', module: 'core', prio: 'must',
+        title: 'Reject spin with insufficient balance',
+        desc: 'The system shall reject a spin request if the wallet balance is less than the total bet amount, returning HTTP 400 with code INSUFFICIENT_BALANCE.',
+        bdd: [
+          { kw: 'Given', text: 'a player with balance $0.10 and bet $1.50' },
+          { kw: 'When',  text: 'they attempt to spin' },
+          { kw: 'Then',  text: 'HTTP 400 with code INSUFFICIENT_BALANCE is returned' },
+        ],
+        tests: ['TC-TR-CORE-14'],
+      },
+      {
+        id: 'FR-CORE-15', module: 'core', prio: 'must',
+        title: 'Spin idempotency',
+        desc: 'Repeated spin requests with the same idempotency key within a 24-hour window shall return the original result without re-processing or additional balance changes.',
+        bdd: [
+          { kw: 'Given', text: 'a spin request with an idempotency key already used' },
+          { kw: 'When',  text: 'the server receives the duplicate request' },
+          { kw: 'Then',  text: 'the original spin result is returned without modifying the balance' },
+        ],
+        tests: ['TC-TR-CORE-15'],
+      },
+
+      // ── Time Rewind Gamble ──────────────────────────────────────────────
+      {
+        id: 'FR-REWIND-01', module: 'rewind', prio: 'must',
+        title: 'Losing streak tracking (consecutive zero-win spins)',
+        desc: 'The server shall track consecutive spins where win = 0 per active session. The streak counter increments on each losing spin and resets on any win or rewind completion.',
+        bdd: [
+          { kw: 'Given', text: 'a player has completed 3 consecutive spins with zero wins' },
+          { kw: 'When',  text: 'they complete another spin with zero win' },
+          { kw: 'Then',  text: 'the losing streak counter is incremented to 4' },
+          { kw: 'And',   text: 'the streak value is included in the spin response' },
+        ],
+        tests: ['TC-TR-REWIND-01'],
+      },
+      {
+        id: 'FR-REWIND-02', module: 'rewind', prio: 'must',
+        title: 'Rewind trigger condition (5 losses + 35% probability)',
+        desc: 'When a player reaches 5 consecutive losing spins, the system shall evaluate a 35% probability roll. If successful, a Time Rewind offer is included in the spin response with available tiers.',
+        bdd: [
+          { kw: 'Given', text: 'a player has completed 5 consecutive spins with zero wins' },
+          { kw: 'When',  text: 'the system evaluates the losing streak' },
+          { kw: 'Then',  text: 'there is a 35% probability that a Time Rewind offer is presented' },
+          { kw: 'And',   text: 'the offer includes available tiers (Standard, Safe, Super)' },
+          { kw: 'And',   text: 'the streak counter displays "5/5"' },
+        ],
+        tests: ['TC-TR-REWIND-02'],
+      },
+      {
+        id: 'FR-REWIND-03', module: 'rewind', prio: 'must',
+        title: 'Rewind offer display (modal with tier selection)',
+        desc: 'When a rewind offer is triggered, the client shall display a modal presenting the three available tiers with cost, wild boost percentage, and a skip button. The offer details are calculated based on the current bet level.',
+        bdd: [
+          { kw: 'Given', text: 'the spin response contains a rewind_offer object' },
+          { kw: 'When',  text: 'the client processes the response' },
+          { kw: 'Then',  text: 'a modal appears showing Standard, Safe, and Super tier options' },
+          { kw: 'And',   text: 'each tier displays total cost and wild boost percentage' },
+          { kw: 'And',   text: 'a "Skip" button is always visible' },
+        ],
+        tests: ['TC-TR-REWIND-03'],
+      },
+      {
+        id: 'FR-REWIND-04', module: 'rewind', prio: 'must',
+        title: 'Standard rewind tier (2x bet, +15% wild boost)',
+        desc: 'The Standard rewind tier shall execute 5 spins at 2\u00d7 the current bet amount per spin, using reel strips with +15% increased wild symbol frequency.',
+        bdd: [
+          { kw: 'Given', text: 'a player accepts the Standard rewind tier' },
+          { kw: 'When',  text: 'the rewind executes' },
+          { kw: 'Then',  text: '5 spins are performed at 2\u00d7 the current bet amount' },
+          { kw: 'And',   text: 'each spin uses a fresh RNG seed (not reused from original spins)' },
+          { kw: 'And',   text: 'the reel strips used have +15% increased wild symbol frequency' },
+          { kw: 'And',   text: 'the total wager is deducted atomically before spins begin' },
+        ],
+        tests: ['TC-TR-REWIND-04'],
+      },
+      {
+        id: 'FR-REWIND-05', module: 'rewind', prio: 'must',
+        title: 'Safe rewind tier (1.5x bet, +10% wild boost)',
+        desc: 'The Safe rewind tier shall execute 5 spins at 1.5\u00d7 the current bet amount per spin, using reel strips with +10% increased wild symbol frequency. This is the lowest-risk rewind option.',
+        bdd: [
+          { kw: 'Given', text: 'a player accepts the Safe rewind tier' },
+          { kw: 'When',  text: 'the rewind executes' },
+          { kw: 'Then',  text: '5 spins are performed at 1.5\u00d7 the current bet amount' },
+          { kw: 'And',   text: 'the reel strips have +10% increased wild frequency' },
+        ],
+        tests: ['TC-TR-REWIND-05'],
+      },
+      {
+        id: 'FR-REWIND-06', module: 'rewind', prio: 'must',
+        title: 'Super rewind tier (3x bet, +25% wild boost)',
+        desc: 'The Super rewind tier shall execute 5 spins at 3\u00d7 the current bet amount per spin, using reel strips with +25% increased wild symbol frequency. This is the highest-risk, highest-reward option.',
+        bdd: [
+          { kw: 'Given', text: 'a player accepts the Super rewind tier' },
+          { kw: 'When',  text: 'the rewind executes' },
+          { kw: 'Then',  text: '5 spins are performed at 3\u00d7 the current bet amount' },
+          { kw: 'And',   text: 'the reel strips have +25% increased wild frequency' },
+        ],
+        tests: ['TC-TR-REWIND-06'],
+      },
+      {
+        id: 'FR-REWIND-07', module: 'rewind', prio: 'must',
+        title: 'Player choice (accept tier or skip)',
+        desc: 'The player shall always have the option to skip the rewind offer. Accepting requires selecting exactly one tier. No rewind shall execute without explicit player consent.',
+        bdd: [
+          { kw: 'Given', text: 'a rewind offer is presented' },
+          { kw: 'When',  text: 'the player clicks "Skip"' },
+          { kw: 'Then',  text: 'the offer is dismissed and no rewind spins are executed' },
+          { kw: 'And',   text: 'the losing streak counter is reset to 0' },
+        ],
+        tests: ['TC-TR-REWIND-07'],
+      },
+      {
+        id: 'FR-REWIND-08', module: 'rewind', prio: 'must',
+        title: 'Fresh RNG per rewind spin (regulatory compliance)',
+        desc: 'Each of the 5 rewind spins shall use a fresh RNG seed derived from the provably fair mechanism (incremented nonce). No spin result from previous regular spins shall be reused or replayed.',
+        bdd: [
+          { kw: 'Given', text: 'a rewind executing 5 spins' },
+          { kw: 'When',  text: 'the seeds for each spin are inspected' },
+          { kw: 'Then',  text: 'each spin has a unique nonce and independently derived PRNG seed' },
+          { kw: 'And',   text: 'no seed matches any previous spin in the session' },
+        ],
+        tests: ['TC-TR-REWIND-08'],
+      },
+      {
+        id: 'FR-REWIND-09', module: 'rewind', prio: 'must',
+        title: 'Atomic wallet debit for total rewind wager',
+        desc: 'The total rewind cost (5 \u00d7 bet \u00d7 tier_multiplier) shall be deducted from the wallet in a single atomic operation before any rewind spins execute. Individual wins from each spin are credited sequentially.',
+        bdd: [
+          { kw: 'Given', text: 'a player\'s current bet is $1.50 and they accept Standard rewind (2\u00d7)' },
+          { kw: 'When',  text: 'the rewind is initiated' },
+          { kw: 'Then',  text: 'the wallet is debited $15.00 (5 spins \u00d7 $1.50 \u00d7 2) atomically' },
+          { kw: 'And',   text: 'if the wallet balance is insufficient, the rewind is rejected with error 422' },
+          { kw: 'And',   text: 'the balance check occurs before any spin execution' },
+        ],
+        tests: ['TC-TR-REWIND-09'],
+      },
+      {
+        id: 'FR-REWIND-10', module: 'rewind', prio: 'must',
+        title: 'Rewind spin execution with boosted wild reel strips',
+        desc: 'During rewind, the server shall use modified reel strips where wild symbol frequency is increased by the tier\'s boost percentage. All other game mechanics (payline evaluation, scatter triggers) remain unchanged.',
+        bdd: [
+          { kw: 'Given', text: 'a Standard rewind is executing (+15% wild boost)' },
+          { kw: 'When',  text: 'the reel strips are sampled' },
+          { kw: 'Then',  text: 'the wild symbol probability is 15% higher than base game strips' },
+          { kw: 'And',   text: 'all other symbol distributions are proportionally adjusted' },
+        ],
+        tests: ['TC-TR-REWIND-10'],
+      },
+      {
+        id: 'FR-REWIND-11', module: 'rewind', prio: 'must',
+        title: 'Streak reset after rewind (accepted or skipped)',
+        desc: 'After a rewind offer is accepted and completes, or after it is skipped, the losing streak counter shall reset to 0.',
+        bdd: [
+          { kw: 'Given', text: 'a player has completed or skipped a rewind offer' },
+          { kw: 'When',  text: 'the next spin occurs' },
+          { kw: 'Then',  text: 'the losing streak counter starts from 0' },
+        ],
+        tests: ['TC-TR-REWIND-11'],
+      },
+      {
+        id: 'FR-REWIND-12', module: 'rewind', prio: 'must',
+        title: 'Balance validation for rewind (sufficient funds for all 5 spins)',
+        desc: 'Before accepting a rewind, the server shall verify that the player has sufficient balance for the total rewind cost. If the balance is insufficient for any tier, that tier shall be marked as unavailable in the offer.',
+        bdd: [
+          { kw: 'Given', text: 'a player with balance $10.00 and current bet $1.50' },
+          { kw: 'When',  text: 'the rewind offer is generated' },
+          { kw: 'Then',  text: 'Safe ($11.25) is unavailable, Standard ($15.00) is unavailable' },
+          { kw: 'And',   text: 'Super ($22.50) is unavailable' },
+          { kw: 'And',   text: 'unavailable tiers are visually disabled in the modal' },
+        ],
+        tests: ['TC-TR-REWIND-12'],
+      },
+      {
+        id: 'FR-REWIND-13', module: 'rewind', prio: 'must',
+        title: 'Rewind result aggregation',
+        desc: 'The rewind response shall include aggregate results: total wagered across all 5 spins, total won, net result (total_won - total_wagered), and individual spin outcomes.',
+        bdd: [
+          { kw: 'Given', text: 'a completed rewind with 5 spins' },
+          { kw: 'When',  text: 'the response is returned' },
+          { kw: 'Then',  text: 'total_wagered, total_won, net_result, and per-spin breakdowns are included' },
+        ],
+        tests: ['TC-TR-REWIND-13'],
+      },
+      {
+        id: 'FR-REWIND-14', module: 'rewind', prio: 'must',
+        title: 'History tracking (rewind spins flagged)',
+        desc: 'Rewind spins shall be persisted in the game_rounds table with an <code>is_rewind: true</code> flag and a <code>rewind_tier</code> field indicating the selected tier.',
+        bdd: [
+          { kw: 'Given', text: 'a completed rewind' },
+          { kw: 'When',  text: 'the game history is queried' },
+          { kw: 'Then',  text: 'rewind spins appear with is_rewind=true and the tier name' },
+          { kw: 'And',   text: 'they can be filtered separately from regular spins' },
+        ],
+        tests: ['TC-TR-REWIND-14'],
+      },
+      {
+        id: 'FR-REWIND-15', module: 'rewind', prio: 'must',
+        title: 'Rewind idempotency (idempotency key)',
+        desc: 'The rewind request shall accept an idempotency key. Duplicate rewind requests with the same key shall return the original result without re-executing spins or modifying the balance.',
+        bdd: [
+          { kw: 'Given', text: 'a rewind request with an idempotency key already processed' },
+          { kw: 'When',  text: 'the server receives the duplicate' },
+          { kw: 'Then',  text: 'the cached rewind result is returned unchanged' },
+        ],
+        tests: ['TC-TR-REWIND-15'],
+      },
+      {
+        id: 'FR-REWIND-16', module: 'rewind', prio: 'must',
+        title: 'Game ID validation (Time Machine only)',
+        desc: 'The rewind endpoint shall only accept requests for <code>game_id: slot_time_rewind_001</code>. Requests with any other game_id shall be rejected with HTTP 400 and code INVALID_GAME.',
+        bdd: [
+          { kw: 'Given', text: 'a rewind request with game_id: slot_classic_001' },
+          { kw: 'When',  text: 'the server validates the request' },
+          { kw: 'Then',  text: 'HTTP 400 is returned with code INVALID_GAME' },
+        ],
+        tests: ['TC-TR-REWIND-16'],
+      },
+      {
+        id: 'FR-REWIND-17', module: 'rewind', prio: 'must',
+        title: 'Rewind offer expiry (current spin response only)',
+        desc: 'A rewind offer is valid only for the spin response in which it was generated. The offer includes a unique <code>offer_id</code> that expires when a new spin is performed or after a 30-second timeout.',
+        bdd: [
+          { kw: 'Given', text: 'a rewind offer was generated on the previous spin' },
+          { kw: 'When',  text: 'the player performs a new spin before accepting' },
+          { kw: 'Then',  text: 'the previous offer is invalidated' },
+          { kw: 'And',   text: 'attempting to accept the expired offer returns HTTP 410 Gone' },
+        ],
+        tests: ['TC-TR-REWIND-17'],
+      },
+      {
+        id: 'FR-REWIND-18', module: 'rewind', prio: 'must',
+        title: 'Concurrent rewind prevention',
+        desc: 'Only one rewind may be active per session at a time. If a rewind is in progress, additional rewind requests shall be rejected with HTTP 409 Conflict.',
+        bdd: [
+          { kw: 'Given', text: 'a rewind is currently executing for a session' },
+          { kw: 'When',  text: 'another rewind request arrives for the same session' },
+          { kw: 'Then',  text: 'HTTP 409 Conflict is returned with code REWIND_IN_PROGRESS' },
+        ],
+        tests: ['TC-TR-REWIND-18'],
+      },
+
+      // ── Mathematical Model & RTP ────────────────────────────────────────
+      {
+        id: 'FR-MATH-01', module: 'math', prio: 'must',
+        title: 'Base game RTP target (94\u201395%)',
+        desc: 'The base game (excluding rewind feature) shall be designed with a theoretical RTP between 94% and 95%, verified through simulation of at least 10 million spins.',
+        bdd: [
+          { kw: 'Given', text: 'a simulation of 10M+ base game spins' },
+          { kw: 'When',  text: 'the RTP is calculated' },
+          { kw: 'Then',  text: 'the result falls within the 94\u201395% range' },
+        ],
+        tests: ['TC-TR-MATH-01'],
+      },
+      {
+        id: 'FR-MATH-02', module: 'math', prio: 'must',
+        title: 'Rewind feature RTP contribution (+1\u20132%)',
+        desc: 'The Time Rewind feature shall contribute an additional 1\u20132% to the overall RTP. This is calculated as the net return from all rewind sessions relative to total wagered.',
+        bdd: [
+          { kw: 'Given', text: 'a simulation including rewind triggers' },
+          { kw: 'When',  text: 'the rewind-only RTP is isolated' },
+          { kw: 'Then',  text: 'the contribution is between 1% and 2% of total wagered' },
+        ],
+        tests: ['TC-TR-MATH-02'],
+      },
+      {
+        id: 'FR-MATH-03', module: 'math', prio: 'must',
+        title: 'Combined RTP target (95.5\u201396.5%)',
+        desc: 'The combined RTP (base game + free spins + rewind feature) shall target 95.5\u201396.5%, placing the game within industry-standard ranges for medium-high volatility slots.',
+        bdd: [
+          { kw: 'Given', text: 'a full simulation with all features active' },
+          { kw: 'When',  text: 'the combined RTP is calculated' },
+          { kw: 'Then',  text: 'the result falls within 95.5\u201396.5%' },
+        ],
+        tests: ['TC-TR-MATH-03'],
+      },
+      {
+        id: 'FR-MATH-04', module: 'math', prio: 'must',
+        title: 'Volatility classification (medium-high)',
+        desc: 'The game shall be classified as medium-high volatility based on the variance of win distributions. The standard deviation of win-per-spin shall fall within the medium-high range.',
+        bdd: [
+          { kw: 'Given', text: 'a statistical analysis of win distributions' },
+          { kw: 'When',  text: 'the volatility index is calculated' },
+          { kw: 'Then',  text: 'the game is classified as medium-high volatility' },
+        ],
+        tests: ['TC-TR-MATH-04'],
+      },
+      {
+        id: 'FR-MATH-05', module: 'math', prio: 'must',
+        title: 'Hit frequency target (28\u201332%)',
+        desc: 'The base game hit frequency (percentage of spins producing any win) shall be between 28% and 32%.',
+        bdd: [
+          { kw: 'Given', text: 'a simulation of base game spins' },
+          { kw: 'When',  text: 'the hit frequency is measured' },
+          { kw: 'Then',  text: 'between 28% and 32% of spins produce a non-zero win' },
+        ],
+        tests: ['TC-TR-MATH-05'],
+      },
+      {
+        id: 'FR-MATH-06', module: 'math', prio: 'must',
+        title: 'Free spins RTP contribution (included in base RTP)',
+        desc: 'The RTP contribution from Vortex Scatter-triggered free spins shall be included in the base game RTP calculation (not additive).',
+        bdd: [
+          { kw: 'Given', text: 'the base game RTP calculation' },
+          { kw: 'When',  text: 'free spin events are factored in' },
+          { kw: 'Then',  text: 'they contribute to the 94\u201395% base RTP target (not additional)' },
+        ],
+        tests: ['TC-TR-MATH-06'],
+      },
+      {
+        id: 'FR-MATH-07', module: 'math', prio: 'must',
+        title: 'Maximum single-spin win cap (5000x bet)',
+        desc: 'The maximum possible win on any single spin (including rewind spins) shall be capped at 5000\u00d7 the total bet amount. Any calculated win exceeding this cap shall be truncated.',
+        bdd: [
+          { kw: 'Given', text: 'a spin resulting in a win > 5000\u00d7 bet' },
+          { kw: 'When',  text: 'the win is finalized' },
+          { kw: 'Then',  text: 'the win is capped at 5000\u00d7 bet' },
+          { kw: 'And',   text: 'a cap_applied flag is set in the response' },
+        ],
+        tests: ['TC-TR-MATH-07'],
+      },
+      {
+        id: 'FR-MATH-08', module: 'math', prio: 'must',
+        title: 'Paytable balance (symbol tiers)',
+        desc: 'The paytable shall be balanced across symbol tiers: low symbols (Gear, Hourglass, Clock) pay 0.2\u20134\u00d7, mid symbols (Compass, Crystal) pay 0.5\u20136\u00d7, high symbols (Portal, TimeMachine) pay 0.5\u201315\u00d7.',
+        bdd: [
+          { kw: 'Given', text: 'the paytable definition' },
+          { kw: 'When',  text: 'multipliers are reviewed' },
+          { kw: 'Then',  text: 'low symbols have the smallest multipliers and high symbols the largest' },
+          { kw: 'And',   text: 'no tier overlaps disrupt the expected payout hierarchy' },
+        ],
+        tests: ['TC-TR-MATH-08'],
+      },
+      {
+        id: 'FR-MATH-09', module: 'math', prio: 'should',
+        title: 'Wild distribution on reel strips (balanced across reels)',
+        desc: 'Chrono Wild symbols should be distributed across all 5 reel strips with no reel having more than 2\u00d7 the wild count of any other reel. This ensures consistent win potential across paylines.',
+        bdd: [
+          { kw: 'Given', text: 'the base reel strip definitions' },
+          { kw: 'When',  text: 'wild counts per reel are compared' },
+          { kw: 'Then',  text: 'no reel has more than double the wilds of any other' },
+        ],
+        tests: ['TC-TR-MATH-09'],
+      },
+      {
+        id: 'FR-MATH-10', module: 'math', prio: 'should',
+        title: 'Scatter distribution (at least 1 per reel, balanced)',
+        desc: 'Vortex Scatter symbols should appear on all 5 reel strips with at least 1 scatter per reel. The distribution should make 3-scatter hits occur at a target frequency that supports the base game RTP.',
+        bdd: [
+          { kw: 'Given', text: 'the reel strip definitions' },
+          { kw: 'When',  text: 'scatter positions are inspected' },
+          { kw: 'Then',  text: 'every reel has at least 1 Vortex Scatter symbol' },
+          { kw: 'And',   text: 'the 3-scatter probability matches the free spin trigger target' },
+        ],
+        tests: ['TC-TR-MATH-10'],
+      },
+
+      // ── User Interface & Animation ──────────────────────────────────────
+      {
+        id: 'FR-UI-01', module: 'ui', prio: 'must',
+        title: 'Reel spin animation (PixiJS, top-to-bottom scroll)',
+        desc: 'When a spin is triggered, the reels shall animate with a top-to-bottom scrolling motion using PixiJS WebGL rendering. Reels stop sequentially from left to right with eased deceleration.',
+        bdd: [
+          { kw: 'Given', text: 'the player presses the spin button' },
+          { kw: 'When',  text: 'the animation plays' },
+          { kw: 'Then',  text: 'reels scroll vertically and stop left-to-right with easing' },
+        ],
+        tests: ['TC-TR-UI-01'],
+      },
+      {
+        id: 'FR-UI-02', module: 'ui', prio: 'must',
+        title: 'Rewind animation (reverse scroll, time distortion)',
+        desc: 'During rewind spins, the reel animation shall reverse direction (bottom-to-top scroll) and apply a time distortion visual effect (blue/purple tint, slight blur, clock overlay). This clearly differentiates rewind spins from regular spins.',
+        bdd: [
+          { kw: 'Given', text: 'a rewind spin is executing' },
+          { kw: 'When',  text: 'the reels animate' },
+          { kw: 'Then',  text: 'the scroll direction is reversed (bottom-to-top)' },
+          { kw: 'And',   text: 'a time distortion visual overlay is applied' },
+        ],
+        tests: ['TC-TR-UI-02'],
+      },
+      {
+        id: 'FR-UI-03', module: 'ui', prio: 'must',
+        title: 'Losing streak counter display',
+        desc: 'The UI shall display the current losing streak counter in the format "Streak: N/5" when N > 0. The counter shall be visible in the HUD area near the balance display.',
+        bdd: [
+          { kw: 'Given', text: 'a player with a losing streak of 3' },
+          { kw: 'When',  text: 'they view the game screen' },
+          { kw: 'Then',  text: '"Streak: 3/5" is displayed in the HUD' },
+          { kw: 'And',   text: 'when the streak is 0, the counter is hidden' },
+        ],
+        tests: ['TC-TR-UI-03'],
+      },
+      {
+        id: 'FR-UI-04', module: 'ui', prio: 'must',
+        title: 'Rewind mode overlay',
+        desc: 'During rewind execution, the game screen shall display a persistent overlay with the text "REWIND MODE ACTIVE" and a blue/purple tint on the background. The overlay remains until all 5 rewind spins complete.',
+        bdd: [
+          { kw: 'Given', text: 'a rewind is in progress' },
+          { kw: 'When',  text: 'the player views the game' },
+          { kw: 'Then',  text: '"REWIND MODE ACTIVE" text is visible' },
+          { kw: 'And',   text: 'the background has a blue/purple tint overlay' },
+        ],
+        tests: ['TC-TR-UI-04'],
+      },
+      {
+        id: 'FR-UI-05', module: 'ui', prio: 'must',
+        title: 'Rewind modal (tier selection)',
+        desc: 'The rewind offer modal shall display: a title ("Time Rewind Available"), a description of the mechanic, three tier buttons (Standard, Safe, Super) showing cost and wild boost, and a Skip button. Unavailable tiers are greyed out with a tooltip explaining why.',
+        bdd: [
+          { kw: 'Given', text: 'a rewind offer is triggered' },
+          { kw: 'When',  text: 'the modal appears' },
+          { kw: 'Then',  text: 'all three tiers are shown with cost/boost info' },
+          { kw: 'And',   text: 'the Skip button is always active and clickable' },
+        ],
+        tests: ['TC-TR-UI-05'],
+      },
+      {
+        id: 'FR-UI-06', module: 'ui', prio: 'must',
+        title: 'Win line presentation (colored paylines, highlights)',
+        desc: 'Winning paylines shall be highlighted with colored lines overlaid on the reel grid. Winning symbols shall pulse or glow briefly. Multiple winning paylines cycle through their highlights.',
+        bdd: [
+          { kw: 'Given', text: 'a spin result with 2 winning paylines' },
+          { kw: 'When',  text: 'the win is displayed' },
+          { kw: 'Then',  text: 'colored lines highlight each winning payline' },
+          { kw: 'And',   text: 'winning symbols pulse and multiple lines cycle' },
+        ],
+        tests: ['TC-TR-UI-06'],
+      },
+      {
+        id: 'FR-UI-07', module: 'ui', prio: 'must',
+        title: 'Balance display update (real-time)',
+        desc: 'The balance display shall update in real-time after each regular spin, each rewind spin, and the final rewind aggregation. During rewind, the balance reflects each individual spin outcome.',
+        bdd: [
+          { kw: 'Given', text: 'a rewind is executing' },
+          { kw: 'When',  text: 'each rewind spin completes' },
+          { kw: 'Then',  text: 'the balance display updates to reflect the individual spin\u2019s win' },
+        ],
+        tests: ['TC-TR-UI-07'],
+      },
+      {
+        id: 'FR-UI-08', module: 'ui', prio: 'must',
+        title: 'Spin button states (idle, spinning, disabled during rewind)',
+        desc: 'The spin button shall have three states: idle (clickable), spinning (disabled during animation), and rewind (disabled and visually locked during entire rewind sequence).',
+        bdd: [
+          { kw: 'Given', text: 'a rewind is in progress' },
+          { kw: 'When',  text: 'the player looks at the spin button' },
+          { kw: 'Then',  text: 'the button is disabled with a "rewind" visual indicator' },
+          { kw: 'And',   text: 'clicking it has no effect' },
+        ],
+        tests: ['TC-TR-UI-08'],
+      },
+      {
+        id: 'FR-UI-09', module: 'ui', prio: 'should',
+        title: 'Sound effects (spin, win, rewind tape, time warp)',
+        desc: 'The game should include sound effects for: regular spin, win (tiered by amount), rewind tape effect (VHS rewind sound), and time warp ambient during rewind mode.',
+        bdd: [
+          { kw: 'Given', text: 'a rewind is initiated' },
+          { kw: 'When',  text: 'the rewind animation starts' },
+          { kw: 'Then',  text: 'a VHS-style rewind sound effect plays' },
+          { kw: 'And',   text: 'ambient time warp audio persists during rewind spins' },
+        ],
+        tests: ['TC-TR-UI-09'],
+      },
+      {
+        id: 'FR-UI-10', module: 'ui', prio: 'must',
+        title: 'Responsive layout (desktop + mobile)',
+        desc: 'The game UI shall adapt to viewports from 360px to 1920px wide. On mobile, the rewind modal shall use full-screen presentation and the streak counter moves to a compact format.',
+        bdd: [
+          { kw: 'Given', text: 'a user on a 375px-wide mobile viewport' },
+          { kw: 'When',  text: 'a rewind offer appears' },
+          { kw: 'Then',  text: 'the modal fills the screen with touch-friendly buttons' },
+          { kw: 'And',   text: 'no horizontal scrolling occurs' },
+        ],
+        tests: ['TC-TR-UI-10'],
+      },
+      {
+        id: 'FR-UI-11', module: 'ui', prio: 'must',
+        title: 'Rewind progress indicator ("Spin 2/5")',
+        desc: 'During rewind execution, a progress indicator shall display the current rewind spin number in the format "Spin N/5" where N is 1\u20135.',
+        bdd: [
+          { kw: 'Given', text: 'rewind spin 3 of 5 is executing' },
+          { kw: 'When',  text: 'the player views the rewind overlay' },
+          { kw: 'Then',  text: '"Spin 3/5" is displayed prominently' },
+        ],
+        tests: ['TC-TR-UI-11'],
+      },
+      {
+        id: 'FR-UI-12', module: 'ui', prio: 'should',
+        title: 'prefers-reduced-motion accessibility support',
+        desc: 'When the user\'s OS has prefers-reduced-motion enabled, the game should simplify or skip reel animations, rewind visual effects, and win celebrations. Core functionality remains unaffected.',
+        bdd: [
+          { kw: 'Given', text: 'a user with prefers-reduced-motion enabled' },
+          { kw: 'When',  text: 'a spin or rewind executes' },
+          { kw: 'Then',  text: 'animations are simplified (instant result display)' },
+          { kw: 'And',   text: 'game outcomes and balance updates work normally' },
+        ],
+        tests: ['TC-TR-UI-12'],
+      },
+
+      // ── API Endpoints ──────────────────────────────────────────────────
+      {
+        id: 'FR-API-01', module: 'api', prio: 'must',
+        title: 'POST /game/init (game_id: slot_time_rewind_001)',
+        desc: 'The init endpoint shall accept <code>game_id: slot_time_rewind_001</code> and return the Time Machine game configuration including symbol set, paytable, bet limits, rewind feature availability, and current balance.',
+        bdd: [
+          { kw: 'Given', text: 'an authenticated player' },
+          { kw: 'When',  text: 'POST /api/v1/game/init is called with game_id: slot_time_rewind_001' },
+          { kw: 'Then',  text: 'Time Machine config is returned with rewind_enabled: true' },
+        ],
+        tests: ['TC-TR-API-01'],
+      },
+      {
+        id: 'FR-API-02', module: 'api', prio: 'must',
+        title: 'POST /spin (includes rewind_offer in response)',
+        desc: 'The spin response shall include a <code>rewind_offer</code> field (null or object). When a rewind is triggered, the object contains offer_id, available tiers with costs, and expiry timestamp.',
+        bdd: [
+          { kw: 'Given', text: 'a spin that triggers a rewind offer' },
+          { kw: 'When',  text: 'the response is returned' },
+          { kw: 'Then',  text: 'rewind_offer contains offer_id, tiers array, and expires_at' },
+          { kw: 'And',   text: 'each tier has name, cost_multiplier, wild_boost, total_cost, and available flag' },
+        ],
+        tests: ['TC-TR-API-02'],
+      },
+      {
+        id: 'FR-API-03', module: 'api', prio: 'must',
+        title: 'POST /game/rewind (accept and execute rewind)',
+        desc: 'The rewind endpoint shall accept offer_id, selected tier, and idempotency key. It validates the offer, debits the wallet, executes 5 spins with boosted strips, and returns individual + aggregate results.',
+        bdd: [
+          { kw: 'Given', text: 'a valid rewind offer_id and tier selection' },
+          { kw: 'When',  text: 'POST /api/v1/game/rewind is called' },
+          { kw: 'Then',  text: '5 spin results + aggregated totals are returned' },
+          { kw: 'And',   text: 'the wallet balance reflects all debits and credits' },
+        ],
+        tests: ['TC-TR-API-03'],
+      },
+      {
+        id: 'FR-API-04', module: 'api', prio: 'must',
+        title: 'Authentication (Bearer JWT required)',
+        desc: 'All game endpoints (init, spin, rewind) shall require a valid JWT bearer token in the Authorization header. Unauthenticated requests return 401.',
+        bdd: [
+          { kw: 'Given', text: 'a request without an Authorization header' },
+          { kw: 'When',  text: 'the server processes it' },
+          { kw: 'Then',  text: 'HTTP 401 Unauthorized is returned' },
+        ],
+        tests: ['TC-TR-API-04'],
+      },
+      {
+        id: 'FR-API-05', module: 'api', prio: 'must',
+        title: 'Error responses ({error, code} shape)',
+        desc: 'All error responses shall follow the shape <code>{ error: string, code: string }</code> for consistent client-side handling. Rewind-specific error codes include REWIND_OFFER_EXPIRED, REWIND_IN_PROGRESS, and INVALID_GAME.',
+        bdd: [
+          { kw: 'Given', text: 'any error condition in a game endpoint' },
+          { kw: 'When',  text: 'the server responds' },
+          { kw: 'Then',  text: 'the body contains { error, code } with an appropriate HTTP status' },
+        ],
+        tests: ['TC-TR-API-05'],
+      },
+      {
+        id: 'FR-API-06', module: 'api', prio: 'should',
+        title: 'Rate limiting (5 spins/second)',
+        desc: 'The system should enforce a rate limit of 5 spin requests per second per session. Excess requests are rejected with HTTP 429. Rewind requests count as a single request (not 5).',
+        bdd: [
+          { kw: 'Given', text: 'a player making rapid spin requests' },
+          { kw: 'When',  text: 'the rate exceeds 5 spins/second' },
+          { kw: 'Then',  text: 'excess requests are rejected with HTTP 429' },
+        ],
+        tests: ['TC-TR-API-06'],
+      },
+      {
+        id: 'FR-API-07', module: 'api', prio: 'must',
+        title: 'Idempotency key support',
+        desc: 'Both spin and rewind endpoints shall accept an <code>X-Idempotency-Key</code> header. Duplicate requests within 24 hours return cached results.',
+        bdd: [
+          { kw: 'Given', text: 'a request with an X-Idempotency-Key already processed' },
+          { kw: 'When',  text: 'the server receives the duplicate' },
+          { kw: 'Then',  text: 'the cached response is returned without re-execution' },
+        ],
+        tests: ['TC-TR-API-07'],
+      },
+      {
+        id: 'FR-API-08', module: 'api', prio: 'must',
+        title: 'Response schema validation (Zod)',
+        desc: 'All request bodies shall be validated against Zod schemas. The rewind request schema validates: offer_id (UUID), tier (enum: standard|safe|super), and idempotency_key (UUID).',
+        bdd: [
+          { kw: 'Given', text: 'a rewind request with tier = "ultra"' },
+          { kw: 'When',  text: 'the server validates the schema' },
+          { kw: 'Then',  text: 'HTTP 400 is returned with validation error details' },
+        ],
+        tests: ['TC-TR-API-08'],
+      },
+      {
+        id: 'FR-API-09', module: 'api', prio: 'must',
+        title: 'Rewind response includes all 5 spin outcomes + aggregates',
+        desc: 'The rewind response shall include an array of 5 spin outcomes (each with reel_matrix, win_amount, paylines_hit) and an aggregate object (total_wagered, total_won, net_result, final_balance).',
+        bdd: [
+          { kw: 'Given', text: 'a completed rewind' },
+          { kw: 'When',  text: 'the response is returned' },
+          { kw: 'Then',  text: 'spins[] has exactly 5 entries and aggregate{} has total_wagered, total_won, net_result' },
+        ],
+        tests: ['TC-TR-API-09'],
+      },
+      {
+        id: 'FR-API-10', module: 'api', prio: 'should',
+        title: 'Health check endpoint inclusion',
+        desc: 'The server should include the Time Machine game in the health check response, reporting its status and configuration version.',
+        bdd: [
+          { kw: 'Given', text: 'a health check request' },
+          { kw: 'When',  text: 'the server responds' },
+          { kw: 'Then',  text: 'slot_time_rewind_001 appears in the games status array' },
+        ],
+        tests: ['TC-TR-API-10'],
+      },
+
+      // ── Non-Functional Requirements ─────────────────────────────────────
+      {
+        id: 'NFR-PERF-01', module: 'nfr', prio: 'must',
+        title: 'Spin response time P95 < 200ms',
+        desc: 'The spin endpoint (single spin) shall respond within 200 milliseconds at the 95th percentile under normal load.',
+        bdd: [
+          { kw: 'Given', text: 'normal load conditions' },
+          { kw: 'When',  text: 'spin response times are measured over 1000 requests' },
+          { kw: 'Then',  text: 'the P95 latency is below 200ms' },
+        ],
+        tests: ['TC-TR-NFR-01'],
+      },
+      {
+        id: 'NFR-PERF-02', module: 'nfr', prio: 'must',
+        title: 'Rewind response time P95 < 800ms',
+        desc: 'The rewind endpoint (5 spins + aggregation) shall respond within 800 milliseconds at the 95th percentile under normal load.',
+        bdd: [
+          { kw: 'Given', text: 'normal load conditions' },
+          { kw: 'When',  text: 'rewind response times are measured over 200 requests' },
+          { kw: 'Then',  text: 'the P95 latency is below 800ms' },
+        ],
+        tests: ['TC-TR-NFR-02'],
+      },
+      {
+        id: 'NFR-SEC-01', module: 'nfr', prio: 'must',
+        title: 'No client-side RNG (all outcomes server-generated)',
+        desc: 'All spin and rewind outcomes shall be generated exclusively on the server. The client shall not perform any random number generation that affects game results.',
+        bdd: [
+          { kw: 'Given', text: 'the client-side code' },
+          { kw: 'When',  text: 'it is audited for RNG usage' },
+          { kw: 'Then',  text: 'no Math.random() or crypto.getRandomValues() is used for game outcome determination' },
+        ],
+        tests: ['TC-TR-NFR-03'],
+      },
+      {
+        id: 'NFR-SEC-02', module: 'nfr', prio: 'must',
+        title: 'Provably fair seed derivation for rewind spins',
+        desc: 'Rewind spins shall use the same provably fair seed derivation mechanism as regular spins (HMAC-SHA256 with incrementing nonce). Rewind spin seeds are verifiable after seed rotation.',
+        bdd: [
+          { kw: 'Given', text: 'a completed rewind with 5 spins' },
+          { kw: 'When',  text: 'the player rotates their seed pair' },
+          { kw: 'Then',  text: 'all 5 rewind spin outcomes can be independently verified using the revealed server_seed' },
+        ],
+        tests: ['TC-TR-NFR-04'],
+      },
+      {
+        id: 'NFR-REL-01', module: 'nfr', prio: 'must',
+        title: 'Atomic rewind transaction (all-or-nothing)',
+        desc: 'The entire rewind operation (wallet debit + 5 spins + win credits + round records) shall be wrapped in a database transaction. On any failure, all changes are rolled back.',
+        bdd: [
+          { kw: 'Given', text: 'a rewind where spin 3 of 5 encounters a database error' },
+          { kw: 'When',  text: 'the error is caught' },
+          { kw: 'Then',  text: 'the entire transaction is rolled back (wallet reverted, no rounds persisted)' },
+          { kw: 'And',   text: 'an error response is returned to the client' },
+        ],
+        tests: ['TC-TR-NFR-05'],
+      },
+      {
+        id: 'NFR-COMP-01', module: 'nfr', prio: 'must',
+        title: 'RNG compliance (independent outcomes, no deterministic replay)',
+        desc: 'Each spin outcome (regular and rewind) shall be independently generated with no ability to predict or replay outcomes. The system shall comply with standard iGaming RNG requirements.',
+        bdd: [
+          { kw: 'Given', text: 'a sequence of 10,000 spin outcomes' },
+          { kw: 'When',  text: 'statistical independence tests are run (e.g., chi-squared, serial correlation)' },
+          { kw: 'Then',  text: 'outcomes pass standard independence tests with p > 0.01' },
+        ],
+        tests: ['TC-TR-NFR-06'],
+      },
+      {
+        id: 'NFR-COMP-02', module: 'nfr', prio: 'must',
+        title: 'Responsible gaming (streak counter visible, skip always available)',
+        desc: 'The losing streak counter shall always be visible when non-zero. The skip option shall always be available on rewind offers. No mechanic shall force the player to accept a rewind.',
+        bdd: [
+          { kw: 'Given', text: 'a rewind offer is presented' },
+          { kw: 'When',  text: 'the player inspects the modal' },
+          { kw: 'Then',  text: 'the Skip button is visible and enabled' },
+          { kw: 'And',   text: 'the streak counter is clearly displayed' },
+        ],
+        tests: ['TC-TR-NFR-07'],
+      },
+      {
+        id: 'NFR-USAB-01', module: 'nfr', prio: 'must',
+        title: 'Rewind decision timeout (30 seconds, auto-skip)',
+        desc: 'If the player does not act on a rewind offer within 30 seconds, the offer shall be automatically skipped. A countdown timer shall be visible in the rewind modal.',
+        bdd: [
+          { kw: 'Given', text: 'a rewind offer is presented' },
+          { kw: 'When',  text: '30 seconds elapse without player action' },
+          { kw: 'Then',  text: 'the offer is automatically skipped' },
+          { kw: 'And',   text: 'the streak counter resets and normal play resumes' },
+        ],
+        tests: ['TC-TR-NFR-08'],
+      },
+    ];
+
+    /* ======================================================================= */
+    /*  RENDER                                                                 */
+    /* ======================================================================= */
+    const body = document.getElementById('req-body');
+    const matrixBody = document.getElementById('matrix-body');
+    const countLabel = document.getElementById('count-label');
+    const statsEl = document.getElementById('stats');
+    const searchInput = document.getElementById('search');
+
+    const MODULE_LABELS = {
+      core: 'Core', rewind: 'Rewind', math: 'Math', ui: 'UI', api: 'API', nfr: 'NFR',
+    };
+    const MODULE_BADGE = {
+      core: 'badge-core', rewind: 'badge-rewind', math: 'badge-math',
+      ui: 'badge-ui', api: 'badge-api', nfr: 'badge-nfr',
+    };
+    const PRIO_LABELS = { must: 'Must', should: 'Should', could: 'Could' };
+    const PRIO_CLASS  = { must: 'prio-must', should: 'prio-should', could: 'prio-could' };
+
+    // Stats
+    const totalCount = REQS.length;
+    const mustCount = REQS.filter(r => r.prio === 'must').length;
+    const shouldCount = REQS.filter(r => r.prio === 'should').length;
+    const couldCount = REQS.filter(r => r.prio === 'could').length;
+    const moduleCount = new Set(REQS.map(r => r.module)).size;
+
+    statsEl.innerHTML = `
+      <div class="stat"><strong>${totalCount}</strong>Requirements</div>
+      <div class="stat"><strong>${mustCount}</strong>Must</div>
+      <div class="stat"><strong>${shouldCount}</strong>Should</div>
+      <div class="stat"><strong>${couldCount}</strong>Could</div>
+      <div class="stat"><strong>${moduleCount}</strong>Modules</div>
+    `;
+
+    // Build table rows
+    function buildRows() {
+      let html = '';
+      REQS.forEach((r, i) => {
+        html += `
+        <tr class="req-row" data-idx="${i}" data-module="${r.module}">
+          <td><span class="req-chevron">&#9654;</span></td>
+          <td><span class="req-id">${r.id}</span></td>
+          <td><span class="badge ${MODULE_BADGE[r.module]}">${MODULE_LABELS[r.module]}</span></td>
+          <td><span class="prio ${PRIO_CLASS[r.prio]}">${PRIO_LABELS[r.prio]}</span></td>
+          <td class="req-title">${r.title}</td>
+        </tr>
+        <tr class="req-detail-row" data-idx="${i}" data-module="${r.module}">
+          <td colspan="5">
+            <div class="req-detail-panel" id="detail-${i}">
+              <div class="detail-grid">
+                <div class="detail-field full">
+                  <span class="detail-label">Description</span>
+                  <div class="detail-value">${r.desc}</div>
+                </div>
+                <div class="detail-field full">
+                  <span class="detail-label">Acceptance Criteria (BDD)</span>
+                  <div class="detail-value">
+                    <ul class="bdd-list">
+                      ${r.bdd.map(b => `<li data-keyword="${b.kw}">${b.text}</li>`).join('')}
+                    </ul>
+                  </div>
+                </div>
+                <div class="detail-field">
+                  <span class="detail-label">Priority</span>
+                  <div class="detail-value"><span class="prio ${PRIO_CLASS[r.prio]}">${PRIO_LABELS[r.prio]}</span></div>
+                </div>
+                <div class="detail-field">
+                  <span class="detail-label">Traced Test Cases</span>
+                  <div class="detail-value">
+                    ${r.tests.map(t => `<a class="trace-link" href="/test-cases.html#${t}" target="_blank">${t}</a>`).join(', ')}
+                  </div>
+                </div>
+              </div>
+            </div>
+          </td>
+        </tr>`;
+      });
+      body.innerHTML = html;
+    }
+
+    buildRows();
+
+    // Build traceability matrix
+    function buildMatrix() {
+      let html = '';
+      REQS.forEach(r => {
+        html += `<tr>
+          <td>${r.id}</td>
+          <td>${r.title}</td>
+          <td>${r.tests.map(t => `<a class="trace-link" href="/test-cases.html#${t}" target="_blank">${t}</a>`).join(', ')}</td>
+        </tr>`;
+      });
+      matrixBody.innerHTML = html;
+    }
+
+    buildMatrix();
+
+    /* ======================================================================= */
+    /*  INTERACTIVITY                                                          */
+    /* ======================================================================= */
+
+    // Expand/collapse rows
+    body.addEventListener('click', (e) => {
+      const row = e.target.closest('.req-row');
+      if (!row) return;
+      const idx = row.dataset.idx;
+      const panel = document.getElementById('detail-' + idx);
+      const isOpen = row.classList.contains('open');
+
+      // close all
+      document.querySelectorAll('.req-row.open').forEach(r => r.classList.remove('open'));
+      document.querySelectorAll('.req-detail-panel.open').forEach(p => p.classList.remove('open'));
+
+      if (!isOpen) {
+        row.classList.add('open');
+        panel.classList.add('open');
+      }
+    });
+
+    // Filter tabs
+    let activeFilter = 'all';
+    document.getElementById('filters').addEventListener('click', (e) => {
+      const tab = e.target.closest('.tab');
+      if (!tab) return;
+
+      document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+      tab.classList.add('active');
+      activeFilter = tab.dataset.filter;
+      applyFilters();
+    });
+
+    // Search
+    searchInput.addEventListener('input', () => applyFilters());
+
+    function applyFilters() {
+      const q = searchInput.value.toLowerCase().trim();
+      let visible = 0;
+
+      document.querySelectorAll('.req-row').forEach(row => {
+        const idx = parseInt(row.dataset.idx);
+        const r = REQS[idx];
+        const detailRow = row.nextElementSibling;
+
+        const matchModule = activeFilter === 'all' || r.module === activeFilter;
+        const matchSearch = !q ||
+          r.id.toLowerCase().includes(q) ||
+          r.title.toLowerCase().includes(q) ||
+          r.desc.toLowerCase().includes(q);
+
+        const show = matchModule && matchSearch;
+        row.style.display = show ? '' : 'none';
+        detailRow.style.display = show ? '' : 'none';
+
+        if (show) visible++;
+      });
+
+      countLabel.textContent = `${visible} of ${totalCount}`;
+    }
+
+    applyFilters();
+    </script>
+  </body>
+</html>

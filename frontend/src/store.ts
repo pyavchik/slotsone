@@ -1,6 +1,21 @@
 import { create } from 'zustand';
 import type { InitResponse, SpinResponse } from './api';
 
+// Time Rewind types
+export interface RewindOfferTier {
+  name: 'safe' | 'standard' | 'super';
+  cost_multiplier: number;
+  wild_boost: string;
+  total_cost: number;
+  available: boolean;
+}
+
+export interface RewindOffer {
+  offer_id: string;
+  tiers: RewindOfferTier[];
+  expires_at: string;
+}
+
 interface GameState {
   token: string;
   sessionId: string | null;
@@ -21,6 +36,12 @@ interface GameState {
   config: InitResponse['config'] | null;
   idleMatrix: string[][] | null;
   error: string | null;
+  // Time Rewind state
+  losingStreak: number;
+  rewindOffer: RewindOffer | null;
+  rewindInProgress: boolean;
+  rewindSpinIndex: number;
+  rewindTotalSpins: number;
   // Actions
   setToken: (t: string) => void;
   setGameId: (id: string) => void;
@@ -31,6 +52,10 @@ interface GameState {
   setSpinResult: (data: SpinResponse) => void;
   setError: (e: string | null) => void;
   resetOutcome: () => void;
+  setRewindOffer: (offer: RewindOffer | null) => void;
+  setLosingStreak: (streak: number) => void;
+  setRewindInProgress: (v: boolean, spinIndex?: number, totalSpins?: number) => void;
+  clearRewindState: () => void;
 }
 
 export const useGameStore = create<GameState>((set) => ({
@@ -55,6 +80,12 @@ export const useGameStore = create<GameState>((set) => ({
   config: null,
   idleMatrix: null,
   error: null,
+  // Time Rewind
+  losingStreak: 0,
+  rewindOffer: null,
+  rewindInProgress: false,
+  rewindSpinIndex: 0,
+  rewindTotalSpins: 5,
 
   setToken: (t) => set({ token: t }),
   setGameId: (id) => set({ gameId: id }),
@@ -102,4 +133,10 @@ export const useGameStore = create<GameState>((set) => ({
     }),
   setError: (e) => set({ error: e, spinning: false, pendingWinAmount: null, lastWinAmount: 0 }),
   resetOutcome: () => set({ lastOutcome: null, lastWinAmount: 0, pendingWinAmount: null }),
+  setRewindOffer: (offer) => set({ rewindOffer: offer }),
+  setLosingStreak: (streak) => set({ losingStreak: streak }),
+  setRewindInProgress: (v, spinIndex = 0, totalSpins = 5) =>
+    set({ rewindInProgress: v, rewindSpinIndex: spinIndex, rewindTotalSpins: totalSpins }),
+  clearRewindState: () =>
+    set({ rewindOffer: null, rewindInProgress: false, rewindSpinIndex: 0, losingStreak: 0 }),
 }));

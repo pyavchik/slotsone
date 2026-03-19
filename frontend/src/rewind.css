@@ -1,0 +1,266 @@
+/* ── Rewind Overlay (modal backdrop) ─────────────────────── */
+.rewind-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.75);
+  backdrop-filter: blur(4px);
+  animation: rewind-fade-in 0.3s ease-out;
+}
+
+@keyframes rewind-fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* ── Rewind Modal Card ──────────────────────────────────── */
+.rewind-modal {
+  max-width: 420px;
+  width: 92vw;
+  border: 1px solid rgba(244, 114, 182, 0.3);
+  border-radius: 16px;
+  background: linear-gradient(180deg, rgba(17, 20, 30, 0.95) 0%, rgba(11, 13, 19, 0.98) 100%);
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  box-shadow:
+    0 0 40px rgba(244, 114, 182, 0.15),
+    0 4px 24px rgba(0, 0, 0, 0.6);
+  animation: rewind-modal-in 0.35s ease-out;
+}
+
+@keyframes rewind-modal-in {
+  from {
+    transform: scale(0.92) translateY(12px);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1) translateY(0);
+    opacity: 1;
+  }
+}
+
+.rewind-header {
+  text-align: center;
+  position: relative;
+}
+
+.rewind-title {
+  margin: 0 0 6px;
+  font-size: 20px;
+  font-weight: 800;
+  color: #f472b6;
+  letter-spacing: -0.3px;
+}
+
+.rewind-desc {
+  margin: 0;
+  font-size: 13px;
+  color: #94a3b8;
+  line-height: 1.5;
+}
+
+.rewind-timer {
+  position: absolute;
+  top: 0;
+  right: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1px;
+}
+
+.rewind-timer-value {
+  font-size: 18px;
+  font-weight: 800;
+  color: #f87171;
+  font-variant-numeric: tabular-nums;
+}
+
+.rewind-timer-label {
+  font-size: 9px;
+  font-weight: 700;
+  text-transform: uppercase;
+  color: #64748b;
+  letter-spacing: 0.06em;
+}
+
+/* ── Tier Buttons ───────────────────────────────────────── */
+.rewind-tiers {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.rewind-tier-btn {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  padding: 14px 16px;
+  border-radius: 12px;
+  border: 1px solid rgba(148, 163, 184, 0.2);
+  background: rgba(15, 23, 42, 0.65);
+  cursor: pointer;
+  transition:
+    border-color 0.15s,
+    background 0.15s,
+    transform 0.1s;
+  text-align: left;
+}
+
+.rewind-tier-btn:hover:not(:disabled) {
+  border-color: var(--tier-color, #f472b6);
+  background: rgba(15, 23, 42, 0.85);
+  transform: translateY(-1px);
+}
+
+.rewind-tier-btn:active:not(:disabled) {
+  transform: translateY(0);
+}
+
+.rewind-tier-disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.rewind-tier-label {
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.rewind-tier-desc {
+  font-size: 12px;
+  color: #94a3b8;
+}
+
+.rewind-tier-cost {
+  font-size: 13px;
+  font-weight: 600;
+  color: #dbe2ec;
+  font-variant-numeric: tabular-nums;
+}
+
+.rewind-tier-unavail {
+  font-size: 11px;
+  color: #f87171;
+  font-weight: 600;
+}
+
+/* ── Skip Button ────────────────────────────────────────── */
+.rewind-skip-btn {
+  padding: 10px 20px;
+  border-radius: 10px;
+  border: 1px solid rgba(148, 163, 184, 0.25);
+  background: transparent;
+  color: #94a3b8;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition:
+    color 0.15s,
+    border-color 0.15s;
+}
+
+.rewind-skip-btn:hover {
+  color: #f8fafc;
+  border-color: rgba(148, 163, 184, 0.6);
+}
+
+/* ── Streak Counter (HUD addition) ──────────────────────── */
+.hud-streak-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 10px;
+  border-radius: 999px;
+  background: rgba(244, 114, 182, 0.15);
+  border: 1px solid rgba(244, 114, 182, 0.3);
+  font-size: 11px;
+  font-weight: 700;
+  color: #f472b6;
+  white-space: nowrap;
+  animation: streak-pulse 1.5s ease-in-out infinite;
+}
+
+@keyframes streak-pulse {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.7;
+  }
+}
+
+/* ── Rewind Progress Overlay ────────────────────────────── */
+.rewind-progress-overlay {
+  position: fixed;
+  top: 60px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 900;
+  pointer-events: none;
+}
+
+.rewind-progress-badge {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  padding: 8px 20px;
+  border-radius: 12px;
+  background: rgba(17, 20, 30, 0.9);
+  border: 1px solid rgba(167, 139, 250, 0.4);
+  box-shadow: 0 0 20px rgba(167, 139, 250, 0.2);
+  animation: rewind-glow 2s ease-in-out infinite;
+}
+
+@keyframes rewind-glow {
+  0%,
+  100% {
+    box-shadow: 0 0 20px rgba(167, 139, 250, 0.2);
+  }
+  50% {
+    box-shadow: 0 0 30px rgba(167, 139, 250, 0.4);
+  }
+}
+
+.rewind-progress-label {
+  font-size: 11px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: #a78bfa;
+}
+
+.rewind-progress-counter {
+  font-size: 16px;
+  font-weight: 800;
+  color: #f8fafc;
+  font-variant-numeric: tabular-nums;
+}
+
+/* ── Mobile ─────────────────────────────────────────────── */
+@media (max-width: 480px) {
+  .rewind-modal {
+    padding: 18px;
+    gap: 14px;
+  }
+
+  .rewind-title {
+    font-size: 18px;
+  }
+
+  .rewind-tier-btn {
+    padding: 12px 14px;
+  }
+}

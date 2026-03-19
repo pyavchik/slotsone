@@ -1,0 +1,39 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120">
+  <defs>
+    <linearGradient id="compass-bg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#14332a"/>
+      <stop offset="100%" stop-color="#0a1f17"/>
+    </linearGradient>
+    <radialGradient id="compass-face" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#1a3a2e"/>
+      <stop offset="100%" stop-color="#0d1f17"/>
+    </radialGradient>
+  </defs>
+  <rect width="120" height="120" rx="12" fill="url(#compass-bg)"/>
+  <!-- Outer ring -->
+  <circle cx="60" cy="48" r="34" fill="none" stroke="#34d399" stroke-width="2"/>
+  <circle cx="60" cy="48" r="31" fill="url(#compass-face)" stroke="#059669" stroke-width="1"/>
+  <!-- Cardinal direction marks -->
+  <text x="60" y="24" text-anchor="middle" font-family="sans-serif" font-size="8" font-weight="bold" fill="#34d399">N</text>
+  <text x="60" y="78" text-anchor="middle" font-family="sans-serif" font-size="7" fill="#059669">S</text>
+  <text x="34" y="51" text-anchor="middle" font-family="sans-serif" font-size="7" fill="#059669">W</text>
+  <text x="86" y="51" text-anchor="middle" font-family="sans-serif" font-size="7" fill="#059669">E</text>
+  <!-- Tick marks -->
+  <line x1="60" y1="17" x2="60" y2="19" stroke="#34d399" stroke-width="1"/>
+  <line x1="60" y1="77" x2="60" y2="79" stroke="#34d399" stroke-width="1"/>
+  <line x1="29" y1="48" x2="31" y2="48" stroke="#34d399" stroke-width="1"/>
+  <line x1="89" y1="48" x2="91" y2="48" stroke="#34d399" stroke-width="1"/>
+  <!-- Compass needle - North (red triangle) -->
+  <path d="M60 28 L56 48 L64 48 Z" fill="#ef4444" opacity="0.9"/>
+  <!-- Compass needle - South (white triangle) -->
+  <path d="M60 68 L56 48 L64 48 Z" fill="#d1d5db" opacity="0.7"/>
+  <!-- Inner decorative ring -->
+  <circle cx="60" cy="48" r="22" fill="none" stroke="#34d399" stroke-width="0.5" opacity="0.4"/>
+  <!-- Center pin -->
+  <circle cx="60" cy="48" r="3" fill="#34d399"/>
+  <circle cx="60" cy="48" r="1.5" fill="#6ee7b7"/>
+  <!-- Subtle glow -->
+  <circle cx="60" cy="48" r="34" fill="#34d399" opacity="0.04"/>
+  <!-- Label -->
+  <text x="60" y="100" text-anchor="middle" font-family="serif" font-size="12" font-weight="bold" fill="#34d399">COMPASS</text>
+</svg>

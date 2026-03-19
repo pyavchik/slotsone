@@ -96,8 +96,56 @@ const BOOK_OF_DEAD_SYMBOLS: GameSymbolConfig = {
   },
 };
 
+const TIME_MACHINE_SYMBOLS: GameSymbolConfig = {
+  symbolIds: [
+    'Gear',
+    'Hourglass',
+    'Clock',
+    'Compass',
+    'Crystal',
+    'Portal',
+    'TimeMachine',
+    'CronoWild',
+    'VortexScatter',
+  ],
+  colors: {
+    gear: 0x94a3b8,
+    hourglass: 0xfbbf24,
+    clock: 0x60a5fa,
+    compass: 0x34d399,
+    crystal: 0xa78bfa,
+    portal: 0xf472b6,
+    timemachine: 0xf59e0b,
+    cronowild: 0xe879f9,
+    vortexscatter: 0x22d3ee,
+  },
+  labels: {
+    gear: 'Gear',
+    hourglass: 'Hourglass',
+    clock: 'Clock',
+    compass: 'Compass',
+    crystal: 'Crystal',
+    portal: 'Portal',
+    timemachine: 'Time Machine',
+    cronowild: 'Chrono Wild',
+    vortexscatter: 'Vortex Scatter',
+  },
+  images: {
+    gear: 'time-machine/gear.svg',
+    hourglass: 'time-machine/hourglass.svg',
+    clock: 'time-machine/clock.svg',
+    compass: 'time-machine/compass.svg',
+    crystal: 'time-machine/crystal.svg',
+    portal: 'time-machine/portal.svg',
+    timemachine: 'time-machine/timemachine.svg',
+    cronowild: 'time-machine/cronowild.svg',
+    vortexscatter: 'time-machine/vortexscatter.svg',
+  },
+};
+
 const GAME_SYMBOL_CONFIGS: Record<string, GameSymbolConfig> = {
   slot_book_of_dead_001: BOOK_OF_DEAD_SYMBOLS,
+  slot_time_rewind_001: TIME_MACHINE_SYMBOLS,
 };
 
 /** Current active game symbol config (set via setActiveGame) */
