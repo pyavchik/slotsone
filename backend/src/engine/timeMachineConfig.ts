@@ -175,13 +175,13 @@ export const TM_BOOSTED_STRIPS: Record<string, number[][]> = {
 // Paytable: symbol index -> [payout for 3, 4, 5 of a kind] (bet-per-line multiplier)
 // 0=Gear, 1=Hourglass, 2=Clock, 3=Compass, 4=Crystal, 5=Portal, 6=TimeMachine, 7=CronoWild, 8=VortexScatter
 export const TM_PAYTABLE: Record<number, [number, number, number]> = {
-  0: [0.2, 0.5, 1], // Gear (low)
-  1: [0.2, 0.8, 2], // Hourglass (low)
-  2: [0.3, 1, 4], // Clock (low)
-  3: [0.5, 1.5, 5], // Compass (mid)
-  4: [0.5, 2, 6], // Crystal (mid)
-  5: [1, 3, 10], // Portal (high)
-  6: [2, 5, 15], // TimeMachine (high)
+  0: [5, 16, 42], // Gear (low)
+  1: [8, 26, 78], // Hourglass (low)
+  2: [10, 36, 155], // Clock (low)
+  3: [16, 52, 181], // Compass (mid)
+  4: [21, 78, 207], // Crystal (mid)
+  5: [41, 104, 414], // Portal (high)
+  6: [78, 207, 518], // TimeMachine (high)
   7: [0, 0, 0], // CronoWild (substitutes)
   8: [0, 0, 0], // VortexScatter (pays by count)
 };

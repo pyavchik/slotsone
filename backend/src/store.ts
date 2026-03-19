@@ -104,7 +104,7 @@ export interface IdempotencyEntry {
 const TTL_IDEMPOTENCY_MS = 24 * 60 * 60 * 1000;
 const TTL_SESSION_MS = 60 * 60 * 1000;
 const CLEANUP_INTERVAL_MS = 5 * 60 * 1000;
-const RATE_LIMIT_SPINS_PER_SEC = 5;
+const RATE_LIMIT_SPINS_PER_SEC = Number(process.env.RATE_LIMIT_SPINS_PER_SEC ?? '5');
 const lineWins = SYMBOLS.map((symbol, index) => {
   const [x3, x4, x5] = PAYTABLE[index] ?? [0, 0, 0];
   return { symbol, x3, x4, x5 };
