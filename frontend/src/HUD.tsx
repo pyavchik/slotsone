@@ -127,9 +127,6 @@ export function HUD({ onLogout, onHistory, onLobby }: HUDProps) {
             Streak: {losingStreak}/5
           </div>
         )}
-        <span className="hud-tip" aria-hidden="true">
-          Space = Spin
-        </span>
       </section>
 
       <section className="hud-card hud-card-right" aria-label="Bet panel summary">
