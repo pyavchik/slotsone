@@ -216,7 +216,13 @@ test.describe('CV Landing – actions bar', () => {
     await expect(items.nth(7)).toHaveText('bug report');
     await expect(items.nth(8)).toHaveText('allure report');
     await expect(items.nth(9)).toHaveText('jmeter RTP');
-    await expect(items.nth(10)).toHaveText('playwright typescript');
-    await expect(items.nth(11)).toHaveText('Download PDF CV');
+    await expect(items.nth(10)).toHaveText('jmeter load test');
+    await expect(items.nth(11)).toHaveText('game math');
+    await expect(items.nth(12)).toHaveText('exploratory testing');
+    await expect(items.nth(13)).toHaveText('QA strategy');
+    await expect(items.nth(14)).toHaveText('time machine SRS');
+    await expect(items.nth(15)).toHaveText('time machine tests');
+    await expect(items.nth(16)).toHaveText('playwright typescript');
+    await expect(items.nth(17)).toHaveText('Download PDF CV');
   });
 });

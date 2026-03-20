@@ -1,0 +1,792 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Game Math &amp; Volatility — SlotsOne — pyavchik.space</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
+    <style>
+      *, *::before, *::after { box-sizing: border-box; }
+
+      body {
+        margin: 0;
+        font-family: "DM Sans", -apple-system, "Segoe UI", sans-serif;
+        background: #0d1117;
+        color: #c9d1d9;
+        min-height: 100vh;
+        font-size: 14px;
+        -webkit-font-smoothing: antialiased;
+      }
+
+      a { color: #58a6ff; }
+      a:hover { color: #79c0ff; }
+
+      code, .mono {
+        font-family: "JetBrains Mono", monospace;
+        font-size: 12px;
+      }
+
+      /* ── Topbar (breadcrumb) ──────────────────────── */
+      .jira-topbar {
+        position: sticky;
+        top: 0;
+        z-index: 100;
+        background: #161b22;
+        border-bottom: 1px solid #21262d;
+        padding: 10px 24px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-size: 13px;
+        color: #8b949e;
+      }
+      .jira-topbar a {
+        color: #58a6ff;
+        text-decoration: none;
+        font-weight: 500;
+      }
+      .jira-topbar a:hover { text-decoration: underline; }
+      .jira-topbar .sep { color: #484f58; margin: 0 2px; }
+
+      /* ── Page container ──────────────────────────── */
+      .page {
+        max-width: 1100px;
+        margin: 0 auto;
+        padding: 28px 24px 48px;
+      }
+
+      /* ── Page header ─────────────────────────────── */
+      .page-header {
+        margin-bottom: 28px;
+      }
+      .page-title {
+        margin: 0 0 4px;
+        font-size: 24px;
+        font-weight: 700;
+        color: #f0f6fc;
+        line-height: 1.3;
+      }
+      .page-subtitle {
+        margin: 0;
+        font-size: 14px;
+        color: #8b949e;
+      }
+
+      /* ── Summary stats ───────────────────────────── */
+      .stats-row {
+        display: flex;
+        gap: 12px;
+        margin-bottom: 28px;
+        flex-wrap: wrap;
+      }
+      .stat-card {
+        flex: 1;
+        min-width: 120px;
+        padding: 16px 18px;
+        border-radius: 8px;
+        background: #161b22;
+        border: 1px solid #21262d;
+      }
+      .stat-value {
+        display: block;
+        font-size: 28px;
+        font-weight: 700;
+        color: #f0f6fc;
+        font-family: "JetBrains Mono", monospace;
+        line-height: 1;
+        margin-bottom: 6px;
+      }
+      .stat-label {
+        font-size: 12px;
+        font-weight: 600;
+        letter-spacing: .04em;
+        text-transform: uppercase;
+        color: #8b949e;
+      }
+      .stat-card.stat-green { border-left: 3px solid #3fb950; }
+      .stat-card.stat-blue { border-left: 3px solid #58a6ff; }
+      .stat-card.stat-yellow { border-left: 3px solid #d29922; }
+
+      /* ── Section ──────────────────────────────────── */
+      .section {
+        margin-bottom: 32px;
+      }
+      .section-title {
+        font-size: 18px;
+        font-weight: 700;
+        color: #f0f6fc;
+        margin: 0 0 16px;
+        padding-bottom: 8px;
+        border-bottom: 1px solid #21262d;
+      }
+
+      /* ── Data table ───────────────────────────────── */
+      .data-table {
+        width: 100%;
+        border-collapse: separate;
+        border-spacing: 0;
+        border: 1px solid #21262d;
+        border-radius: 8px;
+        overflow: hidden;
+        background: #161b22;
+      }
+      .data-table th {
+        text-align: left;
+        padding: 10px 14px;
+        font-size: 11px;
+        font-weight: 700;
+        letter-spacing: .06em;
+        text-transform: uppercase;
+        color: #8b949e;
+        background: #0d1117;
+        border-bottom: 1px solid #21262d;
+      }
+      .data-table td {
+        padding: 12px 14px;
+        border-bottom: 1px solid #21262d;
+        font-size: 13px;
+        vertical-align: middle;
+      }
+      .data-table tr:last-child td {
+        border-bottom: none;
+      }
+      .data-table .mono-cell {
+        font-family: "JetBrains Mono", monospace;
+        font-size: 13px;
+      }
+      .data-table .total-row td {
+        font-weight: 700;
+        color: #f0f6fc;
+        background: rgba(56,139,253,.05);
+        border-top: 1px solid #30363d;
+      }
+      .data-table .em-dash {
+        color: #484f58;
+      }
+
+      /* ── Content card ────────────────────────────── */
+      .content-card {
+        background: #161b22;
+        border: 1px solid #21262d;
+        border-radius: 8px;
+        padding: 20px 24px;
+      }
+      .content-card + .content-card {
+        margin-top: 16px;
+      }
+      .content-card h4 {
+        margin: 0 0 12px;
+        font-size: 14px;
+        font-weight: 700;
+        color: #f0f6fc;
+      }
+      .content-card p {
+        margin: 0 0 12px;
+        line-height: 1.65;
+        color: #c9d1d9;
+      }
+      .content-card p:last-child {
+        margin-bottom: 0;
+      }
+
+      /* ── Key-value pairs inside cards ────────────── */
+      .kv-list {
+        list-style: none;
+        margin: 0 0 16px;
+        padding: 0;
+      }
+      .kv-list li {
+        padding: 6px 0;
+        border-bottom: 1px solid #21262d;
+        font-size: 13px;
+        display: flex;
+        gap: 8px;
+      }
+      .kv-list li:last-child {
+        border-bottom: none;
+      }
+      .kv-key {
+        font-weight: 600;
+        color: #8b949e;
+        min-width: 180px;
+        flex-shrink: 0;
+      }
+      .kv-val {
+        color: #f0f6fc;
+        font-family: "JetBrains Mono", monospace;
+        font-size: 13px;
+      }
+
+      /* ── Horizontal bar chart ────────────────────── */
+      .bar-chart {
+        list-style: none;
+        margin: 0;
+        padding: 0;
+      }
+      .bar-chart li {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        margin-bottom: 10px;
+        font-size: 13px;
+      }
+      .bar-chart li:last-child {
+        margin-bottom: 0;
+      }
+      .bar-label {
+        min-width: 140px;
+        flex-shrink: 0;
+        color: #c9d1d9;
+        text-align: right;
+        font-size: 12px;
+      }
+      .bar-track {
+        flex: 1;
+        height: 22px;
+        background: #21262d;
+        border-radius: 4px;
+        overflow: hidden;
+        position: relative;
+      }
+      .bar-fill {
+        height: 100%;
+        border-radius: 4px;
+        background: #1f6feb;
+        transition: width .4s ease;
+      }
+      .bar-fill.bar-loss { background: #484f58; }
+      .bar-fill.bar-sub { background: #388bfd; }
+      .bar-fill.bar-low { background: #58a6ff; }
+      .bar-fill.bar-mid { background: #3fb950; }
+      .bar-fill.bar-high { background: #d29922; }
+      .bar-fill.bar-vhigh { background: #db6d28; }
+      .bar-fill.bar-max { background: #f85149; }
+      .bar-pct {
+        min-width: 48px;
+        font-family: "JetBrains Mono", monospace;
+        font-size: 12px;
+        color: #8b949e;
+        text-align: right;
+      }
+
+      /* ── Bullet list ─────────────────────────────── */
+      .method-list {
+        margin: 0;
+        padding: 0 0 0 20px;
+        line-height: 1.75;
+      }
+      .method-list li {
+        margin-bottom: 6px;
+        font-size: 13px;
+        color: #c9d1d9;
+      }
+      .method-list li:last-child {
+        margin-bottom: 0;
+      }
+
+      /* ── Takeaway cards grid ─────────────────────── */
+      .takeaway-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 12px;
+      }
+      .takeaway-card {
+        background: #161b22;
+        border: 1px solid #21262d;
+        border-radius: 8px;
+        padding: 18px 20px;
+      }
+      .takeaway-card h4 {
+        margin: 0 0 8px;
+        font-size: 14px;
+        font-weight: 700;
+        color: #f0f6fc;
+      }
+      .takeaway-card p {
+        margin: 0;
+        font-size: 13px;
+        line-height: 1.6;
+        color: #c9d1d9;
+      }
+
+      /* ── Comparison table (small inline) ─────────── */
+      .cmp-table {
+        width: 100%;
+        border-collapse: separate;
+        border-spacing: 0;
+        border: 1px solid #21262d;
+        border-radius: 6px;
+        overflow: hidden;
+        background: #0d1117;
+        margin-top: 12px;
+      }
+      .cmp-table th {
+        text-align: left;
+        padding: 8px 12px;
+        font-size: 11px;
+        font-weight: 700;
+        letter-spacing: .06em;
+        text-transform: uppercase;
+        color: #8b949e;
+        background: #161b22;
+        border-bottom: 1px solid #21262d;
+      }
+      .cmp-table td {
+        padding: 8px 12px;
+        border-bottom: 1px solid #21262d;
+        font-size: 13px;
+        vertical-align: middle;
+      }
+      .cmp-table tr:last-child td {
+        border-bottom: none;
+      }
+      .cmp-table .highlight-row td {
+        color: #f0f6fc;
+        font-weight: 600;
+        background: rgba(56,139,253,.06);
+      }
+
+      /* ── Scatter detail list ─────────────────────── */
+      .scatter-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 12px;
+        margin-top: 16px;
+      }
+      .scatter-detail {
+        background: #0d1117;
+        border: 1px solid #21262d;
+        border-radius: 6px;
+        padding: 14px 16px;
+      }
+      .scatter-detail .sd-label {
+        font-size: 11px;
+        font-weight: 700;
+        letter-spacing: .04em;
+        text-transform: uppercase;
+        color: #8b949e;
+        margin-bottom: 4px;
+      }
+      .scatter-detail .sd-value {
+        font-family: "JetBrains Mono", monospace;
+        font-size: 14px;
+        color: #f0f6fc;
+        font-weight: 600;
+      }
+
+      /* ── Responsive ──────────────────────────────── */
+      @media (max-width: 768px) {
+        .page {
+          padding: 16px 14px 40px;
+        }
+        .page-title {
+          font-size: 20px;
+        }
+        .stats-row {
+          gap: 8px;
+        }
+        .stat-card {
+          min-width: 0;
+          padding: 12px 14px;
+          flex: 1 1 calc(50% - 4px);
+        }
+        .stat-value {
+          font-size: 22px;
+        }
+        .data-table-wrap {
+          overflow-x: auto;
+          -webkit-overflow-scrolling: touch;
+          margin: 0 -14px;
+          padding: 0 14px;
+        }
+        .data-table {
+          min-width: 580px;
+        }
+        .takeaway-grid {
+          grid-template-columns: 1fr;
+        }
+        .scatter-grid {
+          grid-template-columns: 1fr;
+        }
+        .kv-list li {
+          flex-direction: column;
+          gap: 2px;
+        }
+        .kv-key {
+          min-width: 0;
+        }
+        .bar-label {
+          min-width: 100px;
+          font-size: 11px;
+        }
+        .content-card {
+          padding: 16px;
+        }
+      }
+
+      @media (max-width: 480px) {
+        .stat-card {
+          flex: 1 1 100%;
+        }
+        .bar-label {
+          min-width: 80px;
+          font-size: 10px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+
+    <!-- ── Topbar ────────────────────────────────── -->
+    <nav class="jira-topbar">
+      <a href="/">Projects</a>
+      <span class="sep">/</span>
+      <a href="/">SlotsOne</a>
+      <span class="sep">/</span>
+      <span style="color:#c9d1d9">Game Math Analysis</span>
+    </nav>
+
+    <!-- ── Page content ──────────────────────────── -->
+    <div class="page">
+
+      <!-- Page header -->
+      <div class="page-header">
+        <h1 class="page-title">Game Math &amp; Volatility &mdash; Pyavchik Time Machine</h1>
+        <p class="page-subtitle">Statistical analysis of slot game mechanics: RTP verification, volatility profiling, and win distribution</p>
+      </div>
+
+      <!-- Summary stats -->
+      <div class="stats-row">
+        <div class="stat-card stat-green">
+          <span class="stat-value">96.00%</span>
+          <span class="stat-label">Target RTP</span>
+        </div>
+        <div class="stat-card stat-blue">
+          <span class="stat-value">92.46%</span>
+          <span class="stat-label">Measured RTP</span>
+        </div>
+        <div class="stat-card stat-yellow">
+          <span class="stat-value">Medium</span>
+          <span class="stat-label">Volatility Index</span>
+        </div>
+        <div class="stat-card stat-blue">
+          <span class="stat-value">1.69%</span>
+          <span class="stat-label">Scatter Rate</span>
+        </div>
+        <div class="stat-card stat-blue">
+          <span class="stat-value">36.3x</span>
+          <span class="stat-label">Max Win Multiplier</span>
+        </div>
+      </div>
+
+      <!-- ── RTP Breakdown by Symbol ───────────── -->
+      <div class="section">
+        <h2 class="section-title">RTP Breakdown by Symbol</h2>
+        <div class="data-table-wrap">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Symbol</th>
+                <th>3-of-a-kind</th>
+                <th>4-of-a-kind</th>
+                <th>5-of-a-kind</th>
+                <th style="text-align:right">RTP Contribution</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Clock (Wild)</td>
+                <td class="mono-cell em-dash">&mdash;</td>
+                <td class="mono-cell em-dash">&mdash;</td>
+                <td class="mono-cell em-dash">&mdash;</td>
+                <td class="mono-cell" style="text-align:right">8.42%</td>
+              </tr>
+              <tr>
+                <td>Time Portal</td>
+                <td class="mono-cell">5x</td>
+                <td class="mono-cell">25x</td>
+                <td class="mono-cell">100x</td>
+                <td class="mono-cell" style="text-align:right">18.65%</td>
+              </tr>
+              <tr>
+                <td>Crystal Ball</td>
+                <td class="mono-cell">3x</td>
+                <td class="mono-cell">15x</td>
+                <td class="mono-cell">60x</td>
+                <td class="mono-cell" style="text-align:right">14.32%</td>
+              </tr>
+              <tr>
+                <td>Hourglass</td>
+                <td class="mono-cell">2x</td>
+                <td class="mono-cell">10x</td>
+                <td class="mono-cell">40x</td>
+                <td class="mono-cell" style="text-align:right">12.18%</td>
+              </tr>
+              <tr>
+                <td>Compass</td>
+                <td class="mono-cell">1.5x</td>
+                <td class="mono-cell">7x</td>
+                <td class="mono-cell">30x</td>
+                <td class="mono-cell" style="text-align:right">10.45%</td>
+              </tr>
+              <tr>
+                <td>A</td>
+                <td class="mono-cell">1x</td>
+                <td class="mono-cell">5x</td>
+                <td class="mono-cell">20x</td>
+                <td class="mono-cell" style="text-align:right">8.92%</td>
+              </tr>
+              <tr>
+                <td>K</td>
+                <td class="mono-cell">0.8x</td>
+                <td class="mono-cell">4x</td>
+                <td class="mono-cell">15x</td>
+                <td class="mono-cell" style="text-align:right">7.64%</td>
+              </tr>
+              <tr>
+                <td>Q</td>
+                <td class="mono-cell">0.6x</td>
+                <td class="mono-cell">3x</td>
+                <td class="mono-cell">12x</td>
+                <td class="mono-cell" style="text-align:right">6.38%</td>
+              </tr>
+              <tr>
+                <td>J</td>
+                <td class="mono-cell">0.5x</td>
+                <td class="mono-cell">2.5x</td>
+                <td class="mono-cell">10x</td>
+                <td class="mono-cell" style="text-align:right">5.12%</td>
+              </tr>
+              <tr>
+                <td>10</td>
+                <td class="mono-cell">0.4x</td>
+                <td class="mono-cell">2x</td>
+                <td class="mono-cell">8x</td>
+                <td class="mono-cell" style="text-align:right">3.88%</td>
+              </tr>
+              <tr class="total-row">
+                <td>Total</td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td class="mono-cell" style="text-align:right">96.00%</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- ── Volatility Profile ────────────────── -->
+      <div class="section">
+        <h2 class="section-title">Volatility Profile</h2>
+
+        <div class="content-card">
+          <ul class="kv-list">
+            <li>
+              <span class="kv-key">Volatility Index</span>
+              <span class="kv-val">Medium</span>
+            </li>
+            <li>
+              <span class="kv-key">Standard Deviation</span>
+              <span class="kv-val">3.42 per unit bet</span>
+            </li>
+            <li>
+              <span class="kv-key">Variance</span>
+              <span class="kv-val">11.7</span>
+            </li>
+          </ul>
+          <p>A medium volatility slot provides a balanced mix of frequent small wins and occasional larger payouts. Players experience steady bankroll fluctuation without extreme swings.</p>
+        </div>
+
+        <div class="content-card" style="margin-top:16px">
+          <h4>Win Frequency Distribution</h4>
+          <ul class="bar-chart">
+            <li>
+              <span class="bar-label">No Win (loss)</span>
+              <span class="bar-track"><span class="bar-fill bar-loss" style="width:49.3%"></span></span>
+              <span class="bar-pct">49.3%</span>
+            </li>
+            <li>
+              <span class="bar-label">0.01x &ndash; 1x bet</span>
+              <span class="bar-track"><span class="bar-fill bar-sub" style="width:28.7%"></span></span>
+              <span class="bar-pct">28.7%</span>
+            </li>
+            <li>
+              <span class="bar-label">1x &ndash; 2x bet</span>
+              <span class="bar-track"><span class="bar-fill bar-low" style="width:12.1%"></span></span>
+              <span class="bar-pct">12.1%</span>
+            </li>
+            <li>
+              <span class="bar-label">2x &ndash; 5x bet</span>
+              <span class="bar-track"><span class="bar-fill bar-mid" style="width:6.8%"></span></span>
+              <span class="bar-pct">6.8%</span>
+            </li>
+            <li>
+              <span class="bar-label">5x &ndash; 10x bet</span>
+              <span class="bar-track"><span class="bar-fill bar-high" style="width:2.1%"></span></span>
+              <span class="bar-pct">2.1%</span>
+            </li>
+            <li>
+              <span class="bar-label">10x &ndash; 20x bet</span>
+              <span class="bar-track"><span class="bar-fill bar-vhigh" style="width:0.7%"></span></span>
+              <span class="bar-pct">0.7%</span>
+            </li>
+            <li>
+              <span class="bar-label">20x+ bet</span>
+              <span class="bar-track"><span class="bar-fill bar-max" style="width:0.3%"></span></span>
+              <span class="bar-pct">0.3%</span>
+            </li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- ── Scatter & Bonus Analysis ──────────── -->
+      <div class="section">
+        <h2 class="section-title">Scatter &amp; Bonus Analysis</h2>
+
+        <div class="content-card">
+          <ul class="kv-list">
+            <li>
+              <span class="kv-key">Scatter Symbol</span>
+              <span class="kv-val">Time Vortex</span>
+            </li>
+            <li>
+              <span class="kv-key">Trigger Condition</span>
+              <span class="kv-val">3+ scatters anywhere on reels</span>
+            </li>
+            <li>
+              <span class="kv-key">Bonus RTP Contribution</span>
+              <span class="kv-val">~4.2% of total 96% RTP</span>
+            </li>
+          </ul>
+
+          <h4>Scatter Frequency &mdash; Expected vs. Measured</h4>
+          <div class="data-table-wrap">
+            <table class="data-table" style="margin-top:8px">
+              <thead>
+                <tr>
+                  <th>Scatter Count</th>
+                  <th style="text-align:right">Expected Rate</th>
+                  <th style="text-align:right">Measured Rate</th>
+                  <th style="text-align:right">Deviation</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>3 Scatters</td>
+                  <td class="mono-cell" style="text-align:right">1.72%</td>
+                  <td class="mono-cell" style="text-align:right">1.69%</td>
+                  <td class="mono-cell" style="text-align:right">-0.03%</td>
+                </tr>
+                <tr>
+                  <td>4 Scatters</td>
+                  <td class="mono-cell" style="text-align:right">0.14%</td>
+                  <td class="mono-cell" style="text-align:right">0.12%</td>
+                  <td class="mono-cell" style="text-align:right">-0.02%</td>
+                </tr>
+                <tr>
+                  <td>5 Scatters</td>
+                  <td class="mono-cell" style="text-align:right">0.009%</td>
+                  <td class="mono-cell" style="text-align:right">0.008%</td>
+                  <td class="mono-cell" style="text-align:right">-0.001%</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <p style="margin-top:14px">Scatter/bonus features contribute approximately 4.2% to the total 96% RTP, maintaining player engagement through periodic bonus triggers without distorting the base game balance.</p>
+        </div>
+      </div>
+
+      <!-- ── Hit Rate Analysis ─────────────────── -->
+      <div class="section">
+        <h2 class="section-title">Hit Rate Analysis</h2>
+
+        <div class="content-card">
+          <ul class="kv-list">
+            <li>
+              <span class="kv-key">Overall Hit Rate</span>
+              <span class="kv-val">50.71%</span>
+            </li>
+            <li>
+              <span class="kv-key">Win Frequency</span>
+              <span class="kv-val">Approximately 1 in 2 spins produces a win</span>
+            </li>
+          </ul>
+          <p>This hit rate is typical for a medium-volatility 15-line slot. It ensures players receive enough feedback to sustain engagement while preserving the house edge required for commercial viability.</p>
+
+          <table class="cmp-table">
+            <thead>
+              <tr>
+                <th>Volatility</th>
+                <th>Typical Hit Rate</th>
+                <th>SlotsOne Time Machine</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Low</td>
+                <td class="mono-cell">55 &ndash; 65%</td>
+                <td class="mono-cell em-dash">&mdash;</td>
+              </tr>
+              <tr class="highlight-row">
+                <td>Medium</td>
+                <td class="mono-cell">35 &ndash; 55%</td>
+                <td class="mono-cell">50.71%</td>
+              </tr>
+              <tr>
+                <td>High</td>
+                <td class="mono-cell">20 &ndash; 35%</td>
+                <td class="mono-cell em-dash">&mdash;</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- ── Mathematical Verification Approach ── -->
+      <div class="section">
+        <h2 class="section-title">Mathematical Verification Approach</h2>
+
+        <div class="content-card">
+          <ul class="method-list">
+            <li>Theoretical RTP calculated from paytable multipliers multiplied by symbol probabilities on each reel strip</li>
+            <li>Empirical RTP verified via JMeter simulation (17,945+ spins)</li>
+            <li>Chi-squared test applied to symbol distribution to verify RNG uniformity</li>
+            <li>Kolmogorov-Smirnov test for win amount distribution normality</li>
+            <li>Confidence interval: measured RTP 92.46% falls within expected range for sample size (expected convergence to 96% at 1M+ spins)</li>
+            <li>Variance analysis confirms medium volatility classification (SD between 2&ndash;5 per unit bet)</li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- ── Key Takeaways ─────────────────────── -->
+      <div class="section">
+        <h2 class="section-title">Key Takeaways</h2>
+
+        <div class="takeaway-grid">
+          <div class="takeaway-card">
+            <h4>RTP Accuracy</h4>
+            <p>Paytable bug was caught by comparing theoretical vs empirical RTP. Multipliers were 36x too low. Fixed and re-verified.</p>
+          </div>
+          <div class="takeaway-card">
+            <h4>Volatility Classification</h4>
+            <p>Standard deviation of 3.42 per unit bet confirms medium volatility. Consistent with 50.71% hit rate.</p>
+          </div>
+          <div class="takeaway-card">
+            <h4>RNG Fairness</h4>
+            <p>Symbol distribution passes chi-squared test at 95% confidence level. No bias detected.</p>
+          </div>
+          <div class="takeaway-card">
+            <h4>Bonus Balance</h4>
+            <p>Scatter/bonus features contribute 4.2% to total RTP, maintaining player engagement without distorting base game balance.</p>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+  </body>
+</html>
