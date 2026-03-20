@@ -13,6 +13,12 @@ const TEST_DESIGN_PATH = '/test-design.html';
 const ALLURE_REPORT_PATH = 'https://pyavchik.github.io/slotsone-playwright/';
 const PLAYWRIGHT_PATH = '/playwright.html';
 const JMETER_RTP_PATH = '/jmeter-rtp.html';
+const JMETER_LOAD_PATH = '/jmeter-load.html';
+const EXPLORATORY_PATH = '/exploratory-testing.html';
+const QA_STRATEGY_PATH = '/qa-strategy.html';
+const GAME_MATH_PATH = '/game-math.html';
+const TM_REQUIREMENTS_PATH = '/time-machine-requirements.html';
+const TM_TEST_CASES_PATH = '/time-machine-test-cases.html';
 
 const SKILLS = [
   'Java',
@@ -166,6 +172,60 @@ export function CVLanding() {
               data-testid="cv-jmeter-rtp"
             >
               jmeter RTP
+            </a>
+            <a
+              className="cv-link"
+              href={JMETER_LOAD_PATH}
+              target="_blank"
+              rel="noreferrer"
+              data-testid="cv-jmeter-load"
+            >
+              jmeter load test
+            </a>
+            <a
+              className="cv-link"
+              href={GAME_MATH_PATH}
+              target="_blank"
+              rel="noreferrer"
+              data-testid="cv-game-math"
+            >
+              game math
+            </a>
+            <a
+              className="cv-link"
+              href={EXPLORATORY_PATH}
+              target="_blank"
+              rel="noreferrer"
+              data-testid="cv-exploratory"
+            >
+              exploratory testing
+            </a>
+            <a
+              className="cv-link"
+              href={QA_STRATEGY_PATH}
+              target="_blank"
+              rel="noreferrer"
+              data-testid="cv-qa-strategy"
+            >
+              QA strategy
+            </a>
+            <a
+              className="cv-link"
+              href={TM_REQUIREMENTS_PATH}
+              target="_blank"
+              rel="noreferrer"
+              data-testid="cv-tm-requirements"
+            >
+              time machine SRS
+            </a>
+            <a
+              className="cv-link"
+              href={TM_TEST_CASES_PATH}
+              target="_blank"
+              rel="noreferrer"
+              data-testid="cv-tm-test-cases"
+            >
+              time machine tests
             </a>
             <a
               className="cv-link"

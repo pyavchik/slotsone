@@ -1,0 +1,837 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>QA Strategy — SlotsOne — pyavchik.space</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
+    <style>
+      *, *::before, *::after { box-sizing: border-box; }
+
+      body {
+        margin: 0;
+        font-family: "DM Sans", -apple-system, "Segoe UI", sans-serif;
+        background: #0d1117;
+        color: #c9d1d9;
+        min-height: 100vh;
+        font-size: 14px;
+        -webkit-font-smoothing: antialiased;
+      }
+
+      a { color: #58a6ff; }
+      a:hover { color: #79c0ff; }
+
+      code, .mono {
+        font-family: "JetBrains Mono", monospace;
+        font-size: 12px;
+      }
+
+      /* -- Topbar (breadcrumb) ----------------------- */
+      .jira-topbar {
+        position: sticky;
+        top: 0;
+        z-index: 100;
+        background: #161b22;
+        border-bottom: 1px solid #21262d;
+        padding: 10px 24px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-size: 13px;
+        color: #8b949e;
+      }
+      .jira-topbar a {
+        color: #58a6ff;
+        text-decoration: none;
+        font-weight: 500;
+      }
+      .jira-topbar a:hover { text-decoration: underline; }
+      .jira-topbar .sep { color: #484f58; margin: 0 2px; }
+
+      /* -- Page container ---------------------------- */
+      .page {
+        max-width: 1100px;
+        margin: 0 auto;
+        padding: 28px 24px 48px;
+      }
+
+      /* -- Page header ------------------------------- */
+      .page-header {
+        margin-bottom: 28px;
+      }
+      .page-title {
+        margin: 0 0 4px;
+        font-size: 24px;
+        font-weight: 700;
+        color: #f0f6fc;
+        line-height: 1.3;
+      }
+      .page-subtitle {
+        margin: 0;
+        font-size: 14px;
+        color: #8b949e;
+      }
+
+      /* -- Summary stats ----------------------------- */
+      .stats-row {
+        display: flex;
+        gap: 12px;
+        margin-bottom: 28px;
+        flex-wrap: wrap;
+      }
+      .stat-card {
+        flex: 1;
+        min-width: 120px;
+        padding: 16px 18px;
+        border-radius: 8px;
+        background: #161b22;
+        border: 1px solid #21262d;
+      }
+      .stat-value {
+        display: block;
+        font-size: 28px;
+        font-weight: 700;
+        color: #f0f6fc;
+        font-family: "JetBrains Mono", monospace;
+        line-height: 1;
+        margin-bottom: 6px;
+      }
+      .stat-label {
+        font-size: 12px;
+        font-weight: 600;
+        letter-spacing: .04em;
+        text-transform: uppercase;
+        color: #8b949e;
+      }
+      .stat-blue { border-left: 3px solid #58a6ff; }
+      .stat-green { border-left: 3px solid #3fb950; }
+
+      /* -- Sections ---------------------------------- */
+      .section {
+        margin-bottom: 36px;
+      }
+      .section-title {
+        font-size: 18px;
+        font-weight: 700;
+        color: #f0f6fc;
+        margin: 0 0 16px;
+        padding-bottom: 8px;
+        border-bottom: 1px solid #21262d;
+      }
+
+      /* -- Test Pyramid ------------------------------ */
+      .pyramid {
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+        align-items: center;
+      }
+      .pyramid-layer {
+        display: flex;
+        align-items: center;
+        gap: 16px;
+        border-radius: 6px;
+        padding: 14px 20px;
+        background: #161b22;
+        border: 1px solid #21262d;
+        transition: background .15s;
+      }
+      .pyramid-layer:hover {
+        background: #1c2128;
+      }
+      .pyramid-layer-4 { width: 40%; }
+      .pyramid-layer-3 { width: 60%; }
+      .pyramid-layer-2 { width: 80%; }
+      .pyramid-layer-1 { width: 100%; }
+
+      .pyramid-bar {
+        width: 6px;
+        min-height: 40px;
+        border-radius: 3px;
+        flex-shrink: 0;
+      }
+      .bar-unit { background: #58a6ff; }
+      .bar-integration { background: #1f6feb; }
+      .bar-e2e { background: #d29922; }
+      .bar-exploratory { background: #8b949e; }
+
+      .pyramid-info {
+        flex: 1;
+        min-width: 0;
+      }
+      .pyramid-name {
+        font-size: 14px;
+        font-weight: 700;
+        color: #f0f6fc;
+        margin-bottom: 2px;
+      }
+      .pyramid-desc {
+        font-size: 12px;
+        color: #8b949e;
+        line-height: 1.4;
+      }
+      .pyramid-meta {
+        display: flex;
+        gap: 12px;
+        margin-top: 4px;
+        flex-wrap: wrap;
+      }
+      .pyramid-chip {
+        display: inline-block;
+        font-size: 10px;
+        font-weight: 600;
+        padding: 2px 8px;
+        border-radius: 3px;
+        background: rgba(56,139,253,.08);
+        color: #79c0ff;
+        border: 1px solid rgba(56,139,253,.15);
+        white-space: nowrap;
+        font-family: "JetBrains Mono", monospace;
+      }
+      .pyramid-count {
+        display: inline-block;
+        font-size: 10px;
+        font-weight: 700;
+        padding: 2px 8px;
+        border-radius: 3px;
+        background: rgba(63,185,80,.1);
+        color: #3fb950;
+        border: 1px solid rgba(63,185,80,.2);
+        white-space: nowrap;
+        font-family: "JetBrains Mono", monospace;
+      }
+
+      /* -- CI/CD Pipeline ---------------------------- */
+      .pipeline {
+        display: flex;
+        gap: 0;
+        align-items: stretch;
+        overflow-x: auto;
+        padding-bottom: 4px;
+      }
+      .pipeline-step {
+        flex: 1;
+        min-width: 150px;
+        background: #161b22;
+        border: 1px solid #21262d;
+        border-radius: 8px;
+        padding: 16px 14px;
+        position: relative;
+        display: flex;
+        flex-direction: column;
+        transition: background .15s;
+      }
+      .pipeline-step:hover {
+        background: #1c2128;
+      }
+      .pipeline-arrow {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 28px;
+        flex-shrink: 0;
+        color: #484f58;
+        font-size: 18px;
+        font-family: "JetBrains Mono", monospace;
+        font-weight: 700;
+      }
+      .step-number {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 24px;
+        height: 24px;
+        border-radius: 50%;
+        background: #1f6feb;
+        color: #f0f6fc;
+        font-size: 12px;
+        font-weight: 700;
+        font-family: "JetBrains Mono", monospace;
+        margin-bottom: 10px;
+        flex-shrink: 0;
+      }
+      .step-name {
+        font-size: 13px;
+        font-weight: 700;
+        color: #f0f6fc;
+        margin-bottom: 6px;
+        line-height: 1.3;
+      }
+      .step-desc {
+        font-size: 12px;
+        color: #8b949e;
+        line-height: 1.4;
+        flex: 1;
+      }
+
+      /* -- Environments table ------------------------ */
+      .env-table {
+        width: 100%;
+        border-collapse: separate;
+        border-spacing: 0;
+        border: 1px solid #21262d;
+        border-radius: 8px;
+        overflow: hidden;
+        background: #161b22;
+      }
+      .env-table th {
+        text-align: left;
+        padding: 10px 14px;
+        font-size: 11px;
+        font-weight: 700;
+        letter-spacing: .06em;
+        text-transform: uppercase;
+        color: #8b949e;
+        background: #0d1117;
+        border-bottom: 1px solid #21262d;
+      }
+      .env-table td {
+        padding: 14px 14px;
+        border-bottom: 1px solid #21262d;
+        font-size: 13px;
+        vertical-align: top;
+        line-height: 1.5;
+      }
+      .env-table tr:last-child td {
+        border-bottom: none;
+      }
+      .env-table tbody tr {
+        transition: background .15s;
+      }
+      .env-table tbody tr:hover {
+        background: #1c2128;
+      }
+      .env-name {
+        font-weight: 700;
+        color: #f0f6fc;
+        white-space: nowrap;
+      }
+      .env-chip {
+        display: inline-block;
+        font-size: 10px;
+        font-weight: 600;
+        padding: 2px 8px;
+        border-radius: 3px;
+        font-family: "JetBrains Mono", monospace;
+        white-space: nowrap;
+      }
+      .env-chip-local {
+        background: rgba(56,139,253,.08);
+        color: #79c0ff;
+        border: 1px solid rgba(56,139,253,.15);
+      }
+      .env-chip-staging {
+        background: rgba(210,153,34,.1);
+        color: #d29922;
+        border: 1px solid rgba(210,153,34,.2);
+      }
+      .env-chip-prod {
+        background: rgba(63,185,80,.1);
+        color: #3fb950;
+        border: 1px solid rgba(63,185,80,.2);
+      }
+
+      /* -- Environment cards (mobile) ---------------- */
+      .env-cards {
+        display: none;
+        flex-direction: column;
+        gap: 12px;
+      }
+      .env-card {
+        background: #161b22;
+        border: 1px solid #21262d;
+        border-radius: 8px;
+        padding: 16px;
+      }
+      .env-card-header {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        margin-bottom: 10px;
+      }
+      .env-card-name {
+        font-size: 14px;
+        font-weight: 700;
+        color: #f0f6fc;
+      }
+      .env-card-detail {
+        font-size: 12px;
+        color: #8b949e;
+        line-height: 1.6;
+      }
+      .env-card-detail strong {
+        color: #c9d1d9;
+        font-weight: 600;
+      }
+
+      /* -- Release Checklist ------------------------- */
+      .checklist {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+      }
+      .checklist-item {
+        display: flex;
+        align-items: flex-start;
+        gap: 12px;
+        padding: 10px 14px;
+        border-radius: 6px;
+        background: #161b22;
+        border: 1px solid #21262d;
+        transition: background .15s;
+      }
+      .checklist-item:hover {
+        background: #1c2128;
+      }
+      .checklist-num {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 22px;
+        height: 22px;
+        border-radius: 4px;
+        background: rgba(56,139,253,.1);
+        color: #58a6ff;
+        font-size: 11px;
+        font-weight: 700;
+        font-family: "JetBrains Mono", monospace;
+        flex-shrink: 0;
+        margin-top: 1px;
+      }
+      .checklist-text {
+        font-size: 13px;
+        color: #c9d1d9;
+        line-height: 1.5;
+      }
+
+      /* -- Tools grid -------------------------------- */
+      .tools-grid {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+      }
+      .tool-pill {
+        display: inline-block;
+        font-size: 12px;
+        font-weight: 600;
+        padding: 6px 14px;
+        border-radius: 6px;
+        background: #161b22;
+        color: #c9d1d9;
+        border: 1px solid #21262d;
+        font-family: "JetBrains Mono", monospace;
+        transition: border-color .15s, color .15s;
+      }
+      .tool-pill:hover {
+        border-color: #58a6ff;
+        color: #f0f6fc;
+      }
+
+      /* -- Principle cards --------------------------- */
+      .principles-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 12px;
+      }
+      .principle-card {
+        background: #161b22;
+        border: 1px solid #21262d;
+        border-radius: 8px;
+        padding: 18px 20px;
+        border-left: 3px solid #58a6ff;
+        transition: background .15s;
+      }
+      .principle-card:hover {
+        background: #1c2128;
+      }
+      .principle-name {
+        font-size: 14px;
+        font-weight: 700;
+        color: #f0f6fc;
+        margin-bottom: 6px;
+      }
+      .principle-desc {
+        font-size: 13px;
+        color: #8b949e;
+        line-height: 1.5;
+        margin: 0;
+      }
+
+      /* -- Responsive -------------------------------- */
+      @media (max-width: 768px) {
+        .page {
+          padding: 16px 14px 40px;
+        }
+        .page-title {
+          font-size: 20px;
+        }
+        .stats-row {
+          gap: 8px;
+        }
+        .stat-card {
+          min-width: 0;
+          padding: 12px 14px;
+        }
+        .stat-value {
+          font-size: 22px;
+        }
+        .pyramid-layer-4,
+        .pyramid-layer-3,
+        .pyramid-layer-2,
+        .pyramid-layer-1 {
+          width: 100%;
+        }
+        .pipeline {
+          flex-direction: column;
+          gap: 0;
+        }
+        .pipeline-arrow {
+          transform: rotate(90deg);
+          width: auto;
+          height: 28px;
+        }
+        .pipeline-step {
+          min-width: 0;
+        }
+        .env-table-wrap {
+          display: none;
+        }
+        .env-cards {
+          display: flex;
+        }
+        .principles-grid {
+          grid-template-columns: 1fr;
+        }
+      }
+    </style>
+  </head>
+  <body>
+
+    <!-- -- Topbar ----------------------------------- -->
+    <nav class="jira-topbar">
+      <a href="/">Projects</a>
+      <span class="sep">/</span>
+      <a href="/">SlotsOne</a>
+      <span class="sep">/</span>
+      <span style="color:#c9d1d9">QA Strategy</span>
+    </nav>
+
+    <!-- -- Page content ----------------------------- -->
+    <div class="page">
+
+      <!-- Page header -->
+      <div class="page-header">
+        <h1 class="page-title">QA Strategy &mdash; SlotsOne Platform</h1>
+        <p class="page-subtitle">End-to-end quality assurance process built from scratch for an iGaming slot platform</p>
+      </div>
+
+      <!-- Summary stats -->
+      <div class="stats-row">
+        <div class="stat-card stat-blue">
+          <span class="stat-value">5</span>
+          <span class="stat-label">Test Layers</span>
+        </div>
+        <div class="stat-card stat-green">
+          <span class="stat-value">96%</span>
+          <span class="stat-label">Automation Coverage</span>
+        </div>
+        <div class="stat-card stat-blue">
+          <span class="stat-value">CI/CD</span>
+          <span class="stat-label">Pipeline Integration</span>
+        </div>
+        <div class="stat-card stat-blue">
+          <span class="stat-value">3 Envs</span>
+          <span class="stat-label">Test Environments</span>
+        </div>
+      </div>
+
+      <!-- ============================================ -->
+      <!-- Test Pyramid                                 -->
+      <!-- ============================================ -->
+      <div class="section">
+        <h2 class="section-title">Test Pyramid</h2>
+        <div class="pyramid">
+          <!-- Layer 4: Exploratory (top, narrowest) -->
+          <div class="pyramid-layer pyramid-layer-4">
+            <div class="pyramid-bar bar-exploratory" style="min-height:36px"></div>
+            <div class="pyramid-info">
+              <div class="pyramid-name">Exploratory</div>
+              <div class="pyramid-desc">Charter-based sessions, edge cases, UX</div>
+              <div class="pyramid-meta">
+                <span class="pyramid-chip">Manual</span>
+                <span class="pyramid-count">6 sessions</span>
+              </div>
+            </div>
+          </div>
+          <!-- Layer 3: E2E Tests -->
+          <div class="pyramid-layer pyramid-layer-3">
+            <div class="pyramid-bar bar-e2e"></div>
+            <div class="pyramid-info">
+              <div class="pyramid-name">E2E Tests</div>
+              <div class="pyramid-desc">Full user flows, login &rarr; spin &rarr; history &rarr; gamble</div>
+              <div class="pyramid-meta">
+                <span class="pyramid-chip">Playwright + Chromium</span>
+                <span class="pyramid-count">~18 tests</span>
+              </div>
+            </div>
+          </div>
+          <!-- Layer 2: Integration Tests -->
+          <div class="pyramid-layer pyramid-layer-2">
+            <div class="pyramid-bar bar-integration"></div>
+            <div class="pyramid-info">
+              <div class="pyramid-name">Integration Tests</div>
+              <div class="pyramid-desc">API contracts, DB transactions, wallet operations</div>
+              <div class="pyramid-meta">
+                <span class="pyramid-chip">Supertest + PostgreSQL</span>
+                <span class="pyramid-count">~80 tests</span>
+              </div>
+            </div>
+          </div>
+          <!-- Layer 1: Unit Tests (base, widest) -->
+          <div class="pyramid-layer pyramid-layer-1">
+            <div class="pyramid-bar bar-unit"></div>
+            <div class="pyramid-info">
+              <div class="pyramid-name">Unit Tests</div>
+              <div class="pyramid-desc">Engine math, RNG, paytable calculations</div>
+              <div class="pyramid-meta">
+                <span class="pyramid-chip">Jest</span>
+                <span class="pyramid-count">~200 tests</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ============================================ -->
+      <!-- CI/CD Pipeline                               -->
+      <!-- ============================================ -->
+      <div class="section">
+        <h2 class="section-title">CI/CD Pipeline</h2>
+        <div class="pipeline">
+          <!-- Step 1 -->
+          <div class="pipeline-step">
+            <span class="step-number">1</span>
+            <div class="step-name">Lint &amp; Type Check</div>
+            <div class="step-desc">ESLint + TypeScript compiler on every push</div>
+          </div>
+          <div class="pipeline-arrow">&rarr;</div>
+          <!-- Step 2 -->
+          <div class="pipeline-step">
+            <span class="step-number">2</span>
+            <div class="step-name">Unit Tests</div>
+            <div class="step-desc">Jest engine tests, run in parallel</div>
+          </div>
+          <div class="pipeline-arrow">&rarr;</div>
+          <!-- Step 3 -->
+          <div class="pipeline-step">
+            <span class="step-number">3</span>
+            <div class="step-name">Build</div>
+            <div class="step-desc">Backend TypeScript compile + Frontend Vite build</div>
+          </div>
+          <div class="pipeline-arrow">&rarr;</div>
+          <!-- Step 4 -->
+          <div class="pipeline-step">
+            <span class="step-number">4</span>
+            <div class="step-name">E2E Tests</div>
+            <div class="step-desc">Playwright against ephemeral Docker environment</div>
+          </div>
+          <div class="pipeline-arrow">&rarr;</div>
+          <!-- Step 5 -->
+          <div class="pipeline-step">
+            <span class="step-number">5</span>
+            <div class="step-name">Deploy</div>
+            <div class="step-desc">Auto-deploy to production on main branch merge</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ============================================ -->
+      <!-- Test Environments                            -->
+      <!-- ============================================ -->
+      <div class="section">
+        <h2 class="section-title">Test Environments</h2>
+
+        <!-- Desktop table -->
+        <div class="env-table-wrap">
+          <table class="env-table">
+            <thead>
+              <tr>
+                <th style="width:140px">Environment</th>
+                <th style="width:160px">Infrastructure</th>
+                <th>Configuration</th>
+                <th style="width:180px">Purpose</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>
+                  <span class="env-name">Local Dev</span><br />
+                  <span class="env-chip env-chip-local">local</span>
+                </td>
+                <td>Docker Compose, hot reload, PostgreSQL</td>
+                <td>No rate limits, <code>PACING_MS=0</code></td>
+                <td>Feature development, unit tests</td>
+              </tr>
+              <tr>
+                <td>
+                  <span class="env-name">Staging</span><br />
+                  <span class="env-chip env-chip-staging">staging</span>
+                </td>
+                <td>Docker on VPS, mirrors production config</td>
+                <td>Seed data, full logging enabled</td>
+                <td>Regression testing, QA sign-off</td>
+              </tr>
+              <tr>
+                <td>
+                  <span class="env-name">Production</span><br />
+                  <span class="env-chip env-chip-prod">prod</span>
+                </td>
+                <td>Caddy TLS, rate limits (5 spin/sec)</td>
+                <td>Real user data, monitoring</td>
+                <td>Live traffic, smoke tests</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Mobile cards -->
+        <div class="env-cards">
+          <div class="env-card">
+            <div class="env-card-header">
+              <span class="env-card-name">Local Dev</span>
+              <span class="env-chip env-chip-local">local</span>
+            </div>
+            <div class="env-card-detail">
+              <strong>Infrastructure:</strong> Docker Compose, hot reload, PostgreSQL<br />
+              <strong>Config:</strong> No rate limits, <code>PACING_MS=0</code><br />
+              <strong>Purpose:</strong> Feature development, unit tests
+            </div>
+          </div>
+          <div class="env-card">
+            <div class="env-card-header">
+              <span class="env-card-name">Staging</span>
+              <span class="env-chip env-chip-staging">staging</span>
+            </div>
+            <div class="env-card-detail">
+              <strong>Infrastructure:</strong> Docker on VPS, mirrors production config<br />
+              <strong>Config:</strong> Seed data, full logging enabled<br />
+              <strong>Purpose:</strong> Regression testing, QA sign-off
+            </div>
+          </div>
+          <div class="env-card">
+            <div class="env-card-header">
+              <span class="env-card-name">Production</span>
+              <span class="env-chip env-chip-prod">prod</span>
+            </div>
+            <div class="env-card-detail">
+              <strong>Infrastructure:</strong> Caddy TLS, rate limits (5 spin/sec)<br />
+              <strong>Config:</strong> Real user data, monitoring<br />
+              <strong>Purpose:</strong> Live traffic, smoke tests
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ============================================ -->
+      <!-- Release Checklist                            -->
+      <!-- ============================================ -->
+      <div class="section">
+        <h2 class="section-title">Release Checklist</h2>
+        <ol class="checklist">
+          <li class="checklist-item">
+            <span class="checklist-num">1</span>
+            <span class="checklist-text">All unit tests pass (engine math verified)</span>
+          </li>
+          <li class="checklist-item">
+            <span class="checklist-num">2</span>
+            <span class="checklist-text">API contract tests pass (Zod schema validation)</span>
+          </li>
+          <li class="checklist-item">
+            <span class="checklist-num">3</span>
+            <span class="checklist-text">E2E smoke suite passes (Playwright)</span>
+          </li>
+          <li class="checklist-item">
+            <span class="checklist-num">4</span>
+            <span class="checklist-text">RTP verified within 2% of target via JMeter (10k+ spins)</span>
+          </li>
+          <li class="checklist-item">
+            <span class="checklist-num">5</span>
+            <span class="checklist-text">Paytable cross-referenced with game config</span>
+          </li>
+          <li class="checklist-item">
+            <span class="checklist-num">6</span>
+            <span class="checklist-text">Wallet transaction atomicity confirmed (no balance leaks)</span>
+          </li>
+          <li class="checklist-item">
+            <span class="checklist-num">7</span>
+            <span class="checklist-text">JWT auth flow tested (login, refresh, expiry)</span>
+          </li>
+          <li class="checklist-item">
+            <span class="checklist-num">8</span>
+            <span class="checklist-text">Responsive layout verified (320px&ndash;1920px)</span>
+          </li>
+          <li class="checklist-item">
+            <span class="checklist-num">9</span>
+            <span class="checklist-text">Load test shows &lt;200ms p95 under 50 concurrent users</span>
+          </li>
+          <li class="checklist-item">
+            <span class="checklist-num">10</span>
+            <span class="checklist-text">Changelog and test report documented</span>
+          </li>
+        </ol>
+      </div>
+
+      <!-- ============================================ -->
+      <!-- Tools & Technology Stack                     -->
+      <!-- ============================================ -->
+      <div class="section">
+        <h2 class="section-title">Tools &amp; Technology Stack</h2>
+        <div class="tools-grid">
+          <span class="tool-pill">Jest</span>
+          <span class="tool-pill">Playwright</span>
+          <span class="tool-pill">JMeter</span>
+          <span class="tool-pill">Postman</span>
+          <span class="tool-pill">Swagger / OpenAPI</span>
+          <span class="tool-pill">PostgreSQL</span>
+          <span class="tool-pill">Docker</span>
+          <span class="tool-pill">GitHub Actions</span>
+          <span class="tool-pill">Allure Report</span>
+          <span class="tool-pill">Zod (schema validation)</span>
+          <span class="tool-pill">PixiJS (render testing)</span>
+        </div>
+      </div>
+
+      <!-- ============================================ -->
+      <!-- Key QA Principles                            -->
+      <!-- ============================================ -->
+      <div class="section">
+        <h2 class="section-title">Key QA Principles</h2>
+        <div class="principles-grid">
+          <div class="principle-card">
+            <div class="principle-name">Shift Left</div>
+            <p class="principle-desc">Catch defects early with unit tests and schema validation at the contract level</p>
+          </div>
+          <div class="principle-card">
+            <div class="principle-name">Risk-Based Testing</div>
+            <p class="principle-desc">Prioritize financial integrity and game fairness over cosmetic issues</p>
+          </div>
+          <div class="principle-card">
+            <div class="principle-name">Automation First</div>
+            <p class="principle-desc">Automate repeatable checks, reserve manual effort for exploratory sessions</p>
+          </div>
+          <div class="principle-card">
+            <div class="principle-name">Continuous Feedback</div>
+            <p class="principle-desc">Every PR runs the full test suite; broken builds block deployment</p>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+  </body>
+</html>
