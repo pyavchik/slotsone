@@ -1,0 +1,332 @@
+2026-03-20 08:30:46,680 INFO o.a.j.u.JMeterUtils: Setting Locale to en_EN
+2026-03-20 08:30:46,697 INFO o.a.j.JMeter: Loading user properties from: /home/ubuntu/apache-jmeter/bin/user.properties
+2026-03-20 08:30:46,697 INFO o.a.j.JMeter: Loading system properties from: /home/ubuntu/apache-jmeter/bin/system.properties
+2026-03-20 08:30:46,697 INFO o.a.j.JMeter: Setting JMeter property: SPIN_COUNT=10000
+2026-03-20 08:30:46,702 INFO o.a.j.JMeter: Copyright (c) 1998-2024 The Apache Software Foundation
+2026-03-20 08:30:46,702 INFO o.a.j.JMeter: Version 5.6.3
+2026-03-20 08:30:46,702 INFO o.a.j.JMeter: java.version=17.0.13
+2026-03-20 08:30:46,702 INFO o.a.j.JMeter: java.vm.name=OpenJDK 64-Bit Server VM
+2026-03-20 08:30:46,702 INFO o.a.j.JMeter: os.name=Linux
+2026-03-20 08:30:46,702 INFO o.a.j.JMeter: os.arch=amd64
+2026-03-20 08:30:46,702 INFO o.a.j.JMeter: os.version=6.8.0-106-generic
+2026-03-20 08:30:46,703 INFO o.a.j.JMeter: file.encoding=UTF-8
+2026-03-20 08:30:46,703 INFO o.a.j.JMeter: java.awt.headless=true
+2026-03-20 08:30:46,703 INFO o.a.j.JMeter: Max memory     =1073741824
+2026-03-20 08:30:46,703 INFO o.a.j.JMeter: Available Processors =8
+2026-03-20 08:30:46,711 INFO o.a.j.JMeter: Default Locale=English (EN)
+2026-03-20 08:30:46,712 INFO o.a.j.JMeter: JMeter  Locale=English (EN)
+2026-03-20 08:30:46,712 INFO o.a.j.JMeter: JMeterHome=/home/ubuntu/apache-jmeter
+2026-03-20 08:30:46,712 INFO o.a.j.JMeter: user.dir  =/home/ubuntu/workspace/cv/slotsone/jmeter
+2026-03-20 08:30:46,712 INFO o.a.j.JMeter: PWD       =/home/ubuntu/workspace/cv/slotsone/jmeter
+2026-03-20 08:30:46,712 INFO o.a.j.JMeter: IP: 127.0.1.1 Name: ubuntu FullName: ubuntu
+2026-03-20 08:30:46,723 INFO o.a.j.s.FileServer: Default base='/home/ubuntu/workspace/cv/slotsone/jmeter'
+2026-03-20 08:30:46,724 INFO o.a.j.s.FileServer: Set new base='/home/ubuntu/workspace/cv/slotsone/jmeter'
+2026-03-20 08:30:46,860 INFO o.a.j.s.SaveService: Testplan (JMX) version: 2.2. Testlog (JTL) version: 2.2
+2026-03-20 08:30:46,874 INFO o.a.j.s.SaveService: Using SaveService properties version 5.0
+2026-03-20 08:30:46,876 INFO o.a.j.s.SaveService: Using SaveService properties file encoding UTF-8
+2026-03-20 08:30:46,878 INFO o.a.j.s.SaveService: Loading file: TimeMachine_RTP_Test.jmx
+2026-03-20 08:30:46,910 INFO o.a.j.p.h.s.HTTPSamplerBase: Parser for text/html is org.apache.jmeter.protocol.http.parser.LagartoBasedHtmlParser
+2026-03-20 08:30:46,910 INFO o.a.j.p.h.s.HTTPSamplerBase: Parser for application/xhtml+xml is org.apache.jmeter.protocol.http.parser.LagartoBasedHtmlParser
+2026-03-20 08:30:46,910 INFO o.a.j.p.h.s.HTTPSamplerBase: Parser for application/xml is org.apache.jmeter.protocol.http.parser.LagartoBasedHtmlParser
+2026-03-20 08:30:46,910 INFO o.a.j.p.h.s.HTTPSamplerBase: Parser for text/xml is org.apache.jmeter.protocol.http.parser.LagartoBasedHtmlParser
+2026-03-20 08:30:46,910 INFO o.a.j.p.h.s.HTTPSamplerBase: Parser for text/vnd.wap.wml is org.apache.jmeter.protocol.http.parser.RegexpHTMLParser
+2026-03-20 08:30:46,910 INFO o.a.j.p.h.s.HTTPSamplerBase: Parser for text/css is org.apache.jmeter.protocol.http.parser.CssParser
+2026-03-20 08:30:46,944 INFO o.a.j.JMeter: Creating summariser <summary>
+2026-03-20 08:30:46,950 INFO o.a.j.e.StandardJMeterEngine: Running the test!
+2026-03-20 08:30:46,951 INFO o.a.j.s.SampleEvent: List of sample_variables: []
+2026-03-20 08:30:46,951 INFO o.a.j.s.SampleEvent: List of sample_variables: []
+2026-03-20 08:30:46,955 INFO o.a.j.e.u.CompoundVariable: Note: Function class names must contain the string: '.functions.'
+2026-03-20 08:30:46,955 INFO o.a.j.e.u.CompoundVariable: Note: Function class names must not contain the string: '.gui.'
+2026-03-20 08:30:47,110 INFO o.a.j.JMeter: Running test (1773988247110)
+2026-03-20 08:30:47,112 INFO o.a.j.e.StandardJMeterEngine: Starting setUp thread groups
+2026-03-20 08:30:47,112 INFO o.a.j.e.StandardJMeterEngine: Starting setUp ThreadGroup: 1 : setUp — Auth & Init 
+2026-03-20 08:30:47,112 INFO o.a.j.e.StandardJMeterEngine: Starting 1 threads for group setUp — Auth & Init.
+2026-03-20 08:30:47,112 INFO o.a.j.e.StandardJMeterEngine: Test will stop on error
+2026-03-20 08:30:47,112 INFO o.a.j.t.ThreadGroup: Starting thread group... number=1 threads=1 ramp-up=0 delayedStart=false
+2026-03-20 08:30:47,116 INFO o.a.j.t.ThreadGroup: Started thread group number 1
+2026-03-20 08:30:47,116 INFO o.a.j.e.StandardJMeterEngine: Waiting for all setup thread groups to exit
+2026-03-20 08:30:47,117 INFO o.a.j.t.JMeterThread: Thread started: setUp — Auth & Init 1-1
+2026-03-20 08:30:47,126 INFO o.a.j.p.h.s.HTTPHCAbstractImpl: Local host = ubuntu
+2026-03-20 08:30:47,130 INFO o.a.j.p.h.s.HTTPHC4Impl: HTTP request retry count = 0
+2026-03-20 08:30:47,131 INFO o.a.j.s.SampleResult: Note: Sample TimeStamps are START times
+2026-03-20 08:30:47,131 INFO o.a.j.s.SampleResult: sampleresult.default.encoding is set to UTF-8
+2026-03-20 08:30:47,131 INFO o.a.j.s.SampleResult: sampleresult.useNanoTime=true
+2026-03-20 08:30:47,131 INFO o.a.j.s.SampleResult: sampleresult.nanoThreadSleep=5000
+2026-03-20 08:30:47,177 INFO o.a.j.p.h.s.h.LazyLayeredConnectionSocketFactory: Setting up HTTPS TrustAll Socket Factory
+2026-03-20 08:30:47,181 INFO o.a.j.u.JsseSSLManager: Using default SSL protocol: TLS
+2026-03-20 08:30:47,181 INFO o.a.j.u.JsseSSLManager: SSL session context: per-thread
+2026-03-20 08:30:47,267 INFO o.a.j.u.SSLManager: JmeterKeyStore Location:  type JKS
+2026-03-20 08:30:47,270 INFO o.a.j.u.SSLManager: KeyStore created OK
+2026-03-20 08:30:47,270 WARN o.a.j.u.SSLManager: Keystore file not found, loading empty keystore
+2026-03-20 08:30:47,973 INFO o.a.j.e.J.Save Token to Props: Auth OK, token length: 542
+2026-03-20 08:30:48,052 INFO o.a.j.e.J.Save Session to Props: Session: sess_01b46f9a-7d7
+2026-03-20 08:30:48,053 INFO o.a.j.e.J.Save Session to Props: Initial balance: 10000
+2026-03-20 08:30:48,053 INFO o.a.j.t.JMeterThread: Thread is done: setUp — Auth & Init 1-1
+2026-03-20 08:30:48,053 INFO o.a.j.t.JMeterThread: Thread finished: setUp — Auth & Init 1-1
+2026-03-20 08:30:48,055 INFO o.a.j.e.StandardJMeterEngine: All Setup Threads have ended
+2026-03-20 08:30:48,072 INFO o.a.j.e.StandardJMeterEngine: Starting ThreadGroup: 1 : RTP Spin Loop
+2026-03-20 08:30:48,072 INFO o.a.j.e.StandardJMeterEngine: Starting 1 threads for group RTP Spin Loop.
+2026-03-20 08:30:48,072 INFO o.a.j.e.StandardJMeterEngine: Thread will continue on error
+2026-03-20 08:30:48,072 INFO o.a.j.t.ThreadGroup: Starting thread group... number=1 threads=1 ramp-up=0 delayedStart=false
+2026-03-20 08:30:48,073 INFO o.a.j.t.ThreadGroup: Started thread group number 1
+2026-03-20 08:30:48,073 INFO o.a.j.e.StandardJMeterEngine: Waiting for thread group: RTP Spin Loop to finish before starting next group
+2026-03-20 08:30:48,073 INFO o.a.j.t.JMeterThread: Thread started: RTP Spin Loop 1-1
+2026-03-20 08:30:48,197 INFO o.a.j.m.J.Init Accumulators: === RTP Test Started ===
+2026-03-20 08:31:00,035 INFO o.a.j.r.Summariser: summary +     44 in 00:00:13 =    3.4/s Avg:    54 Min:    44 Max:   355 Err:     0 (0.00%) Active: 1 Started: 1 Finished: 0
+2026-03-20 08:31:30,186 INFO o.a.j.r.Summariser: summary +    105 in 00:00:30 =    3.5/s Avg:    55 Min:    44 Max:   148 Err:     0 (0.00%) Active: 1 Started: 1 Finished: 0
+2026-03-20 08:31:30,187 INFO o.a.j.r.Summariser: summary =    149 in 00:00:43 =    3.5/s Avg:    55 Min:    44 Max:   355 Err:     0 (0.00%)
+2026-03-20 08:32:00,047 INFO o.a.j.r.Summariser: summary +    103 in 00:00:30 =    3.4/s Avg:    58 Min:    43 Max:   360 Err:     0 (0.00%) Active: 1 Started: 1 Finished: 0
+2026-03-20 08:32:00,047 INFO o.a.j.r.Summariser: summary =    252 in 00:01:13 =    3.5/s Avg:    56 Min:    43 Max:   360 Err:     0 (0.00%)
+2026-03-20 08:32:30,237 INFO o.a.j.r.Summariser: summary +    109 in 00:00:30 =    3.6/s Avg:    46 Min:    43 Max:    50 Err:     0 (0.00%) Active: 1 Started: 1 Finished: 0
+2026-03-20 08:32:30,237 INFO o.a.j.r.Summariser: summary =    361 in 00:01:43 =    3.5/s Avg:    53 Min:    43 Max:   360 Err:     0 (0.00%)
+2026-03-20 08:33:00,067 INFO o.a.j.r.Summariser: summary +    108 in 00:00:30 =    3.6/s Avg:    45 Min:    42 Max:   113 Err:     0 (0.00%) Active: 1 Started: 1 Finished: 0
+2026-03-20 08:33:00,067 INFO o.a.j.r.Summariser: summary =    469 in 00:02:13 =    3.5/s Avg:    51 Min:    42 Max:   360 Err:     0 (0.00%)
+2026-03-20 08:33:09,120 INFO o.a.j.e.J.Accumulate RTP Data: Spin #500 | RTP: 2.43% | Bal: 9926.82 | Wins: 131 | HitRate: 26.20% | MaxWin: 0.05 | Scatters: 6 | 429s: 0
+2026-03-20 08:33:30,037 INFO o.a.j.r.Summariser: summary +    109 in 00:00:30 =    3.6/s Avg:    44 Min:    41 Max:    66 Err:     0 (0.00%) Active: 1 Started: 1 Finished: 0
+2026-03-20 08:33:30,038 INFO o.a.j.r.Summariser: summary =    578 in 00:02:43 =    3.5/s Avg:    50 Min:    41 Max:   360 Err:     0 (0.00%)
+2026-03-20 08:34:00,231 INFO o.a.j.r.Summariser: summary +    105 in 00:00:30 =    3.5/s Avg:    56 Min:    42 Max:   347 Err:     0 (0.00%) Active: 1 Started: 1 Finished: 0
+2026-03-20 08:34:00,231 INFO o.a.j.r.Summariser: summary =    683 in 00:03:13 =    3.5/s Avg:    51 Min:    41 Max:   360 Err:     0 (0.00%)
+2026-03-20 08:34:30,183 INFO o.a.j.r.Summariser: summary +    108 in 00:00:30 =    3.6/s Avg:    46 Min:    43 Max:    71 Err:     0 (0.00%) Active: 1 Started: 1 Finished: 0
+2026-03-20 08:34:30,183 INFO o.a.j.r.Summariser: summary =    791 in 00:03:43 =    3.5/s Avg:    50 Min:    41 Max:   360 Err:     0 (0.00%)
+2026-03-20 08:35:00,167 INFO o.a.j.r.Summariser: summary +    105 in 00:00:30 =    3.5/s Avg:    54 Min:    41 Max:   150 Err:     0 (0.00%) Active: 1 Started: 1 Finished: 0
+2026-03-20 08:35:00,167 INFO o.a.j.r.Summariser: summary =    896 in 00:04:13 =    3.5/s Avg:    51 Min:    41 Max:   360 Err:     0 (0.00%)
+2026-03-20 08:35:30,074 INFO o.a.j.r.Summariser: summary +    104 in 00:00:30 =    3.5/s Avg:    56 Min:    42 Max:   323 Err:     0 (0.00%) Active: 1 Started: 1 Finished: 0
+2026-03-20 08:35:30,075 INFO o.a.j.r.Summariser: summary =   1000 in 00:04:43 =    3.5/s Avg:    51 Min:    41 Max:   360 Err:     0 (0.00%)
+2026-03-20 08:35:30,624 INFO o.a.j.e.J.Accumulate RTP Data: Spin #1000 | RTP: 2.55% | Bal: 9853.83 | Wins: 269 | HitRate: 26.90% | MaxWin: 0.07 | Scatters: 15 | 429s: 0
+2026-03-20 08:36:00,179 INFO o.a.j.r.Summariser: summary +    106 in 00:00:30 =    3.5/s Avg:    53 Min:    41 Max:   155 Err:     0 (0.00%) Active: 1 Started: 1 Finished: 0
+2026-03-20 08:36:00,179 INFO o.a.j.r.Summariser: summary =   1106 in 00:05:13 =    3.5/s Avg:    51 Min:    41 Max:   360 Err:     0 (0.00%)
+2026-03-20 08:36:30,128 INFO o.a.j.r.Summariser: summary +    105 in 00:00:30 =    3.5/s Avg:    54 Min:    44 Max:   151 Err:     0 (0.00%) Active: 1 Started: 1 Finished: 0
+2026-03-20 08:36:30,128 INFO o.a.j.r.Summariser: summary =   1211 in 00:05:43 =    3.5/s Avg:    52 Min:    41 Max:   360 Err:     0 (0.00%)
+2026-03-20 08:37:00,169 INFO o.a.j.r.Summariser: summary +    105 in 00:00:30 =    3.5/s Avg:    55 Min:    43 Max:   161 Err:     0 (0.00%) Active: 1 Started: 1 Finished: 0
+2026-03-20 08:37:00,169 INFO o.a.j.r.Summariser: summary =   1316 in 00:06:13 =    3.5/s Avg:    52 Min:    41 Max:   360 Err:     0 (0.00%)
+2026-03-20 08:37:30,134 INFO o.a.j.r.Summariser: summary +    105 in 00:00:30 =    3.5/s Avg:    54 Min:    44 Max:   151 Err:     0 (0.00%) Active: 1 Started: 1 Finished: 0
+2026-03-20 08:37:30,134 INFO o.a.j.r.Summariser: summary =   1421 in 00:06:43 =    3.5/s Avg:    52 Min:    41 Max:   360 Err:     0 (0.00%)
+2026-03-20 08:37:52,594 INFO o.a.j.e.J.Accumulate RTP Data: Spin #1500 | RTP: 2.56% | Bal: 9780.77 | Wins: 413 | HitRate: 27.53% | MaxWin: 0.07 | Scatters: 23 | 429s: 0
+2026-03-20 08:38:00,005 INFO o.a.j.r.Summariser: summary +    108 in 00:00:30 =    3.6/s Avg:    45 Min:    41 Max:   113 Err:     0 (0.00%) Active: 1 Started: 1 Finished: 0
+2026-03-20 08:38:00,005 INFO o.a.j.r.Summariser: summary =   1529 in 00:07:13 =    3.5/s Avg:    52 Min:    41 Max:   360 Err:     0 (0.00%)
+2026-03-20 08:38:30,033 INFO o.a.j.r.Summariser: summary +    106 in 00:00:30 =    3.5/s Avg:    52 Min:    42 Max:   229 Err:     0 (0.00%) Active: 1 Started: 1 Finished: 0
+2026-03-20 08:38:30,034 INFO o.a.j.r.Summariser: summary =   1635 in 00:07:43 =    3.5/s Avg:    52 Min:    41 Max:   360 Err:     0 (0.00%)
+2026-03-20 08:39:00,129 INFO o.a.j.r.Summariser: summary +    106 in 00:00:30 =    3.5/s Avg:    53 Min:    42 Max:   153 Err:     0 (0.00%) Active: 1 Started: 1 Finished: 0
+2026-03-20 08:39:00,129 INFO o.a.j.r.Summariser: summary =   1741 in 00:08:13 =    3.5/s Avg:    52 Min:    41 Max:   360 Err:     0 (0.00%)
+2026-03-20 08:39:30,047 INFO o.a.j.r.Summariser: summary +    105 in 00:00:30 =    3.5/s Avg:    54 Min:    44 Max:   160 Err:     0 (0.00%) Active: 1 Started: 1 Finished: 0
+2026-03-20 08:39:30,047 INFO o.a.j.r.Summariser: summary =   1846 in 00:08:43 =    3.5/s Avg:    52 Min:    41 Max:   360 Err:     0 (0.00%)
+2026-03-20 08:40:00,131 INFO o.a.j.r.Summariser: summary +    105 in 00:00:30 =    3.5/s Avg:    55 Min:    43 Max:   219 Err:     0 (0.00%) Active: 1 Started: 1 Finished: 0
+2026-03-20 08:40:00,131 INFO o.a.j.r.Summariser: summary =   1951 in 00:09:13 =    3.5/s Avg:    52 Min:    41 Max:   360 Err:     0 (0.00%)
+2026-03-20 08:40:14,318 INFO o.a.j.e.J.Accumulate RTP Data: Spin #2000 | RTP: 2.72% | Bal: 9708.17 | Wins: 569 | HitRate: 28.45% | MaxWin: 0.08 | Scatters: 33 | 429s: 0
+2026-03-20 08:40:30,089 INFO o.a.j.r.Summariser: summary +    105 in 00:00:30 =    3.5/s Avg:    54 Min:    43 Max:   151 Err:     0 (0.00%) Active: 1 Started: 1 Finished: 0
+2026-03-20 08:40:30,090 INFO o.a.j.r.Summariser: summary =   2056 in 00:09:43 =    3.5/s Avg:    52 Min:    41 Max:   360 Err:     0 (0.00%)
+2026-03-20 08:41:00,274 INFO o.a.j.r.Summariser: summary +    106 in 00:00:30 =    3.5/s Avg:    54 Min:    41 Max:   177 Err:     0 (0.00%) Active: 1 Started: 1 Finished: 0
+2026-03-20 08:41:00,275 INFO o.a.j.r.Summariser: summary =   2162 in 00:10:13 =    3.5/s Avg:    52 Min:    41 Max:   360 Err:     0 (0.00%)
+2026-03-20 08:41:30,046 INFO o.a.j.r.Summariser: summary +    108 in 00:00:30 =    3.6/s Avg:    44 Min:    41 Max:    92 Err:     0 (0.00%) Active: 1 Started: 1 Finished: 0
+2026-03-20 08:41:30,046 INFO o.a.j.r.Summariser: summary =   2270 in 00:10:43 =    3.5/s Avg:    52 Min:    41 Max:   360 Err:     0 (0.00%)
+2026-03-20 08:42:00,216 INFO o.a.j.r.Summariser: summary +    107 in 00:00:30 =    3.5/s Avg:    51 Min:    41 Max:   150 Err:     0 (0.00%) Active: 1 Started: 1 Finished: 0
+2026-03-20 08:42:00,216 INFO o.a.j.r.Summariser: summary =   2377 in 00:11:13 =    3.5/s Avg:    52 Min:    41 Max:   360 Err:     0 (0.00%)
+2026-03-20 08:42:30,212 INFO o.a.j.r.Summariser: summary +    106 in 00:00:30 =    3.5/s Avg:    52 Min:    40 Max:   223 Err:     0 (0.00%) Active: 1 Started: 1 Finished: 0
+2026-03-20 08:42:30,213 INFO o.a.j.r.Summariser: summary =   2483 in 00:11:43 =    3.5/s Avg:    52 Min:    40 Max:   360 Err:     0 (0.00%)
+2026-03-20 08:42:35,426 INFO o.a.j.e.J.Accumulate RTP Data: Spin #2500 | RTP: 2.65% | Bal: 9634.93 | Wins: 695 | HitRate: 27.80% | MaxWin: 0.08 | Scatters: 45 | 429s: 0
+2026-03-20 08:42:48,617 WARN o.a.h.c.p.ResponseProcessCookies: Invalid cookie header: "Set-Cookie: refresh_token=ecc6b8749aa4ca1e507ea0b4963d6c75c1e7eb7133eb068659b1e864f8a7d8fc; Max-Age=604800; Path=/api/v1/auth; Expires=Fri, 27 Mar 2026 06:42:48 GMT; HttpOnly; Secure; SameSite=Lax". Invalid 'expires' attribute: Fri, 27 Mar 2026 06:42:48 GMT
+2026-03-20 08:42:48,631 INFO o.a.j.m.J.JWT Token Refresh: JWT refreshed successfully at spin #2544
+2026-03-20 08:43:00,080 INFO o.a.j.r.Summariser: summary +    104 in 00:00:30 =    3.5/s Avg:    53 Min:    41 Max:   150 Err:     0 (0.00%) Active: 1 Started: 1 Finished: 0
+2026-03-20 08:43:00,080 INFO o.a.j.r.Summariser: summary =   2587 in 00:12:13 =    3.5/s Avg:    52 Min:    40 Max:   360 Err:     0 (0.00%)
+2026-03-20 08:43:30,084 INFO o.a.j.r.Summariser: summary +    105 in 00:00:30 =    3.5/s Avg:    55 Min:    43 Max:   160 Err:     0 (0.00%) Active: 1 Started: 1 Finished: 0
+2026-03-20 08:43:30,084 INFO o.a.j.r.Summariser: summary =   2692 in 00:12:43 =    3.5/s Avg:    52 Min:    40 Max:   360 Err:     0 (0.00%)
+2026-03-20 08:44:00,272 INFO o.a.j.r.Summariser: summary +    105 in 00:00:30 =    3.5/s Avg:    56 Min:    44 Max:   225 Err:     0 (0.00%) Active: 1 Started: 1 Finished: 0
+2026-03-20 08:44:00,272 INFO o.a.j.r.Summariser: summary =   2797 in 00:13:13 =    3.5/s Avg:    52 Min:    40 Max:   360 Err:     0 (0.00%)
+2026-03-20 08:44:30,075 INFO o.a.j.r.Summariser: summary +    104 in 00:00:30 =    3.5/s Avg:    55 Min:    42 Max:   347 Err:     0 (0.00%) Active: 1 Started: 1 Finished: 0
+2026-03-20 08:44:30,075 INFO o.a.j.r.Summariser: summary =   2901 in 00:13:43 =    3.5/s Avg:    52 Min:    40 Max:   360 Err:     0 (0.00%)
+2026-03-20 08:44:58,053 INFO o.a.j.e.J.Accumulate RTP Data: Spin #3000 | RTP: 2.65% | Bal: 9561.91 | Wins: 829 | HitRate: 27.63% | MaxWin: 0.08 | Scatters: 58 | 429s: 0
+2026-03-20 08:45:00,214 INFO o.a.j.r.Summariser: summary +    108 in 00:00:30 =    3.6/s Avg:    48 Min:    41 Max:   160 Err:     0 (0.00%) Active: 1 Started: 1 Finished: 0
+2026-03-20 08:45:00,215 INFO o.a.j.r.Summariser: summary =   3009 in 00:14:13 =    3.5/s Avg:    52 Min:    40 Max:   360 Err:     0 (0.00%)
+2026-03-20 08:45:30,045 INFO o.a.j.r.Summariser: summary +    106 in 00:00:30 =    3.6/s Avg:    50 Min:    42 Max:   159 Err:     0 (0.00%) Active: 1 Started: 1 Finished: 0
+2026-03-20 08:45:30,046 INFO o.a.j.r.Summariser: summary =   3115 in 00:14:43 =    3.5/s Avg:    52 Min:    40 Max:   360 Err:     0 (0.00%)
+2026-03-20 08:46:00,183 INFO o.a.j.r.Summariser: summary +    106 in 00:00:30 =    3.5/s Avg:    53 Min:    40 Max:   156 Err:     0 (0.00%) Active: 1 Started: 1 Finished: 0
+2026-03-20 08:46:00,184 INFO o.a.j.r.Summariser: summary =   3221 in 00:15:13 =    3.5/s Avg:    52 Min:    40 Max:   360 Err:     0 (0.00%)
+2026-03-20 08:46:30,105 INFO o.a.j.r.Summariser: summary +    106 in 00:00:30 =    3.5/s Avg:    51 Min:    40 Max:   150 Err:     0 (0.00%) Active: 1 Started: 1 Finished: 0
+2026-03-20 08:46:30,105 INFO o.a.j.r.Summariser: summary =   3327 in 00:15:43 =    3.5/s Avg:    52 Min:    40 Max:   360 Err:     0 (0.00%)
+2026-03-20 08:47:00,259 INFO o.a.j.r.Summariser: summary +    106 in 00:00:30 =    3.5/s Avg:    54 Min:    42 Max:   178 Err:     0 (0.00%) Active: 1 Started: 1 Finished: 0
+2026-03-20 08:47:00,259 INFO o.a.j.r.Summariser: summary =   3433 in 00:16:13 =    3.5/s Avg:    52 Min:    40 Max:   360 Err:     0 (0.00%)
+2026-03-20 08:47:19,436 INFO o.a.j.e.J.Accumulate RTP Data: Spin #3500 | RTP: 2.66% | Bal: 9488.98 | Wins: 969 | HitRate: 27.69% | MaxWin: 0.08 | Scatters: 66 | 429s: 0
+2026-03-20 08:47:30,076 INFO o.a.j.r.Summariser: summary +    104 in 00:00:30 =    3.5/s Avg:    56 Min:    45 Max:   386 Err:     0 (0.00%) Active: 1 Started: 1 Finished: 0
+2026-03-20 08:47:30,076 INFO o.a.j.r.Summariser: summary =   3537 in 00:16:43 =    3.5/s Avg:    52 Min:    40 Max:   386 Err:     0 (0.00%)
+2026-03-20 08:48:00,112 INFO o.a.j.r.Summariser: summary +    105 in 00:00:30 =    3.5/s Avg:    55 Min:    44 Max:   152 Err:     0 (0.00%) Active: 1 Started: 1 Finished: 0
+2026-03-20 08:48:00,112 INFO o.a.j.r.Summariser: summary =   3642 in 00:17:13 =    3.5/s Avg:    52 Min:    40 Max:   386 Err:     0 (0.00%)
+2026-03-20 08:48:30,223 INFO o.a.j.r.Summariser: summary +    108 in 00:00:30 =    3.6/s Avg:    48 Min:    44 Max:   160 Err:     0 (0.00%) Active: 1 Started: 1 Finished: 0
+2026-03-20 08:48:30,223 INFO o.a.j.r.Summariser: summary =   3750 in 00:17:43 =    3.5/s Avg:    52 Min:    40 Max:   386 Err:     0 (0.00%)
+2026-03-20 08:49:00,011 INFO o.a.j.r.Summariser: summary +    105 in 00:00:30 =    3.5/s Avg:    53 Min:    42 Max:   152 Err:     0 (0.00%) Active: 1 Started: 1 Finished: 0
+2026-03-20 08:49:00,012 INFO o.a.j.r.Summariser: summary =   3855 in 00:18:13 =    3.5/s Avg:    52 Min:    40 Max:   386 Err:     0 (0.00%)
+2026-03-20 08:49:30,103 INFO o.a.j.r.Summariser: summary +    106 in 00:00:30 =    3.5/s Avg:    53 Min:    42 Max:   151 Err:     0 (0.00%) Active: 1 Started: 1 Finished: 0
+2026-03-20 08:49:30,103 INFO o.a.j.r.Summariser: summary =   3961 in 00:18:43 =    3.5/s Avg:    52 Min:    40 Max:   386 Err:     0 (0.00%)
+2026-03-20 08:49:41,885 INFO o.a.j.e.J.Accumulate RTP Data: Spin #4000 | RTP: 2.68% | Bal: 9416.08 | Wins: 1109 | HitRate: 27.73% | MaxWin: 0.08 | Scatters: 79 | 429s: 0
+2026-03-20 08:50:00,228 INFO o.a.j.r.Summariser: summary +    106 in 00:00:30 =    3.5/s Avg:    53 Min:    42 Max:   166 Err:     0 (0.00%) Active: 1 Started: 1 Finished: 0
+2026-03-20 08:50:00,228 INFO o.a.j.r.Summariser: summary =   4067 in 00:19:13 =    3.5/s Avg:    52 Min:    40 Max:   386 Err:     0 (0.00%)
+2026-03-20 08:50:30,181 INFO o.a.j.r.Summariser: summary +    106 in 00:00:30 =    3.5/s Avg:    52 Min:    41 Max:   157 Err:     0 (0.00%) Active: 1 Started: 1 Finished: 0
+2026-03-20 08:50:30,181 INFO o.a.j.r.Summariser: summary =   4173 in 00:19:43 =    3.5/s Avg:    52 Min:    40 Max:   386 Err:     0 (0.00%)
+2026-03-20 08:51:00,251 INFO o.a.j.r.Summariser: summary +    106 in 00:00:30 =    3.5/s Avg:    53 Min:    41 Max:   222 Err:     0 (0.00%) Active: 1 Started: 1 Finished: 0
+2026-03-20 08:51:00,251 INFO o.a.j.r.Summariser: summary =   4279 in 00:20:13 =    3.5/s Avg:    52 Min:    40 Max:   386 Err:     0 (0.00%)
+2026-03-20 08:51:30,273 INFO o.a.j.r.Summariser: summary +    106 in 00:00:30 =    3.5/s Avg:    52 Min:    41 Max:   208 Err:     0 (0.00%) Active: 1 Started: 1 Finished: 0
+2026-03-20 08:51:30,273 INFO o.a.j.r.Summariser: summary =   4385 in 00:20:43 =    3.5/s Avg:    52 Min:    40 Max:   386 Err:     0 (0.00%)
+2026-03-20 08:52:00,512 INFO o.a.j.r.Summariser: summary +    108 in 00:00:30 =    3.6/s Avg:    49 Min:    41 Max:   344 Err:     0 (0.00%) Active: 1 Started: 1 Finished: 0
+2026-03-20 08:52:00,513 INFO o.a.j.r.Summariser: summary =   4493 in 00:21:13 =    3.5/s Avg:    52 Min:    40 Max:   386 Err:     0 (0.00%)
+2026-03-20 08:52:03,610 INFO o.a.j.e.J.Accumulate RTP Data: Spin #4500 | RTP: 2.66% | Bal: 9342.96 | Wins: 1237 | HitRate: 27.49% | MaxWin: 0.1 | Scatters: 87 | 429s: 0
+2026-03-20 08:52:30,123 INFO o.a.j.r.Summariser: summary +    105 in 00:00:30 =    3.5/s Avg:    50 Min:    42 Max:   151 Err:     0 (0.00%) Active: 1 Started: 1 Finished: 0
+2026-03-20 08:52:30,123 INFO o.a.j.r.Summariser: summary =   4598 in 00:21:43 =    3.5/s Avg:    52 Min:    40 Max:   386 Err:     0 (0.00%)
+2026-03-20 08:53:00,126 INFO o.a.j.r.Summariser: summary +    105 in 00:00:30 =    3.5/s Avg:    55 Min:    42 Max:   252 Err:     0 (0.00%) Active: 1 Started: 1 Finished: 0
+2026-03-20 08:53:00,126 INFO o.a.j.r.Summariser: summary =   4703 in 00:22:13 =    3.5/s Avg:    52 Min:    40 Max:   386 Err:     0 (0.00%)
+2026-03-20 08:53:30,068 INFO o.a.j.r.Summariser: summary +    106 in 00:00:30 =    3.5/s Avg:    52 Min:    41 Max:   187 Err:     0 (0.00%) Active: 1 Started: 1 Finished: 0
+2026-03-20 08:53:30,068 INFO o.a.j.r.Summariser: summary =   4809 in 00:22:43 =    3.5/s Avg:    52 Min:    40 Max:   386 Err:     0 (0.00%)
+2026-03-20 08:54:00,204 INFO o.a.j.r.Summariser: summary +    106 in 00:00:30 =    3.5/s Avg:    53 Min:    41 Max:   152 Err:     0 (0.00%) Active: 1 Started: 1 Finished: 0
+2026-03-20 08:54:00,204 INFO o.a.j.r.Summariser: summary =   4915 in 00:23:13 =    3.5/s Avg:    52 Min:    40 Max:   386 Err:     0 (0.00%)
+2026-03-20 08:54:25,081 INFO o.a.j.e.J.Accumulate RTP Data: Spin #5000 | RTP: 2.67% | Bal: 9270.05 | Wins: 1380 | HitRate: 27.60% | MaxWin: 0.1 | Scatters: 93 | 429s: 0
+2026-03-20 08:54:30,060 INFO o.a.j.r.Summariser: summary +    105 in 00:00:30 =    3.5/s Avg:    53 Min:    43 Max:   178 Err:     0 (0.00%) Active: 1 Started: 1 Finished: 0
+2026-03-20 08:54:30,060 INFO o.a.j.r.Summariser: summary =   5020 in 00:23:43 =    3.5/s Avg:    52 Min:    40 Max:   386 Err:     0 (0.00%)
+2026-03-20 08:54:48,753 WARN o.a.h.c.p.ResponseProcessCookies: Invalid cookie header: "Set-Cookie: refresh_token=745bffb306640100543f7aa06d3b9305940c1bda613653f9a09980a24f60b153; Max-Age=604800; Path=/api/v1/auth; Expires=Fri, 27 Mar 2026 06:54:48 GMT; HttpOnly; Secure; SameSite=Lax". Invalid 'expires' attribute: Fri, 27 Mar 2026 06:54:48 GMT
+2026-03-20 08:54:48,754 INFO o.a.j.m.J.JWT Token Refresh: JWT refreshed successfully at spin #5085
+2026-03-20 08:55:00,103 INFO o.a.j.r.Summariser: summary +    104 in 00:00:30 =    3.5/s Avg:    56 Min:    43 Max:   338 Err:     0 (0.00%) Active: 1 Started: 1 Finished: 0
+2026-03-20 08:55:00,103 INFO o.a.j.r.Summariser: summary =   5124 in 00:24:13 =    3.5/s Avg:    52 Min:    40 Max:   386 Err:     0 (0.00%)
+2026-03-20 08:55:30,252 INFO o.a.j.r.Summariser: summary +    109 in 00:00:30 =    3.6/s Avg:    46 Min:    42 Max:   137 Err:     0 (0.00%) Active: 1 Started: 1 Finished: 0
+2026-03-20 08:55:30,252 INFO o.a.j.r.Summariser: summary =   5233 in 00:24:43 =    3.5/s Avg:    52 Min:    40 Max:   386 Err:     0 (0.00%)
+2026-03-20 08:56:00,256 INFO o.a.j.r.Summariser: summary +    107 in 00:00:30 =    3.6/s Avg:    49 Min:    41 Max:   151 Err:     0 (0.00%) Active: 1 Started: 1 Finished: 0
+2026-03-20 08:56:00,256 INFO o.a.j.r.Summariser: summary =   5340 in 00:25:13 =    3.5/s Avg:    52 Min:    40 Max:   386 Err:     0 (0.00%)
+2026-03-20 08:56:30,149 INFO o.a.j.r.Summariser: summary +    106 in 00:00:30 =    3.5/s Avg:    51 Min:    40 Max:   152 Err:     0 (0.00%) Active: 1 Started: 1 Finished: 0
+2026-03-20 08:56:30,149 INFO o.a.j.r.Summariser: summary =   5446 in 00:25:43 =    3.5/s Avg:    52 Min:    40 Max:   386 Err:     0 (0.00%)
+2026-03-20 08:56:46,416 INFO o.a.j.e.J.Accumulate RTP Data: Spin #5500 | RTP: 2.70% | Bal: 9197.24 | Wins: 1526 | HitRate: 27.75% | MaxWin: 0.1 | Scatters: 100 | 429s: 0
+2026-03-20 08:57:00,243 INFO o.a.j.r.Summariser: summary +    106 in 00:00:30 =    3.5/s Avg:    53 Min:    41 Max:   216 Err:     0 (0.00%) Active: 1 Started: 1 Finished: 0
+2026-03-20 08:57:00,244 INFO o.a.j.r.Summariser: summary =   5552 in 00:26:13 =    3.5/s Avg:    52 Min:    40 Max:   386 Err:     0 (0.00%)
+2026-03-20 08:57:30,141 INFO o.a.j.r.Summariser: summary +    105 in 00:00:30 =    3.5/s Avg:    54 Min:    43 Max:   152 Err:     0 (0.00%) Active: 1 Started: 1 Finished: 0
+2026-03-20 08:57:30,141 INFO o.a.j.r.Summariser: summary =   5657 in 00:26:43 =    3.5/s Avg:    52 Min:    40 Max:   386 Err:     0 (0.00%)
+2026-03-20 08:58:00,253 INFO o.a.j.r.Summariser: summary +    105 in 00:00:30 =    3.5/s Avg:    56 Min:    43 Max:   216 Err:     0 (0.00%) Active: 1 Started: 1 Finished: 0
+2026-03-20 08:58:00,253 INFO o.a.j.r.Summariser: summary =   5762 in 00:27:13 =    3.5/s Avg:    52 Min:    40 Max:   386 Err:     0 (0.00%)
+2026-03-20 08:58:30,231 INFO o.a.j.r.Summariser: summary +    105 in 00:00:30 =    3.5/s Avg:    55 Min:    42 Max:   156 Err:     0 (0.00%) Active: 1 Started: 1 Finished: 0
+2026-03-20 08:58:30,231 INFO o.a.j.r.Summariser: summary =   5867 in 00:27:43 =    3.5/s Avg:    52 Min:    40 Max:   386 Err:     0 (0.00%)
+2026-03-20 08:59:00,176 INFO o.a.j.r.Summariser: summary +    107 in 00:00:30 =    3.6/s Avg:    49 Min:    42 Max:   150 Err:     0 (0.00%) Active: 1 Started: 1 Finished: 0
+2026-03-20 08:59:00,176 INFO o.a.j.r.Summariser: summary =   5974 in 00:28:13 =    3.5/s Avg:    52 Min:    40 Max:   386 Err:     0 (0.00%)
+2026-03-20 08:59:08,271 INFO o.a.j.e.J.Accumulate RTP Data: Spin #6000 | RTP: 2.66% | Bal: 9123.91 | Wins: 1653 | HitRate: 27.55% | MaxWin: 0.1 | Scatters: 108 | 429s: 0
+2026-03-20 08:59:30,249 INFO o.a.j.r.Summariser: summary +    108 in 00:00:30 =    3.6/s Avg:    47 Min:    41 Max:   150 Err:     0 (0.00%) Active: 1 Started: 1 Finished: 0
+2026-03-20 08:59:30,250 INFO o.a.j.r.Summariser: summary =   6082 in 00:28:43 =    3.5/s Avg:    52 Min:    40 Max:   386 Err:     0 (0.00%)
+2026-03-20 09:00:00,037 INFO o.a.j.r.Summariser: summary +    105 in 00:00:30 =    3.5/s Avg:    53 Min:    42 Max:   154 Err:     0 (0.00%) Active: 1 Started: 1 Finished: 0
+2026-03-20 09:00:00,037 INFO o.a.j.r.Summariser: summary =   6187 in 00:29:13 =    3.5/s Avg:    52 Min:    40 Max:   386 Err:     0 (0.00%)
+2026-03-20 09:00:30,009 INFO o.a.j.r.Summariser: summary +    105 in 00:00:30 =    3.5/s Avg:    55 Min:    43 Max:   152 Err:     0 (0.00%) Active: 1 Started: 1 Finished: 0
+2026-03-20 09:00:30,009 INFO o.a.j.r.Summariser: summary =   6292 in 00:29:43 =    3.5/s Avg:    52 Min:    40 Max:   386 Err:     0 (0.00%)
+2026-03-20 09:01:00,252 INFO o.a.j.r.Summariser: summary +    106 in 00:00:30 =    3.5/s Avg:    54 Min:    41 Max:   177 Err:     0 (0.00%) Active: 1 Started: 1 Finished: 0
+2026-03-20 09:01:00,252 INFO o.a.j.r.Summariser: summary =   6398 in 00:30:13 =    3.5/s Avg:    52 Min:    40 Max:   386 Err:     0 (0.00%)
+2026-03-20 09:01:29,613 INFO o.a.j.e.J.Accumulate RTP Data: Spin #6500 | RTP: 2.66% | Bal: 9050.9 | Wins: 1786 | HitRate: 27.48% | MaxWin: 0.1 | Scatters: 115 | 429s: 0
+2026-03-20 09:01:30,159 INFO o.a.j.r.Summariser: summary +    106 in 00:00:30 =    3.5/s Avg:    51 Min:    41 Max:   153 Err:     0 (0.00%) Active: 1 Started: 1 Finished: 0
+2026-03-20 09:01:30,160 INFO o.a.j.r.Summariser: summary =   6504 in 00:30:43 =    3.5/s Avg:    52 Min:    40 Max:   386 Err:     0 (0.00%)
+2026-03-20 09:02:00,134 INFO o.a.j.r.Summariser: summary +    106 in 00:00:30 =    3.5/s Avg:    52 Min:    40 Max:   153 Err:     0 (0.00%) Active: 1 Started: 1 Finished: 0
+2026-03-20 09:02:00,135 INFO o.a.j.r.Summariser: summary =   6610 in 00:31:13 =    3.5/s Avg:    52 Min:    40 Max:   386 Err:     0 (0.00%)
+2026-03-20 09:02:30,275 INFO o.a.j.r.Summariser: summary +    106 in 00:00:30 =    3.5/s Avg:    53 Min:    43 Max:   364 Err:     0 (0.00%) Active: 1 Started: 1 Finished: 0
+2026-03-20 09:02:30,275 INFO o.a.j.r.Summariser: summary =   6716 in 00:31:43 =    3.5/s Avg:    52 Min:    40 Max:   386 Err:     0 (0.00%)
+2026-03-20 09:03:00,129 INFO o.a.j.r.Summariser: summary +    107 in 00:00:30 =    3.6/s Avg:    48 Min:    42 Max:   143 Err:     0 (0.00%) Active: 1 Started: 1 Finished: 0
+2026-03-20 09:03:00,130 INFO o.a.j.r.Summariser: summary =   6823 in 00:32:13 =    3.5/s Avg:    52 Min:    40 Max:   386 Err:     0 (0.00%)
+2026-03-20 09:03:30,159 INFO o.a.j.r.Summariser: summary +    105 in 00:00:30 =    3.5/s Avg:    55 Min:    43 Max:   377 Err:     0 (0.00%) Active: 1 Started: 1 Finished: 0
+2026-03-20 09:03:30,159 INFO o.a.j.r.Summariser: summary =   6928 in 00:32:43 =    3.5/s Avg:    52 Min:    40 Max:   386 Err:     0 (0.00%)
+2026-03-20 09:03:51,646 INFO o.a.j.e.J.Accumulate RTP Data: Spin #7000 | RTP: 2.65% | Bal: 8977.8 | Wins: 1919 | HitRate: 27.41% | MaxWin: 0.1 | Scatters: 123 | 429s: 0
+2026-03-20 09:04:00,003 INFO o.a.j.r.Summariser: summary +    104 in 00:00:30 =    3.5/s Avg:    56 Min:    42 Max:   333 Err:     0 (0.00%) Active: 1 Started: 1 Finished: 0
+2026-03-20 09:04:00,004 INFO o.a.j.r.Summariser: summary =   7032 in 00:33:13 =    3.5/s Avg:    52 Min:    40 Max:   386 Err:     0 (0.00%)
+2026-03-20 09:04:30,142 INFO o.a.j.r.Summariser: summary +    106 in 00:00:30 =    3.5/s Avg:    53 Min:    42 Max:   164 Err:     0 (0.00%) Active: 1 Started: 1 Finished: 0
+2026-03-20 09:04:30,142 INFO o.a.j.r.Summariser: summary =   7138 in 00:33:43 =    3.5/s Avg:    52 Min:    40 Max:   386 Err:     0 (0.00%)
+2026-03-20 09:05:00,076 INFO o.a.j.r.Summariser: summary +    104 in 00:00:30 =    3.5/s Avg:    57 Min:    43 Max:   345 Err:     0 (0.00%) Active: 1 Started: 1 Finished: 0
+2026-03-20 09:05:00,076 INFO o.a.j.r.Summariser: summary =   7242 in 00:34:13 =    3.5/s Avg:    52 Min:    40 Max:   386 Err:     0 (0.00%)
+2026-03-20 09:05:30,257 INFO o.a.j.r.Summariser: summary +    106 in 00:00:30 =    3.5/s Avg:    54 Min:    42 Max:   151 Err:     0 (0.00%) Active: 1 Started: 1 Finished: 0
+2026-03-20 09:05:30,257 INFO o.a.j.r.Summariser: summary =   7348 in 00:34:43 =    3.5/s Avg:    52 Min:    40 Max:   386 Err:     0 (0.00%)
+2026-03-20 09:06:00,020 INFO o.a.j.r.Summariser: summary +    106 in 00:00:30 =    3.6/s Avg:    50 Min:    41 Max:   234 Err:     0 (0.00%) Active: 1 Started: 1 Finished: 0
+2026-03-20 09:06:00,020 INFO o.a.j.r.Summariser: summary =   7454 in 00:35:13 =    3.5/s Avg:    52 Min:    40 Max:   386 Err:     0 (0.00%)
+2026-03-20 09:06:13,682 INFO o.a.j.e.J.Accumulate RTP Data: Spin #7500 | RTP: 2.66% | Bal: 8904.98 | Wins: 2051 | HitRate: 27.35% | MaxWin: 0.1 | Scatters: 138 | 429s: 0
+2026-03-20 09:06:30,088 INFO o.a.j.r.Summariser: summary +    108 in 00:00:30 =    3.6/s Avg:    47 Min:    41 Max:   150 Err:     0 (0.00%) Active: 1 Started: 1 Finished: 0
+2026-03-20 09:06:30,089 INFO o.a.j.r.Summariser: summary =   7562 in 00:35:43 =    3.5/s Avg:    52 Min:    40 Max:   386 Err:     0 (0.00%)
+2026-03-20 09:06:48,824 WARN o.a.h.c.p.ResponseProcessCookies: Invalid cookie header: "Set-Cookie: refresh_token=1e187005c762bb85ccb6f2a9ea942689f183ef3e03c917c4e5ecd9ad3e773c2e; Max-Age=604800; Path=/api/v1/auth; Expires=Fri, 27 Mar 2026 07:06:48 GMT; HttpOnly; Secure; SameSite=Lax". Invalid 'expires' attribute: Fri, 27 Mar 2026 07:06:48 GMT
+2026-03-20 09:06:48,824 INFO o.a.j.m.J.JWT Token Refresh: JWT refreshed successfully at spin #7624
+2026-03-20 09:07:00,181 INFO o.a.j.r.Summariser: summary +    105 in 00:00:30 =    3.5/s Avg:    54 Min:    41 Max:   239 Err:     0 (0.00%) Active: 1 Started: 1 Finished: 0
+2026-03-20 09:07:00,181 INFO o.a.j.r.Summariser: summary =   7667 in 00:36:13 =    3.5/s Avg:    52 Min:    40 Max:   386 Err:     0 (0.00%)
+2026-03-20 09:07:30,055 INFO o.a.j.r.Summariser: summary +    105 in 00:00:30 =    3.5/s Avg:    54 Min:    43 Max:   152 Err:     0 (0.00%) Active: 1 Started: 1 Finished: 0
+2026-03-20 09:07:30,055 INFO o.a.j.r.Summariser: summary =   7772 in 00:36:43 =    3.5/s Avg:    52 Min:    40 Max:   386 Err:     0 (0.00%)
+2026-03-20 09:08:00,029 INFO o.a.j.r.Summariser: summary +    105 in 00:00:30 =    3.5/s Avg:    54 Min:    42 Max:   151 Err:     0 (0.00%) Active: 1 Started: 1 Finished: 0
+2026-03-20 09:08:00,029 INFO o.a.j.r.Summariser: summary =   7877 in 00:37:13 =    3.5/s Avg:    52 Min:    40 Max:   386 Err:     0 (0.00%)
+2026-03-20 09:08:30,135 INFO o.a.j.r.Summariser: summary +    106 in 00:00:30 =    3.5/s Avg:    53 Min:    41 Max:   155 Err:     0 (0.00%) Active: 1 Started: 1 Finished: 0
+2026-03-20 09:08:30,135 INFO o.a.j.r.Summariser: summary =   7983 in 00:37:43 =    3.5/s Avg:    52 Min:    40 Max:   386 Err:     0 (0.00%)
+2026-03-20 09:08:35,381 INFO o.a.j.e.J.Accumulate RTP Data: Spin #8000 | RTP: 2.68% | Bal: 8832.17 | Wins: 2196 | HitRate: 27.45% | MaxWin: 0.13 | Scatters: 146 | 429s: 0
+2026-03-20 09:09:00,241 INFO o.a.j.r.Summariser: summary +    106 in 00:00:30 =    3.5/s Avg:    53 Min:    41 Max:   220 Err:     0 (0.00%) Active: 1 Started: 1 Finished: 0
+2026-03-20 09:09:00,241 INFO o.a.j.r.Summariser: summary =   8089 in 00:38:13 =    3.5/s Avg:    52 Min:    40 Max:   386 Err:     0 (0.00%)
+2026-03-20 09:09:30,076 INFO o.a.j.r.Summariser: summary +    107 in 00:00:30 =    3.6/s Avg:    48 Min:    43 Max:   141 Err:     0 (0.00%) Active: 1 Started: 1 Finished: 0
+2026-03-20 09:09:30,077 INFO o.a.j.r.Summariser: summary =   8196 in 00:38:43 =    3.5/s Avg:    52 Min:    40 Max:   386 Err:     0 (0.00%)
+2026-03-20 09:10:00,196 INFO o.a.j.r.Summariser: summary +    106 in 00:00:30 =    3.5/s Avg:    53 Min:    43 Max:   336 Err:     0 (0.00%) Active: 1 Started: 1 Finished: 0
+2026-03-20 09:10:00,196 INFO o.a.j.r.Summariser: summary =   8302 in 00:39:13 =    3.5/s Avg:    52 Min:    40 Max:   386 Err:     0 (0.00%)
+2026-03-20 09:10:30,183 INFO o.a.j.r.Summariser: summary +    105 in 00:00:30 =    3.5/s Avg:    55 Min:    43 Max:   202 Err:     0 (0.00%) Active: 1 Started: 1 Finished: 0
+2026-03-20 09:10:30,183 INFO o.a.j.r.Summariser: summary =   8407 in 00:39:43 =    3.5/s Avg:    52 Min:    40 Max:   386 Err:     0 (0.00%)
+2026-03-20 09:10:57,302 INFO o.a.j.e.J.Accumulate RTP Data: Spin #8500 | RTP: 2.66% | Bal: 8758.87 | Wins: 2319 | HitRate: 27.28% | MaxWin: 0.13 | Scatters: 157 | 429s: 0
+2026-03-20 09:11:00,064 INFO o.a.j.r.Summariser: summary +    105 in 00:00:30 =    3.5/s Avg:    54 Min:    43 Max:   152 Err:     0 (0.00%) Active: 1 Started: 1 Finished: 0
+2026-03-20 09:11:00,064 INFO o.a.j.r.Summariser: summary =   8512 in 00:40:13 =    3.5/s Avg:    52 Min:    40 Max:   386 Err:     0 (0.00%)
+2026-03-20 09:11:30,262 INFO o.a.j.r.Summariser: summary +    106 in 00:00:30 =    3.5/s Avg:    54 Min:    42 Max:   181 Err:     0 (0.00%) Active: 1 Started: 1 Finished: 0
+2026-03-20 09:11:30,263 INFO o.a.j.r.Summariser: summary =   8618 in 00:40:43 =    3.5/s Avg:    52 Min:    40 Max:   386 Err:     0 (0.00%)
+2026-03-20 09:12:00,058 INFO o.a.j.r.Summariser: summary +    105 in 00:00:30 =    3.5/s Avg:    53 Min:    42 Max:   153 Err:     0 (0.00%) Active: 1 Started: 1 Finished: 0
+2026-03-20 09:12:00,058 INFO o.a.j.r.Summariser: summary =   8723 in 00:41:13 =    3.5/s Avg:    52 Min:    40 Max:   386 Err:     0 (0.00%)
+2026-03-20 09:12:30,158 INFO o.a.j.r.Summariser: summary +    105 in 00:00:30 =    3.5/s Avg:    55 Min:    41 Max:   235 Err:     0 (0.00%) Active: 1 Started: 1 Finished: 0
+2026-03-20 09:12:30,159 INFO o.a.j.r.Summariser: summary =   8828 in 00:41:43 =    3.5/s Avg:    52 Min:    40 Max:   386 Err:     0 (0.00%)
+2026-03-20 09:13:00,260 INFO o.a.j.r.Summariser: summary +    106 in 00:00:30 =    3.5/s Avg:    53 Min:    41 Max:   545 Err:     0 (0.00%) Active: 1 Started: 1 Finished: 0
+2026-03-20 09:13:00,260 INFO o.a.j.r.Summariser: summary =   8934 in 00:42:13 =    3.5/s Avg:    52 Min:    40 Max:   545 Err:     0 (0.00%)
+2026-03-20 09:13:19,887 INFO o.a.j.e.J.Accumulate RTP Data: Spin #9000 | RTP: 2.64% | Bal: 8685.58 | Wins: 2436 | HitRate: 27.07% | MaxWin: 0.13 | Scatters: 159 | 429s: 0
+2026-03-20 09:13:30,136 INFO o.a.j.r.Summariser: summary +    105 in 00:00:30 =    3.5/s Avg:    53 Min:    42 Max:   157 Err:     0 (0.00%) Active: 1 Started: 1 Finished: 0
+2026-03-20 09:13:30,136 INFO o.a.j.r.Summariser: summary =   9039 in 00:42:43 =    3.5/s Avg:    52 Min:    40 Max:   545 Err:     0 (0.00%)
+2026-03-20 09:14:00,092 INFO o.a.j.r.Summariser: summary +    105 in 00:00:30 =    3.5/s Avg:    54 Min:    43 Max:   153 Err:     0 (0.00%) Active: 1 Started: 1 Finished: 0
+2026-03-20 09:14:00,092 INFO o.a.j.r.Summariser: summary =   9144 in 00:43:13 =    3.5/s Avg:    52 Min:    40 Max:   545 Err:     0 (0.00%)
+2026-03-20 09:14:30,235 INFO o.a.j.r.Summariser: summary +    105 in 00:00:30 =    3.5/s Avg:    56 Min:    42 Max:   339 Err:     0 (0.00%) Active: 1 Started: 1 Finished: 0
+2026-03-20 09:14:30,235 INFO o.a.j.r.Summariser: summary =   9249 in 00:43:43 =    3.5/s Avg:    52 Min:    40 Max:   545 Err:     0 (0.00%)
+2026-03-20 09:15:00,272 INFO o.a.j.r.Summariser: summary +    105 in 00:00:30 =    3.5/s Avg:    55 Min:    43 Max:   158 Err:     0 (0.00%) Active: 1 Started: 1 Finished: 0
+2026-03-20 09:15:00,273 INFO o.a.j.r.Summariser: summary =   9354 in 00:44:13 =    3.5/s Avg:    52 Min:    40 Max:   545 Err:     0 (0.00%)
+2026-03-20 09:15:30,160 INFO o.a.j.r.Summariser: summary +    104 in 00:00:30 =    3.5/s Avg:    56 Min:    43 Max:   158 Err:     0 (0.00%) Active: 1 Started: 1 Finished: 0
+2026-03-20 09:15:30,160 INFO o.a.j.r.Summariser: summary =   9458 in 00:44:43 =    3.5/s Avg:    52 Min:    40 Max:   545 Err:     0 (0.00%)
+2026-03-20 09:15:42,323 INFO o.a.j.e.J.Accumulate RTP Data: Spin #9500 | RTP: 2.63% | Bal: 8612.44 | Wins: 2565 | HitRate: 27.00% | MaxWin: 0.13 | Scatters: 168 | 429s: 0
+2026-03-20 09:16:00,052 INFO o.a.j.r.Summariser: summary +    104 in 00:00:30 =    3.5/s Avg:    56 Min:    43 Max:   315 Err:     0 (0.00%) Active: 1 Started: 1 Finished: 0
+2026-03-20 09:16:00,052 INFO o.a.j.r.Summariser: summary =   9562 in 00:45:13 =    3.5/s Avg:    53 Min:    40 Max:   545 Err:     0 (0.00%)
+2026-03-20 09:16:30,256 INFO o.a.j.r.Summariser: summary +    109 in 00:00:30 =    3.6/s Avg:    46 Min:    43 Max:    93 Err:     0 (0.00%) Active: 1 Started: 1 Finished: 0
+2026-03-20 09:16:30,256 INFO o.a.j.r.Summariser: summary =   9671 in 00:45:43 =    3.5/s Avg:    52 Min:    40 Max:   545 Err:     0 (0.00%)
+2026-03-20 09:17:00,161 INFO o.a.j.r.Summariser: summary +    105 in 00:00:30 =    3.5/s Avg:    54 Min:    43 Max:   150 Err:     0 (0.00%) Active: 1 Started: 1 Finished: 0
+2026-03-20 09:17:00,162 INFO o.a.j.r.Summariser: summary =   9776 in 00:46:13 =    3.5/s Avg:    52 Min:    40 Max:   545 Err:     0 (0.00%)
+2026-03-20 09:17:30,013 INFO o.a.j.r.Summariser: summary +    105 in 00:00:30 =    3.5/s Avg:    53 Min:    43 Max:   151 Err:     0 (0.00%) Active: 1 Started: 1 Finished: 0
+2026-03-20 09:17:30,013 INFO o.a.j.r.Summariser: summary =   9881 in 00:46:43 =    3.5/s Avg:    52 Min:    40 Max:   545 Err:     0 (0.00%)
+2026-03-20 09:18:00,168 INFO o.a.j.r.Summariser: summary +    106 in 00:00:30 =    3.5/s Avg:    54 Min:    43 Max:   155 Err:     0 (0.00%) Active: 1 Started: 1 Finished: 0
+2026-03-20 09:18:00,168 INFO o.a.j.r.Summariser: summary =   9987 in 00:47:13 =    3.5/s Avg:    52 Min:    40 Max:   545 Err:     0 (0.00%)
+2026-03-20 09:18:04,304 INFO o.a.j.e.J.Accumulate RTP Data: Spin #10000 | RTP: 2.62% | Bal: 8539.36 | Wins: 2701 | HitRate: 27.01% | MaxWin: 0.13 | Scatters: 171 | 429s: 0
+2026-03-20 09:18:04,304 INFO o.a.j.t.JMeterThread: Thread is done: RTP Spin Loop 1-1
+2026-03-20 09:18:04,304 INFO o.a.j.t.JMeterThread: Thread finished: RTP Spin Loop 1-1
+2026-03-20 09:18:04,305 INFO o.a.j.e.StandardJMeterEngine: All thread groups have been started
+2026-03-20 09:18:04,305 INFO o.a.j.e.StandardJMeterEngine: Starting tearDown thread groups
+2026-03-20 09:18:04,305 INFO o.a.j.e.StandardJMeterEngine: Starting tearDown ThreadGroup: 1 : tearDown — RTP Report
+2026-03-20 09:18:04,305 INFO o.a.j.e.StandardJMeterEngine: Starting 1 threads for group tearDown — RTP Report.
+2026-03-20 09:18:04,305 INFO o.a.j.e.StandardJMeterEngine: Thread will continue on error
+2026-03-20 09:18:04,305 INFO o.a.j.t.ThreadGroup: Starting thread group... number=1 threads=1 ramp-up=0 delayedStart=false
+2026-03-20 09:18:04,306 INFO o.a.j.t.ThreadGroup: Started thread group number 1
+2026-03-20 09:18:04,306 INFO o.a.j.t.JMeterThread: Thread started: tearDown — RTP Report 1-1
+2026-03-20 09:18:04,373 INFO o.a.j.p.j.s.J.RTP Final Report: 
+============================================================
+     PYAVCHIK TIME MACHINE - RTP ANALYSIS REPORT
+============================================================
+  Total Spins:               10000
+  Total Wagered:    $      1500.00
+  Total Won:        $        39.36
+  Net Result:       $     -1460.64
+------------------------------------------------------------
+  ACTUAL RTP:             2.6240 %
+  Expected RTP:         96.0000 %
+  House Edge:            97.3760 %
+------------------------------------------------------------
+  Win Count:                  2701
+  Loss Count:                 7299
+  Hit Rate:                27.01 %
+  Average Win:      $       0.0146
+  Max Single Win:   $         0.13
+  Avg Bet/Spin:     $         0.15
+------------------------------------------------------------
+  Scatter Triggers:            171
+  Scatter Rate:             1.71 %
+------------------------------------------------------------
+  Initial Balance:  $     10000.00
+  Rate-limited:                 0
+============================================================
+
+2026-03-20 09:18:04,381 WARN o.a.j.p.j.s.J.RTP Final Report: WARNING: RTP deviates >3% from expected 96%. Actual: 2.6240%
+2026-03-20 09:18:04,387 INFO o.a.j.t.JMeterThread: Thread is done: tearDown — RTP Report 1-1
+2026-03-20 09:18:04,388 INFO o.a.j.t.JMeterThread: Thread finished: tearDown — RTP Report 1-1
+2026-03-20 09:18:04,388 INFO o.a.j.e.StandardJMeterEngine: Notifying test listeners of end of test
+2026-03-20 09:18:04,390 INFO o.a.j.r.Summariser: summary +     16 in 00:00:04 =    3.8/s Avg:    47 Min:    43 Max:    81 Err:     0 (0.00%) Active: 0 Started: 1 Finished: 1
+2026-03-20 09:18:04,390 INFO o.a.j.r.Summariser: summary =  10003 in 00:47:17 =    3.5/s Avg:    52 Min:    40 Max:   545 Err:     0 (0.00%)

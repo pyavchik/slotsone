@@ -12,6 +12,7 @@ const BUG_REPORT_PATH = '/bug-report.html';
 const TEST_DESIGN_PATH = '/test-design.html';
 const ALLURE_REPORT_PATH = 'https://pyavchik.github.io/slotsone-playwright/';
 const PLAYWRIGHT_PATH = '/playwright.html';
+const JMETER_RTP_PATH = '/jmeter-rtp.html';
 
 const SKILLS = [
   'Java',
@@ -156,6 +157,15 @@ export function CVLanding() {
               data-testid="cv-allure-report"
             >
               allure report
+            </a>
+            <a
+              className="cv-link"
+              href={JMETER_RTP_PATH}
+              target="_blank"
+              rel="noreferrer"
+              data-testid="cv-jmeter-rtp"
+            >
+              jmeter RTP
             </a>
             <a
               className="cv-link"
