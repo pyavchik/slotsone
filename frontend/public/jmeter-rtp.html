@@ -1,0 +1,809 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>JMeter RTP Analysis — SlotsOne — pyavchik.space</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
+    <style>
+      *, *::before, *::after { box-sizing: border-box; }
+
+      body {
+        margin: 0;
+        font-family: "DM Sans", -apple-system, "Segoe UI", sans-serif;
+        background: #0d1117;
+        color: #c9d1d9;
+        min-height: 100vh;
+        font-size: 14px;
+        -webkit-font-smoothing: antialiased;
+      }
+
+      a { color: #58a6ff; }
+      a:hover { color: #79c0ff; }
+
+      code, .mono {
+        font-family: "JetBrains Mono", monospace;
+        font-size: 12px;
+      }
+
+      /* ── Topbar (breadcrumb) ──────────────────────── */
+      .jira-topbar {
+        position: sticky;
+        top: 0;
+        z-index: 100;
+        background: #161b22;
+        border-bottom: 1px solid #21262d;
+        padding: 10px 24px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-size: 13px;
+        color: #8b949e;
+      }
+      .jira-topbar a {
+        color: #58a6ff;
+        text-decoration: none;
+        font-weight: 500;
+      }
+      .jira-topbar a:hover { text-decoration: underline; }
+      .jira-topbar .sep { color: #484f58; margin: 0 2px; }
+
+      /* ── Page container ──────────────────────────── */
+      .page {
+        max-width: 1100px;
+        margin: 0 auto;
+        padding: 28px 24px 48px;
+      }
+
+      /* ── Page header ─────────────────────────────── */
+      .page-header {
+        margin-bottom: 28px;
+      }
+      .page-title {
+        margin: 0 0 4px;
+        font-size: 24px;
+        font-weight: 700;
+        color: #f0f6fc;
+        line-height: 1.3;
+      }
+      .page-subtitle {
+        margin: 0;
+        font-size: 14px;
+        color: #8b949e;
+      }
+
+      /* ── Summary stats ───────────────────────────── */
+      .stats-row {
+        display: flex;
+        gap: 12px;
+        margin-bottom: 28px;
+        flex-wrap: wrap;
+      }
+      .stat-card {
+        flex: 1;
+        min-width: 120px;
+        padding: 16px 18px;
+        border-radius: 8px;
+        background: #161b22;
+        border: 1px solid #21262d;
+      }
+      .stat-value {
+        display: block;
+        font-size: 28px;
+        font-weight: 700;
+        color: #f0f6fc;
+        font-family: "JetBrains Mono", monospace;
+        line-height: 1;
+        margin-bottom: 6px;
+      }
+      .stat-label {
+        font-size: 12px;
+        font-weight: 600;
+        letter-spacing: .04em;
+        text-transform: uppercase;
+        color: #8b949e;
+      }
+      .stat-card.stat-blue { border-left: 3px solid #58a6ff; }
+      .stat-card.stat-green { border-left: 3px solid #3fb950; }
+      .stat-card.stat-red { border-left: 3px solid #f85149; }
+
+      /* ── Section ─────────────────────────────────── */
+      .section {
+        margin-bottom: 32px;
+      }
+      .section-title {
+        font-size: 18px;
+        font-weight: 700;
+        color: #f0f6fc;
+        margin: 0 0 14px;
+        padding-bottom: 8px;
+        border-bottom: 1px solid #21262d;
+      }
+
+      /* ── Content card ────────────────────────────── */
+      .content-card {
+        background: #161b22;
+        border: 1px solid #21262d;
+        border-radius: 8px;
+        padding: 20px 24px;
+      }
+      .content-card p {
+        margin: 0 0 10px;
+        line-height: 1.6;
+        color: #c9d1d9;
+      }
+      .content-card p:last-child {
+        margin-bottom: 0;
+      }
+      .content-card ul {
+        margin: 0;
+        padding-left: 20px;
+      }
+      .content-card li {
+        margin-bottom: 8px;
+        line-height: 1.6;
+      }
+      .content-card li:last-child {
+        margin-bottom: 0;
+      }
+
+      /* ── Badges ──────────────────────────────────── */
+      .badge {
+        display: inline-block;
+        font-size: 10px;
+        font-weight: 700;
+        letter-spacing: .04em;
+        text-transform: uppercase;
+        padding: 3px 7px;
+        border-radius: 3px;
+        white-space: nowrap;
+      }
+      .badge-fixed {
+        background: rgba(63,185,80,.15);
+        color: #3fb950;
+        border: 1px solid rgba(63,185,80,.25);
+      }
+      .badge-critical {
+        background: rgba(248,81,73,.15);
+        color: #f85149;
+        border: 1px solid rgba(248,81,73,.25);
+      }
+
+      /* ── Comparison table ────────────────────────── */
+      .comparison-table {
+        width: 100%;
+        border-collapse: separate;
+        border-spacing: 0;
+        border: 1px solid #21262d;
+        border-radius: 8px;
+        overflow: hidden;
+        background: #161b22;
+      }
+      .comparison-table th {
+        text-align: left;
+        padding: 10px 14px;
+        font-size: 11px;
+        font-weight: 700;
+        letter-spacing: .06em;
+        text-transform: uppercase;
+        color: #8b949e;
+        background: #0d1117;
+        border-bottom: 1px solid #21262d;
+      }
+      .comparison-table th.col-before {
+        color: #f85149;
+      }
+      .comparison-table th.col-after {
+        color: #3fb950;
+      }
+      .comparison-table td {
+        padding: 12px 14px;
+        border-bottom: 1px solid #21262d;
+        font-size: 13px;
+        vertical-align: middle;
+      }
+      .comparison-table tr:last-child td {
+        border-bottom: none;
+      }
+      .comparison-table tbody tr {
+        transition: background .15s;
+      }
+      .comparison-table tbody tr:hover {
+        background: #1c2128;
+      }
+      .comparison-table .metric-name {
+        font-weight: 600;
+        color: #c9d1d9;
+      }
+      .comparison-table .val-before {
+        font-family: "JetBrains Mono", monospace;
+        font-size: 13px;
+        color: #f85149;
+      }
+      .comparison-table .val-after {
+        font-family: "JetBrains Mono", monospace;
+        font-size: 13px;
+        color: #3fb950;
+      }
+
+      /* ── Architecture steps ──────────────────────── */
+      .arch-steps {
+        display: flex;
+        flex-direction: column;
+        gap: 0;
+      }
+      .arch-step {
+        display: flex;
+        gap: 16px;
+        align-items: flex-start;
+      }
+      .arch-step-indicator {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        flex-shrink: 0;
+      }
+      .arch-step-number {
+        width: 36px;
+        height: 36px;
+        border-radius: 50%;
+        background: #1f6feb;
+        color: #f0f6fc;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 14px;
+        font-weight: 700;
+        font-family: "JetBrains Mono", monospace;
+        flex-shrink: 0;
+      }
+      .arch-step-line {
+        width: 2px;
+        height: 24px;
+        background: #30363d;
+      }
+      .arch-step:last-child .arch-step-line {
+        display: none;
+      }
+      .arch-step-content {
+        background: #161b22;
+        border: 1px solid #21262d;
+        border-radius: 8px;
+        padding: 16px 20px;
+        flex: 1;
+        margin-bottom: 0;
+      }
+      .arch-step-label {
+        font-size: 11px;
+        font-weight: 700;
+        letter-spacing: .04em;
+        text-transform: uppercase;
+        color: #8b949e;
+        margin-bottom: 4px;
+      }
+      .arch-step-title {
+        font-size: 15px;
+        font-weight: 700;
+        color: #f0f6fc;
+        margin-bottom: 6px;
+      }
+      .arch-step-desc {
+        font-size: 13px;
+        color: #8b949e;
+        line-height: 1.5;
+      }
+      .arch-step-desc code {
+        background: rgba(56,139,253,.08);
+        color: #79c0ff;
+        padding: 1px 6px;
+        border-radius: 3px;
+        border: 1px solid rgba(56,139,253,.15);
+        font-size: 11px;
+      }
+
+      /* ── Glossary ────────────────────────────────── */
+      .glossary {
+        display: flex;
+        flex-direction: column;
+        gap: 0;
+      }
+      .glossary-item {
+        padding: 14px 0;
+        border-bottom: 1px solid #21262d;
+      }
+      .glossary-item:last-child {
+        border-bottom: none;
+        padding-bottom: 0;
+      }
+      .glossary-item:first-child {
+        padding-top: 0;
+      }
+      .glossary-term {
+        font-weight: 700;
+        color: #f0f6fc;
+        font-size: 13px;
+        margin-bottom: 2px;
+      }
+      .glossary-def {
+        font-size: 13px;
+        color: #8b949e;
+        line-height: 1.5;
+      }
+
+      /* ── Inline highlight ────────────────────────── */
+      .hl-red {
+        color: #f85149;
+        font-weight: 600;
+      }
+      .hl-green {
+        color: #3fb950;
+        font-weight: 600;
+      }
+      .hl-blue {
+        color: #58a6ff;
+        font-weight: 600;
+      }
+      .hl-mono {
+        font-family: "JetBrains Mono", monospace;
+        font-size: 12px;
+      }
+
+      /* ── Mobile comparison cards ─────────────────── */
+      .comparison-cards {
+        display: none;
+        flex-direction: column;
+        gap: 8px;
+      }
+      .comparison-card-item {
+        background: #161b22;
+        border: 1px solid #21262d;
+        border-radius: 8px;
+        padding: 14px 16px;
+      }
+      .comparison-card-metric {
+        font-size: 12px;
+        font-weight: 600;
+        color: #8b949e;
+        text-transform: uppercase;
+        letter-spacing: .04em;
+        margin-bottom: 8px;
+      }
+      .comparison-card-values {
+        display: flex;
+        gap: 16px;
+      }
+      .comparison-card-col {
+        flex: 1;
+      }
+      .comparison-card-col-label {
+        font-size: 10px;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: .04em;
+        margin-bottom: 2px;
+      }
+      .comparison-card-col-label.label-before { color: #f85149; }
+      .comparison-card-col-label.label-after { color: #3fb950; }
+      .comparison-card-col-value {
+        font-family: "JetBrains Mono", monospace;
+        font-size: 15px;
+        font-weight: 700;
+        color: #f0f6fc;
+      }
+
+      /* ── Responsive ──────────────────────────────── */
+      @media (max-width: 768px) {
+        .page {
+          padding: 16px 14px 40px;
+        }
+        .page-title {
+          font-size: 20px;
+        }
+        .stats-row {
+          gap: 8px;
+        }
+        .stat-card {
+          min-width: 0;
+          flex: 1 1 calc(50% - 4px);
+          padding: 12px 14px;
+        }
+        .stat-value {
+          font-size: 22px;
+        }
+        .comparison-table-wrap {
+          display: none;
+        }
+        .comparison-cards {
+          display: flex;
+        }
+        .arch-step-content {
+          padding: 14px 16px;
+        }
+        .content-card {
+          padding: 16px 18px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+
+    <!-- ── Topbar ────────────────────────────────── -->
+    <nav class="jira-topbar">
+      <a href="/">Projects</a>
+      <span class="sep">/</span>
+      <a href="/">SlotsOne</a>
+      <span class="sep">/</span>
+      <span style="color:#c9d1d9">JMeter RTP Analysis</span>
+    </nav>
+
+    <!-- ── Page content ──────────────────────────── -->
+    <div class="page">
+
+      <!-- Page header -->
+      <div class="page-header">
+        <h1 class="page-title">JMeter RTP Validation &mdash; Pyavchik Time Machine</h1>
+        <p class="page-subtitle">Automated RTP verification using Apache JMeter to validate slot game payout mechanics</p>
+      </div>
+
+      <!-- Summary stats -->
+      <div class="stats-row">
+        <div class="stat-card stat-blue">
+          <span class="stat-value">1,000,000</span>
+          <span class="stat-label">Total Spins</span>
+        </div>
+        <div class="stat-card stat-green">
+          <span class="stat-value">96.00%</span>
+          <span class="stat-label">Expected RTP</span>
+        </div>
+        <div class="stat-card stat-red">
+          <span class="stat-value">2.62%</span>
+          <span class="stat-label">RTP Before Fix</span>
+        </div>
+        <div class="stat-card stat-green">
+          <span class="stat-value">92.46%</span>
+          <span class="stat-label">RTP After Fix</span>
+        </div>
+      </div>
+
+      <!-- ── Bug Discovery ─────────────────────────── -->
+      <div class="section">
+        <h2 class="section-title">Bug Discovery</h2>
+        <div class="content-card">
+          <p>
+            JMeter RTP testing discovered that paytable multipliers were approximately
+            <span class="hl-red hl-mono">36x</span> too low across all symbol combinations
+            in the Pyavchik Time Machine slot game.
+          </p>
+          <p>
+            The actual RTP measured at <span class="hl-red hl-mono">2.62%</span> instead of the
+            expected <span class="hl-green hl-mono">96.00%</span>. This meant the house edge was
+            <span class="hl-red">97.38%</span> instead of the intended <span class="hl-green">4.00%</span>
+            &mdash; a critical S1 bug affecting all players.
+          </p>
+          <p>
+            <span class="badge badge-critical">S1 Critical</span>
+            &nbsp;
+            <span class="badge badge-fixed">Fixed</span>
+          </p>
+          <div style="margin-top: 16px; display: flex; gap: 12px; flex-wrap: wrap;">
+            <a href="/prod-results.log" target="_blank" rel="noreferrer" style="display:inline-flex;align-items:center;gap:6px;padding:8px 14px;border-radius:6px;background:rgba(248,81,73,.1);border:1px solid rgba(248,81,73,.25);color:#f85149;font-size:12px;font-weight:600;text-decoration:none;">
+              Production Log (Before Fix)
+            </a>
+            <a href="/dev-results.log" target="_blank" rel="noreferrer" style="display:inline-flex;align-items:center;gap:6px;padding:8px 14px;border-radius:6px;background:rgba(63,185,80,.1);border:1px solid rgba(63,185,80,.25);color:#3fb950;font-size:12px;font-weight:600;text-decoration:none;">
+              Dev Log (After Fix)
+            </a>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── Test Results Comparison ───────────────── -->
+      <div class="section">
+        <h2 class="section-title">Test Results Comparison</h2>
+
+        <!-- Desktop table -->
+        <div class="comparison-table-wrap">
+          <table class="comparison-table">
+            <thead>
+              <tr>
+                <th style="width:40%">Metric</th>
+                <th class="col-before" style="width:30%">Before Fix</th>
+                <th class="col-after" style="width:30%">After Fix</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td class="metric-name">Total Spins</td>
+                <td class="val-before">10,000</td>
+                <td class="val-after">17,945</td>
+              </tr>
+              <tr>
+                <td class="metric-name">Total Wagered</td>
+                <td class="val-before">$1,500.00</td>
+                <td class="val-after">$2,691.75</td>
+              </tr>
+              <tr>
+                <td class="metric-name">Total Won</td>
+                <td class="val-before">$39.36</td>
+                <td class="val-after">$2,488.83</td>
+              </tr>
+              <tr>
+                <td class="metric-name">Net Result</td>
+                <td class="val-before">-$1,460.64</td>
+                <td class="val-after">-$202.92</td>
+              </tr>
+              <tr>
+                <td class="metric-name">Actual RTP</td>
+                <td class="val-before">2.62%</td>
+                <td class="val-after">92.46%</td>
+              </tr>
+              <tr>
+                <td class="metric-name">House Edge</td>
+                <td class="val-before">97.38%</td>
+                <td class="val-after">7.54%</td>
+              </tr>
+              <tr>
+                <td class="metric-name">Hit Rate</td>
+                <td class="val-before">27.01%</td>
+                <td class="val-after">50.71%</td>
+              </tr>
+              <tr>
+                <td class="metric-name">Average Win</td>
+                <td class="val-before">$0.0146</td>
+                <td class="val-after">$0.2735</td>
+              </tr>
+              <tr>
+                <td class="metric-name">Max Single Win</td>
+                <td class="val-before">$0.13</td>
+                <td class="val-after">$5.44</td>
+              </tr>
+              <tr>
+                <td class="metric-name">Scatter Rate</td>
+                <td class="val-before">1.71%</td>
+                <td class="val-after">1.69%</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Mobile cards -->
+        <div class="comparison-cards">
+          <div class="comparison-card-item">
+            <div class="comparison-card-metric">Total Spins</div>
+            <div class="comparison-card-values">
+              <div class="comparison-card-col">
+                <div class="comparison-card-col-label label-before">Before</div>
+                <div class="comparison-card-col-value">10,000</div>
+              </div>
+              <div class="comparison-card-col">
+                <div class="comparison-card-col-label label-after">After</div>
+                <div class="comparison-card-col-value">17,945</div>
+              </div>
+            </div>
+          </div>
+          <div class="comparison-card-item">
+            <div class="comparison-card-metric">Total Wagered</div>
+            <div class="comparison-card-values">
+              <div class="comparison-card-col">
+                <div class="comparison-card-col-label label-before">Before</div>
+                <div class="comparison-card-col-value">$1,500.00</div>
+              </div>
+              <div class="comparison-card-col">
+                <div class="comparison-card-col-label label-after">After</div>
+                <div class="comparison-card-col-value">$2,691.75</div>
+              </div>
+            </div>
+          </div>
+          <div class="comparison-card-item">
+            <div class="comparison-card-metric">Total Won</div>
+            <div class="comparison-card-values">
+              <div class="comparison-card-col">
+                <div class="comparison-card-col-label label-before">Before</div>
+                <div class="comparison-card-col-value">$39.36</div>
+              </div>
+              <div class="comparison-card-col">
+                <div class="comparison-card-col-label label-after">After</div>
+                <div class="comparison-card-col-value">$2,488.83</div>
+              </div>
+            </div>
+          </div>
+          <div class="comparison-card-item">
+            <div class="comparison-card-metric">Net Result</div>
+            <div class="comparison-card-values">
+              <div class="comparison-card-col">
+                <div class="comparison-card-col-label label-before">Before</div>
+                <div class="comparison-card-col-value">-$1,460.64</div>
+              </div>
+              <div class="comparison-card-col">
+                <div class="comparison-card-col-label label-after">After</div>
+                <div class="comparison-card-col-value">-$202.92</div>
+              </div>
+            </div>
+          </div>
+          <div class="comparison-card-item">
+            <div class="comparison-card-metric">Actual RTP</div>
+            <div class="comparison-card-values">
+              <div class="comparison-card-col">
+                <div class="comparison-card-col-label label-before">Before</div>
+                <div class="comparison-card-col-value">2.62%</div>
+              </div>
+              <div class="comparison-card-col">
+                <div class="comparison-card-col-label label-after">After</div>
+                <div class="comparison-card-col-value">92.46%</div>
+              </div>
+            </div>
+          </div>
+          <div class="comparison-card-item">
+            <div class="comparison-card-metric">House Edge</div>
+            <div class="comparison-card-values">
+              <div class="comparison-card-col">
+                <div class="comparison-card-col-label label-before">Before</div>
+                <div class="comparison-card-col-value">97.38%</div>
+              </div>
+              <div class="comparison-card-col">
+                <div class="comparison-card-col-label label-after">After</div>
+                <div class="comparison-card-col-value">7.54%</div>
+              </div>
+            </div>
+          </div>
+          <div class="comparison-card-item">
+            <div class="comparison-card-metric">Hit Rate</div>
+            <div class="comparison-card-values">
+              <div class="comparison-card-col">
+                <div class="comparison-card-col-label label-before">Before</div>
+                <div class="comparison-card-col-value">27.01%</div>
+              </div>
+              <div class="comparison-card-col">
+                <div class="comparison-card-col-label label-after">After</div>
+                <div class="comparison-card-col-value">50.71%</div>
+              </div>
+            </div>
+          </div>
+          <div class="comparison-card-item">
+            <div class="comparison-card-metric">Average Win</div>
+            <div class="comparison-card-values">
+              <div class="comparison-card-col">
+                <div class="comparison-card-col-label label-before">Before</div>
+                <div class="comparison-card-col-value">$0.0146</div>
+              </div>
+              <div class="comparison-card-col">
+                <div class="comparison-card-col-label label-after">After</div>
+                <div class="comparison-card-col-value">$0.2735</div>
+              </div>
+            </div>
+          </div>
+          <div class="comparison-card-item">
+            <div class="comparison-card-metric">Max Single Win</div>
+            <div class="comparison-card-values">
+              <div class="comparison-card-col">
+                <div class="comparison-card-col-label label-before">Before</div>
+                <div class="comparison-card-col-value">$0.13</div>
+              </div>
+              <div class="comparison-card-col">
+                <div class="comparison-card-col-label label-after">After</div>
+                <div class="comparison-card-col-value">$5.44</div>
+              </div>
+            </div>
+          </div>
+          <div class="comparison-card-item">
+            <div class="comparison-card-metric">Scatter Rate</div>
+            <div class="comparison-card-values">
+              <div class="comparison-card-col">
+                <div class="comparison-card-col-label label-before">Before</div>
+                <div class="comparison-card-col-value">1.71%</div>
+              </div>
+              <div class="comparison-card-col">
+                <div class="comparison-card-col-label label-after">After</div>
+                <div class="comparison-card-col-value">1.69%</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── Test Architecture ─────────────────────── -->
+      <div class="section">
+        <h2 class="section-title">Test Architecture</h2>
+        <div class="arch-steps">
+
+          <div class="arch-step">
+            <div class="arch-step-indicator">
+              <div class="arch-step-number">1</div>
+              <div class="arch-step-line"></div>
+            </div>
+            <div class="arch-step-content">
+              <div class="arch-step-label">setUp Thread Group</div>
+              <div class="arch-step-title">Auth &amp; Init</div>
+              <div class="arch-step-desc">
+                Login via <code>POST /auth/login</code> to obtain JWT access token.
+                Initialize game session via <code>POST /game/init</code> to set up wallet
+                and seed pair for the test run.
+              </div>
+            </div>
+          </div>
+
+          <div class="arch-step">
+            <div class="arch-step-indicator">
+              <div class="arch-step-number">2</div>
+              <div class="arch-step-line"></div>
+            </div>
+            <div class="arch-step-content">
+              <div class="arch-step-label">Main Thread Group</div>
+              <div class="arch-step-title">RTP Spin Loop</div>
+              <div class="arch-step-desc">
+                1,000,000 iterations of <code>POST /spin</code> with configurable bet amount.
+                Groovy JSR223 PostProcessor accumulates totals in real time &mdash; wagered, won,
+                hit count, scatter count &mdash; using BigDecimal precision to avoid floating-point drift.
+              </div>
+            </div>
+          </div>
+
+          <div class="arch-step">
+            <div class="arch-step-indicator">
+              <div class="arch-step-number">3</div>
+              <div class="arch-step-line"></div>
+            </div>
+            <div class="arch-step-content">
+              <div class="arch-step-label">tearDown Thread Group</div>
+              <div class="arch-step-title">RTP Report</div>
+              <div class="arch-step-desc">
+                Groovy script calculates final RTP, hit rate, scatter rate, average win,
+                and max win. Results are logged to JMeter console and written to a summary
+                file for CI pipeline integration.
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- ── Methodology ───────────────────────────── -->
+      <div class="section">
+        <h2 class="section-title">Methodology</h2>
+        <div class="content-card">
+          <ul>
+            <li>Apache JMeter 5.6 used for automated spin execution against the RGS backend</li>
+            <li>JWT authentication with automatic token refresh every 12 minutes to prevent session expiry</li>
+            <li>Groovy JSR223 scripts for real-time data accumulation using BigDecimal precision to eliminate floating-point rounding errors</li>
+            <li>Configurable parameters: spin count, bet amount, request pacing, and target server URL</li>
+            <li>Rate limit handling: non-200 responses tracked separately and excluded from RTP calculations</li>
+            <li>RTP formula: <span class="hl-mono" style="color:#f0f6fc">(Total Won / Total Wagered) &times; 100%</span></li>
+            <li>Statistical significance: 1M+ spins for reliable RTP measurement, following the Law of Large Numbers to minimize variance</li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- ── Key Metrics Explained ─────────────────── -->
+      <div class="section">
+        <h2 class="section-title">Key Metrics Explained</h2>
+        <div class="content-card">
+          <div class="glossary">
+            <div class="glossary-item">
+              <div class="glossary-term">RTP (Return to Player)</div>
+              <div class="glossary-def">Percentage of wagered money returned to players over time. A 96% RTP means that for every $100 wagered, $96 is returned on average.</div>
+            </div>
+            <div class="glossary-item">
+              <div class="glossary-term">House Edge</div>
+              <div class="glossary-def">100% minus RTP &mdash; the casino's mathematical advantage. A 4% house edge means the operator retains $4 per $100 wagered on average.</div>
+            </div>
+            <div class="glossary-item">
+              <div class="glossary-term">Hit Rate</div>
+              <div class="glossary-def">Percentage of spins that produce any win. A higher hit rate means more frequent payouts, contributing to player engagement.</div>
+            </div>
+            <div class="glossary-item">
+              <div class="glossary-term">Scatter Rate</div>
+              <div class="glossary-def">Frequency of bonus or scatter symbol triggers. Scatter symbols typically activate free spins or bonus rounds regardless of payline position.</div>
+            </div>
+            <div class="glossary-item">
+              <div class="glossary-term">Volatility</div>
+              <div class="glossary-def">Variance in win amounts over a session. Higher max wins relative to average bet indicate higher volatility &mdash; less frequent but larger payouts.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+  </body>
+</html>

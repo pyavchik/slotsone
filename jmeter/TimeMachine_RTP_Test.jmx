@@ -10,17 +10,17 @@ Server rate limit: 5 spins/sec — throughput capped at 4/sec for safety.</strin
         <collectionProp name="Arguments.arguments">
           <elementProp name="BASE_URL" elementType="Argument">
             <stringProp name="Argument.name">BASE_URL</stringProp>
-            <stringProp name="Argument.value">${__P(BASE_URL,pyavchik.space)}</stringProp>
+            <stringProp name="Argument.value">${__P(BASE_URL,localhost)}</stringProp>
             <stringProp name="Argument.metadata">=</stringProp>
           </elementProp>
           <elementProp name="PROTOCOL" elementType="Argument">
             <stringProp name="Argument.name">PROTOCOL</stringProp>
-            <stringProp name="Argument.value">${__P(PROTOCOL,https)}</stringProp>
+            <stringProp name="Argument.value">${__P(PROTOCOL,http)}</stringProp>
             <stringProp name="Argument.metadata">=</stringProp>
           </elementProp>
           <elementProp name="SPIN_COUNT" elementType="Argument">
             <stringProp name="Argument.name">SPIN_COUNT</stringProp>
-            <stringProp name="Argument.value">${__P(SPIN_COUNT,10000)}</stringProp>
+            <stringProp name="Argument.value">${__P(SPIN_COUNT,1000000)}</stringProp>
             <stringProp name="Argument.metadata">=</stringProp>
           </elementProp>
           <elementProp name="BET_AMOUNT" elementType="Argument">
@@ -40,17 +40,17 @@ Server rate limit: 5 spins/sec — throughput capped at 4/sec for safety.</strin
           </elementProp>
           <elementProp name="USER_EMAIL" elementType="Argument">
             <stringProp name="Argument.name">USER_EMAIL</stringProp>
-            <stringProp name="Argument.value">${__P(USER_EMAIL,player@example.com)}</stringProp>
+            <stringProp name="Argument.value">${__P(USER_EMAIL,pyavchik@gmail.com)}</stringProp>
             <stringProp name="Argument.metadata">=</stringProp>
           </elementProp>
           <elementProp name="USER_PASSWORD" elementType="Argument">
             <stringProp name="Argument.name">USER_PASSWORD</stringProp>
-            <stringProp name="Argument.value">${__P(USER_PASSWORD,password123)}</stringProp>
+            <stringProp name="Argument.value">${__P(USER_PASSWORD,11111111)}</stringProp>
             <stringProp name="Argument.metadata">=</stringProp>
           </elementProp>
           <elementProp name="PORT" elementType="Argument">
             <stringProp name="Argument.name">PORT</stringProp>
-            <stringProp name="Argument.value">${__P(PORT,)}</stringProp>
+            <stringProp name="Argument.value">${__P(PORT,3001)}</stringProp>
             <stringProp name="Argument.metadata">=</stringProp>
           </elementProp>
         </collectionProp>
@@ -343,7 +343,7 @@ if (props.get("TOTAL_WAGERED") == null) {
         <!-- Constant Timer: 280ms between requests = ~3.6/sec (under 5/sec limit) -->
         <!-- Set PACING_MS=0 for local (no rate limit), 230 for production -->
         <ConstantTimer guiclass="ConstantTimerGui" testclass="ConstantTimer" testname="Pacing Timer" enabled="true">
-          <stringProp name="ConstantTimer.delay">${__P(PACING_MS,230)}</stringProp>
+          <stringProp name="ConstantTimer.delay">${__P(PACING_MS,0)}</stringProp>
         </ConstantTimer>
         <hashTree/>
 
