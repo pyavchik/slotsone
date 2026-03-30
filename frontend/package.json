@@ -22,6 +22,8 @@
     "test:e2e:i18n": "playwright test --grep @i18n",
     "test:e2e:network": "playwright test --grep @network",
     "test:e2e:mobile": "playwright test --project=mobile-chrome --project=mobile-safari",
+    "test:e2e:prod": "playwright test --config=playwright.prod.config.ts",
+    "test:e2e:prod:smoke": "playwright test --config=playwright.prod.config.ts --grep @smoke",
     "api:types:generate": "openapi-typescript ../backend/openapi.json -o src/generated/openapi.ts",
     "api:types:check": "npm run api:types:generate && git diff --exit-code -- src/generated/openapi.ts",
     "preview": "vite preview",
