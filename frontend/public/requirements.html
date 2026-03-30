@@ -107,6 +107,7 @@
       .badge-api  { background: rgba(62,224,169,.15);  color: #3ee0a9; }
       .badge-nfr  { background: rgba(248,113,113,.15); color: #f87171; }
       .badge-sql  { background: rgba(56,189,248,.15);  color: #38bdf8; }
+      .badge-wallet { background: rgba(251,146,60,.15); color: #fb923c; }
 
       .prio { font-size: 11px; font-weight: 800; white-space: nowrap; }
       .prio-must   { color: #f87171; }
@@ -380,6 +381,7 @@
             <button class="tab" data-filter="api">API</button>
             <button class="tab" data-filter="sql">SQL</button>
             <button class="tab" data-filter="nfr">NFR</button>
+            <button class="tab" data-filter="wallet">Wallet</button>
           </div>
           <div class="search-wrap">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
@@ -1493,10 +1495,10 @@
     const searchInput = document.getElementById('search');
 
     const MODULE_LABELS = {
-      auth: 'Auth', game: 'Game', ui: 'UI', api: 'API', sql: 'SQL', nfr: 'NFR',
+      auth: 'Auth', game: 'Game', ui: 'UI', api: 'API', sql: 'SQL', nfr: 'NFR', wallet: 'Wallet',
     };
     const MODULE_BADGE = {
-      auth: 'badge-auth', game: 'badge-game', ui: 'badge-ui', api: 'badge-api', sql: 'badge-sql', nfr: 'badge-nfr',
+      auth: 'badge-auth', game: 'badge-game', ui: 'badge-ui', api: 'badge-api', sql: 'badge-sql', nfr: 'badge-nfr', wallet: 'badge-wallet',
     };
     const PRIO_LABELS = { must: 'Must', should: 'Should', could: 'Could' };
     const PRIO_CLASS  = { must: 'prio-must', should: 'prio-should', could: 'prio-could' };
