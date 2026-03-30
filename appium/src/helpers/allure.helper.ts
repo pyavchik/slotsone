@@ -24,3 +24,15 @@ export function addSeverity(severity: 'blocker' | 'critical' | 'normal' | 'minor
 export function addStory(story: string): void {
   allure.addStory(story);
 }
+
+export function addTag(tag: string): void {
+  allure.addLabel('tag', tag);
+}
+
+export function addSuite(suite: string): void {
+  allure.addLabel('suite', suite);
+}
+
+export function addTestType(type: 'smoke' | 'regression' | 'sanity' | 'e2e' | 'functional'): void {
+  allure.addLabel('testType', type);
+}

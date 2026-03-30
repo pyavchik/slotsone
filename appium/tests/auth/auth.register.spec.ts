@@ -1,4 +1,4 @@
-import { addFeature, addSeverity } from '../../src/helpers/allure.helper.js';
+import { addFeature, addSeverity, addTag, addTestType } from '../../src/helpers/allure.helper.js';
 import { uniqueEmail, DEFAULT_PASSWORD } from '../../src/data/test-users.js';
 import AuthPage from '../../src/pages/AuthPage.js';
 import LobbyPage from '../../src/pages/LobbyPage.js';
@@ -7,6 +7,8 @@ describe('Auth — Registration', () => {
   before(() => {
     addFeature('Authentication');
     addSeverity('critical');
+    addTag('regression');
+    addTestType('regression');
   });
 
   it('should display the registration form with age checkbox', async () => {

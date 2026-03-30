@@ -1,6 +1,6 @@
 import { expect, test } from '@playwright/test';
 
-test.describe('CV Landing – actions bar', () => {
+test.describe('CV Landing – actions bar', { tag: ['@smoke', '@regression'] }, () => {
   test.beforeEach(async ({ page }) => {
     await page.goto('/');
     await expect(page.getByTestId('cv-title')).toBeVisible();
@@ -187,7 +187,7 @@ test.describe('CV Landing – actions bar', () => {
   // All nine actions are rendered (slots + requirements + test cases + postman + swagger + sql + test design + bug report + pdf)
   // -------------------------------------------------------------------------
 
-  test('renders all nine cv-actions elements', async ({ page }) => {
+  test('renders all cv-actions elements', async ({ page }) => {
     const actions = page.locator('.cv-actions').first();
     await expect(actions.getByTestId('cv-open-slots')).toBeVisible();
     await expect(actions.getByTestId('cv-requirements')).toBeVisible();
@@ -197,11 +197,16 @@ test.describe('CV Landing – actions bar', () => {
     await expect(actions.getByTestId('cv-sql')).toBeVisible();
     await expect(actions.getByTestId('cv-test-design')).toBeVisible();
     await expect(actions.locator('a.cv-link', { hasText: 'bug report' })).toBeVisible();
+    await expect(actions.getByTestId('cv-localization')).toBeVisible();
+    await expect(actions.getByTestId('cv-responsive')).toBeVisible();
+    await expect(actions.getByTestId('cv-visual-regression')).toBeVisible();
+    await expect(actions.getByTestId('cv-network-testing')).toBeVisible();
+    await expect(actions.getByTestId('cv-graphql')).toBeVisible();
     await expect(actions.locator('a.cv-link', { hasText: 'Download PDF CV' })).toBeVisible();
   });
 
   // -------------------------------------------------------------------------
-  // Action bar order: slots → requirements → test cases → postman → swagger → sql → test design → bug report → allure report → playwright typescript → pdf
+  // Action bar order
   // -------------------------------------------------------------------------
 
   test('action bar items appear in correct order', async ({ page }) => {
@@ -222,7 +227,12 @@ test.describe('CV Landing – actions bar', () => {
     await expect(items.nth(13)).toHaveText('QA strategy');
     await expect(items.nth(14)).toHaveText('time machine SRS');
     await expect(items.nth(15)).toHaveText('time machine tests');
-    await expect(items.nth(16)).toHaveText('playwright typescript');
-    await expect(items.nth(17)).toHaveText('Download PDF CV');
+    await expect(items.nth(16)).toHaveText('i18n testing');
+    await expect(items.nth(17)).toHaveText('responsive testing');
+    await expect(items.nth(18)).toHaveText('visual regression');
+    await expect(items.nth(19)).toHaveText('network testing');
+    await expect(items.nth(20)).toHaveText('GraphQL testing');
+    await expect(items.nth(21)).toHaveText('playwright typescript');
+    await expect(items.nth(22)).toHaveText('Download PDF CV');
   });
 });

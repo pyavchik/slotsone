@@ -4,7 +4,10 @@
   "type": "module",
   "scripts": {
     "test": "node --import tsx --test tests/api.test.ts",
-    "test:smoke": "node --import tsx --test --test-name-pattern='smoke' tests/api.test.ts"
+    "test:smoke": "node --import tsx --test --test-name-pattern='smoke' tests/api.test.ts",
+    "test:graphql": "node --import tsx --test tests/graphql.test.ts",
+    "test:graphql:smoke": "node --import tsx --test --test-name-pattern='smoke' tests/graphql.test.ts",
+    "test:all": "node --import tsx --test tests/*.test.ts"
   },
   "devDependencies": {
     "tsx": "^4.19.0",

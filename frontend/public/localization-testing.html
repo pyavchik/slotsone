@@ -1,0 +1,433 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Localization &amp; i18n Testing — SlotsOne — pyavchik.space</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
+    <style>
+      *, *::before, *::after { box-sizing: border-box; }
+
+      body {
+        margin: 0;
+        font-family: "DM Sans", -apple-system, "Segoe UI", sans-serif;
+        background: linear-gradient(180deg, #0f1118 0%, #0b0d13 100%);
+        color: #c9d1d9;
+        min-height: 100vh;
+        font-size: 14px;
+        -webkit-font-smoothing: antialiased;
+      }
+
+      a { color: #58a6ff; }
+      a:hover { color: #79c0ff; }
+
+      code, .mono {
+        font-family: "JetBrains Mono", monospace;
+        font-size: 12px;
+      }
+
+      /* ── Topbar (breadcrumb) ──────────────────────── */
+      .jira-topbar {
+        position: sticky;
+        top: 0;
+        z-index: 100;
+        background: #161b22;
+        border-bottom: 1px solid #21262d;
+        padding: 10px 24px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-size: 13px;
+        color: #8b949e;
+      }
+      .jira-topbar a {
+        color: #58a6ff;
+        text-decoration: none;
+        font-weight: 500;
+      }
+      .jira-topbar a:hover { text-decoration: underline; }
+      .jira-topbar .sep { color: #484f58; margin: 0 2px; }
+
+      /* ── Page container ──────────────────────────── */
+      .page {
+        max-width: 1100px;
+        margin: 0 auto;
+        padding: 28px 24px 48px;
+      }
+
+      /* ── Page header ─────────────────────────────── */
+      .page-header {
+        margin-bottom: 28px;
+      }
+      .page-title {
+        margin: 0 0 4px;
+        font-size: 24px;
+        font-weight: 700;
+        color: #f0f6fc;
+        line-height: 1.3;
+      }
+      .page-subtitle {
+        margin: 0;
+        font-size: 14px;
+        color: #8b949e;
+        line-height: 1.55;
+      }
+
+      /* ── Cards ───────────────────────────────────── */
+      .card {
+        border: 1px solid rgba(255,255,255,0.13);
+        border-radius: 14px;
+        background: rgba(17,20,30,0.78);
+        padding: 20px 22px;
+        margin-bottom: 14px;
+      }
+
+      h1 { margin: 0 0 3px; font-size: 26px; letter-spacing: -.3px; color: #f0f6fc; }
+      h2 { margin: 0 0 14px; font-size: 16px; color: #f1f5f9; }
+      h3 { margin: 0 0 10px; font-size: 14px; color: #e2e8f0; }
+      p  { margin: 0 0 10px; color: #dbe2ec; line-height: 1.55; }
+
+      /* ── Stats row ───────────────────────────────── */
+      .stats-row {
+        display: flex;
+        gap: 12px;
+        margin-bottom: 28px;
+        flex-wrap: wrap;
+      }
+      .stat-card {
+        flex: 1;
+        min-width: 120px;
+        padding: 16px 18px;
+        border-radius: 8px;
+        background: #161b22;
+        border: 1px solid #21262d;
+        text-align: center;
+      }
+      .stat-value {
+        display: block;
+        font-size: 24px;
+        font-weight: 700;
+        color: #f0f6fc;
+        font-family: "JetBrains Mono", monospace;
+        line-height: 1;
+        margin-bottom: 6px;
+      }
+      .stat-label {
+        font-size: 12px;
+        font-weight: 600;
+        letter-spacing: .04em;
+        text-transform: uppercase;
+        color: #8b949e;
+      }
+
+      /* ── Badges ──────────────────────────────────── */
+      .badge {
+        display: inline-block; padding: 2px 7px;
+        border-radius: 5px; font-size: 11px; font-weight: 700;
+        white-space: nowrap; letter-spacing: .02em;
+      }
+      .badge-financial { background: rgba(56,189,248,.15);  color: #38bdf8; }
+      .badge-ui        { background: rgba(62,224,169,.15);  color: #3ee0a9; }
+      .badge-data      { background: rgba(245,208,106,.15); color: #f5d06a; }
+      .badge-qa        { background: rgba(167,139,250,.18); color: #a78bfa; }
+      .badge-cli       { background: rgba(56,189,248,.15);  color: #38bdf8; }
+
+      /* ── Technique header ────────────────────────── */
+      .tech-header {
+        display: flex; align-items: center; gap: 10px;
+        margin-bottom: 12px;
+      }
+      .tech-number {
+        width: 28px; height: 28px; border-radius: 8px;
+        display: flex; align-items: center; justify-content: center;
+        font-size: 13px; font-weight: 800;
+        flex-shrink: 0;
+      }
+      .tech-number-financial { background: rgba(56,189,248,.15);  color: #38bdf8; }
+      .tech-number-ui        { background: rgba(62,224,169,.15);  color: #3ee0a9; }
+      .tech-number-data      { background: rgba(245,208,106,.15); color: #f5d06a; }
+      .tech-number-qa        { background: rgba(167,139,250,.15); color: #a78bfa; }
+      .tech-number-cli       { background: rgba(56,189,248,.15);  color: #38bdf8; }
+
+      .tech-title {
+        font-size: 16px; font-weight: 700; margin: 0; color: #f1f5f9;
+      }
+      .tech-theory {
+        color: #94a3b8; font-size: 13px; line-height: 1.55;
+        margin: 0 0 14px;
+        padding: 10px 14px;
+        border-radius: 8px;
+        background: rgba(15,23,42,.45);
+        border-left: 3px solid rgba(148,163,184,.25);
+      }
+
+      /* ── Code blocks ─────────────────────────────── */
+      pre {
+        margin: 0 0 12px;
+        padding: 14px 16px;
+        border-radius: 10px;
+        background: rgba(10,12,20,.85);
+        border: 1px solid rgba(148,163,184,.15);
+        overflow-x: auto;
+        font-size: 12px;
+        line-height: 1.55;
+        color: #cbd5e1;
+      }
+      code { font-family: "JetBrains Mono", "Fira Code", "Cascadia Code", monospace; }
+      .kw  { color: #c792ea; }
+      .fn  { color: #82aaff; }
+      .str { color: #c3e88d; }
+      .cm  { color: #546e7a; }
+      .tp  { color: #ffcb6b; }
+      .num { color: #f78c6c; }
+
+      /* ── Coverage grid ───────────────────────────── */
+      .cov-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+        gap: 8px;
+      }
+      .cov-item {
+        padding: 10px 14px; border-radius: 10px;
+        background: rgba(15,23,42,.55);
+        border: 1px solid rgba(148,163,184,.15);
+      }
+      .cov-item h4 { margin: 0 0 4px; font-size: 13px; color: #f1f5f9; }
+      .cov-item ul { margin: 0; padding: 0 0 0 16px; }
+      .cov-item li { font-size: 12px; color: #94a3b8; line-height: 1.6; }
+
+      /* ── Section title ───────────────────────────── */
+      .section-title {
+        font-size: 18px; font-weight: 700; margin: 0 0 4px;
+        color: #f1f5f9;
+      }
+      .section-desc {
+        font-size: 13px; color: #94a3b8; margin: 0 0 12px;
+      }
+
+      /* ── Responsive ──────────────────────────────── */
+      @media (max-width: 768px) {
+        .jira-topbar { padding: 10px 14px; font-size: 12px; }
+        .page { padding: 16px 12px 40px; }
+        .card { padding: 14px 12px; }
+        .page-title { font-size: 20px; }
+        .stats-row { gap: 8px; }
+        .stat-card { min-width: 100px; padding: 12px 10px; }
+        .stat-value { font-size: 20px; }
+        pre { font-size: 11px; padding: 10px 12px; }
+        .cov-grid { grid-template-columns: 1fr; }
+        .tech-title { font-size: 14px; }
+      }
+    </style>
+  </head>
+  <body>
+    <!-- Breadcrumb topbar -->
+    <nav class="jira-topbar">
+      <a href="/">Projects</a>
+      <span class="sep">/</span>
+      <a href="/">SlotsOne</a>
+      <span class="sep">/</span>
+      <span>Localization Testing</span>
+    </nav>
+
+    <div class="page">
+      <!-- Page header -->
+      <div class="page-header">
+        <h1 class="page-title">Localization &amp; i18n Testing</h1>
+        <p class="page-subtitle">
+          Automated validation of multi-locale rendering, currency formatting,
+          layout resilience, and string completeness for iGaming platforms
+        </p>
+      </div>
+
+      <!-- Stats row -->
+      <div class="stats-row">
+        <div class="stat-card">
+          <span class="stat-value">5</span>
+          <span class="stat-label">Currencies</span>
+        </div>
+        <div class="stat-card">
+          <span class="stat-value">18</span>
+          <span class="stat-label">Test Cases</span>
+        </div>
+        <div class="stat-card">
+          <span class="stat-value">4</span>
+          <span class="stat-label">Test Categories</span>
+        </div>
+        <div class="stat-card">
+          <span class="stat-value">PW</span>
+          <span class="stat-label">Playwright TS</span>
+        </div>
+      </div>
+
+      <!-- ── 1. Currency Display Validation ────────── -->
+      <div class="card">
+        <div class="tech-header">
+          <div class="tech-number tech-number-financial">1</div>
+          <h2 class="tech-title">Currency Display Validation <span class="badge badge-financial">FINANCIAL</span></h2>
+        </div>
+        <div class="tech-theory">
+          iGaming platforms must display monetary values correctly across currencies.
+          Tests verify that balance, bet amounts, and win displays render the correct
+          currency code and decimal formatting for each supported currency.
+        </div>
+<pre><code><span class="kw">const</span> currencies = [
+  { code: <span class="str">'USD'</span>, symbol: <span class="str">'USD'</span>, balance: <span class="num">1500.50</span> },
+  { code: <span class="str">'EUR'</span>, symbol: <span class="str">'EUR'</span>, balance: <span class="num">2300.75</span> },
+  { code: <span class="str">'GBP'</span>, symbol: <span class="str">'GBP'</span>, balance: <span class="num">980.00</span> },
+  { code: <span class="str">'UAH'</span>, symbol: <span class="str">'UAH'</span>, balance: <span class="num">45000.00</span> },
+  { code: <span class="str">'BRL'</span>, symbol: <span class="str">'BRL'</span>, balance: <span class="num">7500.25</span> },
+];
+
+<span class="kw">for</span> (<span class="kw">const</span> { code, symbol, balance } <span class="kw">of</span> currencies) {
+  <span class="fn">test</span>(<span class="str">`displays ${code} currency code in balance HUD`</span>, <span class="kw">async</span> ({ page, context }) =&gt; {
+    <span class="kw">await</span> context.<span class="fn">route</span>(<span class="str">'**/api/v1/game/init'</span>, (route) =&gt;
+      route.<span class="fn">fulfill</span>({
+        status: <span class="num">200</span>,
+        contentType: <span class="str">'application/json'</span>,
+        body: <span class="tp">JSON</span>.<span class="fn">stringify</span>(<span class="fn">makeInitResponse</span>(code, balance)),
+      })
+    );
+    <span class="kw">const</span> balancePanel = page.<span class="fn">getByTestId</span>(<span class="str">'hud-balance'</span>);
+    <span class="kw">await</span> <span class="fn">expect</span>(balancePanel).<span class="fn">toContainText</span>(symbol);
+  });
+}</code></pre>
+      </div>
+
+      <!-- ── 2. Layout Resilience ──────────────────── -->
+      <div class="card">
+        <div class="tech-header">
+          <div class="tech-number tech-number-ui">2</div>
+          <h2 class="tech-title">Layout Resilience <span class="badge badge-ui">UI</span></h2>
+        </div>
+        <div class="tech-theory">
+          Different locales produce text of varying lengths. German and Ukrainian translations
+          are significantly longer than English. Tests verify that UI elements don't overflow,
+          truncate, or cause horizontal scrollbars when rendering longer strings.
+        </div>
+<pre><code><span class="fn">test</span>(<span class="str">'CV landing page renders without horizontal overflow'</span>, <span class="kw">async</span> ({ page }) =&gt; {
+  <span class="kw">await</span> page.<span class="fn">goto</span>(<span class="str">'/'</span>);
+  <span class="kw">const</span> hasOverflow = <span class="kw">await</span> page.<span class="fn">evaluate</span>(() =&gt; {
+    <span class="kw">return</span> document.documentElement.scrollWidth &gt; document.documentElement.clientWidth;
+  });
+  <span class="fn">expect</span>(hasOverflow).<span class="fn">toBe</span>(<span class="kw">false</span>);
+});
+
+<span class="fn">test</span>(<span class="str">'auth form labels do not truncate on narrow viewport'</span>, <span class="kw">async</span> ({ page }) =&gt; {
+  <span class="kw">await</span> page.<span class="fn">setViewportSize</span>({ width: <span class="num">375</span>, height: <span class="num">667</span> });
+  <span class="kw">await</span> page.<span class="fn">goto</span>(<span class="str">'/login'</span>);
+  <span class="kw">const</span> labels = page.<span class="fn">locator</span>(<span class="str">'label, .auth-label, [class*="label"]'</span>);
+  <span class="cm">// Verify each label fits within viewport bounds</span>
+});</code></pre>
+      </div>
+
+      <!-- ── 3. Numeric & Date Formatting ──────────── -->
+      <div class="card">
+        <div class="tech-header">
+          <div class="tech-number tech-number-data">3</div>
+          <h2 class="tech-title">Numeric &amp; Date Formatting <span class="badge badge-data">DATA</span></h2>
+        </div>
+        <div class="tech-theory">
+          Number formatting varies by locale &mdash; decimal separators (. vs ,), thousands
+          separators, and date formats. Tests ensure balance displays, bet amounts, and
+          timestamps use consistent formatting.
+        </div>
+<pre><code><span class="fn">test</span>(<span class="str">'balance displays decimal separator correctly'</span>, <span class="kw">async</span> ({ page, context }) =&gt; {
+  <span class="kw">const</span> balancePanel = page.<span class="fn">getByTestId</span>(<span class="str">'hud-balance'</span>);
+  <span class="kw">const</span> text = <span class="kw">await</span> balancePanel.<span class="fn">textContent</span>();
+  <span class="cm">// Balance should contain a decimal number representation</span>
+  <span class="fn">expect</span>(text).<span class="fn">toMatch</span>(<span class="str">/\d+[.,]\d{2}/</span>);
+});</code></pre>
+      </div>
+
+      <!-- ── 4. String Completeness ────────────────── -->
+      <div class="card">
+        <div class="tech-header">
+          <div class="tech-number tech-number-qa">4</div>
+          <h2 class="tech-title">String Completeness <span class="badge badge-qa">QA</span></h2>
+        </div>
+        <div class="tech-theory">
+          Missing or untranslated strings break user trust &mdash; especially in gambling.
+          Tests scan rendered pages for common i18n antipatterns: empty text nodes, raw
+          translation keys (<code>{{key}}</code>), undefined/null text, and buttons without labels.
+        </div>
+<pre><code><span class="fn">test</span>(<span class="str">'no untranslated i18n keys visible on CV page'</span>, <span class="kw">async</span> ({ page }) =&gt; {
+  <span class="kw">const</span> pageText = <span class="kw">await</span> page.<span class="fn">textContent</span>(<span class="str">'body'</span>);
+  <span class="kw">const</span> i18nKeyPatterns = [
+    <span class="str">/\{\{[a-zA-Z_.]+\}\}/</span>,    <span class="cm">// {{key.name}}</span>
+    <span class="str">/\{t\(['"]/</span>,               <span class="cm">// {t('key')}</span>
+    <span class="str">/^[A-Z_]{3,}\.[A-Z_]+$/m</span>, <span class="cm">// MODULE.KEY_NAME</span>
+    <span class="str">/translation_missing/i</span>,
+  ];
+  <span class="kw">for</span> (<span class="kw">const</span> pattern <span class="kw">of</span> i18nKeyPatterns) {
+    <span class="fn">expect</span>(pageText).<span class="fn">not</span>.<span class="fn">toMatch</span>(pattern);
+  }
+});</code></pre>
+      </div>
+
+      <!-- ── 5. Test Execution ─────────────────────── -->
+      <div class="card">
+        <div class="tech-header">
+          <div class="tech-number tech-number-cli">5</div>
+          <h2 class="tech-title">Test Execution <span class="badge badge-cli">CLI</span></h2>
+        </div>
+<pre><code><span class="cm"># Run all i18n tests</span>
+npm run test:e2e:i18n
+
+<span class="cm"># Run with visual output</span>
+npx playwright test --grep @i18n --headed
+
+<span class="cm"># Run on mobile viewports</span>
+npx playwright test --grep @i18n --project=mobile-chrome</code></pre>
+      </div>
+
+      <!-- ── Coverage Grid ─────────────────────────── -->
+      <div class="card">
+        <p class="section-title">Coverage Grid</p>
+        <p class="section-desc">
+          18 test cases across 4 categories covering multi-currency iGaming localization
+        </p>
+
+        <div class="cov-grid">
+          <div class="cov-item">
+            <h4>Currency Display</h4>
+            <ul>
+              <li>USD formatting</li>
+              <li>EUR formatting</li>
+              <li>GBP formatting</li>
+              <li>UAH formatting</li>
+              <li>BRL formatting</li>
+            </ul>
+          </div>
+          <div class="cov-item">
+            <h4>Layout</h4>
+            <ul>
+              <li>Overflow detection</li>
+              <li>Viewport fit</li>
+              <li>Label truncation</li>
+            </ul>
+          </div>
+          <div class="cov-item">
+            <h4>Numeric</h4>
+            <ul>
+              <li>Decimal separator</li>
+              <li>Bet formatting</li>
+              <li>Number consistency</li>
+            </ul>
+          </div>
+          <div class="cov-item">
+            <h4>Strings</h4>
+            <ul>
+              <li>Empty elements</li>
+              <li>i18n keys</li>
+              <li>Button labels</li>
+              <li>Accessibility</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>

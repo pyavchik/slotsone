@@ -1,4 +1,4 @@
-import { addFeature, addSeverity } from '../../src/helpers/allure.helper.js';
+import { addFeature, addSeverity, addTag, addTestType } from '../../src/helpers/allure.helper.js';
 import { uniqueEmail, DEFAULT_PASSWORD } from '../../src/data/test-users.js';
 import { TEST_CONFIG } from '../../src/data/test-config.js';
 import CVLandingPage from '../../src/pages/CVLandingPage.js';
@@ -14,6 +14,8 @@ describe('Smoke — Critical path E2E', () => {
   before(() => {
     addFeature('Smoke');
     addSeverity('blocker');
+    addTag('smoke');
+    addTestType('smoke');
   });
 
   it('should load the CV landing page', async () => {
