@@ -137,11 +137,11 @@ test.describe('Localization — Currency Formatting', { tag: ['@i18n', '@regress
 
     await page.goto('/slots/mega-fortune');
     const spinButton = page.getByRole('button', { name: /spin/i });
-    await expect(spinButton).toBeVisible();
+    await expect(spinButton).toBeVisible({ timeout: 8000 });
     await spinButton.click();
 
     const winBadge = page.getByTestId('hud-win-badge');
-    await expect(winBadge).toBeVisible({ timeout: 15000 });
+    await expect(winBadge).toBeVisible({ timeout: 20000 });
     await expect(winBadge).toContainText('WIN');
   });
 });

@@ -1,5 +1,5 @@
 import type { BrowserContext } from '@playwright/test';
-import { expect, test, devices } from '@playwright/test';
+import { expect, test } from '@playwright/test';
 
 /**
  * Mobile-Web Responsive Testing Suite
@@ -9,6 +9,9 @@ import { expect, test, devices } from '@playwright/test';
  * and orientation changes. Covers iPhone, Pixel, and tablet devices.
  *
  * Tags: @responsive @regression
+ *
+ * Note: device descriptors with defaultBrowserType cannot be used inside
+ * test.describe(). Instead we use viewport/userAgent/touch properties only.
  */
 
 const MOCK_CONFIG = {
@@ -54,16 +57,46 @@ async function stubApis(context: BrowserContext): Promise<void> {
     })
   );
   await context.route('**/api/v1/images/generate', (route) =>
-    route.fulfill({ status: 503, contentType: 'application/json', body: '{"error":"unavailable"}' })
+    route.fulfill({
+      status: 503,
+      contentType: 'application/json',
+      body: '{"error":"unavailable"}',
+    })
   );
 }
+
+// Device viewports (without defaultBrowserType to avoid worker conflicts)
+const IPHONE_SE = {
+  viewport: { width: 375, height: 667 },
+  deviceScaleFactor: 2,
+  isMobile: true,
+  hasTouch: true,
+};
+const IPHONE_14 = {
+  viewport: { width: 393, height: 852 },
+  deviceScaleFactor: 3,
+  isMobile: true,
+  hasTouch: true,
+};
+const PIXEL_7 = {
+  viewport: { width: 412, height: 915 },
+  deviceScaleFactor: 2.625,
+  isMobile: true,
+  hasTouch: true,
+};
+const IPAD_MINI = {
+  viewport: { width: 768, height: 1024 },
+  deviceScaleFactor: 2,
+  isMobile: true,
+  hasTouch: true,
+};
 
 // ---------------------------------------------------------------------------
 // iPhone SE — Small Screen (375x667)
 // ---------------------------------------------------------------------------
 
 test.describe('Responsive — iPhone SE (375x667)', { tag: ['@responsive', '@regression'] }, () => {
-  test.use({ ...devices['iPhone SE'] });
+  test.use(IPHONE_SE);
 
   test('CV landing page fits within viewport without horizontal scroll', async ({ page }) => {
     await page.goto('/');
@@ -79,21 +112,19 @@ test.describe('Responsive — iPhone SE (375x667)', { tag: ['@responsive', '@reg
     await page.goto('/');
     await expect(page.getByTestId('cv-title')).toBeVisible();
 
-    const buttons = page.locator('.cv-actions button, .cv-actions a');
-    const count = await buttons.count();
-    expect(count).toBeGreaterThan(0);
+    // Evaluate touch target sizes in-page to avoid element detachment during iteration
+    const minHeight = await page.evaluate(() => {
+      const btns = document.querySelectorAll('.cv-actions button, .cv-actions a');
+      let smallest = Infinity;
+      btns.forEach((el) => {
+        const rect = (el as HTMLElement).getBoundingClientRect();
+        if (rect.height > 0 && rect.height < smallest) smallest = rect.height;
+      });
+      return smallest === Infinity ? 0 : smallest;
+    });
 
-    for (let i = 0; i < count; i++) {
-      const btn = buttons.nth(i);
-      if (await btn.isVisible()) {
-        const box = await btn.boundingBox();
-        if (box) {
-          // WCAG 2.5.5 recommends 44x44 minimum touch target
-          // We check height >= 32 (practical minimum for dense UIs)
-          expect(box.height).toBeGreaterThanOrEqual(32);
-        }
-      }
-    }
+    // WCAG 2.5.5 recommends 44x44 minimum; we check >= 32 (practical minimum for dense UIs)
+    expect(minHeight).toBeGreaterThanOrEqual(32);
   });
 
   test('auth form is usable on small screen', async ({ page }) => {
@@ -152,7 +183,7 @@ test.describe('Responsive — iPhone SE (375x667)', { tag: ['@responsive', '@reg
 // ---------------------------------------------------------------------------
 
 test.describe('Responsive — iPhone 14 (393x852)', { tag: ['@responsive', '@regression'] }, () => {
-  test.use({ ...devices['iPhone 14'] });
+  test.use(IPHONE_14);
 
   test('CV page title is fully visible without truncation', async ({ page }) => {
     await page.goto('/');
@@ -189,7 +220,7 @@ test.describe('Responsive — iPhone 14 (393x852)', { tag: ['@responsive', '@reg
     await page.goto('/');
     await expect(page.getByTestId('cv-title')).toBeVisible();
 
-    // Primary CTA should be in thumb-reachable zone (bottom 60% of screen)
+    // Primary CTA should be in thumb-reachable zone
     const slotsBtn = page.getByTestId('cv-open-slots').first();
     if (await slotsBtn.isVisible()) {
       const box = await slotsBtn.boundingBox();
@@ -206,7 +237,7 @@ test.describe('Responsive — iPhone 14 (393x852)', { tag: ['@responsive', '@reg
 // ---------------------------------------------------------------------------
 
 test.describe('Responsive — Pixel 7 (412x915)', { tag: ['@responsive', '@regression'] }, () => {
-  test.use({ ...devices['Pixel 7'] });
+  test.use(PIXEL_7);
 
   test('CV page renders correctly on Android viewport', async ({ page }) => {
     await page.goto('/');
@@ -240,7 +271,7 @@ test.describe('Responsive — Pixel 7 (412x915)', { tag: ['@responsive', '@regre
 // ---------------------------------------------------------------------------
 
 test.describe('Responsive — iPad Mini (768x1024)', { tag: ['@responsive', '@smoke'] }, () => {
-  test.use({ ...devices['iPad Mini'] });
+  test.use(IPAD_MINI);
 
   test('CV page uses wider layout on tablet', async ({ page }) => {
     await page.goto('/');
@@ -322,7 +353,7 @@ test.describe('Responsive — Orientation Changes', { tag: ['@responsive', '@reg
 // ---------------------------------------------------------------------------
 
 test.describe('Responsive — Touch Interactions', { tag: ['@responsive', '@sanity'] }, () => {
-  test.use({ ...devices['iPhone SE'], hasTouch: true });
+  test.use({ ...IPHONE_SE, hasTouch: true });
 
   test('CV action links respond to tap', async ({ page }) => {
     await page.goto('/');
@@ -355,7 +386,7 @@ test.describe('Responsive — Touch Interactions', { tag: ['@responsive', '@sani
 // ---------------------------------------------------------------------------
 
 test.describe('Responsive — Mobile Performance', { tag: ['@responsive', '@regression'] }, () => {
-  test.use({ ...devices['iPhone SE'] });
+  test.use(IPHONE_SE);
 
   test('CV page loads within acceptable time on mobile', async ({ page }) => {
     const startTime = Date.now();
