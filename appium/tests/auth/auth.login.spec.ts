@@ -1,4 +1,4 @@
-import { addFeature, addSeverity } from '../../src/helpers/allure.helper.js';
+import { addFeature, addSeverity, addTag, addTestType } from '../../src/helpers/allure.helper.js';
 import { uniqueEmail, DEFAULT_PASSWORD } from '../../src/data/test-users.js';
 import { apiRegister } from '../../src/helpers/api.helper.js';
 import { TEST_CONFIG } from '../../src/data/test-config.js';
@@ -12,6 +12,8 @@ describe('Auth — Login', () => {
   before(async () => {
     addFeature('Authentication');
     addSeverity('critical');
+    addTag('regression');
+    addTestType('regression');
 
     // Pre-register a user via API for login tests
     await apiRegister(email, password);

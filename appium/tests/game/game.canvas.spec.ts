@@ -1,4 +1,4 @@
-import { addFeature, addSeverity } from '../../src/helpers/allure.helper.js';
+import { addFeature, addSeverity, addTag, addTestType } from '../../src/helpers/allure.helper.js';
 import { uniqueEmail, DEFAULT_PASSWORD } from '../../src/data/test-users.js';
 import { registerAndInjectToken } from '../../src/helpers/api.helper.js';
 import { TEST_CONFIG } from '../../src/data/test-config.js';
@@ -9,6 +9,8 @@ describe('Game — Canvas rendering', () => {
   before(async () => {
     addFeature('Game');
     addSeverity('normal');
+    addTag('regression');
+    addTestType('functional');
 
     const email = uniqueEmail();
     await registerAndInjectToken(email, DEFAULT_PASSWORD, TEST_CONFIG.paths.megaFortune);

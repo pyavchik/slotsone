@@ -1,0 +1,496 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>GraphQL API Testing &mdash; SlotsOne &mdash; pyavchik.space</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
+    <style>
+      *, *::before, *::after { box-sizing: border-box; }
+
+      body {
+        margin: 0;
+        font-family: "DM Sans", -apple-system, "Segoe UI", sans-serif;
+        background: #0d1117;
+        color: #c9d1d9;
+        min-height: 100vh;
+        font-size: 14px;
+        -webkit-font-smoothing: antialiased;
+      }
+
+      a { color: #58a6ff; }
+      a:hover { color: #79c0ff; }
+
+      code, .mono {
+        font-family: "JetBrains Mono", monospace;
+        font-size: 12px;
+      }
+
+      /* ── Topbar (breadcrumb) ──────────────────────── */
+      .jira-topbar {
+        position: sticky;
+        top: 0;
+        z-index: 100;
+        background: #161b22;
+        border-bottom: 1px solid #21262d;
+        padding: 10px 24px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-size: 13px;
+        color: #8b949e;
+      }
+      .jira-topbar a {
+        color: #58a6ff;
+        text-decoration: none;
+        font-weight: 500;
+      }
+      .jira-topbar a:hover { text-decoration: underline; }
+      .jira-topbar .sep { color: #484f58; margin: 0 2px; }
+
+      /* ── Page container ──────────────────────────── */
+      .page {
+        max-width: 1100px;
+        margin: 0 auto;
+        padding: 28px 24px 48px;
+      }
+
+      /* ── Page header ─────────────────────────────── */
+      .page-header {
+        margin-bottom: 28px;
+      }
+      .page-title {
+        margin: 0 0 4px;
+        font-size: 24px;
+        font-weight: 700;
+        color: #f0f6fc;
+        line-height: 1.3;
+      }
+      .page-subtitle {
+        margin: 0;
+        font-size: 14px;
+        color: #8b949e;
+      }
+
+      /* ── Summary stats ───────────────────────────── */
+      .stats-row {
+        display: flex;
+        gap: 12px;
+        margin-bottom: 28px;
+        flex-wrap: wrap;
+      }
+      .stat-card {
+        flex: 1;
+        min-width: 120px;
+        padding: 16px 18px;
+        border-radius: 8px;
+        background: #161b22;
+        border: 1px solid #21262d;
+      }
+      .stat-value {
+        display: block;
+        font-size: 28px;
+        font-weight: 700;
+        color: #f0f6fc;
+        font-family: "JetBrains Mono", monospace;
+        line-height: 1;
+        margin-bottom: 6px;
+      }
+      .stat-label {
+        font-size: 12px;
+        font-weight: 600;
+        letter-spacing: .04em;
+        text-transform: uppercase;
+        color: #8b949e;
+      }
+
+      /* ── Cards ───────────────────────────────────── */
+      .card {
+        border: 1px solid rgba(255,255,255,0.13);
+        border-radius: 14px;
+        background: rgba(17,20,30,0.78);
+        padding: 20px 22px;
+        margin-bottom: 16px;
+      }
+
+      h2 { margin: 0 0 14px; font-size: 16px; color: #f1f5f9; }
+      p  { margin: 0 0 10px; color: #c9d1d9; line-height: 1.55; }
+
+      /* ── Badges ──────────────────────────────────── */
+      .badge {
+        display: inline-block;
+        font-size: 10px;
+        font-weight: 700;
+        letter-spacing: .04em;
+        text-transform: uppercase;
+        padding: 3px 7px;
+        border-radius: 5px;
+        white-space: nowrap;
+      }
+      .badge-schema   { background: rgba(167,139,250,.15); color: #a78bfa; }
+      .badge-auth     { background: rgba(129,230,217,.15); color: #81e6d9; }
+      .badge-game     { background: rgba(62,224,169,.15);  color: #3ee0a9; }
+      .badge-query    { background: rgba(245,208,106,.15); color: #f5d06a; }
+      .badge-errors   { background: rgba(248,113,113,.15); color: #f87171; }
+      .badge-perf     { background: rgba(251,146,60,.15);  color: #fb923c; }
+      .badge-cli      { background: rgba(56,189,248,.15);  color: #38bdf8; }
+
+      /* ── Technique header ────────────────────────── */
+      .tech-header {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        margin-bottom: 12px;
+      }
+      .tech-number {
+        width: 28px;
+        height: 28px;
+        border-radius: 8px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 13px;
+        font-weight: 800;
+        flex-shrink: 0;
+      }
+      .tech-number-schema { background: rgba(167,139,250,.15); color: #a78bfa; }
+      .tech-number-auth   { background: rgba(129,230,217,.15); color: #81e6d9; }
+      .tech-number-game   { background: rgba(62,224,169,.15);  color: #3ee0a9; }
+      .tech-number-query  { background: rgba(245,208,106,.15); color: #f5d06a; }
+      .tech-number-errors { background: rgba(248,113,113,.15); color: #f87171; }
+      .tech-number-perf   { background: rgba(251,146,60,.15);  color: #fb923c; }
+      .tech-number-cli    { background: rgba(56,189,248,.15);  color: #38bdf8; }
+
+      .tech-title {
+        font-size: 16px;
+        font-weight: 700;
+        margin: 0;
+        color: #f1f5f9;
+      }
+      .tech-theory {
+        color: #8b949e;
+        font-size: 13px;
+        line-height: 1.55;
+        margin: 0 0 14px;
+        padding: 10px 14px;
+        border-radius: 8px;
+        background: rgba(15,23,42,.45);
+        border-left: 3px solid rgba(148,163,184,.25);
+      }
+
+      /* ── Code blocks ─────────────────────────────── */
+      pre {
+        margin: 0 0 12px;
+        padding: 14px 16px;
+        border-radius: 10px;
+        background: rgba(10,12,20,.85);
+        border: 1px solid rgba(148,163,184,.15);
+        overflow-x: auto;
+        font-size: 12px;
+        line-height: 1.55;
+        color: #cbd5e1;
+      }
+      code {
+        font-family: "JetBrains Mono", "Fira Code", "Cascadia Code", monospace;
+      }
+      .kw  { color: #c792ea; }
+      .fn  { color: #82aaff; }
+      .str { color: #c3e88d; }
+      .cm  { color: #546e7a; }
+      .tp  { color: #ffcb6b; }
+      .num { color: #f78c6c; }
+
+      /* ── Schema overview ─────────────────────────── */
+      .schema-block {
+        margin: 0;
+        padding: 14px 16px;
+        border-radius: 10px;
+        background: rgba(10,12,20,.85);
+        border: 1px solid rgba(148,163,184,.15);
+        overflow-x: auto;
+        font-size: 12px;
+        line-height: 1.65;
+        color: #cbd5e1;
+        font-family: "JetBrains Mono", "Fira Code", monospace;
+        white-space: pre;
+      }
+
+      /* ── Responsive ──────────────────────────────── */
+      @media (max-width: 768px) {
+        .jira-topbar { padding: 10px 14px; font-size: 12px; }
+        .page { padding: 20px 14px 40px; }
+        .card { padding: 14px 14px; }
+        .page-title { font-size: 20px; }
+        .stats-row { gap: 8px; }
+        .stat-card { min-width: 100px; padding: 12px 14px; }
+        .stat-value { font-size: 22px; }
+        pre, .schema-block { font-size: 11px; padding: 10px 12px; }
+        .tech-title { font-size: 14px; }
+      }
+    </style>
+  </head>
+  <body>
+
+    <!-- ── Breadcrumb ──────────────────────────────── -->
+    <nav class="jira-topbar">
+      <a href="/">Projects</a>
+      <span class="sep">/</span>
+      <a href="/">SlotsOne</a>
+      <span class="sep">/</span>
+      <span>GraphQL Testing</span>
+    </nav>
+
+    <div class="page">
+
+      <!-- ── Header ──────────────────────────────── -->
+      <div class="page-header">
+        <h1 class="page-title">GraphQL API Testing</h1>
+        <p class="page-subtitle">
+          Comprehensive GraphQL gateway testing &mdash; schema introspection, query validation,
+          mutations, error handling, and pagination for iGaming APIs
+        </p>
+      </div>
+
+      <!-- ── Stats row ───────────────────────────── -->
+      <div class="stats-row">
+        <div class="stat-card">
+          <span class="stat-value">24</span>
+          <span class="stat-label">Test Cases</span>
+        </div>
+        <div class="stat-card">
+          <span class="stat-value">7</span>
+          <span class="stat-label">Test Suites</span>
+        </div>
+        <div class="stat-card">
+          <span class="stat-value">node</span>
+          <span class="stat-label">Native test runner</span>
+        </div>
+        <div class="stat-card">
+          <span class="stat-value">TS</span>
+          <span class="stat-label">TypeScript</span>
+        </div>
+      </div>
+
+      <!-- ── 1. Schema Introspection ─────────────── -->
+      <div class="card">
+        <div class="tech-header">
+          <div class="tech-number tech-number-schema">1</div>
+          <h2 class="tech-title">Schema Introspection <span class="badge badge-schema">SCHEMA</span></h2>
+        </div>
+        <div class="tech-theory">
+          GraphQL's self-documenting nature enables schema-driven testing. Introspection queries verify
+          that the schema exposes the expected types (<code>Player</code>, <code>Game</code>,
+          <code>GameRound</code>, <code>Wallet</code>, <code>SpinResult</code>), root query fields
+          (<code>me</code>, <code>games</code>, <code>wallet</code>, <code>gameHistory</code>), and
+          mutation fields (<code>login</code>, <code>register</code>, <code>spin</code>,
+          <code>initGame</code>).
+        </div>
+<pre><code><span class="fn">it</span>(<span class="str">'schema contains expected types'</span>, <span class="kw">async</span> () =&gt; {
+  <span class="kw">const</span> { body } = <span class="kw">await</span> <span class="fn">gqlRequest</span>(<span class="str">`{
+    __schema {
+      types { name kind }
+    }
+  }`</span>);
+
+  <span class="kw">const</span> typeNames = body.data.__schema.types.<span class="fn">map</span>(t =&gt; t.name);
+  <span class="kw">const</span> expected = [<span class="str">'Player'</span>, <span class="str">'Game'</span>, <span class="str">'GameRound'</span>, <span class="str">'Wallet'</span>, <span class="str">'SpinResult'</span>];
+
+  <span class="kw">for</span> (<span class="kw">const</span> type <span class="kw">of</span> expected) {
+    assert.<span class="fn">ok</span>(typeNames.<span class="fn">includes</span>(type),
+      <span class="str">`Schema should contain type "${type}"`</span>);
+  }
+});</code></pre>
+      </div>
+
+      <!-- ── 2. Authentication Mutations ─────────── -->
+      <div class="card">
+        <div class="tech-header">
+          <div class="tech-number tech-number-auth">2</div>
+          <h2 class="tech-title">Authentication Mutations <span class="badge badge-auth">AUTH</span></h2>
+        </div>
+        <div class="tech-theory">
+          Tests validate the full auth flow via GraphQL mutations: register returns
+          <code>access_token</code> and <code>token_type</code>, login works with valid credentials,
+          and wrong password returns structured GraphQL errors (not HTTP errors).
+        </div>
+<pre><code><span class="fn">it</span>(<span class="str">'register mutation returns access token'</span>, <span class="kw">async</span> () =&gt; {
+  <span class="kw">const</span> { body } = <span class="kw">await</span> <span class="fn">gqlRequest</span>(
+    <span class="str">`mutation Register($input: RegisterInput!) {
+      register(input: $input) {
+        accessToken
+        tokenType
+        expiresIn
+      }
+    }`</span>,
+    { input: { email: testEmail, password: <span class="str">'TestPass123!'</span> } }
+  );
+
+  assert.<span class="fn">ok</span>(body.data.register.accessToken);
+  assert.<span class="fn">equal</span>(body.data.register.tokenType, <span class="str">'bearer'</span>);
+});
+
+<span class="fn">it</span>(<span class="str">'wrong password returns structured error'</span>, <span class="kw">async</span> () =&gt; {
+  <span class="kw">const</span> { body } = <span class="kw">await</span> <span class="fn">gqlRequest</span>(loginMutation,
+    { input: { email: testEmail, password: <span class="str">'Wrong!'</span> } }
+  );
+  assert.<span class="fn">ok</span>(body.errors);
+  assert.<span class="fn">ok</span>(body.errors[<span class="num">0</span>].message.<span class="fn">toLowerCase</span>().<span class="fn">includes</span>(<span class="str">'invalid'</span>));
+});</code></pre>
+      </div>
+
+      <!-- ── 3. Game Session Mutations ───────────── -->
+      <div class="card">
+        <div class="tech-header">
+          <div class="tech-number tech-number-game">3</div>
+          <h2 class="tech-title">Game Session Mutations <span class="badge badge-game">GAME</span></h2>
+        </div>
+        <div class="tech-theory">
+          Tests exercise the core iGaming flow via GraphQL: initializing a game session (returns config,
+          balance, sessionId) and executing a spin (returns outcome with reel matrix, win/loss, updated
+          balance).
+        </div>
+<pre><code><span class="fn">it</span>(<span class="str">'initGame returns session and config'</span>, <span class="kw">async</span> () =&gt; {
+  <span class="kw">const</span> { body } = <span class="kw">await</span> <span class="fn">gqlRequest</span>(
+    <span class="str">`mutation InitGame($input: InitGameInput!) {
+      initGame(input: $input) {
+        sessionId
+        gameId
+        config { reels rows rtp }
+        balance { amount currency }
+      }
+    }`</span>,
+    { input: { gameId: <span class="str">'slot_mega_fortune_001'</span>, currency: <span class="str">'USD'</span> } },
+    token
+  );
+
+  assert.<span class="fn">ok</span>(body.data.initGame.sessionId);
+  assert.<span class="fn">ok</span>(body.data.initGame.config.reels &gt; <span class="num">0</span>);
+});
+
+<span class="fn">it</span>(<span class="str">'spin returns outcome and updated balance'</span>, <span class="kw">async</span> () =&gt; {
+  <span class="kw">const</span> { body } = <span class="kw">await</span> <span class="fn">gqlRequest</span>(spinMutation, {
+    input: { sessionId, gameId, bet: { amount: <span class="num">0.1</span>, currency: <span class="str">'USD'</span>, lines: <span class="num">20</span> } }
+  }, token);
+
+  assert.<span class="fn">ok</span>(body.data.spin.spinId);
+  assert.<span class="fn">ok</span>(Array.<span class="fn">isArray</span>(body.data.spin.outcome.reelMatrix));
+});</code></pre>
+      </div>
+
+      <!-- ── 4. Pagination & Filtering ───────────── -->
+      <div class="card">
+        <div class="tech-header">
+          <div class="tech-number tech-number-query">4</div>
+          <h2 class="tech-title">Pagination &amp; Filtering <span class="badge badge-query">QUERY</span></h2>
+        </div>
+        <div class="tech-theory">
+          Game history queries support cursor-based pagination (<code>limit</code>/<code>offset</code>)
+          and field-level filtering (by <code>gameId</code>). Tests verify pagination metadata
+          (<code>total</code>, <code>hasMore</code>) and that filters correctly constrain results.
+        </div>
+<pre><code><span class="fn">it</span>(<span class="str">'gameHistory supports limit and offset'</span>, <span class="kw">async</span> () =&gt; {
+  <span class="kw">const</span> { body } = <span class="kw">await</span> <span class="fn">gqlRequest</span>(
+    <span class="str">`query History($limit: Int, $offset: Int) {
+      gameHistory(limit: $limit, offset: $offset) {
+        items { id gameId createdAt }
+        total
+        hasMore
+      }
+    }`</span>,
+    { limit: <span class="num">5</span>, offset: <span class="num">0</span> },
+    token
+  );
+
+  assert.<span class="fn">ok</span>(Array.<span class="fn">isArray</span>(body.data.gameHistory.items));
+  assert.<span class="fn">ok</span>(body.data.gameHistory.items.length &lt;= <span class="num">5</span>);
+  assert.<span class="fn">ok</span>(<span class="kw">typeof</span> body.data.gameHistory.hasMore === <span class="str">'boolean'</span>);
+});</code></pre>
+      </div>
+
+      <!-- ── 5. Error Handling ───────────────────── -->
+      <div class="card">
+        <div class="tech-header">
+          <div class="tech-number tech-number-errors">5</div>
+          <h2 class="tech-title">Error Handling <span class="badge badge-errors">ERRORS</span></h2>
+        </div>
+        <div class="tech-theory">
+          GraphQL returns errors differently from REST &mdash; always HTTP 200 with an <code>errors</code>
+          array. Tests verify proper error responses for malformed queries, unknown fields, unauthenticated
+          access, and invalid mutation inputs.
+        </div>
+<pre><code><span class="fn">it</span>(<span class="str">'returns error for malformed query'</span>, <span class="kw">async</span> () =&gt; {
+  <span class="kw">const</span> { body } = <span class="kw">await</span> <span class="fn">gqlRequest</span>(<span class="str">'{ this is not valid }'</span>);
+  assert.<span class="fn">ok</span>(body.errors);
+});
+
+<span class="fn">it</span>(<span class="str">'returns error for unauthenticated protected query'</span>, <span class="kw">async</span> () =&gt; {
+  <span class="kw">const</span> { body } = <span class="kw">await</span> <span class="fn">gqlRequest</span>(<span class="str">`{ wallet { balance } }`</span>);
+  assert.<span class="fn">ok</span>(body.errors);
+  assert.<span class="fn">ok</span>(body.errors[<span class="num">0</span>].message.<span class="fn">includes</span>(<span class="str">'unauthorized'</span>));
+});</code></pre>
+      </div>
+
+      <!-- ── 6. Performance ──────────────────────── -->
+      <div class="card">
+        <div class="tech-header">
+          <div class="tech-number tech-number-perf">6</div>
+          <h2 class="tech-title">Performance <span class="badge badge-perf">PERF</span></h2>
+        </div>
+        <div class="tech-theory">
+          Tests verify that nested queries resolve without N+1 performance degradation.
+        </div>
+<pre><code><span class="fn">it</span>(<span class="str">'nested query resolves under 5s'</span>, <span class="kw">async</span> () =&gt; {
+  <span class="kw">const</span> start = performance.<span class="fn">now</span>();
+  <span class="kw">const</span> { body } = <span class="kw">await</span> <span class="fn">gqlRequest</span>(<span class="str">`{
+    gameHistory(limit: 10) {
+      items { id gameId bet { amount } win { amount } }
+    }
+  }`</span>, <span class="kw">undefined</span>, token);
+  assert.<span class="fn">ok</span>(performance.<span class="fn">now</span>() - start &lt; <span class="num">5000</span>);
+});</code></pre>
+      </div>
+
+      <!-- ── 7. Test Execution ───────────────────── -->
+      <div class="card">
+        <div class="tech-header">
+          <div class="tech-number tech-number-cli">7</div>
+          <h2 class="tech-title">Test Execution <span class="badge badge-cli">CLI</span></h2>
+        </div>
+<pre><code><span class="cm"># Run all GraphQL tests</span>
+cd qa &amp;&amp; npm run test:graphql
+
+<span class="cm"># Run smoke tests only</span>
+cd qa &amp;&amp; npm run test:graphql:smoke
+
+<span class="cm"># Run all API + GraphQL tests</span>
+cd qa &amp;&amp; npm run test:all</code></pre>
+      </div>
+
+      <!-- ── Type Schema Overview ────────────────── -->
+      <div class="card">
+        <div class="tech-header">
+          <h2 class="tech-title">Type Schema Overview</h2>
+        </div>
+        <p style="color: #8b949e; margin-bottom: 14px;">
+          Core GraphQL type structure powering the iGaming API
+        </p>
+<div class="schema-block"><span class="kw">type</span> <span class="tp">Query</span> {
+  <span class="fn">me</span>: <span class="tp">Player!</span>
+  <span class="fn">games</span>: <span class="tp">[Game!]!</span>
+  <span class="fn">wallet</span>: <span class="tp">Wallet!</span>
+  <span class="fn">gameHistory</span>(limit: <span class="tp">Int</span>, offset: <span class="tp">Int</span>, gameId: <span class="tp">String</span>): <span class="tp">GameHistoryResult!</span>
+}
+
+<span class="kw">type</span> <span class="tp">Mutation</span> {
+  <span class="fn">register</span>(input: <span class="tp">RegisterInput!</span>): <span class="tp">AuthPayload!</span>
+  <span class="fn">login</span>(input: <span class="tp">LoginInput!</span>): <span class="tp">AuthPayload!</span>
+  <span class="fn">initGame</span>(input: <span class="tp">InitGameInput!</span>): <span class="tp">GameSession!</span>
+  <span class="fn">spin</span>(input: <span class="tp">SpinInput!</span>): <span class="tp">SpinResult!</span>
+}</div>
+      </div>
+
+    </div>
+  </body>
+</html>

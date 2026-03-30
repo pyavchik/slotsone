@@ -19,6 +19,11 @@ const QA_STRATEGY_PATH = '/qa-strategy.html';
 const GAME_MATH_PATH = '/game-math.html';
 const TM_REQUIREMENTS_PATH = '/time-machine-requirements.html';
 const TM_TEST_CASES_PATH = '/time-machine-test-cases.html';
+const LOCALIZATION_TESTING_PATH = '/localization-testing.html';
+const RESPONSIVE_TESTING_PATH = '/responsive-testing.html';
+const VISUAL_REGRESSION_PATH = '/visual-regression.html';
+const NETWORK_TESTING_PATH = '/network-testing.html';
+const GRAPHQL_TESTING_PATH = '/graphql-testing.html';
 
 const SKILLS = [
   'Java',
@@ -226,6 +231,51 @@ export function CVLanding() {
               data-testid="cv-tm-test-cases"
             >
               time machine tests
+            </a>
+            <a
+              className="cv-link"
+              href={LOCALIZATION_TESTING_PATH}
+              target="_blank"
+              rel="noreferrer"
+              data-testid="cv-localization"
+            >
+              i18n testing
+            </a>
+            <a
+              className="cv-link"
+              href={RESPONSIVE_TESTING_PATH}
+              target="_blank"
+              rel="noreferrer"
+              data-testid="cv-responsive"
+            >
+              responsive testing
+            </a>
+            <a
+              className="cv-link"
+              href={VISUAL_REGRESSION_PATH}
+              target="_blank"
+              rel="noreferrer"
+              data-testid="cv-visual-regression"
+            >
+              visual regression
+            </a>
+            <a
+              className="cv-link"
+              href={NETWORK_TESTING_PATH}
+              target="_blank"
+              rel="noreferrer"
+              data-testid="cv-network-testing"
+            >
+              network testing
+            </a>
+            <a
+              className="cv-link"
+              href={GRAPHQL_TESTING_PATH}
+              target="_blank"
+              rel="noreferrer"
+              data-testid="cv-graphql"
+            >
+              GraphQL testing
             </a>
             <a
               className="cv-link"

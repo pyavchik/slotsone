@@ -1,0 +1,370 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Visual Regression Testing — pyavchik.space</title>
+    <style>
+      *, *::before, *::after { box-sizing: border-box; }
+
+      body {
+        margin: 0;
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+        background: linear-gradient(180deg, #0f1118 0%, #0b0d13 100%);
+        color: #f8fafc;
+        min-height: 100vh;
+        font-size: 14px;
+      }
+
+      .wrap {
+        max-width: 1100px;
+        margin: 0 auto;
+        padding: 28px 18px 56px;
+        display: flex;
+        flex-direction: column;
+        gap: 14px;
+      }
+
+      /* -- Cards ---------------------------------------- */
+      .card {
+        border: 1px solid rgba(255,255,255,0.13);
+        border-radius: 14px;
+        background: rgba(17,20,30,0.78);
+        padding: 20px 22px;
+      }
+
+      h1 { margin: 0 0 3px; font-size: 26px; letter-spacing: -.3px; }
+      .subtitle { margin: 0 0 14px; color: #94a3b8; font-size: 13px; }
+      h2 { margin: 0 0 14px; font-size: 16px; color: #f1f5f9; }
+      h3 { margin: 0 0 10px; font-size: 14px; color: #e2e8f0; }
+      p  { margin: 0 0 10px; color: #dbe2ec; line-height: 1.55; }
+
+      /* -- Back link ------------------------------------ */
+      .back {
+        display: inline-flex; align-items: center; gap: 6px;
+        font-size: 13px; font-weight: 600; color: #94a3b8;
+        text-decoration: none;
+        border: 1px solid rgba(148,163,184,.3);
+        padding: 6px 12px; border-radius: 8px;
+        background: rgba(15,23,42,.5);
+        width: fit-content;
+      }
+      .back:hover { color: #f8fafc; border-color: rgba(148,163,184,.7); }
+
+      /* -- Stats ---------------------------------------- */
+      .stats { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 8px; }
+      .stat {
+        padding: 8px 14px; border-radius: 10px;
+        background: rgba(15,23,42,.65);
+        border: 1px solid rgba(148,163,184,.2);
+        font-size: 13px; color: #dbe2ec; text-align: center;
+      }
+      .stat strong { display: block; font-size: 22px; line-height: 1.15; color: #f8fafc; }
+
+      /* -- Badges --------------------------------------- */
+      .badge {
+        display: inline-block; padding: 2px 7px;
+        border-radius: 5px; font-size: 11px; font-weight: 700;
+        white-space: nowrap; letter-spacing: .02em;
+      }
+      .badge-visual    { background: rgba(244,114,182,.15); color: #f472b6; }
+      .badge-devices   { background: rgba(56,189,248,.15);  color: #38bdf8; }
+      .badge-component { background: rgba(62,224,169,.15);  color: #3ee0a9; }
+      .badge-theme     { background: rgba(167,139,250,.18); color: #a78bfa; }
+      .badge-ci        { background: rgba(251,146,60,.15);  color: #fb923c; }
+
+      /* -- Section titles ------------------------------- */
+      .section-title {
+        font-size: 18px; font-weight: 700; margin: 0 0 4px;
+        color: #f1f5f9;
+      }
+      .section-desc {
+        font-size: 13px; color: #94a3b8; margin: 0 0 12px;
+      }
+
+      /* -- Technique header ----------------------------- */
+      .tech-header {
+        display: flex; align-items: center; gap: 10px;
+        margin-bottom: 12px;
+      }
+      .tech-number {
+        width: 28px; height: 28px; border-radius: 8px;
+        display: flex; align-items: center; justify-content: center;
+        font-size: 13px; font-weight: 800;
+        flex-shrink: 0;
+      }
+      .tech-number-visual    { background: rgba(244,114,182,.15); color: #f472b6; }
+      .tech-number-devices   { background: rgba(56,189,248,.15);  color: #38bdf8; }
+      .tech-number-component { background: rgba(62,224,169,.15);  color: #3ee0a9; }
+      .tech-number-theme     { background: rgba(167,139,250,.15); color: #a78bfa; }
+      .tech-number-ci        { background: rgba(251,146,60,.15);  color: #fb923c; }
+
+      .tech-title {
+        font-size: 16px; font-weight: 700; margin: 0; color: #f1f5f9;
+      }
+      .tech-theory {
+        color: #94a3b8; font-size: 13px; line-height: 1.55;
+        margin: 0 0 14px;
+        padding: 10px 14px;
+        border-radius: 8px;
+        background: rgba(15,23,42,.45);
+        border-left: 3px solid rgba(148,163,184,.25);
+      }
+
+      /* -- Code blocks ---------------------------------- */
+      pre {
+        margin: 0 0 12px;
+        padding: 14px 16px;
+        border-radius: 10px;
+        background: rgba(10,12,20,.85);
+        border: 1px solid rgba(148,163,184,.15);
+        overflow-x: auto;
+        font-size: 12px;
+        line-height: 1.55;
+        color: #cbd5e1;
+      }
+      code { font-family: "JetBrains Mono", "Fira Code", "Cascadia Code", monospace; }
+      .kw  { color: #c792ea; }
+      .fn  { color: #82aaff; }
+      .str { color: #c3e88d; }
+      .cm  { color: #546e7a; }
+      .tp  { color: #ffcb6b; }
+      .num { color: #f78c6c; }
+
+      /* -- Coverage grid -------------------------------- */
+      .cov-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+        gap: 8px;
+      }
+      .cov-item {
+        padding: 10px 14px; border-radius: 10px;
+        background: rgba(15,23,42,.55);
+        border: 1px solid rgba(148,163,184,.15);
+      }
+      .cov-item h4 { margin: 0 0 4px; font-size: 13px; color: #f1f5f9; }
+      .cov-item ul { margin: 0; padding: 0 0 0 16px; }
+      .cov-item li { font-size: 12px; color: #94a3b8; line-height: 1.6; }
+
+      /* -- Responsive ----------------------------------- */
+      @media (max-width: 768px) {
+        .wrap { padding: 16px 10px 40px; }
+        .card { padding: 14px 12px; }
+        h1 { font-size: 22px; }
+        .stats { gap: 6px; }
+        .stat strong { font-size: 18px; }
+        pre { font-size: 11px; padding: 10px 12px; }
+        .cov-grid { grid-template-columns: 1fr; }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="wrap">
+      <!-- Back link -->
+      <a class="back" href="/">&larr; Back to CV</a>
+
+      <!-- Header card -->
+      <div class="card">
+        <h1>Visual Regression Testing</h1>
+        <p class="subtitle">
+          Screenshot-based UI comparison detecting unintended visual changes across desktop, mobile, and tablet viewports
+        </p>
+
+        <div class="stats">
+          <div class="stat"><strong>14</strong>Screenshots tracked</div>
+          <div class="stat"><strong>3</strong>Viewports (desktop, mobile, tablet)</div>
+          <div class="stat"><strong>2%</strong>Pixel tolerance</div>
+          <div class="stat"><strong>Playwright</strong>TS</div>
+        </div>
+      </div>
+
+      <!-- 1. Screenshot Comparison Strategy -->
+      <div class="card">
+        <div class="tech-header">
+          <div class="tech-number tech-number-visual">1</div>
+          <h2 class="tech-title">Screenshot Comparison Strategy <span class="badge badge-visual">VISUAL</span></h2>
+        </div>
+        <div class="tech-theory">
+          Visual regression tests capture baseline screenshots and compare them against future runs.
+          Any pixel difference beyond the configured threshold triggers a failure, catching unintended
+          CSS changes, layout shifts, or broken assets before they reach production.
+        </div>
+<pre><code><span class="kw">const</span> <span class="tp">SCREENSHOT_OPTIONS</span> = {
+  maxDiffPixelRatio: <span class="num">0.02</span>,  <span class="cm">// Allow 2% pixel difference</span>
+  threshold: <span class="num">0.3</span>,            <span class="cm">// Per-pixel color sensitivity</span>
+};
+
+<span class="fn">test</span>(<span class="str">'CV landing page'</span>, <span class="kw">async</span> ({ page }) =&gt; {
+  <span class="kw">await</span> page.<span class="fn">goto</span>(<span class="str">'/'</span>);
+  <span class="kw">await</span> <span class="fn">expect</span>(page.<span class="fn">getByTestId</span>(<span class="str">'cv-title'</span>)).<span class="fn">toBeVisible</span>();
+  <span class="kw">await</span> page.<span class="fn">waitForLoadState</span>(<span class="str">'networkidle'</span>);
+
+  <span class="kw">await</span> <span class="fn">expect</span>(page).<span class="fn">toHaveScreenshot</span>(<span class="str">'desktop-cv-landing.png'</span>, {
+    fullPage: <span class="kw">true</span>,
+    ...<span class="tp">SCREENSHOT_OPTIONS</span>,
+  });
+});</code></pre>
+      </div>
+
+      <!-- 2. Multi-Viewport Coverage -->
+      <div class="card">
+        <div class="tech-header">
+          <div class="tech-number tech-number-devices">2</div>
+          <h2 class="tech-title">Multi-Viewport Coverage <span class="badge badge-devices">DEVICES</span></h2>
+        </div>
+        <div class="tech-theory">
+          Screenshots are captured at three viewport sizes &mdash; Desktop (1280x720), iPhone SE (375x667),
+          and iPad Mini (768x1024). This ensures visual consistency across form factors and catches
+          responsive breakpoint issues.
+        </div>
+<pre><code><span class="cm">// Desktop</span>
+test.<span class="fn">use</span>({ viewport: { width: <span class="num">1280</span>, height: <span class="num">720</span> } });
+<span class="fn">test</span>(<span class="str">'CV landing page'</span>, ...);
+<span class="fn">test</span>(<span class="str">'auth login page'</span>, ...);
+<span class="fn">test</span>(<span class="str">'game page HUD'</span>, ...);
+
+<span class="cm">// Mobile</span>
+test.<span class="fn">use</span>({ ...devices[<span class="str">'iPhone SE'</span>] });
+<span class="fn">test</span>(<span class="str">'CV landing page &mdash; mobile'</span>, ...);
+<span class="fn">test</span>(<span class="str">'auth login page &mdash; mobile'</span>, ...);
+
+<span class="cm">// Tablet</span>
+test.<span class="fn">use</span>({ ...devices[<span class="str">'iPad Mini'</span>] });
+<span class="fn">test</span>(<span class="str">'CV landing page &mdash; tablet'</span>, ...);</code></pre>
+      </div>
+
+      <!-- 3. Component-Level Snapshots -->
+      <div class="card">
+        <div class="tech-header">
+          <div class="tech-number tech-number-component">3</div>
+          <h2 class="tech-title">Component-Level Snapshots <span class="badge badge-component">COMPONENT</span></h2>
+        </div>
+        <div class="tech-theory">
+          Full-page screenshots catch broad changes but can be noisy. Component-level screenshots
+          isolate individual UI sections (action bar, auth form, game HUD) for more precise visual
+          assertions.
+        </div>
+<pre><code><span class="fn">test</span>(<span class="str">'CV action bar renders consistently'</span>, <span class="kw">async</span> ({ page }) =&gt; {
+  <span class="kw">await</span> page.<span class="fn">goto</span>(<span class="str">'/'</span>);
+  <span class="kw">const</span> actionsBar = page.<span class="fn">locator</span>(<span class="str">'.cv-actions'</span>).<span class="fn">first</span>();
+
+  <span class="kw">await</span> <span class="fn">expect</span>(actionsBar).<span class="fn">toHaveScreenshot</span>(<span class="str">'component-cv-actions.png'</span>, {
+    ...<span class="tp">SCREENSHOT_OPTIONS</span>,
+  });
+});
+
+<span class="fn">test</span>(<span class="str">'auth form component renders consistently'</span>, <span class="kw">async</span> ({ page }) =&gt; {
+  <span class="kw">await</span> page.<span class="fn">goto</span>(<span class="str">'/login'</span>);
+  <span class="kw">const</span> form = page.<span class="fn">locator</span>(<span class="str">'form'</span>).<span class="fn">first</span>();
+
+  <span class="kw">await</span> <span class="fn">expect</span>(form).<span class="fn">toHaveScreenshot</span>(<span class="str">'component-auth-form.png'</span>, {
+    ...<span class="tp">SCREENSHOT_OPTIONS</span>,
+  });
+});</code></pre>
+      </div>
+
+      <!-- 4. Theme Testing -->
+      <div class="card">
+        <div class="tech-header">
+          <div class="tech-number tech-number-theme">4</div>
+          <h2 class="tech-title">Theme Testing <span class="badge badge-theme">THEME</span></h2>
+        </div>
+        <div class="tech-theory">
+          Tests verify visual consistency under both dark and light color schemes by using Playwright's
+          <code>emulateMedia()</code> to simulate <code>prefers-color-scheme</code>. This catches
+          theme-related regressions.
+        </div>
+<pre><code><span class="fn">test</span>(<span class="str">'prefers dark color scheme'</span>, <span class="kw">async</span> ({ page }) =&gt; {
+  <span class="kw">await</span> page.<span class="fn">emulateMedia</span>({ colorScheme: <span class="str">'dark'</span> });
+  <span class="kw">await</span> page.<span class="fn">goto</span>(<span class="str">'/'</span>);
+  <span class="kw">await</span> <span class="fn">expect</span>(page).<span class="fn">toHaveScreenshot</span>(<span class="str">'theme-dark-cv.png'</span>, {
+    fullPage: <span class="kw">true</span>,
+    ...<span class="tp">SCREENSHOT_OPTIONS</span>,
+  });
+});
+
+<span class="fn">test</span>(<span class="str">'prefers light color scheme fallback'</span>, <span class="kw">async</span> ({ page }) =&gt; {
+  <span class="kw">await</span> page.<span class="fn">emulateMedia</span>({ colorScheme: <span class="str">'light'</span> });
+  <span class="kw">await</span> page.<span class="fn">goto</span>(<span class="str">'/'</span>);
+  <span class="kw">await</span> <span class="fn">expect</span>(page).<span class="fn">toHaveScreenshot</span>(<span class="str">'theme-light-cv.png'</span>, { ... });
+});</code></pre>
+      </div>
+
+      <!-- 5. Workflow & CI Integration -->
+      <div class="card">
+        <div class="tech-header">
+          <div class="tech-number tech-number-ci">5</div>
+          <h2 class="tech-title">Workflow &amp; CI Integration <span class="badge badge-ci">CI</span></h2>
+        </div>
+        <div class="tech-theory">
+          How visual regression works in CI:
+          <br/>&#8226; First run generates baseline screenshots (committed to repo)
+          <br/>&#8226; Subsequent runs compare against baselines
+          <br/>&#8226; Failures produce diff images highlighting changed pixels
+          <br/>&#8226; Update baselines: <code>npx playwright test --update-snapshots</code>
+        </div>
+<pre><code><span class="cm"># Run visual regression tests</span>
+npm run test:e2e:visual
+
+<span class="cm"># Update baseline screenshots after intentional UI changes</span>
+npx playwright test --grep @visual --update-snapshots
+
+<span class="cm"># Review diff report</span>
+npx playwright show-report</code></pre>
+      </div>
+
+      <!-- Screenshot Coverage Grid -->
+      <div class="card">
+        <p class="section-title">Screenshot Coverage</p>
+        <p class="section-desc">
+          14 screenshots tracked across 6 categories
+        </p>
+
+        <div class="cov-grid">
+          <div class="cov-item">
+            <h4>Desktop</h4>
+            <ul>
+              <li>CV landing (full page)</li>
+              <li>Auth login</li>
+              <li>Auth register</li>
+              <li>Game HUD</li>
+            </ul>
+          </div>
+          <div class="cov-item">
+            <h4>Mobile</h4>
+            <ul>
+              <li>CV landing (full page)</li>
+              <li>Auth login</li>
+            </ul>
+          </div>
+          <div class="cov-item">
+            <h4>Tablet</h4>
+            <ul>
+              <li>CV landing (full page)</li>
+            </ul>
+          </div>
+          <div class="cov-item">
+            <h4>Components</h4>
+            <ul>
+              <li>Action bar</li>
+              <li>Auth form</li>
+            </ul>
+          </div>
+          <div class="cov-item">
+            <h4>Theme</h4>
+            <ul>
+              <li>Dark mode</li>
+              <li>Light mode</li>
+            </ul>
+          </div>
+          <div class="cov-item">
+            <h4>Structure</h4>
+            <ul>
+              <li>Element positioning validation</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>

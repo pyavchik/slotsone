@@ -42,7 +42,7 @@ const MOCK_CONFIG = {
   features: ['free_spins', 'multipliers', 'scatter'],
 };
 
-test.describe('Slots app', () => {
+test.describe('Slots app', { tag: ['@e2e', '@regression'] }, () => {
   test('opens from CV page via lobby and performs a spin', async ({ page, context }) => {
     let spinRequests = 0;
     let balance = 1000;

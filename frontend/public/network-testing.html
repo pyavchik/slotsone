@@ -1,0 +1,376 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Network Request Interception &amp; API Validation — pyavchik.space</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet" />
+    <style>
+      *, *::before, *::after { box-sizing: border-box; }
+
+      body {
+        margin: 0;
+        font-family: "DM Sans", "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+        background: #0d1117;
+        color: #f8fafc;
+        min-height: 100vh;
+        font-size: 14px;
+      }
+
+      /* -- Breadcrumb topbar -- */
+      .jira-topbar {
+        position: sticky;
+        top: 0;
+        z-index: 100;
+        background: rgba(13,17,23,0.92);
+        backdrop-filter: blur(12px);
+        border-bottom: 1px solid rgba(255,255,255,0.08);
+        padding: 10px 20px;
+        font-size: 13px;
+        color: #94a3b8;
+      }
+      .jira-topbar a {
+        color: #38bdf8;
+        text-decoration: none;
+      }
+      .jira-topbar a:hover { text-decoration: underline; }
+      .jira-topbar .sep { margin: 0 8px; color: rgba(148,163,184,0.4); }
+
+      /* -- Page container -- */
+      .page {
+        max-width: 1100px;
+        margin: 0 auto;
+        padding: 28px 18px 56px;
+        display: flex;
+        flex-direction: column;
+        gap: 14px;
+      }
+
+      /* -- Cards -- */
+      .card {
+        border: 1px solid rgba(255,255,255,0.13);
+        border-radius: 14px;
+        background: rgba(17,20,30,0.78);
+        padding: 20px 22px;
+      }
+
+      h1 { margin: 0 0 3px; font-size: 26px; letter-spacing: -.3px; }
+      .subtitle { margin: 0 0 14px; color: #94a3b8; font-size: 13px; }
+      h2 { margin: 0 0 14px; font-size: 16px; color: #f1f5f9; }
+      h3 { margin: 0 0 10px; font-size: 14px; color: #e2e8f0; }
+      p  { margin: 0 0 10px; color: #dbe2ec; line-height: 1.55; }
+
+      /* -- Back link -- */
+      .back {
+        display: inline-flex; align-items: center; gap: 6px;
+        font-size: 13px; font-weight: 600; color: #94a3b8;
+        text-decoration: none;
+        border: 1px solid rgba(148,163,184,.3);
+        padding: 6px 12px; border-radius: 8px;
+        background: rgba(15,23,42,.5);
+        width: fit-content;
+      }
+      .back:hover { color: #f8fafc; border-color: rgba(148,163,184,.7); }
+
+      /* -- Stats -- */
+      .stats { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 8px; }
+      .stat {
+        padding: 8px 14px; border-radius: 10px;
+        background: rgba(15,23,42,.65);
+        border: 1px solid rgba(148,163,184,.2);
+        font-size: 13px; color: #dbe2ec; text-align: center;
+      }
+      .stat strong { display: block; font-size: 22px; line-height: 1.15; color: #f8fafc; }
+
+      /* -- Badges -- */
+      .badge {
+        display: inline-block; padding: 2px 7px;
+        border-radius: 5px; font-size: 11px; font-weight: 700;
+        white-space: nowrap; letter-spacing: .02em;
+      }
+      .badge-headers  { background: rgba(56,189,248,.15);  color: #38bdf8; }
+      .badge-contract { background: rgba(62,224,169,.15);  color: #3ee0a9; }
+      .badge-errors   { background: rgba(248,113,113,.15); color: #f87171; }
+      .badge-monitor  { background: rgba(245,208,106,.15); color: #f5d06a; }
+      .badge-perf     { background: rgba(167,139,250,.18); color: #a78bfa; }
+      .badge-cli      { background: rgba(34,211,238,.15);  color: #22d3ee; }
+
+      /* -- Section titles -- */
+      .section-title {
+        font-size: 18px; font-weight: 700; margin: 0 0 4px;
+        color: #f1f5f9;
+      }
+      .section-desc {
+        font-size: 13px; color: #94a3b8; margin: 0 0 12px;
+      }
+
+      /* -- Technique header -- */
+      .tech-header {
+        display: flex; align-items: center; gap: 10px;
+        margin-bottom: 12px;
+      }
+      .tech-number {
+        width: 28px; height: 28px; border-radius: 8px;
+        display: flex; align-items: center; justify-content: center;
+        font-size: 13px; font-weight: 800;
+        flex-shrink: 0;
+      }
+      .tech-number-headers  { background: rgba(56,189,248,.15);  color: #38bdf8; }
+      .tech-number-contract { background: rgba(62,224,169,.15);  color: #3ee0a9; }
+      .tech-number-errors   { background: rgba(248,113,113,.15); color: #f87171; }
+      .tech-number-monitor  { background: rgba(245,208,106,.15); color: #f5d06a; }
+      .tech-number-perf     { background: rgba(167,139,250,.15); color: #a78bfa; }
+      .tech-number-cli      { background: rgba(34,211,238,.15);  color: #22d3ee; }
+
+      .tech-title {
+        font-size: 16px; font-weight: 700; margin: 0; color: #f1f5f9;
+      }
+      .tech-theory {
+        color: #94a3b8; font-size: 13px; line-height: 1.55;
+        margin: 0 0 14px;
+        padding: 10px 14px;
+        border-radius: 8px;
+        background: rgba(15,23,42,.45);
+        border-left: 3px solid rgba(148,163,184,.25);
+      }
+
+      /* -- Code blocks -- */
+      pre {
+        margin: 0 0 12px;
+        padding: 14px 16px;
+        border-radius: 10px;
+        background: rgba(10,12,20,.85);
+        border: 1px solid rgba(148,163,184,.15);
+        overflow-x: auto;
+        font-size: 12px;
+        line-height: 1.55;
+        color: #cbd5e1;
+      }
+      code { font-family: "JetBrains Mono", "Fira Code", "Cascadia Code", monospace; }
+      .kw  { color: #c792ea; }
+      .fn  { color: #82aaff; }
+      .str { color: #c3e88d; }
+      .cm  { color: #546e7a; }
+      .tp  { color: #ffcb6b; }
+      .num { color: #f78c6c; }
+
+      /* -- Responsive -- */
+      @media (max-width: 768px) {
+        .page { padding: 16px 10px 40px; }
+        .card { padding: 14px 12px; }
+        h1 { font-size: 22px; }
+        .stats { gap: 6px; }
+        .stat strong { font-size: 18px; }
+        pre { font-size: 11px; padding: 10px 12px; }
+        .tech-title { font-size: 14px; }
+      }
+    </style>
+  </head>
+  <body>
+    <!-- Breadcrumb -->
+    <div class="jira-topbar">
+      <a href="/">Projects</a>
+      <span class="sep">/</span>
+      <a href="/">SlotsOne</a>
+      <span class="sep">/</span>
+      Network Testing
+    </div>
+
+    <div class="page">
+      <!-- Back link -->
+      <a class="back" href="/">&larr; Back to CV</a>
+
+      <!-- Header card -->
+      <div class="card">
+        <h1>Network Request Interception &amp; API Validation</h1>
+        <p class="subtitle">
+          Playwright-powered network analysis demonstrating Chrome DevTools-level understanding of client-server communication in iGaming
+        </p>
+
+        <div class="stats">
+          <div class="stat"><strong>22</strong>Test Cases</div>
+          <div class="stat"><strong>6</strong>Test Groups</div>
+          <div class="stat"><strong>4</strong>Error Codes</div>
+          <div class="stat"><strong>TS</strong>Playwright</div>
+        </div>
+      </div>
+
+      <!-- 1. Request Header Validation -->
+      <div class="card">
+        <div class="tech-header">
+          <div class="tech-number tech-number-headers">1</div>
+          <h2 class="tech-title">Request Header Validation <span class="badge badge-headers">HEADERS</span></h2>
+        </div>
+        <div class="tech-theory">
+          Every API request in an iGaming platform must include proper authentication and idempotency
+          headers. Tests intercept requests via Playwright's <code>route</code> API and validate that
+          Authorization bearer tokens, Idempotency-Key headers, and Content-Type are correctly attached.
+        </div>
+<pre><code><span class="fn">test</span>(<span class="str">'game/init sends Authorization bearer token'</span>, <span class="kw">async</span> ({ page, context }) =&gt; {
+  <span class="kw">let</span> capturedAuthHeader = <span class="str">''</span>;
+
+  <span class="kw">await</span> context.<span class="fn">route</span>(<span class="str">'**/api/v1/game/init'</span>, <span class="kw">async</span> (route) =&gt; {
+    capturedAuthHeader = route.<span class="fn">request</span>().<span class="fn">headers</span>()[<span class="str">'authorization'</span>] ?? <span class="str">''</span>;
+    <span class="kw">await</span> route.<span class="fn">fulfill</span>({ status: <span class="num">200</span>, ... });
+  });
+
+  <span class="kw">await</span> page.<span class="fn">goto</span>(<span class="str">'/slots/mega-fortune'</span>);
+  <span class="fn">expect</span>(capturedAuthHeader).<span class="fn">toMatch</span>(<span class="str">/^Bearer .+/</span>);
+});
+
+<span class="fn">test</span>(<span class="str">'spin request includes idempotency-key header'</span>, <span class="kw">async</span> ({ page, context }) =&gt; {
+  <span class="kw">let</span> capturedKey = <span class="str">''</span>;
+  <span class="kw">await</span> context.<span class="fn">route</span>(<span class="str">'**/api/v1/spin'</span>, <span class="kw">async</span> (route) =&gt; {
+    capturedKey = route.<span class="fn">request</span>().<span class="fn">headers</span>()[<span class="str">'idempotency-key'</span>] ?? <span class="str">''</span>;
+    <span class="kw">await</span> route.<span class="fn">fulfill</span>({ status: <span class="num">200</span>, ... });
+  });
+  <span class="cm">// ... trigger spin</span>
+  <span class="fn">expect</span>(capturedKey.length).<span class="fn">toBeGreaterThan</span>(<span class="num">8</span>);
+});</code></pre>
+      </div>
+
+      <!-- 2. API Contract Validation -->
+      <div class="card">
+        <div class="tech-header">
+          <div class="tech-number tech-number-contract">2</div>
+          <h2 class="tech-title">API Contract Validation <span class="badge badge-contract">CONTRACT</span></h2>
+        </div>
+        <div class="tech-theory">
+          Tests verify that request and response payloads match the expected API contract. Spin requests
+          must include <code>session_id</code>, <code>game_id</code>, and <code>bet</code> object.
+          Responses must contain <code>balance</code>, <code>outcome</code>, and reel matrix. Catching
+          contract violations at the UI layer prevents silent data corruption.
+        </div>
+<pre><code><span class="fn">test</span>(<span class="str">'spin request body contains required fields'</span>, <span class="kw">async</span> ({ page, context }) =&gt; {
+  <span class="kw">let</span> spinBody = {};
+  <span class="kw">await</span> context.<span class="fn">route</span>(<span class="str">'**/api/v1/spin'</span>, <span class="kw">async</span> (route) =&gt; {
+    spinBody = route.<span class="fn">request</span>().<span class="fn">postDataJSON</span>();
+    <span class="kw">await</span> route.<span class="fn">fulfill</span>({ ... });
+  });
+
+  <span class="cm">// trigger spin...</span>
+  <span class="fn">expect</span>(spinBody).<span class="fn">toHaveProperty</span>(<span class="str">'session_id'</span>);
+  <span class="fn">expect</span>(spinBody).<span class="fn">toHaveProperty</span>(<span class="str">'game_id'</span>);
+  <span class="fn">expect</span>(spinBody).<span class="fn">toHaveProperty</span>(<span class="str">'bet'</span>);
+  <span class="fn">expect</span>(spinBody.bet.amount).<span class="fn">toBeGreaterThan</span>(<span class="num">0</span>);
+  <span class="fn">expect</span>(spinBody.bet.currency).<span class="fn">toBe</span>(<span class="str">'USD'</span>);
+});</code></pre>
+      </div>
+
+      <!-- 3. Error Response Handling -->
+      <div class="card">
+        <div class="tech-header">
+          <div class="tech-number tech-number-errors">3</div>
+          <h2 class="tech-title">Error Response Handling <span class="badge badge-errors">ERRORS</span></h2>
+        </div>
+        <div class="tech-theory">
+          iGaming apps must handle server errors gracefully &mdash; no raw stack traces, no frozen UI.
+          Tests simulate <code>500</code>, <code>401</code>, <code>429</code>, and timeout scenarios
+          to verify the app degrades gracefully with user-friendly error states.
+        </div>
+<pre><code><span class="fn">test</span>(<span class="str">'app handles 500 server error gracefully'</span>, <span class="kw">async</span> ({ page, context }) =&gt; {
+  <span class="kw">await</span> context.<span class="fn">route</span>(<span class="str">'**/api/v1/game/init'</span>, (route) =&gt;
+    route.<span class="fn">fulfill</span>({
+      status: <span class="num">500</span>,
+      body: <span class="tp">JSON</span>.<span class="fn">stringify</span>({ error: <span class="str">'Internal server error'</span> }),
+    })
+  );
+  <span class="kw">await</span> page.<span class="fn">goto</span>(<span class="str">'/slots/mega-fortune'</span>);
+  <span class="kw">const</span> pageContent = <span class="kw">await</span> page.<span class="fn">textContent</span>(<span class="str">'body'</span>);
+  <span class="fn">expect</span>(pageContent).<span class="fn">not</span>.<span class="fn">toContain</span>(<span class="str">'Unhandled'</span>);
+  <span class="fn">expect</span>(pageContent).<span class="fn">not</span>.<span class="fn">toContain</span>(<span class="str">'Cannot read properties'</span>);
+});
+
+<span class="fn">test</span>(<span class="str">'app handles 429 rate limiting'</span>, <span class="kw">async</span> ({ page, context }) =&gt; {
+  <span class="kw">let</span> requestCount = <span class="num">0</span>;
+  <span class="kw">await</span> context.<span class="fn">route</span>(<span class="str">'**/api/v1/game/init'</span>, <span class="kw">async</span> (route) =&gt; {
+    requestCount++;
+    <span class="kw">if</span> (requestCount &lt;= <span class="num">1</span>) {
+      <span class="kw">await</span> route.<span class="fn">fulfill</span>({ status: <span class="num">429</span>, headers: { <span class="str">'Retry-After'</span>: <span class="str">'1'</span> }, ... });
+    } <span class="kw">else</span> {
+      <span class="kw">await</span> route.<span class="fn">fulfill</span>({ status: <span class="num">200</span>, ... });
+    }
+  });
+  <span class="cm">// App should not crash on rate limit</span>
+});</code></pre>
+      </div>
+
+      <!-- 4. Traffic Analysis -->
+      <div class="card">
+        <div class="tech-header">
+          <div class="tech-number tech-number-monitor">4</div>
+          <h2 class="tech-title">Traffic Analysis <span class="badge badge-monitor">MONITOR</span></h2>
+        </div>
+        <div class="tech-theory">
+          Tests verify that pages don't make unnecessary API calls. The CV landing page should never call
+          game APIs. The game page should call init exactly once. These tests catch wasteful network
+          requests that impact performance and server load.
+        </div>
+<pre><code><span class="fn">test</span>(<span class="str">'CV page does not make unnecessary API calls'</span>, <span class="kw">async</span> ({ page }) =&gt; {
+  <span class="kw">const</span> apiCalls = [];
+  page.<span class="fn">on</span>(<span class="str">'request'</span>, (request) =&gt; {
+    <span class="kw">if</span> (request.<span class="fn">url</span>().<span class="fn">includes</span>(<span class="str">'/api/'</span>)) apiCalls.<span class="fn">push</span>(request.<span class="fn">url</span>());
+  });
+
+  <span class="kw">await</span> page.<span class="fn">goto</span>(<span class="str">'/'</span>);
+  <span class="kw">const</span> gameApiCalls = apiCalls.<span class="fn">filter</span>(url =&gt;
+    url.<span class="fn">includes</span>(<span class="str">'/game/'</span>) || url.<span class="fn">includes</span>(<span class="str">'/spin'</span>)
+  );
+  <span class="fn">expect</span>(gameApiCalls).<span class="fn">toHaveLength</span>(<span class="num">0</span>);
+});
+
+<span class="fn">test</span>(<span class="str">'static assets load without 404s'</span>, <span class="kw">async</span> ({ page }) =&gt; {
+  <span class="kw">const</span> failedResources = [];
+  page.<span class="fn">on</span>(<span class="str">'response'</span>, (response) =&gt; {
+    <span class="kw">if</span> (response.<span class="fn">status</span>() &gt;= <span class="num">400</span> &amp;&amp; !response.<span class="fn">url</span>().<span class="fn">includes</span>(<span class="str">'/api/'</span>))
+      failedResources.<span class="fn">push</span>(response.<span class="fn">url</span>());
+  });
+  <span class="kw">await</span> page.<span class="fn">goto</span>(<span class="str">'/'</span>);
+  <span class="fn">expect</span>(failedResources.length).<span class="fn">toBe</span>(<span class="num">0</span>);
+});</code></pre>
+      </div>
+
+      <!-- 5. Slow Network Simulation -->
+      <div class="card">
+        <div class="tech-header">
+          <div class="tech-number tech-number-perf">5</div>
+          <h2 class="tech-title">Slow Network Simulation <span class="badge badge-perf">PERF</span></h2>
+        </div>
+        <div class="tech-theory">
+          Tests verify the app remains functional under degraded network conditions, simulating slow 3G
+          latency and slow external resource loading. Critical for users on mobile data in emerging
+          markets where betting apps are popular.
+        </div>
+<pre><code><span class="fn">test</span>(<span class="str">'app remains functional under slow 3G'</span>, <span class="kw">async</span> ({ page, context }) =&gt; {
+  <span class="kw">await</span> context.<span class="fn">route</span>(<span class="str">'**/api/v1/game/init'</span>, <span class="kw">async</span> (route) =&gt; {
+    <span class="kw">await new</span> <span class="tp">Promise</span>(r =&gt; <span class="fn">setTimeout</span>(r, <span class="num">2000</span>)); <span class="cm">// 2s delay</span>
+    <span class="kw">await</span> route.<span class="fn">fulfill</span>({ status: <span class="num">200</span>, ... });
+  });
+  <span class="kw">await</span> page.<span class="fn">goto</span>(<span class="str">'/slots/mega-fortune'</span>);
+  <span class="kw">await</span> <span class="fn">expect</span>(page.<span class="fn">getByRole</span>(<span class="str">'button'</span>, { name: <span class="str">/spin/i</span> })).<span class="fn">toBeVisible</span>({ timeout: <span class="num">15000</span> });
+});</code></pre>
+      </div>
+
+      <!-- 6. Test Execution -->
+      <div class="card">
+        <div class="tech-header">
+          <div class="tech-number tech-number-cli">6</div>
+          <h2 class="tech-title">Test Execution <span class="badge badge-cli">CLI</span></h2>
+        </div>
+        <div class="tech-theory">
+          Network interception tests can be run standalone or as part of the full suite. The
+          <code>--grep @network</code> tag filter runs only network-related specs, while
+          <code>--headed</code> mode enables visual debugging of intercepted requests.
+        </div>
+<pre><code><span class="cm"># Run the full network test suite</span>
+npm run test:e2e:network
+
+<span class="cm"># Run with tag filter in headed mode</span>
+npx playwright test --grep @network --headed</code></pre>
+      </div>
+
+    </div>
+  </body>
+</html>
