@@ -25,9 +25,13 @@ export function SplineRobot() {
     if (!canvas) return;
 
     const forward = (e: MouseEvent) => {
+      // Skip events that originated from the canvas itself to prevent
+      // infinite recursion (forwarded event bubbles back to document).
+      if (e.target === canvas) return;
+
       canvas.dispatchEvent(
         new MouseEvent('mousemove', {
-          bubbles: true,
+          bubbles: false,
           cancelable: true,
           clientX: e.clientX,
           clientY: e.clientY,
