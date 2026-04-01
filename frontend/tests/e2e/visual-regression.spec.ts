@@ -276,10 +276,10 @@ test.describe('Visual Regression — Element Structure', { tag: ['@visual', '@sm
     const actions = await page.locator('.cv-actions').first().boundingBox();
 
     if (title && actions) {
-      // Actions bar should be below the title
-      expect(actions.y).toBeGreaterThan(title.y);
-      // Both should be within the same content area
-      expect(Math.abs(actions.x - title.x)).toBeLessThan(200);
+      // Actions grid should be to the right of the title (two-column layout)
+      expect(actions.x).toBeGreaterThan(title.x);
+      // Both should be within the same header card (similar vertical position)
+      expect(Math.abs(actions.y - title.y)).toBeLessThan(100);
     }
   });
 });
