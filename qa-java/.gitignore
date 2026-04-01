@@ -1,0 +1,10 @@
+target/
+build/
+.idea/
+*.iml
+.m2/
+.DS_Store
+allure-results/
+allure-report/
+selenoid-video/
+selenoid-logs/

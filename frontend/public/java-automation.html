@@ -1,0 +1,819 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Java QA Automation — pyavchik.space</title>
+    <style>
+      *, *::before, *::after { box-sizing: border-box; }
+
+      body {
+        margin: 0;
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+        background: linear-gradient(180deg, #0f1118 0%, #0b0d13 100%);
+        color: #f8fafc;
+        min-height: 100vh;
+        font-size: 14px;
+      }
+
+      .wrap {
+        max-width: 1080px;
+        margin: 0 auto;
+        padding: 28px 18px 56px;
+        display: flex;
+        flex-direction: column;
+        gap: 14px;
+      }
+
+      /* -- Cards ---------------------------------------- */
+      .card {
+        border: 1px solid rgba(255,255,255,0.13);
+        border-radius: 14px;
+        background: rgba(17,20,30,0.78);
+        padding: 20px 22px;
+      }
+
+      h1 { margin: 0 0 3px; font-size: 26px; letter-spacing: -.3px; }
+      .subtitle { margin: 0 0 14px; color: #94a3b8; font-size: 13px; }
+      h2 { margin: 0 0 14px; font-size: 16px; color: #f1f5f9; }
+      h3 { margin: 0 0 10px; font-size: 14px; color: #e2e8f0; }
+      p  { margin: 0 0 10px; color: #dbe2ec; line-height: 1.55; }
+
+      /* -- Back link ------------------------------------ */
+      .back {
+        display: inline-flex; align-items: center; gap: 6px;
+        font-size: 13px; font-weight: 600; color: #94a3b8;
+        text-decoration: none;
+        border: 1px solid rgba(148,163,184,.3);
+        padding: 6px 12px; border-radius: 8px;
+        background: rgba(15,23,42,.5);
+        width: fit-content;
+      }
+      .back:hover { color: #f8fafc; border-color: rgba(148,163,184,.7); }
+
+      /* -- Stats ---------------------------------------- */
+      .stats { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 8px; }
+      .stat {
+        padding: 8px 14px; border-radius: 10px;
+        background: rgba(15,23,42,.65);
+        border: 1px solid rgba(148,163,184,.2);
+        font-size: 13px; color: #dbe2ec; text-align: center;
+      }
+      .stat strong { display: block; font-size: 22px; line-height: 1.15; color: #f8fafc; }
+
+      /* -- Badges --------------------------------------- */
+      .badge {
+        display: inline-block; padding: 2px 7px;
+        border-radius: 5px; font-size: 11px; font-weight: 700;
+        white-space: nowrap; letter-spacing: .02em;
+      }
+      .badge-api      { background: rgba(56,189,248,.15);  color: #38bdf8; }
+      .badge-selenide  { background: rgba(62,224,169,.15);  color: #3ee0a9; }
+      .badge-bdd       { background: rgba(245,208,106,.15); color: #f5d06a; }
+      .badge-ci        { background: rgba(167,139,250,.18); color: #a78bfa; }
+      .badge-selenoid  { background: rgba(251,146,60,.15);  color: #fb923c; }
+      .badge-testng    { background: rgba(248,113,113,.15); color: #f87171; }
+      .badge-config    { background: rgba(129,230,217,.15); color: #81e6d9; }
+      .badge-maven     { background: rgba(196,167,231,.15); color: #c4a7e7; }
+
+      /* -- Section titles ------------------------------- */
+      .section-title {
+        font-size: 18px; font-weight: 700; margin: 0 0 4px;
+        color: #f1f5f9;
+      }
+      .section-desc {
+        font-size: 13px; color: #94a3b8; margin: 0 0 12px;
+      }
+
+      /* -- Technique header ----------------------------- */
+      .tech-header {
+        display: flex; align-items: center; gap: 10px;
+        margin-bottom: 12px;
+      }
+      .tech-number {
+        width: 28px; height: 28px; border-radius: 8px;
+        display: flex; align-items: center; justify-content: center;
+        font-size: 13px; font-weight: 800;
+        flex-shrink: 0;
+      }
+      .tech-number-api      { background: rgba(56,189,248,.15);  color: #38bdf8; }
+      .tech-number-selenide  { background: rgba(62,224,169,.15);  color: #3ee0a9; }
+      .tech-number-bdd       { background: rgba(245,208,106,.15); color: #f5d06a; }
+      .tech-number-ci        { background: rgba(167,139,250,.15); color: #a78bfa; }
+      .tech-number-selenoid  { background: rgba(251,146,60,.15);  color: #fb923c; }
+      .tech-number-testng    { background: rgba(248,113,113,.15); color: #f87171; }
+      .tech-number-config    { background: rgba(129,230,217,.15); color: #81e6d9; }
+
+      .tech-title {
+        font-size: 16px; font-weight: 700; margin: 0; color: #f1f5f9;
+      }
+      .tech-theory {
+        color: #94a3b8; font-size: 13px; line-height: 1.55;
+        margin: 0 0 14px;
+        padding: 10px 14px;
+        border-radius: 8px;
+        background: rgba(15,23,42,.45);
+        border-left: 3px solid rgba(148,163,184,.25);
+      }
+
+      /* -- Code blocks ---------------------------------- */
+      pre {
+        margin: 0 0 12px;
+        padding: 14px 16px;
+        border-radius: 10px;
+        background: rgba(10,12,20,.85);
+        border: 1px solid rgba(148,163,184,.15);
+        overflow-x: auto;
+        font-size: 12px;
+        line-height: 1.55;
+        color: #cbd5e1;
+      }
+      code { font-family: "JetBrains Mono", "Fira Code", "Cascadia Code", monospace; }
+      .kw  { color: #c792ea; }
+      .fn  { color: #82aaff; }
+      .str { color: #c3e88d; }
+      .cm  { color: #546e7a; }
+      .tp  { color: #ffcb6b; }
+      .num { color: #f78c6c; }
+      .an  { color: #f07178; }
+
+      /* -- File tree ------------------------------------- */
+      .tree {
+        margin: 0 0 12px;
+        padding: 14px 16px;
+        border-radius: 10px;
+        background: rgba(10,12,20,.85);
+        border: 1px solid rgba(148,163,184,.15);
+        font-family: "JetBrains Mono", "Fira Code", monospace;
+        font-size: 12px;
+        line-height: 1.7;
+        color: #94a3b8;
+        white-space: pre;
+      }
+      .tree .dir  { color: #38bdf8; }
+      .tree .file { color: #cbd5e1; }
+      .tree .conf { color: #f5d06a; }
+      .tree .test { color: #3ee0a9; }
+
+      /* -- Tech stack grid ------------------------------ */
+      .stack-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+        gap: 8px; margin: 12px 0;
+      }
+      .stack-item {
+        padding: 10px 14px; border-radius: 10px;
+        background: rgba(15,23,42,.55);
+        border: 1px solid rgba(148,163,184,.15);
+        text-align: center;
+      }
+      .stack-item strong { display: block; font-size: 14px; color: #f8fafc; margin-bottom: 2px; }
+      .stack-item span { font-size: 11px; color: #94a3b8; }
+
+      /* -- Coverage grid -------------------------------- */
+      .cov-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+        gap: 8px;
+      }
+      .cov-item {
+        padding: 10px 14px; border-radius: 10px;
+        background: rgba(15,23,42,.55);
+        border: 1px solid rgba(148,163,184,.15);
+      }
+      .cov-item h4 { margin: 0 0 4px; font-size: 13px; color: #f1f5f9; }
+      .cov-item ul { margin: 0; padding: 0 0 0 16px; }
+      .cov-item li { font-size: 12px; color: #94a3b8; line-height: 1.6; }
+
+      /* -- Responsive ----------------------------------- */
+      @media (max-width: 600px) {
+        .wrap { padding: 16px 10px 40px; }
+        .card { padding: 14px 12px; }
+        h1 { font-size: 22px; }
+        .stats { gap: 6px; }
+        .stat strong { font-size: 18px; }
+        pre, .tree { font-size: 11px; padding: 10px 12px; }
+        .cov-grid, .stack-grid { grid-template-columns: 1fr; }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="wrap">
+      <!-- Back link -->
+      <a class="back" href="/">&larr; Back to CV</a>
+
+      <!-- Header card -->
+      <div class="card">
+        <h1>Java QA Automation Suite</h1>
+        <p class="subtitle">
+          Full-stack test automation framework for SlotsOne iGaming platform &mdash;
+          Selenide UI, Rest Assured API, Cucumber BDD, Selenoid, TestNG, Maven, CI/CD
+        </p>
+
+        <div class="stack-grid">
+          <div class="stack-item"><strong>Java 17</strong><span>Language</span></div>
+          <div class="stack-item"><strong>Selenide 7</strong><span>UI Automation</span></div>
+          <div class="stack-item"><strong>Selenoid</strong><span>Remote Browsers</span></div>
+          <div class="stack-item"><strong>Rest Assured 5</strong><span>API Testing</span></div>
+          <div class="stack-item"><strong>TestNG 7</strong><span>Test Runner</span></div>
+          <div class="stack-item"><strong>Cucumber 7</strong><span>BDD Framework</span></div>
+          <div class="stack-item"><strong>Maven</strong><span>Build &amp; Profiles</span></div>
+          <div class="stack-item"><strong>Allure 2</strong><span>Reporting</span></div>
+        </div>
+
+        <div class="stats">
+          <div class="stat"><strong>59</strong>tests total</div>
+          <div class="stat"><strong>3</strong>test layers</div>
+          <div class="stat"><strong>4</strong>page objects</div>
+          <div class="stat"><strong>19</strong>BDD scenarios</div>
+          <div class="stat"><strong>5</strong>Maven profiles</div>
+          <div class="stat"><strong>2</strong>CI pipelines</div>
+        </div>
+      </div>
+
+      <!-- Project Structure -->
+      <div class="card">
+        <p class="section-title">Project Structure</p>
+        <p class="section-desc">Three-layer architecture: API, UI, and BDD &mdash; each runnable independently via Maven profiles</p>
+        <div class="tree"><span class="dir">qa-java/</span>
+  <span class="conf">pom.xml</span>                          <span class="cm"># Maven build + profiles (api, ui, bdd, all, headless)</span>
+  <span class="conf">Jenkinsfile</span>                      <span class="cm"># Multi-stage Jenkins pipeline</span>
+  <span class="conf">.gitlab-ci.yml</span>                   <span class="cm"># GitLab CI with Selenoid service</span>
+  <span class="conf">docker-compose.selenoid.yml</span>      <span class="cm"># Selenoid + Selenoid UI</span>
+  <span class="dir">selenoid/</span>
+    <span class="conf">browsers.json</span>                  <span class="cm"># Chrome &amp; Firefox container configs</span>
+  <span class="dir">src/test/java/com/slotsone/qa/</span>
+    <span class="dir">config/</span>
+      <span class="file">TestConfig.java</span>              <span class="cm"># Owner-based typed configuration</span>
+    <span class="dir">api/</span>
+      <span class="file">BaseApiTest.java</span>             <span class="cm"># Rest Assured base (specs, auth, Allure)</span>
+      <span class="test">AuthApiTest.java</span>             <span class="cm"># 9 tests: register, login, token validation</span>
+      <span class="test">SpinApiTest.java</span>             <span class="cm"># 7 tests: spin, balance, idempotency</span>
+      <span class="test">HistoryApiTest.java</span>          <span class="cm"># 8 tests: history, pagination, round detail</span>
+      <span class="dir">dto/</span>                         <span class="cm"># Jackson DTOs: AuthResponse, SpinResponse...</span>
+    <span class="dir">ui/</span>
+      <span class="file">BaseUiTest.java</span>              <span class="cm"># Selenide config + Selenoid remote</span>
+      <span class="test">LoginUiTest.java</span>             <span class="cm"># 4 tests: auth UI flows</span>
+      <span class="test">GameUiTest.java</span>              <span class="cm"># 4 tests: canvas, spin, HUD, navigation</span>
+      <span class="test">HistoryUiTest.java</span>           <span class="cm"># 5 tests: table, filters, round detail</span>
+      <span class="dir">pages/</span>                       <span class="cm"># Page Objects: LoginPage, LobbyPage, GamePage, HistoryPage</span>
+    <span class="dir">bdd/</span>
+      <span class="file">CucumberRunner.java</span>          <span class="cm"># TestNG + Cucumber integration</span>
+      <span class="dir">steps/</span>                       <span class="cm"># Step defs: AuthSteps, SpinSteps, HistorySteps</span>
+  <span class="dir">src/test/resources/</span>
+    <span class="dir">features/</span>                      <span class="cm"># Gherkin: auth.feature, spin.feature, history.feature</span>
+    <span class="dir">schemas/</span>                       <span class="cm"># JSON Schema for response validation</span>
+    <span class="conf">testng-*.xml</span>                   <span class="cm"># Suite configs: api, ui, bdd, all, headless</span>
+    <span class="conf">test.properties</span>                <span class="cm"># Environment config</span></div>
+      </div>
+
+      <!-- 1. Rest Assured API Testing -->
+      <div class="card">
+        <div class="tech-header">
+          <div class="tech-number tech-number-api">1</div>
+          <h2 class="tech-title">Rest Assured &mdash; API Testing <span class="badge badge-api">REST ASSURED</span></h2>
+        </div>
+        <div class="tech-theory">
+          24 API tests across three test classes validate authentication, game spin mechanics, and
+          history endpoints. A shared <code>BaseApiTest</code> configures the Rest Assured request
+          specification with JSON content type, Allure logging filters, and auth helper methods.
+          Responses are deserialized into Jackson DTOs and validated with both Hamcrest matchers
+          and AssertJ fluent assertions.
+        </div>
+        <p><code>BaseApiTest</code> &mdash; shared request spec with Allure integration:</p>
+<pre><code><span class="kw">public abstract class</span> <span class="tp">BaseApiTest</span> {
+    <span class="kw">protected</span> <span class="tp">RequestSpecification</span> baseSpec;
+
+    <span class="an">@BeforeClass</span>
+    <span class="kw">public void</span> <span class="fn">setupApi</span>() {
+        RestAssured.baseURI = config.<span class="fn">baseUrl</span>();
+        RestAssured.basePath = config.<span class="fn">apiBasePath</span>();
+
+        baseSpec = <span class="kw">new</span> <span class="tp">RequestSpecBuilder</span>()
+                .<span class="fn">setContentType</span>(ContentType.JSON)
+                .<span class="fn">addFilter</span>(<span class="kw">new</span> <span class="tp">AllureRestAssured</span>())
+                .<span class="fn">addFilter</span>(<span class="kw">new</span> <span class="tp">RequestLoggingFilter</span>())
+                .<span class="fn">addFilter</span>(<span class="kw">new</span> <span class="tp">ResponseLoggingFilter</span>())
+                .<span class="fn">build</span>();
+    }
+
+    <span class="kw">protected</span> <span class="tp">RequestSpecification</span> <span class="fn">authSpec</span>() {
+        <span class="kw">return</span> <span class="fn">given</span>().<span class="fn">spec</span>(baseSpec)
+                .<span class="fn">header</span>(<span class="str">"Authorization"</span>, <span class="str">"Bearer "</span> + accessToken);
+    }
+}</code></pre>
+        <p>Example &mdash; <code>SpinApiTest</code> with idempotency validation:</p>
+<pre><code><span class="an">@Epic</span>(<span class="str">"API"</span>)  <span class="an">@Feature</span>(<span class="str">"Game Spin"</span>)
+<span class="kw">public class</span> <span class="tp">SpinApiTest</span> <span class="kw">extends</span> <span class="tp">BaseApiTest</span> {
+
+    <span class="an">@Test</span>(description = <span class="str">"Spin returns valid response with outcome and balance"</span>)
+    <span class="an">@Severity</span>(SeverityLevel.BLOCKER)
+    <span class="kw">public void</span> <span class="fn">testSpinReturnsValidResponse</span>() {
+        <span class="tp">Response</span> spin = <span class="fn">authSpec</span>()
+                .<span class="fn">body</span>(<span class="fn">defaultSpinBody</span>())
+                .<span class="fn">post</span>(<span class="str">"/spin"</span>)
+                .<span class="fn">then</span>()
+                .<span class="fn">statusCode</span>(<span class="num">200</span>)
+                .<span class="fn">body</span>(<span class="str">"spin_id"</span>, <span class="fn">notNullValue</span>())
+                .<span class="fn">body</span>(<span class="str">"outcome.reel_matrix"</span>, <span class="fn">notNullValue</span>())
+                .<span class="fn">extract</span>().<span class="fn">response</span>();
+
+        <span class="fn">assertThat</span>(spin.<span class="fn">jsonPath</span>().<span class="fn">getList</span>(<span class="str">"outcome.reel_matrix"</span>))
+                .<span class="fn">hasSize</span>(<span class="num">5</span>);
+    }
+
+    <span class="an">@Test</span>(description = <span class="str">"Duplicate spin requests are idempotent"</span>)
+    <span class="an">@Severity</span>(SeverityLevel.CRITICAL)
+    <span class="kw">public void</span> <span class="fn">testIdempotentSpin</span>() {
+        <span class="tp">String</span> key = UUID.<span class="fn">randomUUID</span>().<span class="fn">toString</span>();
+
+        <span class="tp">String</span> first = <span class="fn">authSpec</span>()
+                .<span class="fn">header</span>(<span class="str">"Idempotency-Key"</span>, key)
+                .<span class="fn">body</span>(body).<span class="fn">post</span>(<span class="str">"/spin"</span>)
+                .<span class="fn">then</span>().<span class="fn">statusCode</span>(<span class="num">200</span>)
+                .<span class="fn">extract</span>().<span class="fn">jsonPath</span>().<span class="fn">getString</span>(<span class="str">"spin_id"</span>);
+
+        <span class="tp">String</span> second = <span class="fn">authSpec</span>()
+                .<span class="fn">header</span>(<span class="str">"Idempotency-Key"</span>, key)
+                .<span class="fn">body</span>(body).<span class="fn">post</span>(<span class="str">"/spin"</span>)
+                .<span class="fn">then</span>().<span class="fn">statusCode</span>(<span class="num">200</span>)
+                .<span class="fn">extract</span>().<span class="fn">jsonPath</span>().<span class="fn">getString</span>(<span class="str">"spin_id"</span>);
+
+        <span class="fn">assertThat</span>(first).<span class="fn">isEqualTo</span>(second);
+    }
+}</code></pre>
+        <p>Additional API test scenarios include JSON Schema validation via <code>matchesJsonSchemaInClasspath()</code>,
+          negative cases (400 for invalid input, 401 for missing/invalid tokens, 409 for duplicates),
+          and balance arithmetic assertions with <code>isCloseTo()</code> offsets.</p>
+      </div>
+
+      <!-- 2. Selenide UI Testing -->
+      <div class="card">
+        <div class="tech-header">
+          <div class="tech-number tech-number-selenide">2</div>
+          <h2 class="tech-title">Selenide &mdash; UI Test Automation <span class="badge badge-selenide">SELENIDE</span></h2>
+        </div>
+        <div class="tech-theory">
+          Selenide wraps Selenium WebDriver with concise, auto-waiting APIs. 13 UI tests cover
+          login, game canvas interaction, and history table navigation. The Page Object Model pattern
+          encapsulates all locators and actions behind descriptive <code>@Step</code>-annotated methods
+          for clean Allure reports and easy maintenance.
+        </div>
+        <p><code>LoginPage</code> &mdash; Page Object with fluent Selenide API and Allure steps:</p>
+<pre><code><span class="kw">public class</span> <span class="tp">LoginPage</span> {
+    <span class="kw">private final</span> <span class="tp">SelenideElement</span> emailInput   = <span class="fn">$</span>(<span class="str">"#auth-email"</span>);
+    <span class="kw">private final</span> <span class="tp">SelenideElement</span> passwordInput = <span class="fn">$</span>(<span class="str">"#auth-password"</span>);
+    <span class="kw">private final</span> <span class="tp">SelenideElement</span> submitButton  = <span class="fn">$</span>(<span class="str">"button.auth-submit"</span>);
+    <span class="kw">private final</span> <span class="tp">SelenideElement</span> ageCheckbox   = <span class="fn">$</span>(<span class="str">"#auth-age"</span>);
+    <span class="kw">private final</span> <span class="tp">SelenideElement</span> errorMessage  = <span class="fn">$</span>(<span class="str">".auth-error"</span>);
+
+    <span class="an">@Step</span>(<span class="str">"Open login page"</span>)
+    <span class="kw">public</span> <span class="tp">LoginPage</span> <span class="fn">open</span>() {
+        Selenide.<span class="fn">open</span>(<span class="str">"/login"</span>);
+        authCard.<span class="fn">shouldBe</span>(visible);
+        <span class="kw">return this</span>;
+    }
+
+    <span class="an">@Step</span>(<span class="str">"Register as {email}"</span>)
+    <span class="kw">public</span> <span class="tp">LobbyPage</span> <span class="fn">registerAs</span>(<span class="tp">String</span> email, <span class="tp">String</span> password) {
+        <span class="fn">switchToRegister</span>();
+        <span class="fn">enterEmail</span>(email);
+        <span class="fn">enterPassword</span>(password);
+        <span class="fn">confirmAge</span>();
+        <span class="fn">submit</span>();
+        <span class="kw">return new</span> <span class="tp">LobbyPage</span>();
+    }
+
+    <span class="an">@Step</span>(<span class="str">"Verify error message is displayed"</span>)
+    <span class="kw">public</span> <span class="tp">LoginPage</span> <span class="fn">verifyErrorDisplayed</span>() {
+        errorMessage.<span class="fn">shouldBe</span>(visible);
+        <span class="kw">return this</span>;
+    }
+}</code></pre>
+        <p><code>GamePage</code> &mdash; PixiJS canvas interaction with custom timeouts:</p>
+<pre><code><span class="kw">public class</span> <span class="tp">GamePage</span> {
+    <span class="kw">private final</span> <span class="tp">SelenideElement</span> spinButton     = <span class="fn">$</span>(<span class="str">"button.spin-button"</span>);
+    <span class="kw">private final</span> <span class="tp">SelenideElement</span> balanceDisplay = <span class="fn">$</span>(<span class="str">".hud-card-left .hud-value-main"</span>);
+    <span class="kw">private final</span> <span class="tp">SelenideElement</span> lobbyButton    = <span class="fn">$x</span>(<span class="str">"//button[@aria-label='Back to Lobby']"</span>);
+
+    <span class="an">@Step</span>(<span class="str">"Verify game canvas is loaded"</span>)
+    <span class="kw">public</span> <span class="tp">GamePage</span> <span class="fn">verifyCanvasLoaded</span>() {
+        <span class="cm">// PixiJS canvas needs extended wait for headless/Selenoid</span>
+        spinButton.<span class="fn">shouldBe</span>(visible, Duration.<span class="fn">ofSeconds</span>(<span class="num">120</span>));
+        <span class="kw">return this</span>;
+    }
+
+    <span class="an">@Step</span>(<span class="str">"Perform spin and wait for result"</span>)
+    <span class="kw">public</span> <span class="tp">GamePage</span> <span class="fn">spinAndWait</span>() {
+        <span class="fn">clickSpin</span>();
+        spinButton.<span class="fn">shouldBe</span>(enabled, Duration.<span class="fn">ofSeconds</span>(<span class="num">60</span>));
+        <span class="kw">return this</span>;
+    }
+}</code></pre>
+      </div>
+
+      <!-- 3. Selenoid -->
+      <div class="card">
+        <div class="tech-header">
+          <div class="tech-number tech-number-selenoid">3</div>
+          <h2 class="tech-title">Selenoid &mdash; Containerized Browser Grid <span class="badge badge-selenoid">SELENOID</span></h2>
+        </div>
+        <div class="tech-theory">
+          Selenoid replaces traditional Selenium Grid with lightweight Docker containers. Each test
+          session spins up a fresh browser container, ensuring isolation and reproducibility. VNC
+          enables live session viewing; video recording captures every test run for debugging.
+          <code>BaseUiTest</code> auto-detects whether Selenoid is enabled and configures
+          <code>DesiredCapabilities</code> accordingly.
+        </div>
+        <p><code>BaseUiTest</code> &mdash; dynamic Selenoid/local browser configuration:</p>
+<pre><code><span class="kw">public abstract class</span> <span class="tp">BaseUiTest</span> {
+
+    <span class="an">@BeforeSuite</span>
+    <span class="kw">public void</span> <span class="fn">setupAllureListener</span>() {
+        SelenideLogger.<span class="fn">addListener</span>(<span class="str">"AllureSelenide"</span>,
+                <span class="kw">new</span> <span class="tp">AllureSelenide</span>().<span class="fn">screenshots</span>(<span class="kw">true</span>).<span class="fn">savePageSource</span>(<span class="kw">true</span>));
+    }
+
+    <span class="an">@BeforeClass</span>
+    <span class="kw">public void</span> <span class="fn">setupBrowser</span>() {
+        Configuration.baseUrl = config.<span class="fn">baseUrl</span>();
+        Configuration.browser = config.<span class="fn">browser</span>();
+        Configuration.headless = config.<span class="fn">browserHeadless</span>();
+
+        <span class="kw">if</span> (config.<span class="fn">selenoidEnabled</span>()) {
+            Configuration.remote = config.<span class="fn">selenoidUrl</span>();
+
+            <span class="tp">DesiredCapabilities</span> caps = <span class="kw">new</span> <span class="tp">DesiredCapabilities</span>();
+            caps.<span class="fn">setCapability</span>(<span class="str">"selenoid:options"</span>, <span class="kw">new</span> <span class="tp">HashMap</span>&lt;&gt;() {{
+                <span class="fn">put</span>(<span class="str">"enableVNC"</span>, config.<span class="fn">selenoidVncEnabled</span>());
+                <span class="fn">put</span>(<span class="str">"enableVideo"</span>, config.<span class="fn">selenoidVideoEnabled</span>());
+                <span class="fn">put</span>(<span class="str">"enableLog"</span>, <span class="kw">true</span>);
+            }});
+            Configuration.browserCapabilities = caps;
+        }
+    }
+}</code></pre>
+        <p><code>docker-compose.selenoid.yml</code> &mdash; Selenoid + Selenoid UI with video recording:</p>
+<pre><code><span class="kw">services</span>:
+  <span class="fn">selenoid</span>:
+    <span class="kw">image</span>: aerokube/selenoid:<span class="num">1.11.2</span>
+    <span class="kw">ports</span>: [<span class="str">"4444:4444"</span>]
+    <span class="kw">volumes</span>:
+      - ./selenoid:/etc/selenoid
+      - /var/run/docker.sock:/var/run/docker.sock
+      - ./target/selenoid-video:/opt/selenoid/video
+    <span class="kw">command</span>: [<span class="str">"-conf"</span>, <span class="str">"/etc/selenoid/browsers.json"</span>,
+             <span class="str">"-video-output-dir"</span>, <span class="str">"/opt/selenoid/video"</span>,
+             <span class="str">"-limit"</span>, <span class="str">"4"</span>]
+
+  <span class="fn">selenoid-ui</span>:
+    <span class="kw">image</span>: aerokube/selenoid-ui:<span class="num">1.10.11</span>
+    <span class="kw">ports</span>: [<span class="str">"8080:8080"</span>]       <span class="cm"># Live session viewer</span>
+    <span class="kw">command</span>: [<span class="str">"--selenoid-uri"</span>, <span class="str">"http://selenoid:4444"</span>]</code></pre>
+      </div>
+
+      <!-- 4. Cucumber BDD -->
+      <div class="card">
+        <div class="tech-header">
+          <div class="tech-number tech-number-bdd">4</div>
+          <h2 class="tech-title">Cucumber BDD &mdash; Gherkin Scenarios <span class="badge badge-bdd">CUCUMBER</span></h2>
+        </div>
+        <div class="tech-theory">
+          19 BDD scenarios written in Gherkin cover authentication, game spin, and history user journeys.
+          Step definitions bridge Gherkin steps to Rest Assured API calls and Selenide UI interactions.
+          <code>CucumberRunner</code> integrates with TestNG via <code>AbstractTestNGCucumberTests</code>
+          and feeds results into Allure with the <code>AllureCucumber7Jvm</code> plugin.
+        </div>
+        <p><code>auth.feature</code> &mdash; registration and login scenarios with data-driven examples:</p>
+<pre><code><span class="an">@auth @smoke</span>
+<span class="kw">Feature</span>: User Authentication
+  As a player I want to register and login
+  so that I can access the slot games.
+
+  <span class="kw">Scenario</span>: Successful registration with valid credentials
+    <span class="fn">Given</span> I am on the registration page
+    <span class="fn">When</span> I register with a unique email and password <span class="str">"TestPass123!"</span>
+    <span class="fn">And</span> I confirm I am over 18
+    <span class="fn">And</span> I submit the form
+    <span class="fn">Then</span> I should be redirected to the lobby
+    <span class="fn">And</span> I should see at least <span class="num">1</span> game card
+
+  <span class="kw">Scenario Outline</span>: Registration validates input formats
+    <span class="fn">Given</span> I am on the registration page
+    <span class="fn">When</span> I enter email <span class="str">"&lt;email&gt;"</span> and password <span class="str">"&lt;password&gt;"</span>
+    <span class="fn">And</span> I confirm I am over 18
+    <span class="fn">And</span> I submit the form
+    <span class="fn">Then</span> I should see an error message
+
+    <span class="kw">Examples</span>:
+      | email           | password   |
+      | not-an-email    | ValidPass1!|
+      | valid@email.com | short      |
+      |                 | ValidPass1!|
+      | valid@email.com |            |</code></pre>
+        <p><code>spin.feature</code> &mdash; game spin scenarios including idempotency:</p>
+<pre><code><span class="an">@game @spin</span>
+<span class="kw">Feature</span>: Slot Game Spin
+
+  <span class="an">@smoke</span>
+  <span class="kw">Scenario</span>: Successful spin returns reels and updates balance
+    <span class="fn">Given</span> my current balance is recorded
+    <span class="fn">When</span> I perform a spin with bet amount <span class="num">0.15</span>
+    <span class="fn">Then</span> the response contains a valid spin_id
+    <span class="fn">And</span> the response contains a reel matrix
+    <span class="fn">And</span> my balance is updated correctly
+
+  <span class="an">@idempotency</span>
+  <span class="kw">Scenario</span>: Duplicate spin requests are idempotent
+    <span class="fn">When</span> I perform a spin with idempotency key <span class="str">"test-key-123"</span>
+    <span class="fn">And</span> I repeat the same spin with idempotency key <span class="str">"test-key-123"</span>
+    <span class="fn">Then</span> both responses have the same spin_id</code></pre>
+        <p><code>CucumberRunner</code> &mdash; TestNG + Cucumber integration with parallel execution:</p>
+<pre><code><span class="an">@CucumberOptions</span>(
+    features = <span class="str">"src/test/resources/features"</span>,
+    glue = <span class="str">"com.slotsone.qa.bdd.steps"</span>,
+    plugin = {
+        <span class="str">"pretty"</span>,
+        <span class="str">"io.qameta.allure.cucumber7jvm.AllureCucumber7Jvm"</span>,
+        <span class="str">"html:target/cucumber-reports/cucumber.html"</span>,
+        <span class="str">"json:target/cucumber-reports/cucumber.json"</span>
+    },
+    tags = <span class="str">"not @wip"</span>
+)
+<span class="kw">public class</span> <span class="tp">CucumberRunner</span> <span class="kw">extends</span> <span class="tp">AbstractTestNGCucumberTests</span> {
+    <span class="an">@Override</span>
+    <span class="an">@DataProvider</span>(parallel = <span class="kw">true</span>)
+    <span class="kw">public</span> <span class="tp">Object</span>[][] <span class="fn">scenarios</span>() {
+        <span class="kw">return super</span>.<span class="fn">scenarios</span>();
+    }
+}</code></pre>
+      </div>
+
+      <!-- 5. TestNG Configuration -->
+      <div class="card">
+        <div class="tech-header">
+          <div class="tech-number tech-number-testng">5</div>
+          <h2 class="tech-title">TestNG &mdash; Suite Configuration <span class="badge badge-testng">TESTNG</span></h2>
+        </div>
+        <div class="tech-theory">
+          Five TestNG XML suites define how tests are grouped and parallelized. API tests run in
+          parallel across 3 threads (no browser needed), UI tests run sequentially (shared browser state),
+          and BDD tests have their own suite. Maven profiles map 1:1 to suites, allowing
+          <code>mvn test -Papi</code> or <code>mvn test -Pall</code> from the command line.
+        </div>
+        <p><code>testng-all.xml</code> &mdash; full suite with parallelization strategy:</p>
+<pre><code><span class="kw">&lt;suite</span> name=<span class="str">"SlotsOne Full Test Suite"</span>
+       parallel=<span class="str">"tests"</span> thread-count=<span class="str">"2"</span><span class="kw">&gt;</span>
+  <span class="kw">&lt;listeners&gt;</span>
+    <span class="kw">&lt;listener</span> class-name=<span class="str">"io.qameta.allure.testng.AllureTestNg"</span><span class="kw">/&gt;</span>
+  <span class="kw">&lt;/listeners&gt;</span>
+
+  <span class="cm">&lt;!-- API tests: fast, parallel by class --&gt;</span>
+  <span class="kw">&lt;test</span> name=<span class="str">"API Tests"</span> parallel=<span class="str">"classes"</span> thread-count=<span class="str">"3"</span><span class="kw">&gt;</span>
+    <span class="kw">&lt;classes&gt;</span>
+      <span class="kw">&lt;class</span> name=<span class="str">"com.slotsone.qa.api.AuthApiTest"</span><span class="kw">/&gt;</span>
+      <span class="kw">&lt;class</span> name=<span class="str">"com.slotsone.qa.api.SpinApiTest"</span><span class="kw">/&gt;</span>
+      <span class="kw">&lt;class</span> name=<span class="str">"com.slotsone.qa.api.HistoryApiTest"</span><span class="kw">/&gt;</span>
+    <span class="kw">&lt;/classes&gt;</span>
+  <span class="kw">&lt;/test&gt;</span>
+
+  <span class="cm">&lt;!-- UI tests: sequential, require browser --&gt;</span>
+  <span class="kw">&lt;test</span> name=<span class="str">"UI Tests"</span> parallel=<span class="str">"false"</span> preserve-order=<span class="str">"true"</span><span class="kw">&gt;</span>
+    <span class="kw">&lt;classes&gt;</span>
+      <span class="kw">&lt;class</span> name=<span class="str">"com.slotsone.qa.ui.LoginUiTest"</span><span class="kw">/&gt;</span>
+      <span class="kw">&lt;class</span> name=<span class="str">"com.slotsone.qa.ui.GameUiTest"</span><span class="kw">/&gt;</span>
+      <span class="kw">&lt;class</span> name=<span class="str">"com.slotsone.qa.ui.HistoryUiTest"</span><span class="kw">/&gt;</span>
+    <span class="kw">&lt;/classes&gt;</span>
+  <span class="kw">&lt;/test&gt;</span>
+<span class="kw">&lt;/suite&gt;</span></code></pre>
+        <p>Maven profiles for targeted test execution:</p>
+<pre><code><span class="cm"># Run only API tests (no browser)</span>
+mvn clean test <span class="fn">-Papi</span>
+
+<span class="cm"># Run only UI tests (headless Chrome)</span>
+mvn clean test <span class="fn">-Pui</span> -Dbrowser.headless=<span class="kw">true</span>
+
+<span class="cm"># Run only BDD scenarios</span>
+mvn clean test <span class="fn">-Pbdd</span>
+
+<span class="cm"># Run everything (requires browser or Selenoid)</span>
+mvn clean test <span class="fn">-Pall</span>
+
+<span class="cm"># Default: headless (API + BDD, no browser)</span>
+mvn clean test</code></pre>
+      </div>
+
+      <!-- 6. CI/CD Pipelines -->
+      <div class="card">
+        <div class="tech-header">
+          <div class="tech-number tech-number-ci">6</div>
+          <h2 class="tech-title">CI/CD &mdash; Jenkins + GitLab CI <span class="badge badge-ci">CI/CD</span></h2>
+        </div>
+        <div class="tech-theory">
+          Two CI/CD pipelines are configured for maximum flexibility. <strong>Jenkins</strong> uses a
+          parameterized declarative pipeline with optional Selenoid startup.
+          <strong>GitLab CI</strong> leverages Selenoid as a Docker service for parallel test stages.
+          Both pipelines aggregate results into a unified Allure report.
+        </div>
+        <p><code>Jenkinsfile</code> &mdash; parameterized multi-stage pipeline:</p>
+<pre><code><span class="kw">pipeline</span> {
+    <span class="kw">parameters</span> {
+        <span class="fn">string</span>(name: <span class="str">'BASE_URL'</span>, defaultValue: <span class="str">'http://localhost:3000'</span>)
+        <span class="fn">choice</span>(name: <span class="str">'TEST_SUITE'</span>, choices: [<span class="str">'all'</span>, <span class="str">'api'</span>, <span class="str">'ui'</span>, <span class="str">'bdd'</span>])
+        <span class="fn">booleanParam</span>(name: <span class="str">'USE_SELENOID'</span>, defaultValue: <span class="kw">true</span>)
+    }
+
+    <span class="kw">stages</span> {
+        stage(<span class="str">'Start Selenoid'</span>) {
+            <span class="kw">when</span> { expression { params.TEST_SUITE <span class="kw">in</span> [<span class="str">'all'</span>, <span class="str">'ui'</span>] &amp;&amp; params.USE_SELENOID } }
+            <span class="kw">steps</span> { sh <span class="str">'docker compose -f docker-compose.selenoid.yml up -d'</span> }
+        }
+        stage(<span class="str">'API Tests'</span>)  { sh <span class="str">'mvn test -Papi -Dbase.url=${BASE_URL}'</span> }
+        stage(<span class="str">'UI Tests'</span>)   { sh <span class="str">'mvn test -Pui -Dselenoid.enabled=true'</span> }
+        stage(<span class="str">'BDD Tests'</span>)  { sh <span class="str">'mvn test -Pbdd -Dselenoid.enabled=true'</span> }
+    }
+    <span class="kw">post</span> {
+        <span class="kw">always</span> {
+            <span class="fn">allure</span> results: [[path: <span class="str">"${ALLURE_RESULTS}"</span>]]
+            sh <span class="str">'docker compose -f docker-compose.selenoid.yml down || true'</span>
+        }
+    }
+}</code></pre>
+        <p><code>.gitlab-ci.yml</code> &mdash; parallel stages with Selenoid service:</p>
+<pre><code><span class="kw">stages</span>: [build, test-api, test-ui, test-bdd, report]
+
+<span class="fn">ui-tests</span>:
+  <span class="kw">stage</span>: test-ui
+  <span class="kw">image</span>: maven:<span class="num">3.9</span>-eclipse-temurin-<span class="num">17</span>
+  <span class="kw">services</span>:
+    - <span class="kw">name</span>: aerokube/selenoid:<span class="num">1.11.2</span>
+      <span class="kw">alias</span>: selenoid
+      <span class="kw">command</span>: [<span class="str">"-limit"</span>, <span class="str">"4"</span>]
+  <span class="kw">script</span>:
+    - mvn test -Pui
+        -Dselenoid.enabled=<span class="kw">true</span>
+        -Dselenoid.url=http://selenoid:<span class="num">4444</span>/wd/hub
+  <span class="kw">artifacts</span>:
+    <span class="kw">paths</span>: [qa-java/target/allure-results/]
+    <span class="kw">expire_in</span>: <span class="num">7</span> days
+
+<span class="fn">allure-report</span>:
+  <span class="kw">stage</span>: report
+  <span class="kw">needs</span>: [api-tests, ui-tests, bdd-tests]   <span class="cm"># Aggregate all results</span>
+  <span class="kw">script</span>: allure generate target/allure-results -o target/allure-report
+  <span class="kw">artifacts</span>:
+    <span class="kw">expire_in</span>: <span class="num">30</span> days</code></pre>
+      </div>
+
+      <!-- 7. Configuration Management -->
+      <div class="card">
+        <div class="tech-header">
+          <div class="tech-number tech-number-config">7</div>
+          <h2 class="tech-title">Configuration &mdash; Owner + Maven Properties <span class="badge badge-config">CONFIG</span></h2>
+        </div>
+        <div class="tech-theory">
+          The <a href="https://matteobaccan.github.io/owner/" style="color:#81e6d9" target="_blank">Owner</a>
+          library provides type-safe configuration with a layered resolution order:
+          system properties &rarr; environment variables &rarr; <code>test.properties</code> file.
+          This means Maven <code>-D</code> flags override defaults seamlessly, enabling CI environments
+          to inject <code>-Dbase.url</code>, <code>-Dselenoid.url</code>, etc. without touching config files.
+        </div>
+<pre><code><span class="an">@Sources</span>({<span class="str">"system:properties"</span>, <span class="str">"system:env"</span>, <span class="str">"classpath:test.properties"</span>})
+<span class="kw">public interface</span> <span class="tp">TestConfig</span> <span class="kw">extends</span> <span class="tp">Config</span> {
+
+    <span class="an">@Key</span>(<span class="str">"base.url"</span>)          <span class="an">@DefaultValue</span>(<span class="str">"http://localhost:3000"</span>)
+    <span class="tp">String</span> <span class="fn">baseUrl</span>();
+
+    <span class="an">@Key</span>(<span class="str">"selenoid.enabled"</span>)   <span class="an">@DefaultValue</span>(<span class="str">"false"</span>)
+    <span class="kw">boolean</span> <span class="fn">selenoidEnabled</span>();
+
+    <span class="an">@Key</span>(<span class="str">"selenoid.url"</span>)       <span class="an">@DefaultValue</span>(<span class="str">"http://localhost:4444/wd/hub"</span>)
+    <span class="tp">String</span> <span class="fn">selenoidUrl</span>();
+
+    <span class="an">@Key</span>(<span class="str">"browser.headless"</span>)   <span class="an">@DefaultValue</span>(<span class="str">"true"</span>)
+    <span class="kw">boolean</span> <span class="fn">browserHeadless</span>();
+
+    <span class="kw">static</span> <span class="tp">TestConfig</span> <span class="fn">getInstance</span>() {
+        <span class="kw">return</span> ConfigFactory.<span class="fn">create</span>(TestConfig.<span class="kw">class</span>,
+                System.<span class="fn">getProperties</span>(), System.<span class="fn">getenv</span>());
+    }
+}</code></pre>
+        <p>Environment override examples:</p>
+<pre><code><span class="cm"># Target production with Selenoid</span>
+mvn test -Pall \
+  -Dbase.url=<span class="str">https://pyavchik.space</span> \
+  -Dselenoid.enabled=<span class="kw">true</span> \
+  -Dselenoid.url=<span class="str">http://selenoid:4444/wd/hub</span>
+
+<span class="cm"># Local headless, API only</span>
+mvn test -Papi -Dbase.url=<span class="str">http://localhost:3000</span></code></pre>
+      </div>
+
+      <!-- Test Coverage Overview -->
+      <div class="card">
+        <p class="section-title">Test Coverage Overview</p>
+        <p class="section-desc">
+          59 tests across 3 layers &mdash; API, UI, and BDD &mdash; covering the full SlotsOne platform
+        </p>
+
+        <div class="cov-grid">
+          <div class="cov-item">
+            <h4>Auth API (9 tests)</h4>
+            <ul>
+              <li>Register new user (201)</li>
+              <li>Duplicate email (409)</li>
+              <li>Invalid email / short password</li>
+              <li>Strict schema validation</li>
+              <li>Login success &amp; wrong password</li>
+              <li>JWT token validation</li>
+              <li>JSON Schema response check</li>
+            </ul>
+          </div>
+          <div class="cov-item">
+            <h4>Spin API (7 tests)</h4>
+            <ul>
+              <li>Valid spin response</li>
+              <li>Balance deduction math</li>
+              <li>Invalid session handling</li>
+              <li>Unauthorized access</li>
+              <li>Negative bet validation</li>
+              <li>Idempotency-Key check</li>
+            </ul>
+          </div>
+          <div class="cov-item">
+            <h4>History API (8 tests)</h4>
+            <ul>
+              <li>Paginated history listing</li>
+              <li>Limit pagination param</li>
+              <li>Round detail by ID</li>
+              <li>Non-existent round (404)</li>
+              <li>Unauthorized access (401)</li>
+              <li>Summary stats aggregate</li>
+              <li>Inline summary response</li>
+            </ul>
+          </div>
+          <div class="cov-item">
+            <h4>Login UI (4 tests)</h4>
+            <ul>
+              <li>Page renders correctly</li>
+              <li>Registration redirect to lobby</li>
+              <li>Wrong password error</li>
+              <li>Tab switching (Login/Register)</li>
+            </ul>
+          </div>
+          <div class="cov-item">
+            <h4>Game UI (4 tests)</h4>
+            <ul>
+              <li>Canvas loads after game select</li>
+              <li>Spin button visible &amp; clickable</li>
+              <li>Balance displayed in HUD</li>
+              <li>Spin &amp; balance updates</li>
+            </ul>
+          </div>
+          <div class="cov-item">
+            <h4>History UI (5 tests)</h4>
+            <ul>
+              <li>History table renders</li>
+              <li>Round count displayed</li>
+              <li>Summary cards visible</li>
+              <li>Filter controls work</li>
+              <li>Navigate to round detail</li>
+            </ul>
+          </div>
+          <div class="cov-item">
+            <h4>BDD Scenarios (19)</h4>
+            <ul>
+              <li>Auth: register, login, validation</li>
+              <li>Spin: outcome, balance, idempotency</li>
+              <li>History: listing, pagination, detail</li>
+              <li>Data-driven Scenario Outlines</li>
+              <li>@smoke, @negative, @idempotency tags</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <!-- Quick Start -->
+      <div class="card">
+        <p class="section-title">Quick Start</p>
+        <p class="section-desc">Prerequisites: Java 17+, Maven 3.9+, Docker (for Selenoid)</p>
+<pre><code><span class="cm"># Run API tests</span>
+mvn clean test -Papi
+
+<span class="cm"># Run UI tests via Selenoid</span>
+docker compose -f docker-compose.selenoid.yml up -d
+mvn clean test -Pui -Dselenoid.enabled=<span class="kw">true</span>
+<span class="cm"># Watch live: http://localhost:8080 (Selenoid UI)</span>
+
+<span class="cm"># Run BDD scenarios</span>
+mvn clean test -Pbdd
+
+<span class="cm"># Run everything</span>
+mvn clean test -Pall
+
+<span class="cm"># Generate Allure report</span>
+mvn allure:serve</code></pre>
+      </div>
+    </div>
+  </body>
+</html>

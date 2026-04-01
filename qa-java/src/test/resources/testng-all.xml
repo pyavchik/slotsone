@@ -1,0 +1,31 @@
+<!DOCTYPE suite SYSTEM "https://testng.org/testng-1.0.dtd">
+<suite name="SlotsOne Full Test Suite" parallel="tests" thread-count="2">
+    <listeners>
+        <listener class-name="io.qameta.allure.testng.AllureTestNg"/>
+    </listeners>
+
+    <!-- API tests (fast, no browser needed) -->
+    <test name="API Tests" parallel="classes" thread-count="3">
+        <classes>
+            <class name="com.slotsone.qa.api.AuthApiTest"/>
+            <class name="com.slotsone.qa.api.SpinApiTest"/>
+            <class name="com.slotsone.qa.api.HistoryApiTest"/>
+        </classes>
+    </test>
+
+    <!-- BDD API scenarios -->
+    <test name="BDD API Tests">
+        <classes>
+            <class name="com.slotsone.qa.bdd.CucumberApiRunner"/>
+        </classes>
+    </test>
+
+    <!-- UI tests (sequential, require browser) -->
+    <test name="UI Tests" parallel="false" preserve-order="true">
+        <classes>
+            <class name="com.slotsone.qa.ui.LoginUiTest"/>
+            <class name="com.slotsone.qa.ui.GameUiTest"/>
+            <class name="com.slotsone.qa.ui.HistoryUiTest"/>
+        </classes>
+    </test>
+</suite>
