@@ -1,0 +1,107 @@
+pipeline {
+    agent any
+
+    tools {
+        maven 'Maven-3.9'
+        jdk 'JDK-17'
+    }
+
+    environment {
+        BASE_URL       = "${params.BASE_URL ?: 'http://localhost:3000'}"
+        SELENOID_URL   = 'http://selenoid:4444/wd/hub'
+        ALLURE_RESULTS = 'qa-java/target/allure-results'
+    }
+
+    parameters {
+        string(name: 'BASE_URL', defaultValue: 'http://localhost:3000', description: 'Application base URL')
+        choice(name: 'TEST_SUITE', choices: ['all', 'api', 'ui', 'bdd'], description: 'Test suite to run')
+        booleanParam(name: 'USE_SELENOID', defaultValue: true, description: 'Run UI tests via Selenoid')
+    }
+
+    stages {
+        stage('Checkout') {
+            steps {
+                checkout scm
+            }
+        }
+
+        stage('Start Selenoid') {
+            when {
+                expression { params.TEST_SUITE in ['all', 'ui'] && params.USE_SELENOID }
+            }
+            steps {
+                dir('qa-java') {
+                    sh 'docker compose -f docker-compose.selenoid.yml up -d'
+                    sh 'sleep 5' // Wait for Selenoid to be ready
+                }
+            }
+        }
+
+        stage('API Tests') {
+            when {
+                expression { params.TEST_SUITE in ['all', 'api'] }
+            }
+            steps {
+                dir('qa-java') {
+                    sh """
+                        mvn clean test -Papi \
+                            -Dbase.url=${BASE_URL} \
+                            -Dtimeout.api=10000
+                    """
+                }
+            }
+        }
+
+        stage('UI Tests') {
+            when {
+                expression { params.TEST_SUITE in ['all', 'ui'] }
+            }
+            steps {
+                dir('qa-java') {
+                    sh """
+                        mvn test -Pui \
+                            -Dbase.url=${BASE_URL} \
+                            -Dselenoid.enabled=${params.USE_SELENOID} \
+                            -Dselenoid.url=${SELENOID_URL} \
+                            -Dbrowser.headless=true
+                    """
+                }
+            }
+        }
+
+        stage('BDD Tests') {
+            when {
+                expression { params.TEST_SUITE in ['all', 'bdd'] }
+            }
+            steps {
+                dir('qa-java') {
+                    sh """
+                        mvn test -Pbdd \
+                            -Dbase.url=${BASE_URL} \
+                            -Dselenoid.enabled=${params.USE_SELENOID} \
+                            -Dselenoid.url=${SELENOID_URL}
+                    """
+                }
+            }
+        }
+    }
+
+    post {
+        always {
+            allure includeProperties: false,
+                   results: [[path: "${ALLURE_RESULTS}"]]
+
+            dir('qa-java') {
+                sh 'docker compose -f docker-compose.selenoid.yml down || true'
+            }
+        }
+
+        failure {
+            echo 'Tests failed! Check Allure report for details.'
+        }
+
+        success {
+            echo 'All tests passed!'
+        }
+    }
+}

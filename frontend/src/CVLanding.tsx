@@ -24,18 +24,23 @@ const RESPONSIVE_TESTING_PATH = '/responsive-testing.html';
 const VISUAL_REGRESSION_PATH = '/visual-regression.html';
 const NETWORK_TESTING_PATH = '/network-testing.html';
 const GRAPHQL_TESTING_PATH = '/graphql-testing.html';
+const JAVA_AUTOMATION_PATH = '/java-automation.html';
 
 const SKILLS = [
   'Java',
-  'Automated Testing',
-  'Test Framework Development',
-  'API Testing',
-  'End-to-End (E2E) Testing',
-  'CI/CD',
+  'Selenide',
+  'Selenoid',
+  'Rest Assured',
+  'TestNG',
+  'Cucumber / BDD',
+  'Maven',
+  'CI/CD (Jenkins, GitLab CI)',
   'JMeter (Load Testing)',
-  'Test Plans & Test Cases',
-  'Bug Reporting',
-  'Automated Reports',
+  'Postman',
+  'SQL',
+  'Docker',
+  'Allure Reporting',
+  'Git / GitHub',
 ];
 
 const EXPERIENCE = [
@@ -115,6 +120,15 @@ export function CVLanding() {
             <Link to="/slots" className="cv-open-slots" data-testid="cv-open-slots">
               slots
             </Link>
+            <a
+              className="cv-link"
+              href={JAVA_AUTOMATION_PATH}
+              target="_blank"
+              rel="noreferrer"
+              data-testid="cv-java-automation"
+            >
+              java automation
+            </a>
             <a
               className="cv-link"
               href={REQUIREMENTS_PATH}

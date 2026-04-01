@@ -1,0 +1,24 @@
+<!DOCTYPE suite SYSTEM "https://testng.org/testng-1.0.dtd">
+<suite name="SlotsOne API Test Suite" parallel="classes" thread-count="3">
+    <listeners>
+        <listener class-name="io.qameta.allure.testng.AllureTestNg"/>
+    </listeners>
+
+    <test name="Authentication API">
+        <classes>
+            <class name="com.slotsone.qa.api.AuthApiTest"/>
+        </classes>
+    </test>
+
+    <test name="Spin API">
+        <classes>
+            <class name="com.slotsone.qa.api.SpinApiTest"/>
+        </classes>
+    </test>
+
+    <test name="History API">
+        <classes>
+            <class name="com.slotsone.qa.api.HistoryApiTest"/>
+        </classes>
+    </test>
+</suite>

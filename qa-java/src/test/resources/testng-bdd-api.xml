@@ -1,0 +1,12 @@
+<!DOCTYPE suite SYSTEM "https://testng.org/testng-1.0.dtd">
+<suite name="SlotsOne BDD API Test Suite">
+    <listeners>
+        <listener class-name="io.qameta.allure.testng.AllureTestNg"/>
+    </listeners>
+
+    <test name="Cucumber API-only BDD Scenarios">
+        <classes>
+            <class name="com.slotsone.qa.bdd.CucumberApiRunner"/>
+        </classes>
+    </test>
+</suite>

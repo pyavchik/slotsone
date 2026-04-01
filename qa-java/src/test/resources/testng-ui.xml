@@ -1,0 +1,24 @@
+<!DOCTYPE suite SYSTEM "https://testng.org/testng-1.0.dtd">
+<suite name="SlotsOne UI Test Suite" parallel="false" preserve-order="true">
+    <listeners>
+        <listener class-name="io.qameta.allure.testng.AllureTestNg"/>
+    </listeners>
+
+    <test name="Login UI">
+        <classes>
+            <class name="com.slotsone.qa.ui.LoginUiTest"/>
+        </classes>
+    </test>
+
+    <test name="Game UI">
+        <classes>
+            <class name="com.slotsone.qa.ui.GameUiTest"/>
+        </classes>
+    </test>
+
+    <test name="History UI">
+        <classes>
+            <class name="com.slotsone.qa.ui.HistoryUiTest"/>
+        </classes>
+    </test>
+</suite>
