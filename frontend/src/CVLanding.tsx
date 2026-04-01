@@ -90,34 +90,33 @@ export function CVLanding() {
       <main className="cv-page">
         <header className="cv-header-card">
           <div className="cv-header-main">
-            <figure className="cv-avatar-wrap">
-              <img src="/cv-photo.png" alt="Oleksander Pyavchik" className="cv-avatar" />
-            </figure>
-
-            <div className="cv-identity">
-              <p className="cv-kicker">Automated QA Engineer</p>
-              <h1 className="cv-title" data-testid="cv-title">
-                Oleksander Pyavchik
-              </h1>
-              <p className="cv-subtitle">
-                Experienced QA engineer with 7+ years in automation, API/E2E testing, CI/CD, and
-                performance testing.
-              </p>
-
-              <ul className="cv-contact-list" aria-label="Contact information">
-                <li>
-                  <a href="mailto:pyavchik@gmail.com">pyavchik@gmail.com</a>
-                </li>
-                <li>
-                  <a href="tel:+380639977874">+380 63 997 7874</a>
-                </li>
-                <li>Odesa, Ukraine</li>
-              </ul>
+            <div className="cv-name-row">
+              <figure className="cv-avatar-wrap">
+                <img src="/cv-photo.png" alt="Oleksander Pyavchik" className="cv-avatar" />
+              </figure>
+              <div className="cv-identity">
+                <p className="cv-kicker">Automated QA Engineer</p>
+                <h1 className="cv-title" data-testid="cv-title">
+                  Oleksander Pyavchik
+                </h1>
+              </div>
             </div>
+            <p className="cv-subtitle">
+              7+ years in automation, API/E2E testing, CI/CD, and performance testing.
+            </p>
+            <ul className="cv-contact-list" aria-label="Contact information">
+              <li>
+                <a href="mailto:pyavchik@gmail.com">pyavchik@gmail.com</a>
+              </li>
+              <li>
+                <a href="tel:+380639977874">+380 63 997 7874</a>
+              </li>
+              <li>Odesa, Ukraine</li>
+            </ul>
           </div>
 
           <div className="cv-actions">
-            <Link to="/slots" className="cv-open-slots" data-testid="cv-open-slots">
+            <Link to="/slots" className="cv-link cv-link--slots" data-testid="cv-open-slots">
               slots
             </Link>
             <a
@@ -300,20 +299,21 @@ export function CVLanding() {
             >
               playwright typescript
             </a>
-            <a className="cv-link" href={CV_PDF_PATH} target="_blank" rel="noreferrer">
-              Download PDF CV
-            </a>
           </div>
+          <a className="cv-pdf-link" href={CV_PDF_PATH} target="_blank" rel="noreferrer">
+            Download PDF CV
+          </a>
         </header>
 
-        <section className="cv-section">
+        <section className="cv-section cv-summary">
           <h2>Professional Summary</h2>
-          <p>
-            Experienced Automated QA Engineer with 7+ years of expertise in test automation, CI/CD,
-            and test framework development. Strong background in building automation frameworks from
-            scratch and maintaining large test suites, with deep hands-on experience in Java, API,
-            end-to-end, and performance testing using JMeter.
-          </p>
+          <ul>
+            <li>7+ years in QA automation — Java, Selenide, Rest Assured, TestNG, Cucumber</li>
+            <li>Built UI and API automation frameworks from scratch</li>
+            <li>Maintained and scaled 1500+ automated tests across multiple projects</li>
+            <li>CI/CD pipeline design — Jenkins, GitLab CI, Selenoid</li>
+            <li>Performance and load testing with JMeter</li>
+          </ul>
         </section>
 
         <section className="cv-section">
@@ -358,7 +358,7 @@ export function CVLanding() {
         <section className="cv-section cv-final-cta">
           <h2>Project Demo</h2>
           <p>Use the button below to launch the interactive slots application.</p>
-          <Link to="/slots" className="cv-open-slots" data-testid="cv-open-slots">
+          <Link to="/slots" className="cv-link cv-link--slots">
             slots
           </Link>
         </section>
