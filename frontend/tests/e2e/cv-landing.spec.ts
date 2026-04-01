@@ -234,6 +234,7 @@ test.describe('CV Landing – actions bar', { tag: ['@smoke', '@regression'] }, 
     await expect(items.nth(20)).toHaveText('network testing');
     await expect(items.nth(21)).toHaveText('GraphQL testing');
     await expect(items.nth(22)).toHaveText('playwright typescript');
-    await expect(items.nth(23)).toHaveText('Download PDF CV');
+    // "Download PDF CV" is outside .cv-actions, verify separately
+    await expect(page.locator('.cv-pdf-link')).toHaveText('Download PDF CV');
   });
 });
