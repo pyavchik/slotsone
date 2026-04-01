@@ -32,7 +32,7 @@ test.describe('CV Landing – actions bar', { tag: ['@smoke', '@regression'] }, 
       route.fulfill({ status: 401, contentType: 'application/json', body: '{}' })
     );
 
-    const ctaBtn = page.getByTestId('cv-open-slots').last();
+    const ctaBtn = page.getByTestId('cv-open-slots-cta');
     await expect(ctaBtn).toBeVisible();
     await expect(ctaBtn).toHaveText('slots');
 
@@ -112,7 +112,7 @@ test.describe('CV Landing – actions bar', { tag: ['@smoke', '@regression'] }, 
   // -------------------------------------------------------------------------
 
   test('PDF link points to the CV file and opens in new tab', async ({ page }) => {
-    const pdfLink = page.locator('a.cv-link', { hasText: 'Download PDF CV' });
+    const pdfLink = page.locator('a.cv-pdf-link');
     await expect(pdfLink).toBeVisible();
     await expect(pdfLink).toHaveAttribute('href', '/QA_Oleksander_Pyavchik_CV.pdf');
     await expect(pdfLink).toHaveAttribute('target', '_blank');
@@ -120,7 +120,7 @@ test.describe('CV Landing – actions bar', { tag: ['@smoke', '@regression'] }, 
   });
 
   test('PDF link opens the correct URL in a new tab', async ({ page, context }) => {
-    const pdfLink = page.locator('a.cv-link', { hasText: 'Download PDF CV' });
+    const pdfLink = page.locator('a.cv-pdf-link');
 
     // Use text/plain so Chromium navigates to the URL instead of triggering
     // a download (application/pdf causes the new tab to stay at about:blank).
@@ -202,7 +202,7 @@ test.describe('CV Landing – actions bar', { tag: ['@smoke', '@regression'] }, 
     await expect(actions.getByTestId('cv-visual-regression')).toBeVisible();
     await expect(actions.getByTestId('cv-network-testing')).toBeVisible();
     await expect(actions.getByTestId('cv-graphql')).toBeVisible();
-    await expect(actions.locator('a.cv-link', { hasText: 'Download PDF CV' })).toBeVisible();
+    await expect(page.locator('a.cv-pdf-link', { hasText: 'Download PDF CV' })).toBeVisible();
   });
 
   // -------------------------------------------------------------------------

@@ -358,7 +358,7 @@ export function CVLanding() {
         <section className="cv-section cv-final-cta">
           <h2>Project Demo</h2>
           <p>Use the button below to launch the interactive slots application.</p>
-          <Link to="/slots" className="cv-link cv-link--slots">
+          <Link to="/slots" className="cv-link cv-link--slots" data-testid="cv-open-slots-cta">
             slots
           </Link>
         </section>
