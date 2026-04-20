@@ -82,12 +82,18 @@ services:
     build:
       context: ./admin
       dockerfile: Dockerfile
+      args:
+        NEXT_PUBLIC_SENTRY_DSN: ${ADMIN_SENTRY_DSN:-}
+        NEXT_PUBLIC_SENTRY_TRACES_SAMPLE_RATE: ${ADMIN_SENTRY_TRACES_SAMPLE_RATE:-0.1}
+        NEXT_PUBLIC_SENTRY_REPLAYS_ON_ERROR: ${ADMIN_SENTRY_REPLAYS_ON_ERROR:-0}
     container_name: slotsone-admin
     restart: unless-stopped
     env_file:
       - ./admin/.env.production
     environment:
       BACKEND_DATABASE_URL: "postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB}"
+      SENTRY_DSN: ${ADMIN_SENTRY_DSN:-}
+      SENTRY_TRACES_SAMPLE_RATE: ${ADMIN_SENTRY_TRACES_SAMPLE_RATE:-0.1}
     expose:
       - "3002"
     depends_on:
