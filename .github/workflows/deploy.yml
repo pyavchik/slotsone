@@ -131,5 +131,9 @@ jobs:
             ACME_EMAIL=\$(grep '^ACME_EMAIL=' .env.production | cut -d= -f2- || true); \
             test -n \"\${TLS_DOMAIN}\" || { echo 'Missing TLS_DOMAIN in .env.production'; exit 1; }; \
             test -n \"\${ACME_EMAIL}\" || { echo 'Missing ACME_EMAIL in .env.production'; exit 1; }; \
-            docker compose --env-file .env.production -f docker-compose.prod.yml up -d --build --remove-orphans; \
+            if ! docker compose --env-file .env.production -f docker-compose.prod.yml up -d --build --remove-orphans; then \
+              echo 'compose up failed; clearing stale container names and retrying'; \
+              docker rm -f slotsone-backend slotsone-frontend slotsone-admin slotsone-caddy 2>/dev/null || true; \
+              docker compose --env-file .env.production -f docker-compose.prod.yml up -d --build --remove-orphans; \
+            fi; \
             docker image prune -f"

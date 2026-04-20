@@ -136,10 +136,6 @@ app.get('/health', (_req, res) => {
   res.json({ status: 'ok' });
 });
 
-app.get('/api/v1/debug-sentry', () => {
-  throw new Error('Sentry smoke test');
-});
-
 app.get('/ready', async (_req, res) => {
   const checks: Record<string, { status: 'ok' | 'fail'; latency_ms?: number; error?: string }> = {};
 
