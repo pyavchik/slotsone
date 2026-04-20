@@ -25,6 +25,10 @@ services:
     restart: unless-stopped
     env_file:
       - ./backend/.env.production
+    environment:
+      SENTRY_DSN: ${SENTRY_DSN:-}
+      SENTRY_RELEASE: ${SENTRY_RELEASE:-}
+      SENTRY_TRACES_SAMPLE_RATE: ${SENTRY_TRACES_SAMPLE_RATE:-0.1}
     expose:
       - "3001"
     healthcheck:
@@ -43,6 +47,11 @@ services:
     build:
       context: ./frontend
       dockerfile: Dockerfile
+      args:
+        VITE_SENTRY_DSN: ${VITE_SENTRY_DSN:-}
+        VITE_SENTRY_RELEASE: ${VITE_SENTRY_RELEASE:-}
+        VITE_SENTRY_TRACES_SAMPLE_RATE: ${VITE_SENTRY_TRACES_SAMPLE_RATE:-0.1}
+        VITE_SENTRY_REPLAYS_ON_ERROR: ${VITE_SENTRY_REPLAYS_ON_ERROR:-0}
     container_name: slotsone-frontend
     restart: unless-stopped
     depends_on:

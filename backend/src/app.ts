@@ -19,6 +19,7 @@ import imageRoutes from './routes/images.js';
 import { rouletteRoutes } from './routes/roulette.js';
 import { americanRouletteRoutes } from './routes/americanRoulette.js';
 import { getPool } from './db.js';
+import { Sentry, sentryEnabled } from './sentry.js';
 
 loadEnvironmentFiles();
 validateAuthEnvironment();
@@ -167,6 +168,10 @@ app.get('/ready', async (_req, res) => {
 app.use((req: Request, res: Response) => {
   res.status(404).json({ error: 'Not found', code: 'not_found' });
 });
+
+if (sentryEnabled()) {
+  Sentry.setupExpressErrorHandler(app);
+}
 
 app.use((err: unknown, req: Request, res: Response, next: NextFunction) => {
   const log = getLogger();

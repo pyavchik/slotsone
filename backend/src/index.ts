@@ -1,3 +1,4 @@
+import './instrument.js';
 import { app } from './app.js';
 import { initDb, closePool } from './db.js';
 import { logger } from './logger.js';
