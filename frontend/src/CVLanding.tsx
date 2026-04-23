@@ -95,7 +95,7 @@ export function CVLanding() {
                 <img src="/cv-photo.png" alt="Oleksander Pyavchik" className="cv-avatar" />
               </figure>
               <div className="cv-identity">
-                <p className="cv-kicker">Automated QA Engineer</p>
+                <p className="cv-kicker">Automation QA Engineer</p>
                 <h1 className="cv-title" data-testid="cv-title">
                   Oleksander Pyavchik
                 </h1>
