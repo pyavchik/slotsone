@@ -58,6 +58,20 @@ jobs:
         working-directory: backend
         run: npm run build
 
+      - name: Generate ephemeral RS256 JWT keypair
+        working-directory: backend
+        run: |
+          openssl genpkey -algorithm RSA -pkeyopt rsa_keygen_bits:2048 -out jwt_private.pem
+          openssl rsa -in jwt_private.pem -pubout -out jwt_public.pem
+          {
+            echo 'JWT_PRIVATE_KEY<<__EOF_PRIV__'
+            cat jwt_private.pem
+            echo '__EOF_PRIV__'
+            echo 'JWT_PUBLIC_KEY<<__EOF_PUB__'
+            cat jwt_public.pem
+            echo '__EOF_PUB__'
+          } >> "$GITHUB_ENV"
+
       - name: Start backend
         working-directory: backend
         run: |
@@ -73,6 +87,9 @@ jobs:
           exit 1
         env:
           PORT: "3001"
+          JWT_ALLOWED_ALGS: RS256
+          JWT_ISSUER: slotsone-dev
+          JWT_AUDIENCE: slotsone-client
 
       - uses: actions/setup-python@v5
         with:
