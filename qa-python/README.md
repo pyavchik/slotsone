@@ -9,13 +9,14 @@ GlobalLogic *Middle Python Automation Test Engineer* job description
 
 | Job requirement                                  | Where to look in this folder                                  |
 |--------------------------------------------------|---------------------------------------------------------------|
-| Python proficiency for test automation           | `framework/`, `tests/api/`, `tests/ui/`                       |
+| Python proficiency for test automation           | `framework/`, `tests/api/`, `tests/ui/`, `tests/aws/`         |
 | Pytest                                           | `pyproject.toml` markers, `tests/**`                          |
 | Playwright                                       | `tests/ui/**` with Page Object pattern (`tests/ui/pages/`)    |
 | RESTful API testing & microservices              | `tests/api/test_auth.py`, `test_game_flow.py`, `test_health.py` |
+| **AWS** (CloudWatch, S3, SQS)                    | `framework/aws/`, `tests/aws/` — boto3 against moto/LocalStack/real AWS |
 | JSON / data formats                              | `framework/schemas.py` validates every response against `backend/openapi.json` |
-| CI/CD pipelines (GitLab CI, Jenkins, GH Actions) | `.github/workflows/qa-python.yml`                             |
-| Monitoring / structured logs                     | `--alluredir=allure-results` artifact, GH Action upload       |
+| CI/CD pipelines (GitLab CI, Jenkins, GH Actions) | `.github/workflows/qa-python.yml`, `qa-python-aws.yml`        |
+| Monitoring / structured logs                     | CloudWatch Logs assertions in `framework/aws/cloudwatch_assertions.py`; Allure artifact upload |
 | BDD / TDD methodology                            | tests follow Arrange/Act/Assert; markers gate smoke vs regression |
 | Provably-fair / cryptographic verification       | `framework/provably_fair.py`, `tests/api/test_provably_fair.py` |
 
@@ -70,9 +71,34 @@ smoke           critical path; runs on every PR
 regression      full coverage; runs nightly / on-demand
 api             REST API tests
 ui              Playwright tests
+aws             AWS-integrated tests (boto3 + moto/LocalStack/real AWS)
 negative        error-path / validation tests
 provably_fair   HMAC-SHA256 fairness verification
 ```
+
+## Running AWS-integrated tests
+
+The `tests/aws/` suite uses boto3 and auto-selects a backend in this priority:
+
+1. **`CI_AWS_REAL=1`** → real AWS using ambient credentials.
+2. **`AWS_ENDPOINT_URL` set** → LocalStack (or any boto3-compatible endpoint).
+3. **Neither** → in-process `moto.server.ThreadedMotoServer` on a free port. Zero infra.
+
+```bash
+# Zero-infra (default — uses moto):
+pytest tests/aws -m aws
+
+# With LocalStack (more production-like):
+docker compose -f docker-compose.localstack.yml up -d
+AWS_ENDPOINT_URL=http://localhost:4566 \
+  AWS_ACCESS_KEY_ID=test AWS_SECRET_ACCESS_KEY=test \
+  pytest tests/aws -m aws
+
+# Against real AWS:
+CI_AWS_REAL=1 pytest tests/aws -m aws
+```
+
+To run everything *except* AWS-tagged tests: `pytest -m "not aws"`.
 
 Combine with `-m`: `pytest -m "smoke and api"`, `pytest -m "regression and not ui"`.
 
