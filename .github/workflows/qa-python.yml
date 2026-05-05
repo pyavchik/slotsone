@@ -1,0 +1,129 @@
+name: qa-python
+
+on:
+  pull_request:
+    paths:
+      - "qa-python/**"
+      - "backend/**"
+      - "frontend/**"
+      - ".github/workflows/qa-python.yml"
+  push:
+    branches-ignore:
+      - main
+    paths:
+      - "qa-python/**"
+      - "backend/**"
+      - "frontend/**"
+      - ".github/workflows/qa-python.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  api:
+    name: API tests (pytest)
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_DB: slotsone
+          POSTGRES_USER: slotsone
+          POSTGRES_PASSWORD: slotsone
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - "5432:5432"
+    env:
+      API_BASE_URL: http://localhost:3001
+      DATABASE_URL: postgres://slotsone:slotsone@localhost:5432/slotsone
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+          cache-dependency-path: backend/package-lock.json
+
+      - name: Backend install
+        working-directory: backend
+        run: npm ci
+
+      - name: Backend build
+        working-directory: backend
+        run: npm run build
+
+      - name: Generate ephemeral RS256 JWT keypair
+        working-directory: backend
+        run: |
+          openssl genpkey -algorithm RSA -pkeyopt rsa_keygen_bits:2048 -out jwt_private.pem
+          openssl rsa -in jwt_private.pem -pubout -out jwt_public.pem
+          {
+            echo 'JWT_PRIVATE_KEY<<__EOF_PRIV__'
+            cat jwt_private.pem
+            echo '__EOF_PRIV__'
+            echo 'JWT_PUBLIC_KEY<<__EOF_PUB__'
+            cat jwt_public.pem
+            echo '__EOF_PUB__'
+          } >> "$GITHUB_ENV"
+
+      - name: Start backend
+        working-directory: backend
+        run: |
+          nohup node dist/index.js > backend.log 2>&1 &
+          for i in $(seq 1 40); do
+            if curl -sf http://localhost:3001/ready >/dev/null; then
+              echo "backend up"; exit 0
+            fi
+            sleep 1
+          done
+          echo "backend failed to start"
+          tail -n 200 backend.log || true
+          exit 1
+        env:
+          PORT: "3001"
+          JWT_ALLOWED_ALGS: RS256
+          JWT_ISSUER: slotsone-dev
+          JWT_AUDIENCE: slotsone-client
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: qa-python/pyproject.toml
+
+      - name: Install qa-python deps
+        working-directory: qa-python
+        run: |
+          python -m pip install --upgrade pip
+          pip install -e .
+
+      - name: Run API tests
+        working-directory: qa-python
+        run: |
+          pytest tests/api -m "not ui" \
+            -n auto \
+            --reruns 1 --reruns-delay 2 \
+            --alluredir=allure-results
+
+      - name: Upload Allure results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: qa-python-allure-results
+          path: qa-python/allure-results
+          if-no-files-found: ignore
+          retention-days: 14
+
+      - name: Upload backend log on failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: qa-python-backend-log
+          path: backend/backend.log
+          if-no-files-found: ignore

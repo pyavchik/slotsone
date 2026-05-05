@@ -1,0 +1,620 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Python QA Automation — pyavchik.space</title>
+    <style>
+      *, *::before, *::after { box-sizing: border-box; }
+
+      body {
+        margin: 0;
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+        background: linear-gradient(180deg, #0f1118 0%, #0b0d13 100%);
+        color: #f8fafc;
+        min-height: 100vh;
+        font-size: 14px;
+      }
+
+      .wrap {
+        max-width: 1080px;
+        margin: 0 auto;
+        padding: 28px 18px 56px;
+        display: flex;
+        flex-direction: column;
+        gap: 14px;
+      }
+
+      .card {
+        border: 1px solid rgba(255,255,255,0.13);
+        border-radius: 14px;
+        background: rgba(17,20,30,0.78);
+        padding: 20px 22px;
+      }
+
+      h1 { margin: 0 0 3px; font-size: 26px; letter-spacing: -.3px; }
+      .subtitle { margin: 0 0 14px; color: #94a3b8; font-size: 13px; }
+      h2 { margin: 0 0 14px; font-size: 16px; color: #f1f5f9; }
+      h3 { margin: 0 0 10px; font-size: 14px; color: #e2e8f0; }
+      p  { margin: 0 0 10px; color: #dbe2ec; line-height: 1.55; }
+
+      .back {
+        display: inline-flex; align-items: center; gap: 6px;
+        font-size: 13px; font-weight: 600; color: #94a3b8;
+        text-decoration: none;
+        border: 1px solid rgba(148,163,184,.3);
+        padding: 6px 12px; border-radius: 8px;
+        background: rgba(15,23,42,.5);
+        width: fit-content;
+      }
+      .back:hover { color: #f8fafc; border-color: rgba(148,163,184,.7); }
+
+      .stats { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 8px; }
+      .stat {
+        padding: 8px 14px; border-radius: 10px;
+        background: rgba(15,23,42,.65);
+        border: 1px solid rgba(148,163,184,.2);
+        font-size: 13px; color: #dbe2ec; text-align: center;
+      }
+      .stat strong { display: block; font-size: 22px; line-height: 1.15; color: #f8fafc; }
+
+      .badge {
+        display: inline-block; padding: 2px 7px;
+        border-radius: 5px; font-size: 11px; font-weight: 700;
+        white-space: nowrap; letter-spacing: .02em;
+      }
+      .badge-pytest    { background: rgba(56,189,248,.15);  color: #38bdf8; }
+      .badge-schema    { background: rgba(245,208,106,.15); color: #f5d06a; }
+      .badge-fair      { background: rgba(167,139,250,.18); color: #a78bfa; }
+      .badge-pw        { background: rgba(62,224,169,.15);  color: #3ee0a9; }
+      .badge-ci        { background: rgba(251,146,60,.15);  color: #fb923c; }
+
+      .section-title {
+        font-size: 18px; font-weight: 700; margin: 0 0 4px;
+        color: #f1f5f9;
+      }
+      .section-desc {
+        font-size: 13px; color: #94a3b8; margin: 0 0 12px;
+      }
+
+      .tech-header {
+        display: flex; align-items: center; gap: 10px;
+        margin-bottom: 12px;
+      }
+      .tech-number {
+        width: 28px; height: 28px; border-radius: 8px;
+        display: flex; align-items: center; justify-content: center;
+        font-size: 13px; font-weight: 800;
+        flex-shrink: 0;
+      }
+      .tech-number-pytest { background: rgba(56,189,248,.15);  color: #38bdf8; }
+      .tech-number-schema { background: rgba(245,208,106,.15); color: #f5d06a; }
+      .tech-number-fair   { background: rgba(167,139,250,.15); color: #a78bfa; }
+      .tech-number-pw     { background: rgba(62,224,169,.15);  color: #3ee0a9; }
+      .tech-number-ci     { background: rgba(251,146,60,.15);  color: #fb923c; }
+
+      .tech-title {
+        font-size: 16px; font-weight: 700; margin: 0; color: #f1f5f9;
+      }
+      .tech-theory {
+        color: #94a3b8; font-size: 13px; line-height: 1.55;
+        margin: 0 0 14px;
+        padding: 10px 14px;
+        border-radius: 8px;
+        background: rgba(15,23,42,.45);
+        border-left: 3px solid rgba(148,163,184,.25);
+      }
+
+      pre {
+        margin: 0 0 12px;
+        padding: 14px 16px;
+        border-radius: 10px;
+        background: rgba(10,12,20,.85);
+        border: 1px solid rgba(148,163,184,.15);
+        overflow-x: auto;
+        font-size: 12px;
+        line-height: 1.55;
+        color: #cbd5e1;
+      }
+      code { font-family: "JetBrains Mono", "Fira Code", "Cascadia Code", monospace; }
+      .kw  { color: #c792ea; }
+      .fn  { color: #82aaff; }
+      .str { color: #c3e88d; }
+      .cm  { color: #546e7a; }
+      .tp  { color: #ffcb6b; }
+      .num { color: #f78c6c; }
+      .an  { color: #f07178; }
+
+      .tree {
+        margin: 0 0 12px;
+        padding: 14px 16px;
+        border-radius: 10px;
+        background: rgba(10,12,20,.85);
+        border: 1px solid rgba(148,163,184,.15);
+        font-family: "JetBrains Mono", "Fira Code", monospace;
+        font-size: 12px;
+        line-height: 1.7;
+        color: #94a3b8;
+        white-space: pre;
+      }
+      .tree .dir  { color: #38bdf8; }
+      .tree .file { color: #cbd5e1; }
+      .tree .conf { color: #f5d06a; }
+      .tree .test { color: #3ee0a9; }
+
+      .stack-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+        gap: 8px; margin: 12px 0;
+      }
+      .stack-item {
+        padding: 10px 14px; border-radius: 10px;
+        background: rgba(15,23,42,.55);
+        border: 1px solid rgba(148,163,184,.15);
+        text-align: center;
+      }
+      .stack-item strong { display: block; font-size: 14px; color: #f8fafc; margin-bottom: 2px; }
+      .stack-item span { font-size: 11px; color: #94a3b8; }
+
+      .cov-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+        gap: 8px;
+      }
+      .cov-item {
+        padding: 10px 14px; border-radius: 10px;
+        background: rgba(15,23,42,.55);
+        border: 1px solid rgba(148,163,184,.15);
+      }
+      .cov-item h4 { margin: 0 0 4px; font-size: 13px; color: #f1f5f9; }
+      .cov-item ul { margin: 0; padding: 0 0 0 16px; }
+      .cov-item li { font-size: 12px; color: #94a3b8; line-height: 1.6; }
+
+      .repo-link {
+        display: inline-flex; align-items: center; gap: 6px;
+        font-size: 12px; font-weight: 600;
+        color: #38bdf8; text-decoration: none;
+        border: 1px solid rgba(56,189,248,.3);
+        padding: 6px 10px; border-radius: 8px;
+        background: rgba(56,189,248,.08);
+      }
+      .repo-link:hover { background: rgba(56,189,248,.16); }
+
+      @media (max-width: 600px) {
+        .wrap { padding: 16px 10px 40px; }
+        .card { padding: 14px 12px; }
+        h1 { font-size: 22px; }
+        .stats { gap: 6px; }
+        .stat strong { font-size: 18px; }
+        pre, .tree { font-size: 11px; padding: 10px 12px; }
+        .cov-grid, .stack-grid { grid-template-columns: 1fr; }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="wrap">
+      <a class="back" href="/">&larr; Back to CV</a>
+
+      <!-- Header -->
+      <div class="card">
+        <h1>Python QA Automation Suite</h1>
+        <p class="subtitle">
+          Pytest + Playwright + Requests + JSON Schema framework for the SlotsOne RGS &mdash;
+          contract-driven API tests, cryptographic provably-fair verification, Page Object UI tests, GitHub Actions CI.
+        </p>
+
+        <div class="stack-grid">
+          <div class="stack-item"><strong>Python 3.11+</strong><span>Language</span></div>
+          <div class="stack-item"><strong>Pytest 8</strong><span>Test Runner</span></div>
+          <div class="stack-item"><strong>Playwright</strong><span>UI Automation</span></div>
+          <div class="stack-item"><strong>Requests</strong><span>HTTP Client</span></div>
+          <div class="stack-item"><strong>jsonschema</strong><span>Contract Validation</span></div>
+          <div class="stack-item"><strong>pytest-xdist</strong><span>Parallel Execution</span></div>
+          <div class="stack-item"><strong>Allure</strong><span>Reporting</span></div>
+          <div class="stack-item"><strong>GitHub Actions</strong><span>CI/CD</span></div>
+        </div>
+
+        <div class="stats">
+          <div class="stat"><strong>20</strong>tests total</div>
+          <div class="stat"><strong>17</strong>API tests</div>
+          <div class="stat"><strong>3</strong>UI tests</div>
+          <div class="stat"><strong>6</strong>Pytest markers</div>
+          <div class="stat"><strong>2</strong>Page Objects</div>
+          <div class="stat"><strong>1</strong>contract spec</div>
+        </div>
+
+        <p style="margin-top: 14px;">
+          <a class="repo-link" href="https://github.com/pyavchik/slotsone/tree/main/qa-python" target="_blank" rel="noreferrer">
+            View source &mdash; github.com/pyavchik/slotsone/qa-python
+          </a>
+        </p>
+      </div>
+
+      <!-- Project Structure -->
+      <div class="card">
+        <p class="section-title">Project Structure</p>
+        <p class="section-desc">Framework / tests separation; Page Objects under <code>tests/ui/pages/</code>; OpenAPI doc reused as the contract of record.</p>
+        <div class="tree"><span class="dir">qa-python/</span>
+  <span class="conf">pyproject.toml</span>                  <span class="cm"># deps + Pytest markers + filterwarnings</span>
+  <span class="conf">conftest.py</span>                     <span class="cm"># api / authed_api / credentials fixtures</span>
+  <span class="dir">framework/</span>
+    <span class="file">api_client.py</span>                <span class="cm"># Requests wrapper: timing, JSON, bearer auth</span>
+    <span class="file">config.py</span>                    <span class="cm"># Env-driven settings (.env / CI)</span>
+    <span class="file">data_factory.py</span>              <span class="cm"># Faker-backed credential factories</span>
+    <span class="file">schemas.py</span>                   <span class="cm"># OpenAPI 3.0 → JSON Schema 2020-12 validator</span>
+    <span class="file">provably_fair.py</span>             <span class="cm"># HMAC-SHA256 round-seed re-derivation</span>
+  <span class="dir">tests/</span>
+    <span class="dir">api/</span>
+      <span class="test">test_health.py</span>             <span class="cm"># 2 tests — liveness, readiness</span>
+      <span class="test">test_auth.py</span>               <span class="cm"># 6 tests — register, login, negatives</span>
+      <span class="test">test_game_flow.py</span>          <span class="cm"># 6 tests — init → spin → history → round detail</span>
+      <span class="test">test_provably_fair.py</span>      <span class="cm"># 3 tests — commitment, rotation, HMAC re-derivation</span>
+    <span class="dir">ui/</span>
+      <span class="file">conftest.py</span>                <span class="cm"># viewport + default timeouts</span>
+      <span class="dir">pages/</span>
+        <span class="file">auth_page.py</span>             <span class="cm"># /login + /register page object</span>
+        <span class="file">game_page.py</span>             <span class="cm"># post-login shell</span>
+      <span class="test">test_auth_ui.py</span>            <span class="cm"># register + bad-login UI smoke</span>
+      <span class="test">test_history_ui.py</span>         <span class="cm"># API-seeded spin → /history renders</span>
+.<span class="dir">github/workflows/</span>
+  <span class="conf">qa-python.yml</span>                  <span class="cm"># Postgres service → backend boot → pytest -n auto</span></div>
+      </div>
+
+      <!-- 1. Pytest fixtures + Requests client -->
+      <div class="card">
+        <div class="tech-header">
+          <div class="tech-number tech-number-pytest">1</div>
+          <h2 class="tech-title">Pytest fixtures &amp; typed Requests client <span class="badge badge-pytest">PYTEST</span></h2>
+        </div>
+        <div class="tech-theory">
+          A small <code>ApiClient</code> wraps <code>requests.Session</code> with timing,
+          bearer auth, and an <code>expect_ok()</code> helper that fails fast with a clear
+          message. Session-scoped settings come from environment variables (or a
+          <code>.env</code> file) so the same suite runs unchanged against
+          <code>localhost</code>, staging, or production. The <code>authed_api</code> fixture
+          registers a fresh user per test &mdash; no shared state, no flakiness from leftover data.
+        </div>
+        <p><code>framework/api_client.py</code> &mdash; thin Requests wrapper:</p>
+<pre><code><span class="kw">class</span> <span class="tp">ApiClient</span>:
+    <span class="kw">def</span> <span class="fn">__init__</span>(<span class="kw">self</span>, base_url: <span class="tp">str</span> | <span class="kw">None</span> = <span class="kw">None</span>, token: <span class="tp">str</span> | <span class="kw">None</span> = <span class="kw">None</span>) -&gt; <span class="kw">None</span>:
+        <span class="kw">self</span>.base_url = (base_url <span class="kw">or</span> SETTINGS.api_base_url).<span class="fn">rstrip</span>(<span class="str">"/"</span>)
+        <span class="kw">self</span>._session = requests.<span class="fn">Session</span>()
+        <span class="kw">self</span>._token = token
+
+    <span class="kw">def</span> <span class="fn">request</span>(<span class="kw">self</span>, method, path, *, json_body=<span class="kw">None</span>, params=<span class="kw">None</span>, headers=<span class="kw">None</span>, token=<span class="kw">None</span>):
+        merged = {<span class="str">"Accept"</span>: <span class="str">"application/json"</span>}
+        <span class="kw">if</span> json_body <span class="kw">is not</span> <span class="kw">None</span>:
+            merged[<span class="str">"Content-Type"</span>] = <span class="str">"application/json"</span>
+        eff_token = token <span class="kw">if</span> token <span class="kw">is not</span> <span class="kw">None</span> <span class="kw">else</span> <span class="kw">self</span>._token
+        <span class="kw">if</span> eff_token:
+            merged[<span class="str">"Authorization"</span>] = <span class="kw">f</span><span class="str">"Bearer {eff_token}"</span>
+        <span class="kw">if</span> headers: merged.<span class="fn">update</span>(headers)
+
+        start = time.<span class="fn">perf_counter</span>()
+        resp = <span class="kw">self</span>._session.<span class="fn">request</span>(method.<span class="fn">upper</span>(), <span class="kw">f</span><span class="str">"{self.base_url}{path}"</span>,
+            json=json_body, params=params, headers=merged,
+            timeout=SETTINGS.request_timeout_s)
+        elapsed_ms = (time.<span class="fn">perf_counter</span>() - start) * <span class="num">1000.0</span>
+
+        body = resp.<span class="fn">json</span>() <span class="kw">if</span> resp.headers.<span class="fn">get</span>(<span class="str">"content-type"</span>, <span class="str">""</span>).<span class="fn">startswith</span>(<span class="str">"application/json"</span>) <span class="kw">else</span> resp.text
+        <span class="kw">return</span> <span class="tp">ApiResponse</span>(status=resp.status_code, body=body, headers=resp.headers, elapsed_ms=elapsed_ms)</code></pre>
+
+        <p><code>conftest.py</code> &mdash; the <code>authed_api</code> fixture:</p>
+<pre><code><span class="an">@pytest.fixture</span>
+<span class="kw">def</span> <span class="fn">authed_api</span>(api: <span class="tp">ApiClient</span>, credentials: <span class="tp">Credentials</span>) -&gt; <span class="tp">ApiClient</span>:
+    <span class="cm">"""Register a fresh user; return an ApiClient with the access token loaded."""</span>
+    resp = api.<span class="fn">post</span>(
+        <span class="str">"/api/v1/auth/register"</span>,
+        json_body={<span class="str">"email"</span>: credentials.email, <span class="str">"password"</span>: credentials.password},
+    ).<span class="fn">expect_ok</span>(allowed=(<span class="num">201</span>,))
+    <span class="kw">return</span> api.<span class="fn">with_token</span>(resp.body[<span class="str">"access_token"</span>])</code></pre>
+
+        <p><code>tests/api/test_auth.py</code> &mdash; happy path + 4 negative paths:</p>
+<pre><code><span class="an">@pytest.mark.smoke</span>
+<span class="an">@pytest.mark.api</span>
+<span class="kw">def</span> <span class="fn">test_register_returns_bearer_token_matching_schema</span>(api, credentials):
+    resp = api.<span class="fn">post</span>(
+        <span class="str">"/api/v1/auth/register"</span>,
+        json_body={<span class="str">"email"</span>: credentials.email, <span class="str">"password"</span>: credentials.password},
+    ).<span class="fn">expect_ok</span>(allowed=(<span class="num">201</span>,))
+    <span class="fn">assert_matches</span>(<span class="str">"AuthResponse"</span>, resp.body)
+    <span class="kw">assert</span> resp.body[<span class="str">"token_type"</span>] == <span class="str">"Bearer"</span>
+    <span class="kw">assert</span> resp.body[<span class="str">"access_token"</span>].<span class="fn">count</span>(<span class="str">"."</span>) == <span class="num">2</span>  <span class="cm"># JWT header.payload.signature</span>
+
+<span class="an">@pytest.mark.negative</span>
+<span class="kw">def</span> <span class="fn">test_register_rejects_short_password</span>(api):
+    resp = api.<span class="fn">post</span>(<span class="str">"/api/v1/auth/register"</span>,
+        json_body={<span class="str">"email"</span>: <span class="fn">new_credentials</span>().email, <span class="str">"password"</span>: <span class="str">"short"</span>})
+    <span class="kw">assert</span> resp.status == <span class="num">400</span>
+    <span class="fn">assert_matches</span>(<span class="str">"ErrorResponse"</span>, resp.body)</code></pre>
+      </div>
+
+      <!-- 2. JSON Schema -->
+      <div class="card">
+        <div class="tech-header">
+          <div class="tech-number tech-number-schema">2</div>
+          <h2 class="tech-title">Contract validation against the live OpenAPI doc <span class="badge badge-schema">JSON SCHEMA</span></h2>
+        </div>
+        <div class="tech-theory">
+          Every successful response is validated against
+          <code>backend/openapi.json</code> with <code>Draft202012Validator</code>. Drift
+          between the implementation and the published contract fails CI before partners
+          or the frontend ever see it. One subtle gotcha: OpenAPI 3.0&rsquo;s
+          <code>nullable: true</code> keyword does not exist in JSON Schema 2020-12, so
+          the loader normalises it to a type union (<code>type: [..., "null"]</code>) on
+          load. This caught a real bug during initial bring-up &mdash; the spec advertised
+          <code>outcome.bonus_triggered</code> as a non-nullable object, but production
+          returned <code>null</code> on every base-game spin.
+        </div>
+        <p><code>framework/schemas.py</code> &mdash; OpenAPI 3.0 nullable normaliser:</p>
+<pre><code><span class="kw">def</span> <span class="fn">_normalize_nullable</span>(node):
+    <span class="cm">"""Translate OpenAPI 3.0 `nullable: true` into JSON Schema's `type: [..., "null"]`."""</span>
+    <span class="kw">if</span> <span class="fn">isinstance</span>(node, <span class="tp">dict</span>):
+        <span class="kw">if</span> node.<span class="fn">pop</span>(<span class="str">"nullable"</span>, <span class="kw">False</span>):
+            t = node.<span class="fn">get</span>(<span class="str">"type"</span>)
+            <span class="kw">if</span> <span class="fn">isinstance</span>(t, <span class="tp">str</span>):
+                node[<span class="str">"type"</span>] = [t, <span class="str">"null"</span>]
+            <span class="kw">elif</span> <span class="fn">isinstance</span>(t, <span class="tp">list</span>) <span class="kw">and</span> <span class="str">"null"</span> <span class="kw">not in</span> t:
+                node[<span class="str">"type"</span>] = [*t, <span class="str">"null"</span>]
+            <span class="cm"># type-less + nullable → empty schema accepts anything (incl. null)</span>
+        <span class="kw">for</span> v <span class="kw">in</span> node.<span class="fn">values</span>(): <span class="fn">_normalize_nullable</span>(v)
+    <span class="kw">elif</span> <span class="fn">isinstance</span>(node, <span class="tp">list</span>):
+        <span class="kw">for</span> v <span class="kw">in</span> node: <span class="fn">_normalize_nullable</span>(v)
+    <span class="kw">return</span> node
+
+<span class="kw">def</span> <span class="fn">assert_matches</span>(component_name, payload):
+    errors = <span class="fn">sorted</span>(<span class="fn">validator_for</span>(component_name).<span class="fn">iter_errors</span>(payload),
+                     key=<span class="kw">lambda</span> e: <span class="fn">list</span>(e.path))
+    <span class="kw">if not</span> errors: <span class="kw">return</span>
+    formatted = <span class="str">"\n"</span>.<span class="fn">join</span>(<span class="kw">f</span><span class="str">"  - {'/'.join(map(str, e.path)) or '&lt;root&gt;'}: {e.message}"</span>
+                            <span class="kw">for</span> e <span class="kw">in</span> errors)
+    <span class="kw">raise</span> <span class="tp">AssertionError</span>(<span class="kw">f</span><span class="str">"Payload does not match schema {component_name}:\n{formatted}"</span>)</code></pre>
+
+        <p>Used at the boundary of every game-flow assertion:</p>
+<pre><code><span class="kw">def</span> <span class="fn">_spin_once</span>(api, session, *, amount=<span class="num">1.0</span>, lines=<span class="kw">None</span>):
+    cfg = session[<span class="str">"config"</span>]
+    eff = lines <span class="kw">if</span> lines <span class="kw">is not</span> <span class="kw">None</span> <span class="kw">else</span> cfg.<span class="fn">get</span>(<span class="str">"default_lines"</span>, cfg[<span class="str">"max_lines"</span>])
+    resp = api.<span class="fn">post</span>(<span class="str">"/api/v1/spin"</span>, json_body={
+        <span class="str">"session_id"</span>: session[<span class="str">"session_id"</span>],
+        <span class="str">"game_id"</span>: SETTINGS.default_game_id,
+        <span class="str">"bet"</span>: {<span class="str">"amount"</span>: amount, <span class="str">"currency"</span>: <span class="str">"USD"</span>, <span class="str">"lines"</span>: eff},
+        <span class="str">"client_timestamp"</span>: <span class="fn">int</span>(time.<span class="fn">time</span>() * <span class="num">1000</span>),
+    }).<span class="fn">expect_ok</span>()
+    <span class="fn">assert_matches</span>(<span class="str">"SpinResponse"</span>, resp.body)  <span class="cm"># ← contract enforced</span>
+    <span class="kw">return</span> resp.body</code></pre>
+      </div>
+
+      <!-- 3. Provably Fair -->
+      <div class="card">
+        <div class="tech-header">
+          <div class="tech-number tech-number-fair">3</div>
+          <h2 class="tech-title">Provably-fair HMAC re-derivation <span class="badge badge-fair">CRYPTO</span></h2>
+        </div>
+        <div class="tech-theory">
+          The operator commits a SHA-256 hash of <code>server_seed</code> before any spin.
+          Each round&rsquo;s RNG seed is then derived as
+          <code>HMAC-SHA256(server_seed, "&lt;client_seed&gt;:&lt;nonce&gt;")[:4]</code>. After seed
+          rotation, the previously-active <code>server_seed</code> is revealed. The test
+          re-derives the round seed locally with that revealed value and asserts that
+          <code>sha256(revealed)</code> equals the commitment stored on the round &mdash; a
+          mathematical guarantee that the operator could not have post-hoc tampered with
+          the outcome.
+        </div>
+        <p><code>framework/provably_fair.py</code> &mdash; mirrors the backend's derivation:</p>
+<pre><code><span class="kw">def</span> <span class="fn">sha256_hex</span>(data: <span class="tp">str</span>) -&gt; <span class="tp">str</span>:
+    <span class="kw">return</span> hashlib.<span class="fn">sha256</span>(data.<span class="fn">encode</span>(<span class="str">"utf-8"</span>)).<span class="fn">hexdigest</span>()
+
+<span class="kw">def</span> <span class="fn">derive_round_seed</span>(server_seed: <span class="tp">str</span>, client_seed: <span class="tp">str</span>, nonce: <span class="tp">int</span>) -&gt; <span class="tp">int</span>:
+    <span class="cm">"""HMAC-SHA256(server_seed, "&lt;client_seed&gt;:&lt;nonce&gt;"), first 4 bytes → uint32 RNG seed."""</span>
+    msg = <span class="kw">f</span><span class="str">"{client_seed}:{nonce}"</span>.<span class="fn">encode</span>(<span class="str">"utf-8"</span>)
+    digest = hmac.<span class="fn">new</span>(server_seed.<span class="fn">encode</span>(<span class="str">"utf-8"</span>), msg, hashlib.sha256).<span class="fn">digest</span>()
+    <span class="kw">return</span> <span class="tp">int</span>.<span class="fn">from_bytes</span>(digest[:<span class="num">4</span>], byteorder=<span class="str">"big"</span>, signed=<span class="kw">False</span>)
+
+<span class="kw">def</span> <span class="fn">server_seed_matches_hash</span>(revealed: <span class="tp">str</span>, published_hash: <span class="tp">str</span>) -&gt; <span class="tp">bool</span>:
+    <span class="kw">return</span> <span class="fn">sha256_hex</span>(revealed).<span class="fn">lower</span>() == published_hash.<span class="fn">lower</span>()</code></pre>
+
+        <p>The test that closes the loop &mdash; spin, rotate, re-derive, verify:</p>
+<pre><code><span class="an">@pytest.mark.regression</span>
+<span class="an">@pytest.mark.provably_fair</span>
+<span class="kw">def</span> <span class="fn">test_round_seed_can_be_independently_re_derived</span>(authed_api):
+    init = authed_api.<span class="fn">post</span>(<span class="str">"/api/v1/game/init"</span>, json_body={...}).<span class="fn">expect_ok</span>().body
+    spin = authed_api.<span class="fn">post</span>(<span class="str">"/api/v1/spin"</span>, json_body={...}).<span class="fn">expect_ok</span>().body
+
+    rotated  = authed_api.<span class="fn">post</span>(<span class="str">"/api/v1/provably-fair/rotate"</span>).<span class="fn">expect_ok</span>().body
+    revealed = (rotated.<span class="fn">get</span>(<span class="str">"previous"</span>) <span class="kw">or</span> {}).<span class="fn">get</span>(<span class="str">"server_seed"</span>)
+    detail   = authed_api.<span class="fn">get</span>(<span class="kw">f</span><span class="str">"/api/v1/history/{spin['spin_id']}"</span>).<span class="fn">expect_ok</span>().body
+    pf       = detail[<span class="str">"provably_fair"</span>]
+
+    <span class="cm"># 1) Revealed seed must hash to the commitment stored on the round.</span>
+    <span class="kw">assert</span> <span class="fn">sha256_hex</span>(revealed) == pf[<span class="str">"server_seed_hash"</span>]
+
+    <span class="cm"># 2) Independently re-derive the per-round RNG seed.</span>
+    seed = <span class="fn">derive_round_seed</span>(revealed, pf[<span class="str">"client_seed"</span>], <span class="fn">int</span>(pf[<span class="str">"nonce"</span>]))
+    <span class="kw">assert</span> <span class="num">0</span> &lt;= seed &lt; <span class="num">2</span>**<span class="num">32</span></code></pre>
+      </div>
+
+      <!-- 4. Playwright Page Objects -->
+      <div class="card">
+        <div class="tech-header">
+          <div class="tech-number tech-number-pw">4</div>
+          <h2 class="tech-title">Playwright UI tests with Page Objects <span class="badge badge-pw">PLAYWRIGHT</span></h2>
+        </div>
+        <div class="tech-theory">
+          UI tests deliberately stay thin &mdash; the framework seeds state via the API
+          (faster, deterministic) and uses Playwright only to drive flows that genuinely
+          require a browser. Page Objects expose a small, intention-revealing API
+          (<code>visit(mode="register")</code>, <code>fill_credentials()</code>,
+          <code>submit()</code>) so test bodies read like specification narratives.
+        </div>
+        <p><code>tests/ui/pages/auth_page.py</code> &mdash; fluent Page Object:</p>
+<pre><code><span class="kw">class</span> <span class="tp">AuthPage</span>:
+    LOGIN_PATH = <span class="str">"/login"</span>
+    REGISTER_PATH = <span class="str">"/register"</span>
+
+    <span class="kw">def</span> <span class="fn">visit</span>(<span class="kw">self</span>, *, mode: <span class="tp">str</span> = <span class="str">"login"</span>) -&gt; <span class="str">"AuthPage"</span>:
+        path = <span class="kw">self</span>.REGISTER_PATH <span class="kw">if</span> mode == <span class="str">"register"</span> <span class="kw">else</span> <span class="kw">self</span>.LOGIN_PATH
+        <span class="kw">self</span>.page.<span class="fn">goto</span>(<span class="kw">f</span><span class="str">"{self.base_url}{path}"</span>)
+        <span class="fn">expect</span>(<span class="kw">self</span>.page.<span class="fn">locator</span>(<span class="str">"#auth-email"</span>)).<span class="fn">to_be_visible</span>()
+        <span class="kw">return</span> <span class="kw">self</span>
+
+    <span class="kw">def</span> <span class="fn">fill_credentials</span>(<span class="kw">self</span>, email, password):
+        <span class="kw">self</span>.page.<span class="fn">locator</span>(<span class="str">"#auth-email"</span>).<span class="fn">fill</span>(email)
+        <span class="kw">self</span>.page.<span class="fn">locator</span>(<span class="str">"#auth-password"</span>).<span class="fn">fill</span>(password)
+        <span class="kw">return</span> <span class="kw">self</span>
+
+    <span class="kw">def</span> <span class="fn">submit</span>(<span class="kw">self</span>): <span class="kw">self</span>.page.<span class="fn">get_by_role</span>(<span class="str">"button"</span>, name=<span class="str">"Create Account"</span>).<span class="fn">click</span>(); <span class="kw">return</span> <span class="kw">self</span>
+    <span class="kw">def</span> <span class="fn">submit_login</span>(<span class="kw">self</span>): <span class="kw">self</span>.page.<span class="fn">get_by_role</span>(<span class="str">"button"</span>, name=<span class="str">"Login"</span>).<span class="fn">click</span>(); <span class="kw">return</span> <span class="kw">self</span></code></pre>
+
+        <p>Register flow as a single readable sentence:</p>
+<pre><code><span class="an">@pytest.mark.smoke</span>
+<span class="an">@pytest.mark.ui</span>
+<span class="kw">def</span> <span class="fn">test_register_new_user_lands_in_game_shell</span>(page, base_url):
+    creds = <span class="fn">new_credentials</span>()
+    auth = <span class="tp">AuthPage</span>(page, base_url).<span class="fn">visit</span>(mode=<span class="str">"register"</span>)
+    auth.<span class="fn">fill_credentials</span>(creds.email, creds.password).<span class="fn">confirm_age</span>().<span class="fn">submit</span>()
+    <span class="tp">GamePage</span>(page, base_url).<span class="fn">wait_for_logged_in</span>()</code></pre>
+      </div>
+
+      <!-- 5. CI/CD -->
+      <div class="card">
+        <div class="tech-header">
+          <div class="tech-number tech-number-ci">5</div>
+          <h2 class="tech-title">CI/CD &mdash; GitHub Actions with ephemeral keys <span class="badge badge-ci">CI/CD</span></h2>
+        </div>
+        <div class="tech-theory">
+          The workflow boots a Postgres service container, builds the backend, mints a
+          fresh RS256 keypair per run (so committed keys never touch the repo), starts the
+          backend, and runs Pytest with parallel workers and one auto-retry. Allure results
+          upload as a build artifact for later inspection. Triggers on PR for any path
+          under <code>qa-python/</code>, <code>backend/</code>, or <code>frontend/</code>.
+        </div>
+        <p><code>.github/workflows/qa-python.yml</code>:</p>
+<pre><code><span class="kw">name</span>: qa-python
+<span class="kw">on</span>:
+  pull_request:
+    paths: [<span class="str">"qa-python/**"</span>, <span class="str">"backend/**"</span>, <span class="str">"frontend/**"</span>, <span class="str">".github/workflows/qa-python.yml"</span>]
+
+<span class="kw">jobs</span>:
+  <span class="fn">api</span>:
+    runs-on: ubuntu-latest
+    services:
+      postgres: { image: postgres:<span class="num">16</span>-alpine, ports: [<span class="str">"5432:5432"</span>], ... }
+    steps:
+      - <span class="kw">name</span>: Generate ephemeral RS256 JWT keypair
+        <span class="kw">run</span>: |
+          openssl genpkey -algorithm RSA -pkeyopt rsa_keygen_bits:<span class="num">2048</span> -out jwt_private.pem
+          openssl rsa -in jwt_private.pem -pubout -out jwt_public.pem
+          { echo <span class="str">'JWT_PRIVATE_KEY&lt;&lt;EOF'</span>; cat jwt_private.pem; echo EOF; } &gt;&gt; <span class="str">"$GITHUB_ENV"</span>
+          { echo <span class="str">'JWT_PUBLIC_KEY&lt;&lt;EOF'</span>;  cat jwt_public.pem;  echo EOF; } &gt;&gt; <span class="str">"$GITHUB_ENV"</span>
+
+      - <span class="kw">name</span>: Start backend
+        <span class="kw">run</span>: |
+          nohup node dist/index.js &gt; backend.log <span class="num">2</span>&gt;&amp;<span class="num">1</span> &amp;
+          for i in $(seq <span class="num">1</span> <span class="num">40</span>); do
+            curl -sf http://localhost:<span class="num">3001</span>/ready &gt;/dev/null &amp;&amp; { echo backend up; exit <span class="num">0</span>; }
+            sleep <span class="num">1</span>
+          done; exit <span class="num">1</span>
+
+      - <span class="kw">name</span>: Run API tests
+        <span class="kw">run</span>: pytest tests/api -n auto --reruns <span class="num">1</span> --alluredir=allure-results
+
+      - <span class="kw">uses</span>: actions/upload-artifact@v4
+        <span class="kw">with</span>: { name: qa-python-allure-results, path: qa-python/allure-results }</code></pre>
+      </div>
+
+      <!-- Coverage matrix -->
+      <div class="card">
+        <p class="section-title">Test coverage matrix</p>
+        <p class="section-desc">Markers can be combined: <code>pytest -m "smoke and api"</code>, <code>pytest -m "regression and not ui"</code>.</p>
+        <div class="cov-grid">
+          <div class="cov-item">
+            <h4>Auth (6)</h4>
+            <ul>
+              <li>Register → Bearer JWT</li>
+              <li>Login → fresh access token</li>
+              <li>Short password → 400</li>
+              <li>Invalid email → 400</li>
+              <li>Wrong password → 401</li>
+              <li>Duplicate email → 400/409</li>
+            </ul>
+          </div>
+          <div class="cov-item">
+            <h4>Game flow (6)</h4>
+            <ul>
+              <li>Init returns config + session_id</li>
+              <li>Spin debits wallet, returns reel matrix</li>
+              <li>Spin without token → 401</li>
+              <li>Spin with bogus session → 4xx</li>
+              <li>History lists recent spins</li>
+              <li>Round detail matches spin response</li>
+            </ul>
+          </div>
+          <div class="cov-item">
+            <h4>Provably-fair (3)</h4>
+            <ul>
+              <li>Active pair publishes hash only</li>
+              <li>Rotation reveals the prior server_seed</li>
+              <li>Local HMAC re-derivation matches the round's commitment</li>
+            </ul>
+          </div>
+          <div class="cov-item">
+            <h4>Health probes (2)</h4>
+            <ul>
+              <li>/health → {"status":"ok"}</li>
+              <li>/ready → checks.database.status = ok</li>
+              <li>Skip cleanly when SPA-fronted</li>
+            </ul>
+          </div>
+          <div class="cov-item">
+            <h4>UI smoke (3)</h4>
+            <ul>
+              <li>Register lands user in game shell</li>
+              <li>Bad login surfaces inline error</li>
+              <li>API-seeded spin → /history renders</li>
+            </ul>
+          </div>
+          <div class="cov-item">
+            <h4>Pytest markers</h4>
+            <ul>
+              <li><code>smoke</code> — gated path on every PR</li>
+              <li><code>regression</code> — full coverage</li>
+              <li><code>api</code> / <code>ui</code> — surface scope</li>
+              <li><code>negative</code> — error paths</li>
+              <li><code>provably_fair</code> — fairness verification</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <!-- Why this design -->
+      <div class="card">
+        <p class="section-title">Why this design</p>
+        <p class="section-desc">A short tour through the deliberate choices.</p>
+        <p>
+          <strong>No business-logic mocks.</strong> Every test hits a real backend with a
+          real Postgres &mdash; CI spins both up. Mocked tests passing while a migration
+          silently breaks production is a failure mode this codebase has explicitly chosen
+          to avoid.
+        </p>
+        <p>
+          <strong>Contract is the source of truth.</strong> The framework reads
+          <code>backend/openapi.json</code> directly. There is no parallel set of Python
+          DTOs to drift; the only place a response shape lives is the published spec.
+        </p>
+        <p>
+          <strong>Cryptographic verification, not just status-code checks.</strong> The
+          provably-fair tests prove a property the operator cannot fake by adjusting their
+          server &mdash; they would have to break SHA-256 or HMAC.
+        </p>
+        <p>
+          <strong>Healthcare-pivot ready.</strong> For an FHIR / HL7v2 / DICOM context,
+          the same architecture applies: swap <code>schemas.py</code> over to FHIR
+          StructureDefinition JSON, add an OAuth2 token-exchange step in the
+          <code>ApiClient</code>, and layer <code>pytest-bdd</code> for
+          scenario-driven compliance documentation. The framework split (config /
+          client / contract / domain helpers) was chosen so this swap stays surgical.
+        </p>
+      </div>
+    </div>
+  </body>
+</html>
