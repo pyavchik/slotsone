@@ -25,6 +25,7 @@ const VISUAL_REGRESSION_PATH = '/visual-regression.html';
 const NETWORK_TESTING_PATH = '/network-testing.html';
 const GRAPHQL_TESTING_PATH = '/graphql-testing.html';
 const JAVA_AUTOMATION_PATH = '/java-automation.html';
+const PYTHON_AUTOMATION_PATH = '/python-automation.html';
 
 const SKILLS = [
   'Java',
@@ -127,6 +128,15 @@ export function CVLanding() {
               data-testid="cv-java-automation"
             >
               java automation
+            </a>
+            <a
+              className="cv-link"
+              href={PYTHON_AUTOMATION_PATH}
+              target="_blank"
+              rel="noreferrer"
+              data-testid="cv-python-automation"
+            >
+              python automation
             </a>
             <a
               className="cv-link"
