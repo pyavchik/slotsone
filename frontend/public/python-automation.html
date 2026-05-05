@@ -68,6 +68,7 @@
       .badge-fair      { background: rgba(167,139,250,.18); color: #a78bfa; }
       .badge-pw        { background: rgba(62,224,169,.15);  color: #3ee0a9; }
       .badge-ci        { background: rgba(251,146,60,.15);  color: #fb923c; }
+      .badge-aws       { background: rgba(255,153,0,.15);   color: #ff9900; }
 
       .section-title {
         font-size: 18px; font-weight: 700; margin: 0 0 4px;
@@ -92,6 +93,7 @@
       .tech-number-fair   { background: rgba(167,139,250,.15); color: #a78bfa; }
       .tech-number-pw     { background: rgba(62,224,169,.15);  color: #3ee0a9; }
       .tech-number-ci     { background: rgba(251,146,60,.15);  color: #fb923c; }
+      .tech-number-aws    { background: rgba(255,153,0,.15);   color: #ff9900; }
 
       .tech-title {
         font-size: 16px; font-weight: 700; margin: 0; color: #f1f5f9;
@@ -212,15 +214,17 @@
           <div class="stack-item"><strong>pytest-xdist</strong><span>Parallel Execution</span></div>
           <div class="stack-item"><strong>Allure</strong><span>Reporting</span></div>
           <div class="stack-item"><strong>GitHub Actions</strong><span>CI/CD</span></div>
+          <div class="stack-item"><strong>boto3</strong><span>AWS SDK</span></div>
+          <div class="stack-item"><strong>moto / LocalStack</strong><span>AWS mock</span></div>
         </div>
 
         <div class="stats">
-          <div class="stat"><strong>20</strong>tests total</div>
+          <div class="stat"><strong>27</strong>tests total</div>
           <div class="stat"><strong>17</strong>API tests</div>
           <div class="stat"><strong>3</strong>UI tests</div>
-          <div class="stat"><strong>6</strong>Pytest markers</div>
+          <div class="stat"><strong>7</strong>AWS tests</div>
+          <div class="stat"><strong>7</strong>Pytest markers</div>
           <div class="stat"><strong>2</strong>Page Objects</div>
-          <div class="stat"><strong>1</strong>contract spec</div>
         </div>
 
         <p style="margin-top: 14px;">
@@ -243,6 +247,11 @@
     <span class="file">data_factory.py</span>              <span class="cm"># Faker-backed credential factories</span>
     <span class="file">schemas.py</span>                   <span class="cm"># OpenAPI 3.0 → JSON Schema 2020-12 validator</span>
     <span class="file">provably_fair.py</span>             <span class="cm"># HMAC-SHA256 round-seed re-derivation</span>
+    <span class="dir">aws/</span>
+      <span class="file">client_factory.py</span>           <span class="cm"># boto3 client cache, AWS_ENDPOINT_URL aware</span>
+      <span class="file">s3_assertions.py</span>            <span class="cm"># exists / wait_for / metadata helpers</span>
+      <span class="file">sqs_assertions.py</span>           <span class="cm"># predicate-based message polling</span>
+      <span class="file">cloudwatch_assertions.py</span>    <span class="cm"># filter_log_events + pattern poller</span>
   <span class="dir">tests/</span>
     <span class="dir">api/</span>
       <span class="test">test_health.py</span>             <span class="cm"># 2 tests — liveness, readiness</span>
@@ -256,8 +265,15 @@
         <span class="file">game_page.py</span>             <span class="cm"># post-login shell</span>
       <span class="test">test_auth_ui.py</span>            <span class="cm"># register + bad-login UI smoke</span>
       <span class="test">test_history_ui.py</span>         <span class="cm"># API-seeded spin → /history renders</span>
+    <span class="dir">aws/</span>
+      <span class="file">conftest.py</span>                <span class="cm"># moto fallback / LocalStack / real AWS — auto-selects</span>
+      <span class="test">test_s3_artifact_pipeline.py</span>     <span class="cm"># 3 tests — exists, wait, metadata</span>
+      <span class="test">test_sqs_event_published.py</span>      <span class="cm"># 2 tests — predicate match + miss</span>
+      <span class="test">test_cloudwatch_log_emission.py</span>  <span class="cm"># 2 tests — filter pattern + miss</span>
+  <span class="conf">docker-compose.localstack.yml</span>   <span class="cm"># LocalStack S3/SQS/Logs for prod-grade local runs</span>
 .<span class="dir">github/workflows/</span>
-  <span class="conf">qa-python.yml</span>                  <span class="cm"># Postgres service → backend boot → pytest -n auto</span></div>
+  <span class="conf">qa-python.yml</span>                  <span class="cm"># Postgres service → backend boot → pytest -n auto</span>
+  <span class="conf">qa-python-aws.yml</span>              <span class="cm"># LocalStack service → pytest tests/aws -m aws</span></div>
       </div>
 
       <!-- 1. Pytest fixtures + Requests client -->
@@ -522,6 +538,83 @@
         <span class="kw">with</span>: { name: qa-python-allure-results, path: qa-python/allure-results }</code></pre>
       </div>
 
+      <!-- 6. AWS integrations -->
+      <div class="card">
+        <div class="tech-header">
+          <div class="tech-number tech-number-aws">6</div>
+          <h2 class="tech-title">AWS integrations &mdash; boto3, moto, LocalStack <span class="badge badge-aws">AWS</span></h2>
+        </div>
+        <div class="tech-theory">
+          The framework speaks boto3 against three interchangeable backends: real
+          AWS, a LocalStack container, or an in-process <code>moto</code>
+          ThreadedMotoServer. The choice is made by environment: if
+          <code>AWS_ENDPOINT_URL</code> is set, boto3 talks to that endpoint; if
+          <code>CI_AWS_REAL=1</code>, it uses ambient AWS credentials; otherwise
+          a moto server is spun up on a free port for the test session. Same
+          test code runs everywhere &mdash; what changes is the trust level of
+          the signal. AWS-tagged tests are gated behind <code>@pytest.mark.aws</code>
+          so the rest of the suite runs without any AWS infrastructure.
+        </div>
+
+        <p><code>framework/aws/s3_assertions.py</code> &mdash; bounded waiter for async uploads:</p>
+<pre><code><span class="kw">def</span> <span class="fn">wait_for_object</span>(bucket, key, *, timeout_s=<span class="num">10.0</span>, poll_interval_s=<span class="num">0.5</span>):
+    <span class="cm">"""Poll until s3://bucket/key exists or the timeout elapses.
+
+    Use when an upload is asynchronous (Lambda, queue worker) and the test
+    cannot synchronise on the producer."""</span>
+    deadline = time.<span class="fn">monotonic</span>() + timeout_s
+    <span class="kw">while</span> time.<span class="fn">monotonic</span>() &lt; deadline:
+        head = <span class="fn">_head_object</span>(bucket, key)
+        <span class="kw">if</span> head <span class="kw">is not</span> <span class="kw">None</span>:
+            <span class="kw">return</span> head
+        time.<span class="fn">sleep</span>(poll_interval_s)
+    <span class="kw">raise</span> <span class="tp">AssertionError</span>(<span class="kw">f</span><span class="str">"S3 object did not appear within {timeout_s}s: s3://{bucket}/{key}"</span>)</code></pre>
+
+        <p><code>tests/aws/test_sqs_event_published.py</code> &mdash; predicate-based queue assertion:</p>
+<pre><code><span class="an">@pytest.mark.aws</span>
+<span class="an">@pytest.mark.smoke</span>
+<span class="kw">def</span> <span class="fn">test_published_event_lands_with_expected_shape</span>(sqs_queue):
+    <span class="fn">drain_queue</span>(sqs_queue)
+    event_id = <span class="fn">str</span>(uuid.<span class="fn">uuid4</span>())
+    payload = {<span class="str">"event_type"</span>: <span class="str">"wallet_credited"</span>, <span class="str">"event_id"</span>: event_id,
+               <span class="str">"user_id"</span>: <span class="str">"user-abc-123"</span>, <span class="str">"amount_cents"</span>: <span class="num">500</span>, <span class="str">"currency"</span>: <span class="str">"USD"</span>}
+    <span class="fn">aws_client</span>(<span class="str">"sqs"</span>).<span class="fn">send_message</span>(QueueUrl=sqs_queue, MessageBody=json.<span class="fn">dumps</span>(payload))
+
+    matched = <span class="fn">assert_message_in_queue</span>(
+        sqs_queue,
+        predicate=<span class="kw">lambda</span> body: <span class="fn">isinstance</span>(body, <span class="tp">dict</span>)
+            <span class="kw">and</span> body.<span class="fn">get</span>(<span class="str">"event_id"</span>) == event_id
+            <span class="kw">and</span> body.<span class="fn">get</span>(<span class="str">"event_type"</span>) == <span class="str">"wallet_credited"</span>,
+        timeout_s=<span class="num">5</span>,
+    )
+    body = json.<span class="fn">loads</span>(matched[<span class="str">"Body"</span>])
+    <span class="kw">assert</span> body[<span class="str">"amount_cents"</span>] == <span class="num">500</span></code></pre>
+
+        <p><code>tests/aws/conftest.py</code> &mdash; auto-selects backend so any developer can run AWS tests:</p>
+<pre><code><span class="an">@pytest.fixture</span>(scope=<span class="str">"session"</span>, autouse=<span class="kw">True</span>)
+<span class="kw">def</span> <span class="fn">_aws_session_setup</span>():
+    <span class="cm"># 1) CI_AWS_REAL=1     → real AWS, ambient creds
+    # 2) AWS_ENDPOINT_URL → LocalStack / staging / etc.
+    # 3) neither          → in-process moto server (zero infra)</span>
+    <span class="kw">if</span> os.<span class="fn">getenv</span>(<span class="str">"CI_AWS_REAL"</span>) == <span class="str">"1"</span>: <span class="kw">yield</span>; <span class="kw">return</span>
+    <span class="kw">if</span> os.<span class="fn">getenv</span>(<span class="str">"AWS_ENDPOINT_URL"</span>): <span class="kw">yield</span>; <span class="kw">return</span>
+
+    <span class="kw">from</span> moto.server <span class="kw">import</span> <span class="tp">ThreadedMotoServer</span>
+    server = <span class="tp">ThreadedMotoServer</span>(ip_address=<span class="str">"127.0.0.1"</span>, port=<span class="num">0</span>)
+    server.<span class="fn">start</span>()
+    host, port = server.<span class="fn">get_host_and_port</span>()
+    os.environ[<span class="str">"AWS_ENDPOINT_URL"</span>] = <span class="kw">f</span><span class="str">"http://{host}:{port}"</span>
+    <span class="fn">reset_clients</span>()
+    <span class="kw">try</span>: <span class="kw">yield</span>
+    <span class="kw">finally</span>: server.<span class="fn">stop</span>()</code></pre>
+
+        <p><strong>Honest framing:</strong> these tests demonstrate <em>AWS-aware testing patterns</em>
+        &mdash; bucket/queue/log post-conditions, async-upload waiters, predicate matchers, endpoint
+        portability. They are not a substitute for years of production AWS exposure
+        (IAM, VPC, multi-region, cost models). What they show is that I know which
+        observability surfaces a QA layer cares about and how to assert against them in CI.</p>
+      </div>
+
       <!-- Coverage matrix -->
       <div class="card">
         <p class="section-title">Test coverage matrix</p>
@@ -574,11 +667,23 @@
             </ul>
           </div>
           <div class="cov-item">
+            <h4>AWS integrations (7)</h4>
+            <ul>
+              <li>S3: object exists with metadata + cache headers</li>
+              <li>S3: async upload poller succeeds inside timeout</li>
+              <li>S3: missing object raises with clear path</li>
+              <li>SQS: predicate matches expected event shape</li>
+              <li>SQS: missing event times out with diagnostic</li>
+              <li>CloudWatch: emitted log line is searchable</li>
+              <li>CloudWatch: missing pattern raises with scan count</li>
+            </ul>
+          </div>
+          <div class="cov-item">
             <h4>Pytest markers</h4>
             <ul>
               <li><code>smoke</code> — gated path on every PR</li>
               <li><code>regression</code> — full coverage</li>
-              <li><code>api</code> / <code>ui</code> — surface scope</li>
+              <li><code>api</code> / <code>ui</code> / <code>aws</code> — surface scope</li>
               <li><code>negative</code> — error paths</li>
               <li><code>provably_fair</code> — fairness verification</li>
             </ul>
