@@ -1,0 +1,32 @@
+[project]
+name = "slotsone-qa-python"
+version = "0.1.0"
+description = "Python automation framework for SlotsOne RGS — Pytest + Playwright + JSON schema."
+requires-python = ">=3.11"
+dependencies = [
+  "pytest>=8.2",
+  "pytest-xdist>=3.6",
+  "pytest-rerunfailures>=14.0",
+  "pytest-playwright>=0.5",
+  "playwright>=1.45",
+  "requests>=2.32",
+  "jsonschema>=4.22",
+  "faker>=25.0",
+  "allure-pytest>=2.13",
+  "python-dotenv>=1.0",
+]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-ra --strict-markers --tb=short"
+markers = [
+  "smoke: minimal critical-path checks",
+  "regression: full regression suite",
+  "api: REST API tests",
+  "ui: Playwright UI tests",
+  "negative: negative / error-path tests",
+  "provably_fair: HMAC-SHA256 fairness verification",
+]
+filterwarnings = [
+  "ignore::DeprecationWarning",
+]
