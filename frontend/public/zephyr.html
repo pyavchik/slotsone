@@ -99,49 +99,43 @@
         background: rgba(62,224,169,.1);
       }
 
-      .twofa {
-        display: none;
-        margin: 0 0 18px;
-        padding: 14px 16px;
-        border-radius: 10px;
-        background: rgba(245,208,106,.08);
-        border: 1px solid rgba(245,208,106,.35);
+      .creds-row.twofa-row .val {
+        color: #64748b;
+        font-style: italic;
+        font-size: 12px;
+        user-select: none;
       }
-      .twofa.active { display: block; }
-      .twofa-title {
-        display: flex; align-items: center; gap: 8px;
-        font-size: 13px; font-weight: 700; color: #f5d06a;
-        margin: 0 0 10px;
+      .creds-row.twofa-row.active .val {
+        color: #f5d06a;
+        font-style: normal;
+        font-size: 18px;
+        font-weight: 700;
+        letter-spacing: 4px;
+        user-select: all;
+      }
+      .creds-row.twofa-row .copy-btn[disabled] {
+        opacity: .4;
+        cursor: not-allowed;
       }
       .twofa-pulse {
+        display: none;
         width: 8px; height: 8px; border-radius: 50%;
         background: #f5d06a;
+        flex-shrink: 0;
         animation: twofa-pulse 1.5s ease-in-out infinite;
       }
+      .creds-row.twofa-row.active .twofa-pulse { display: inline-block; }
       @keyframes twofa-pulse {
         0%, 100% { opacity: 1; transform: scale(1); }
         50% { opacity: 0.4; transform: scale(1.4); }
       }
-      .twofa-row {
-        display: flex; align-items: center; gap: 10px;
-        padding: 8px 0;
-      }
-      .twofa-code {
-        font-family: "JetBrains Mono", "Fira Code", "Cascadia Code", monospace;
-        font-size: 22px; font-weight: 700;
-        color: #f5d06a; letter-spacing: 4px;
-        flex: 1;
-        user-select: all;
-      }
       .twofa-meta {
-        font-size: 12px; color: #94a3b8;
-        margin: 4px 0 0;
+        display: none;
+        font-size: 11px; color: #94a3b8;
+        margin: -2px 0 4px 100px;
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
       }
-      .twofa-hint {
-        font-size: 12px; color: #cbd5e1;
-        line-height: 1.55;
-        margin: 0 0 10px;
-      }
+      .twofa-meta.visible { display: block; }
 
       ol { margin: 0 0 18px; padding-left: 22px; color: #dbe2ec; line-height: 1.7; }
       ol li { margin-bottom: 6px; }
@@ -206,20 +200,11 @@
             <span class="val" data-copy="guestForTest!">guestForTest!</span>
             <button type="button" class="copy-btn" data-copy-target="guestForTest!">Copy</button>
           </div>
-        </div>
-
-        <div id="twofa-panel" class="twofa" aria-live="polite">
-          <div class="twofa-title">
+          <div class="creds-row twofa-row" id="twofa-row">
+            <span class="lbl">2FA Code:</span>
+            <span class="val" id="twofa-code">Will appear here when Atlassian asks</span>
             <span class="twofa-pulse" aria-hidden="true"></span>
-            <span>Atlassian 2FA verification code</span>
-          </div>
-          <p class="twofa-hint">
-            If Atlassian asks for a 6-character verification code, paste this one.
-            It refreshes automatically when a new email arrives.
-          </p>
-          <div class="twofa-row">
-            <span id="twofa-code" class="twofa-code">------</span>
-            <button type="button" class="copy-btn" id="twofa-copy">Copy</button>
+            <button type="button" class="copy-btn" id="twofa-copy" disabled>Copy</button>
           </div>
           <p id="twofa-meta" class="twofa-meta"></p>
         </div>
@@ -281,10 +266,11 @@
       const TWOFA_POLL_MS = 5000;
       const TWOFA_FRESH_MS = 5 * 60 * 1000;
 
-      const panel    = document.getElementById('twofa-panel');
+      const row      = document.getElementById('twofa-row');
       const codeEl   = document.getElementById('twofa-code');
       const metaEl   = document.getElementById('twofa-meta');
       const copyBtn  = document.getElementById('twofa-copy');
+      const placeholderText = codeEl.textContent;
 
       let currentCode = null;
       let receivedAtMs = null;
@@ -295,13 +281,20 @@
         flashCopied(copyBtn);
       });
 
+      function deactivate() {
+        row.classList.remove('active');
+        metaEl.classList.remove('visible');
+        copyBtn.disabled = true;
+        codeEl.textContent = placeholderText;
+        currentCode = null;
+        receivedAtMs = null;
+      }
+
       function renderAge() {
         if (!receivedAtMs) return;
         const ageSec = Math.round((Date.now() - receivedAtMs) / 1000);
         if (ageSec * 1000 > TWOFA_FRESH_MS) {
-          panel.classList.remove('active');
-          currentCode = null;
-          receivedAtMs = null;
+          deactivate();
           return;
         }
         const display = ageSec < 60
@@ -316,7 +309,7 @@
           if (!res.ok) return;
           const data = await res.json();
           if (!data.code) {
-            if (!currentCode) panel.classList.remove('active');
+            if (!currentCode) deactivate();
             return;
           }
           if (data.code !== currentCode) {
@@ -324,7 +317,9 @@
             codeEl.textContent = data.code;
           }
           receivedAtMs = Date.parse(data.receivedAt);
-          panel.classList.add('active');
+          row.classList.add('active');
+          metaEl.classList.add('visible');
+          copyBtn.disabled = false;
           renderAge();
         } catch {
           /* network error — keep showing previous code */
