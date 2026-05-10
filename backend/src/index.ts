@@ -2,11 +2,13 @@ import './instrument.js';
 import { app } from './app.js';
 import { initDb, closePool } from './db.js';
 import { logger } from './logger.js';
+import { startAtlassian2FAWatcher, stopAtlassian2FAWatcher } from './atlassian2faStore.js';
 
 const PORT = Number(process.env.PORT) || 3001;
 const SHUTDOWN_TIMEOUT_MS = 10_000;
 
 await initDb();
+startAtlassian2FAWatcher();
 const server = app.listen(PORT, () => {
   logger.info('server_started', { port: PORT, env: process.env.NODE_ENV ?? 'unknown' });
 });
@@ -27,6 +29,7 @@ function shutdown(signal: string) {
 
   server.close(async () => {
     try {
+      await stopAtlassian2FAWatcher();
       await closePool();
       logger.info('shutdown_complete', { signal });
       process.exit(0);

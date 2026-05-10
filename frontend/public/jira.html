@@ -1,0 +1,338 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Jira Portfolio — pyavchik.space</title>
+    <style>
+      *, *::before, *::after { box-sizing: border-box; }
+
+      body {
+        margin: 0;
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+        background: linear-gradient(180deg, #0f1118 0%, #0b0d13 100%);
+        color: #f8fafc;
+        min-height: 100vh;
+        font-size: 14px;
+      }
+
+      .wrap {
+        max-width: 760px;
+        margin: 0 auto;
+        padding: 28px 18px 56px;
+        display: flex;
+        flex-direction: column;
+        gap: 14px;
+      }
+
+      .card {
+        border: 1px solid rgba(255,255,255,0.13);
+        border-radius: 14px;
+        background: rgba(17,20,30,0.78);
+        padding: 22px 24px;
+      }
+
+      h1 { margin: 0 0 6px; font-size: 26px; letter-spacing: -.3px; }
+      .subtitle { margin: 0 0 18px; color: #94a3b8; font-size: 13px; }
+      h2 { margin: 0 0 12px; font-size: 16px; color: #f1f5f9; }
+      p  { margin: 0 0 10px; color: #dbe2ec; line-height: 1.55; }
+
+      .back {
+        display: inline-flex; align-items: center; gap: 6px;
+        font-size: 13px; font-weight: 600; color: #94a3b8;
+        text-decoration: none;
+        border: 1px solid rgba(148,163,184,.3);
+        padding: 6px 12px; border-radius: 8px;
+        background: rgba(15,23,42,.5);
+        width: fit-content;
+      }
+      .back:hover { color: #f8fafc; border-color: rgba(148,163,184,.7); }
+
+      .badge {
+        display: inline-block; padding: 3px 9px; border-radius: 6px;
+        font-size: 11px; font-weight: 700; letter-spacing: .04em;
+        background: rgba(56,189,248,.15); color: #38bdf8;
+        margin-left: 8px; vertical-align: middle;
+      }
+
+      .creds {
+        margin: 0 0 18px;
+        padding: 16px 18px;
+        border-radius: 10px;
+        background: rgba(10,12,20,.85);
+        border: 1px solid rgba(148,163,184,.15);
+        font-family: "JetBrains Mono", "Fira Code", "Cascadia Code", monospace;
+        font-size: 13px;
+        line-height: 1.9;
+        color: #cbd5e1;
+      }
+      .creds-row {
+        display: flex; align-items: center; gap: 10px;
+        padding: 4px 0;
+      }
+      .creds .lbl { color: #94a3b8; display: inline-block; min-width: 90px; flex-shrink: 0; }
+      .creds .val { color: #c3e88d; user-select: all; flex: 1; word-break: break-all; }
+      .copy-btn {
+        flex-shrink: 0;
+        padding: 4px 10px;
+        font-size: 11px;
+        font-weight: 700;
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+        letter-spacing: .04em;
+        text-transform: uppercase;
+        color: #94a3b8;
+        background: rgba(15,23,42,.6);
+        border: 1px solid rgba(148,163,184,.25);
+        border-radius: 6px;
+        cursor: pointer;
+        transition: all .15s;
+        min-width: 64px;
+      }
+      .copy-btn:hover {
+        color: #f8fafc;
+        border-color: rgba(148,163,184,.55);
+        background: rgba(15,23,42,.9);
+      }
+      .copy-btn.copied {
+        color: #3ee0a9;
+        border-color: rgba(62,224,169,.5);
+        background: rgba(62,224,169,.1);
+      }
+
+      .twofa {
+        display: none;
+        margin: 0 0 18px;
+        padding: 14px 16px;
+        border-radius: 10px;
+        background: rgba(245,208,106,.08);
+        border: 1px solid rgba(245,208,106,.35);
+      }
+      .twofa.active { display: block; }
+      .twofa-title {
+        display: flex; align-items: center; gap: 8px;
+        font-size: 13px; font-weight: 700; color: #f5d06a;
+        margin: 0 0 10px;
+      }
+      .twofa-pulse {
+        width: 8px; height: 8px; border-radius: 50%;
+        background: #f5d06a;
+        animation: twofa-pulse 1.5s ease-in-out infinite;
+      }
+      @keyframes twofa-pulse {
+        0%, 100% { opacity: 1; transform: scale(1); }
+        50% { opacity: 0.4; transform: scale(1.4); }
+      }
+      .twofa-row {
+        display: flex; align-items: center; gap: 10px;
+        padding: 8px 0;
+      }
+      .twofa-code {
+        font-family: "JetBrains Mono", "Fira Code", "Cascadia Code", monospace;
+        font-size: 22px; font-weight: 700;
+        color: #f5d06a; letter-spacing: 4px;
+        flex: 1;
+        user-select: all;
+      }
+      .twofa-meta {
+        font-size: 12px; color: #94a3b8;
+        margin: 4px 0 0;
+      }
+      .twofa-hint {
+        font-size: 12px; color: #cbd5e1;
+        line-height: 1.55;
+        margin: 0 0 10px;
+      }
+
+      ol { margin: 0 0 18px; padding-left: 22px; color: #dbe2ec; line-height: 1.7; }
+      ol li { margin-bottom: 6px; }
+
+      .open-link {
+        display: inline-flex; align-items: center; gap: 8px;
+        padding: 12px 22px; border-radius: 10px;
+        background: rgba(56,189,248,.14);
+        border: 1px solid rgba(56,189,248,.35);
+        color: #38bdf8;
+        font-size: 14px; font-weight: 700;
+        text-decoration: none;
+        transition: all .2s;
+      }
+      .open-link:hover {
+        background: rgba(56,189,248,.22);
+        border-color: rgba(56,189,248,.6);
+      }
+
+      .note {
+        margin-top: 14px;
+        font-size: 12px; color: #94a3b8;
+        padding: 10px 14px;
+        border-left: 3px solid rgba(245,208,106,.4);
+        background: rgba(15,23,42,.45);
+        border-radius: 0 8px 8px 0;
+      }
+
+      @media (max-width: 600px) {
+        .wrap { padding: 16px 10px 40px; }
+        .card { padding: 16px 14px; }
+        h1 { font-size: 22px; }
+        .creds { font-size: 12px; }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="wrap">
+      <a class="back" href="/">&larr; Back to CV</a>
+
+      <div class="card">
+        <h1>Jira Portfolio<span class="badge">SCRUM BOARD</span></h1>
+        <p class="subtitle">
+          Personal Jira workspace showcasing backlog grooming, Scrum board management,
+          and story/task workflow from a real testing project.
+        </p>
+
+        <h2>Test Credentials</h2>
+        <div class="creds">
+          <div class="creds-row">
+            <span class="lbl">URL:</span>
+            <span class="val" data-copy="bestrpricecomua.atlassian.net">bestrpricecomua.atlassian.net</span>
+            <button type="button" class="copy-btn" data-copy-target="bestrpricecomua.atlassian.net">Copy</button>
+          </div>
+          <div class="creds-row">
+            <span class="lbl">Login:</span>
+            <span class="val" data-copy="guest-bestprice@ukr.net">guest-bestprice@ukr.net</span>
+            <button type="button" class="copy-btn" data-copy-target="guest-bestprice@ukr.net">Copy</button>
+          </div>
+          <div class="creds-row">
+            <span class="lbl">Password:</span>
+            <span class="val" data-copy="guestForTest!">guestForTest!</span>
+            <button type="button" class="copy-btn" data-copy-target="guestForTest!">Copy</button>
+          </div>
+        </div>
+
+        <div id="twofa-panel" class="twofa" aria-live="polite">
+          <div class="twofa-title">
+            <span class="twofa-pulse" aria-hidden="true"></span>
+            <span>Atlassian 2FA verification code</span>
+          </div>
+          <p class="twofa-hint">
+            If Atlassian asks for a 6-character verification code, paste this one.
+            It refreshes automatically when a new email arrives.
+          </p>
+          <div class="twofa-row">
+            <span id="twofa-code" class="twofa-code">------</span>
+            <button type="button" class="copy-btn" id="twofa-copy">Copy</button>
+          </div>
+          <p id="twofa-meta" class="twofa-meta"></p>
+        </div>
+
+        <h2>How to Log In</h2>
+        <ol>
+          <li>Click the <strong>Open Jira</strong> button below &mdash; it opens the SCRUM project board.</li>
+          <li>Atlassian will prompt you to sign in. Enter the email above and click <em>Continue</em>.</li>
+          <li>Enter the password above and click <em>Log in</em>.</li>
+          <li>You will land directly on the SCRUM backlog with full read access.</li>
+        </ol>
+
+        <a class="open-link" href="https://bestrpricecomua.atlassian.net/jira/software/projects/SCRUM/boards/1/backlog" target="_blank" rel="noreferrer">
+          Open Jira &rarr;
+        </a>
+
+        <div class="note">
+          Guest account is read-only and intended for portfolio review.
+          Please do not modify backlog items, sprint state, or board configuration.
+        </div>
+      </div>
+    </div>
+    <script>
+      async function copyText(text) {
+        try {
+          await navigator.clipboard.writeText(text);
+        } catch {
+          const ta = document.createElement('textarea');
+          ta.value = text;
+          ta.style.position = 'fixed';
+          ta.style.opacity = '0';
+          document.body.appendChild(ta);
+          ta.select();
+          document.execCommand('copy');
+          document.body.removeChild(ta);
+        }
+      }
+
+      function flashCopied(btn) {
+        const original = btn.textContent;
+        btn.textContent = 'Copied';
+        btn.classList.add('copied');
+        setTimeout(() => {
+          btn.textContent = original;
+          btn.classList.remove('copied');
+        }, 1500);
+      }
+
+      document.querySelectorAll('.copy-btn[data-copy-target]').forEach((btn) => {
+        btn.addEventListener('click', async () => {
+          await copyText(btn.getAttribute('data-copy-target') || '');
+          flashCopied(btn);
+        });
+      });
+
+      // ── Atlassian 2FA polling ──────────────────────────────
+      const TWOFA_ENDPOINT = '/api/v1/portfolio/atlassian-2fa';
+      const TWOFA_POLL_MS = 5000;
+      const TWOFA_FRESH_MS = 5 * 60 * 1000;
+
+      const panel    = document.getElementById('twofa-panel');
+      const codeEl   = document.getElementById('twofa-code');
+      const metaEl   = document.getElementById('twofa-meta');
+      const copyBtn  = document.getElementById('twofa-copy');
+
+      let currentCode = null;
+      let receivedAtMs = null;
+
+      copyBtn.addEventListener('click', async () => {
+        if (!currentCode) return;
+        await copyText(currentCode);
+        flashCopied(copyBtn);
+      });
+
+      function renderAge() {
+        if (!receivedAtMs) return;
+        const ageSec = Math.round((Date.now() - receivedAtMs) / 1000);
+        if (ageSec * 1000 > TWOFA_FRESH_MS) {
+          panel.classList.remove('active');
+          currentCode = null;
+          receivedAtMs = null;
+          return;
+        }
+        const display = ageSec < 60
+          ? `${ageSec}s ago`
+          : `${Math.floor(ageSec / 60)}m ${ageSec % 60}s ago`;
+        metaEl.textContent = `Received ${display}`;
+      }
+
+      async function pollOnce() {
+        try {
+          const res = await fetch(TWOFA_ENDPOINT, { cache: 'no-store' });
+          if (!res.ok) return;
+          const data = await res.json();
+          if (!data.code) {
+            if (!currentCode) panel.classList.remove('active');
+            return;
+          }
+          if (data.code !== currentCode) {
+            currentCode = data.code;
+            codeEl.textContent = data.code;
+          }
+          receivedAtMs = Date.parse(data.receivedAt);
+          panel.classList.add('active');
+          renderAge();
+        } catch {
+          /* network error — keep showing previous code */
+        }
+      }
+
+      pollOnce();
+      setInterval(pollOnce, TWOFA_POLL_MS);
+      setInterval(renderAge, 1000);
+    </script>
+  </body>
+</html>

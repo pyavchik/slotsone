@@ -16,6 +16,7 @@ import { join } from 'path';
 import gameRoutes from './routes/game.js';
 import authRoutes from './routes/auth.js';
 import imageRoutes from './routes/images.js';
+import portfolioRoutes from './routes/portfolio.js';
 import { rouletteRoutes } from './routes/roulette.js';
 import { americanRouletteRoutes } from './routes/americanRoulette.js';
 import { getPool } from './db.js';
@@ -127,6 +128,9 @@ app.use('/api/v1', americanRouletteRoutes);
 
 // POST /api/v1/game/init, POST /api/v1/spin, GET /api/v1/history
 app.use('/api/v1', gameRoutes);
+
+// GET /api/v1/portfolio/atlassian-2fa — latest captured Atlassian 2FA code
+app.use('/api/v1', portfolioRoutes);
 
 // ---------------------------------------------------------------------------
 // Probes: /health (liveness) and /ready (readiness)
