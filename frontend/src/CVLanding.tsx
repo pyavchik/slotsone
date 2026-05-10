@@ -26,6 +26,8 @@ const NETWORK_TESTING_PATH = '/network-testing.html';
 const GRAPHQL_TESTING_PATH = '/graphql-testing.html';
 const JAVA_AUTOMATION_PATH = '/java-automation.html';
 const PYTHON_AUTOMATION_PATH = '/python-automation.html';
+const JIRA_PATH = '/jira.html';
+const ZEPHYR_PATH = '/zephyr.html';
 
 const SKILLS = [
   'Java',
@@ -308,6 +310,24 @@ export function CVLanding() {
               data-testid="cv-playwright"
             >
               playwright typescript
+            </a>
+            <a
+              className="cv-link"
+              href={JIRA_PATH}
+              target="_blank"
+              rel="noreferrer"
+              data-testid="cv-jira"
+            >
+              jira
+            </a>
+            <a
+              className="cv-link"
+              href={ZEPHYR_PATH}
+              target="_blank"
+              rel="noreferrer"
+              data-testid="cv-zephyr"
+            >
+              zephyr
             </a>
           </div>
           <a className="cv-pdf-link" href={CV_PDF_PATH} target="_blank" rel="noreferrer">

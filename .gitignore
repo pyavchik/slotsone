@@ -19,6 +19,7 @@ coverage/
 !appium/.env.example
 backend/jwt_private.pem
 backend/jwt_public.pem
+.mcp.json
 
 # Local tooling
 .idea/
