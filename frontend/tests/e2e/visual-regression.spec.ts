@@ -90,13 +90,16 @@ test.describe('Visual Regression — Desktop (1280x720)', { tag: ['@visual', '@r
     await expect(page.getByTestId('cv-title')).toBeVisible();
     await page.waitForLoadState('networkidle');
 
-    // Mask the animated Spline 3D robot to prevent screenshot instability
+    // Mask volatile regions: animated Spline canvas + the action-bar row
+    // (action bar grows whenever a portfolio link is added — covered by
+    // the dedicated component test below).
     const spline = page.locator('canvas[data-engine]').first();
-    const mask = (await spline.isVisible().catch(() => false)) ? [spline] : [];
+    const actions = page.locator('.cv-actions').first();
+    const splineMask = (await spline.isVisible().catch(() => false)) ? [spline] : [];
 
     await expect(page).toHaveScreenshot('desktop-cv-landing.png', {
       fullPage: true,
-      mask,
+      mask: [...splineMask, actions],
       ...SCREENSHOT_OPTIONS,
     });
   });
@@ -150,13 +153,13 @@ test.describe('Visual Regression — iPhone SE', { tag: ['@visual', '@regression
     await expect(page.getByTestId('cv-title')).toBeVisible();
     await page.waitForLoadState('networkidle');
 
-    // Mask the animated Spline 3D robot to prevent screenshot instability
     const spline = page.locator('canvas[data-engine]').first();
-    const mask = (await spline.isVisible().catch(() => false)) ? [spline] : [];
+    const actions = page.locator('.cv-actions').first();
+    const splineMask = (await spline.isVisible().catch(() => false)) ? [spline] : [];
 
     await expect(page).toHaveScreenshot('mobile-cv-landing.png', {
       fullPage: true,
-      mask,
+      mask: [...splineMask, actions],
       ...SCREENSHOT_OPTIONS,
     });
   });
@@ -188,8 +191,11 @@ test.describe('Visual Regression — iPad', { tag: ['@visual', '@regression'] },
       document.querySelectorAll('canvas').forEach((c) => (c.style.visibility = 'hidden'));
     });
 
+    const actions = page.locator('.cv-actions').first();
+
     await expect(page).toHaveScreenshot('tablet-cv-landing.png', {
       fullPage: true,
+      mask: [actions],
       ...SCREENSHOT_OPTIONS,
     });
   });
@@ -237,11 +243,12 @@ test.describe('Visual Regression — Theme', { tag: ['@visual', '@regression'] }
     await page.waitForLoadState('networkidle');
 
     const spline = page.locator('canvas[data-engine]').first();
-    const mask = (await spline.isVisible().catch(() => false)) ? [spline] : [];
+    const actions = page.locator('.cv-actions').first();
+    const splineMask = (await spline.isVisible().catch(() => false)) ? [spline] : [];
 
     await expect(page).toHaveScreenshot('theme-dark-cv.png', {
       fullPage: true,
-      mask,
+      mask: [...splineMask, actions],
       ...SCREENSHOT_OPTIONS,
     });
   });
@@ -253,11 +260,12 @@ test.describe('Visual Regression — Theme', { tag: ['@visual', '@regression'] }
     await page.waitForLoadState('networkidle');
 
     const spline = page.locator('canvas[data-engine]').first();
-    const mask = (await spline.isVisible().catch(() => false)) ? [spline] : [];
+    const actions = page.locator('.cv-actions').first();
+    const splineMask = (await spline.isVisible().catch(() => false)) ? [spline] : [];
 
     await expect(page).toHaveScreenshot('theme-light-cv.png', {
       fullPage: true,
-      mask,
+      mask: [...splineMask, actions],
       ...SCREENSHOT_OPTIONS,
     });
   });
