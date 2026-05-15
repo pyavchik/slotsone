@@ -1,4 +1,5 @@
 import { expect, request, test } from '@playwright/test';
+import { suite } from 'allure-js-commons';
 import crypto from 'node:crypto';
 
 const GAME_ID = 'slot_mega_fortune_001';
@@ -124,6 +125,10 @@ async function spinOnce(token: string, session: InitResponse, amount = 1): Promi
   await api.dispose();
   return body;
 }
+
+test.beforeEach(async () => {
+  await suite('SlotsOne API Automation');
+});
 
 test.describe('TypeScript API automation - health', () => {
   test('GET /health returns liveness status', async ({ request }) => {
