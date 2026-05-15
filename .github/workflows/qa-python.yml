@@ -19,11 +19,16 @@ on:
 
 permissions:
   contents: read
+  pages: write
+  id-token: write
 
 jobs:
   api:
     name: API tests (pytest)
     runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
     services:
       postgres:
         image: postgres:16-alpine
@@ -111,6 +116,10 @@ jobs:
             --reruns 1 --reruns-delay 2 \
             --alluredir=allure-results
 
+      - name: Generate Allure HTML report
+        working-directory: qa-python
+        run: npx --yes allure-commandline generate allure-results --clean -o allure-report
+
       - name: Upload Allure results
         if: always()
         uses: actions/upload-artifact@v4
@@ -119,6 +128,27 @@ jobs:
           path: qa-python/allure-results
           if-no-files-found: ignore
           retention-days: 14
+
+      - name: Upload Allure HTML report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: qa-python-api-allure-report
+          path: qa-python/allure-report
+          if-no-files-found: ignore
+          retention-days: 30
+
+      - name: Setup GitHub Pages
+        uses: actions/configure-pages@v5
+
+      - name: Upload API report to GitHub Pages
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: qa-python/allure-report
+
+      - name: Deploy API report to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
 
       - name: Upload backend log on failure
         if: failure()
