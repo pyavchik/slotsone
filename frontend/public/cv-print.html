@@ -7,10 +7,15 @@
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
 
+  @page {
+    size: A4;
+    margin: 0;
+  }
+
   *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
 
   html {
-    font-size: 13.5px;
+    font-size: 12.6px;
     -webkit-print-color-adjust: exact;
     print-color-adjust: exact;
   }
@@ -26,20 +31,20 @@
     max-width: 794px;   /* A4 width */
     min-height: 1123px; /* A4 height */
     margin: 0 auto;
-    padding: 40px 48px;
+    padding: 32px 42px;
   }
 
   /* ── Header ── */
   .header {
     display: flex;
     align-items: center;
-    gap: 24px;
-    margin-bottom: 28px;
+    gap: 20px;
+    margin-bottom: 20px;
   }
 
   .avatar {
-    width: 100px;
-    height: 100px;
+    width: 88px;
+    height: 88px;
     border-radius: 50%;
     object-fit: cover;
     border: 3px solid #334155;
@@ -98,7 +103,7 @@
 
   /* ── Sections ── */
   .section {
-    margin-bottom: 20px;
+    margin-bottom: 14px;
   }
 
   .section-title {
@@ -109,7 +114,7 @@
     color: #334155;
     border-bottom: 2px solid #334155;
     padding-bottom: 4px;
-    margin-bottom: 12px;
+    margin-bottom: 8px;
   }
 
   /* ── Summary ── */
@@ -121,7 +126,7 @@
 
   /* ── Experience ── */
   .job {
-    margin-bottom: 16px;
+    margin-bottom: 10px;
   }
 
   .job:last-child { margin-bottom: 0; }
@@ -217,7 +222,7 @@
     <img src="/cv-photo.png" alt="Oleksander Pyavchik" class="avatar" />
     <div class="header-text">
       <h1 class="name">Oleksander Pyavchik</h1>
-      <span class="role-tag">Automation QA Engineer</span>
+      <span class="role-tag">QA Engineer</span>
       <div class="contact-row">
         <span class="contact-item">
           <svg class="contact-icon" viewBox="0 0 24 24"><path d="M20 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4-8 5-8-5V6l8 5 8-5v2z"/></svg>
@@ -239,10 +244,9 @@
   <div class="section">
     <h2 class="section-title">Professional Summary</h2>
     <p class="summary">
-      Experienced Automation QA Engineer with 7+ years of expertise in test automation, CI/CD, and test framework development.
-      Strong background in <strong>iGaming</strong> — tested HTML5 slot games, casino platforms, and gaming back-office systems.
-      Built automation frameworks from scratch, maintained 1500+ tests, and delivered performance testing using JMeter.
-      Solid expertise in Java, API, end-to-end, and cross-browser testing.
+      QA Engineer with 7+ years of experience across manual QA, test strategy, requirements analysis, API/SQL validation,
+      UI/E2E automation, CI/CD, and regression coverage. Built QA processes and automation from scratch, maintained
+      1500+ automated tests, and delivered reliable reporting with Jira, Zephyr, Confluence, and Allure.
     </p>
   </div>
 
@@ -252,7 +256,21 @@
 
     <div class="job">
       <div class="job-header">
-        <div><span class="job-title">AQA Engineer</span> <span class="job-company">at EG</span></div>
+        <div><span class="job-title">QA Engineer</span> <span class="job-company">at Bestprice</span></div>
+        <span class="job-meta">2025 &ndash; 2026 &middot; Remote</span>
+      </div>
+      <ul>
+        <li>Built QA strategy and test process from scratch for an e-commerce / price-comparison product</li>
+        <li>Converted product requirements into structured Confluence documentation and QA-ready acceptance criteria</li>
+        <li>Designed test cases in Zephyr from requirements and maintained regression coverage</li>
+        <li>Created clear bug reports in Jira with steps, expected/actual results, evidence, severity, and priority</li>
+        <li>Automated regression tests using TypeScript, Playwright, and Allure reports</li>
+      </ul>
+    </div>
+
+    <div class="job">
+      <div class="job-header">
+        <div><span class="job-title">QA Automation Engineer</span> <span class="job-company">at EG</span></div>
         <span class="job-meta">2021 &ndash; 2025 &middot; Remote</span>
       </div>
       <ul>
@@ -266,7 +284,7 @@
 
     <div class="job">
       <div class="job-header">
-        <div><span class="job-title">AQA Engineer</span> <span class="job-company">at Digicode</span></div>
+        <div><span class="job-title">QA Automation Engineer</span> <span class="job-company">at Digicode</span></div>
         <span class="job-meta">2019 &ndash; 2021 &middot; Kiev</span>
       </div>
       <ul>
@@ -298,6 +316,8 @@
     <h2 class="section-title">Core Skills</h2>
     <div class="skills-grid">
       <span class="skill-pill">Java</span>
+      <span class="skill-pill">TypeScript</span>
+      <span class="skill-pill">Playwright</span>
       <span class="skill-pill">Selenide</span>
       <span class="skill-pill">Selenoid</span>
       <span class="skill-pill">Rest Assured</span>
@@ -308,6 +328,9 @@
       <span class="skill-pill">JMeter (Load Testing)</span>
       <span class="skill-pill">Postman</span>
       <span class="skill-pill">SQL</span>
+      <span class="skill-pill">Jira</span>
+      <span class="skill-pill">Zephyr</span>
+      <span class="skill-pill">Confluence</span>
       <span class="skill-pill">Docker</span>
       <span class="skill-pill">Allure Reporting</span>
       <span class="skill-pill">Git / GitHub</span>

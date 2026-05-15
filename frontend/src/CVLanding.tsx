@@ -31,6 +31,8 @@ const ZEPHYR_PATH = '/zephyr.html';
 
 const SKILLS = [
   'Java',
+  'TypeScript',
+  'Playwright',
   'Selenide',
   'Selenoid',
   'Rest Assured',
@@ -41,6 +43,9 @@ const SKILLS = [
   'JMeter (Load Testing)',
   'Postman',
   'SQL',
+  'Jira',
+  'Zephyr',
+  'Confluence',
   'Docker',
   'Allure Reporting',
   'Git / GitHub',
@@ -48,7 +53,20 @@ const SKILLS = [
 
 const EXPERIENCE = [
   {
-    role: 'AQA Engineer',
+    role: 'QA Engineer',
+    company: 'Bestprice',
+    period: '2025 - 2026',
+    location: 'Remote',
+    highlights: [
+      'Built QA strategy and test process from scratch.',
+      'Converted requirements into Confluence documentation and QA-ready acceptance criteria.',
+      'Created test cases in Zephyr and maintained regression coverage.',
+      'Reported defects in Jira with clear evidence, severity, and priority.',
+      'Automated regression tests using TypeScript, Playwright, and Allure reports.',
+    ],
+  },
+  {
+    role: 'QA Automation Engineer',
     company: 'EG',
     period: '2021 - 2025',
     location: 'Remote',
@@ -61,7 +79,7 @@ const EXPERIENCE = [
     ],
   },
   {
-    role: 'AQA Engineer',
+    role: 'QA Automation Engineer',
     company: 'Digicode',
     period: '2019 - 2021',
     location: 'Kiev',
@@ -98,14 +116,15 @@ export function CVLanding() {
                 <img src="/cv-photo.png" alt="Oleksander Pyavchik" className="cv-avatar" />
               </figure>
               <div className="cv-identity">
-                <p className="cv-kicker">Automation QA Engineer</p>
+                <p className="cv-kicker">QA Engineer</p>
                 <h1 className="cv-title" data-testid="cv-title">
                   Oleksander Pyavchik
                 </h1>
               </div>
             </div>
             <p className="cv-subtitle">
-              7+ years in automation, API/E2E testing, CI/CD, and performance testing.
+              7+ years in QA strategy, requirements analysis, API/E2E testing, automation, and
+              CI/CD.
             </p>
             <ul className="cv-contact-list" aria-label="Contact information">
               <li>
