@@ -7,11 +7,16 @@
     "test:smoke": "node --import tsx --test --test-name-pattern='smoke' tests/api.test.ts",
     "test:graphql": "node --import tsx --test tests/graphql.test.ts",
     "test:graphql:smoke": "node --import tsx --test --test-name-pattern='smoke' tests/graphql.test.ts",
-    "test:all": "node --import tsx --test tests/*.test.ts"
+    "test:all": "node --import tsx --test tests/*.test.ts",
+    "test:api:playwright": "playwright test --config=playwright.api.config.ts",
+    "report:api:allure": "allure generate allure-results --clean -o allure-report"
   },
   "devDependencies": {
+    "@playwright/test": "^1.58.2",
+    "@types/node": "^22.0.0",
+    "allure-commandline": "^2.34.1",
+    "allure-playwright": "^3.4.3",
     "tsx": "^4.19.0",
-    "typescript": "^5.5.0",
-    "@types/node": "^22.0.0"
+    "typescript": "^5.5.0"
   }
 }
