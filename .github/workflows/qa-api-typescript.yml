@@ -24,9 +24,6 @@ jobs:
   api:
     name: API tests (TypeScript + Playwright)
     runs-on: ubuntu-latest
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
     services:
       postgres:
         image: postgres:16-alpine
@@ -121,21 +118,6 @@ jobs:
           if-no-files-found: ignore
           retention-days: 30
 
-      - name: Setup GitHub Pages
-        if: always()
-        uses: actions/configure-pages@v5
-
-      - name: Upload TypeScript API report to GitHub Pages
-        if: always()
-        uses: actions/upload-pages-artifact@v3
-        with:
-          path: qa/allure-report
-
-      - name: Deploy TypeScript API report to GitHub Pages
-        if: always()
-        id: deployment
-        uses: actions/deploy-pages@v4
-
       - name: Upload backend log on failure
         if: failure()
         uses: actions/upload-artifact@v4
@@ -143,3 +125,30 @@ jobs:
           name: qa-typescript-api-backend-log
           path: backend/backend.log
           if-no-files-found: ignore
+
+  deploy:
+    name: Deploy TypeScript API report
+    runs-on: ubuntu-latest
+    needs: api
+    if: github.event_name != 'pull_request'
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Download Allure HTML report
+        uses: actions/download-artifact@v4
+        with:
+          name: qa-typescript-api-allure-report
+          path: allure-report
+
+      - name: Setup GitHub Pages
+        uses: actions/configure-pages@v5
+
+      - name: Upload TypeScript API report to GitHub Pages
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: allure-report
+
+      - name: Deploy TypeScript API report to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
