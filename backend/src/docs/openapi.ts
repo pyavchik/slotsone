@@ -1163,7 +1163,7 @@ export const openApiSpec = generator.generateDocument({
   },
   servers: [
     {
-      url: 'https://pyavchik.space',
+      url: 'https://pyavchikstream.online',
       description: 'Production',
     },
     {

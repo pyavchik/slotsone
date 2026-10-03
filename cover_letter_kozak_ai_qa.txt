@@ -1,0 +1,77 @@
+Cover Letter — General AI-driven QA Engineer, Kozak Group
+
+Вітаю, командо Kozak Group!
+
+Мене звати Олександр Пявчик. Маю 7+ років досвіду в QA і хочу відгукнутися на позицію General AI-driven QA Engineer. Мені близький ваш підхід — мінімізувати рутинне мануальне тестування через AI-інструменти й будувати тест-стратегію самостійно, а не просто «проганяти сценарії».
+
+Окремо хочу підкреслити e-commerce-досвід, бо він напряму перетинається з вашими preferred-вимогами. Я веду QA двох власних e-commerce пет-проєктів:
+
+- electro-motors.com — інтернет-магазин електромоторів: повний customer journey від каталогу й картки товару до checkout і замовлення. Тестую кошик (додавання/видалення/кількість/перерахунок сум), оформлення замовлення для гостя й авторизованого юзера, валідацію форм і адрес, інтеграції з платіжним шлюзом, статуси замовлень, поштові сповіщення, промокоди й знижки, фільтри/сортування каталогу, пошук, а також SEO-базу (meta, canonical, sitemap, robots) і крос-браузерну/мобільну поведінку.
+- bestprice.com.ua — порівняння цін / маркетплейс-стиль: тестую парсинг і коректність відображення цін від мерчантів, логіку пошуку й фільтрів, сортування за ціною/рейтингом, переходи на партнерські сторінки, консистентність каталогу, edge-кейси з великими обсягами офферів і розбіжностями в даних.
+
+На обох проєктах я відпрацьовую саме те, що вказано у вакансії: checkout, payments, orders, фільтри, валідація, високе навантаження на каталог. Плюс паралельно веду iGaming-демо зі слотами й рулеткою, де самостійно роблю full-cycle QA (backend на Node/Express + PostgreSQL, frontend на React/Vite, адмінка на Next.js) — звідти — досвід із транзакційними системами, ledger, WebSocket / real-time.
+
+Як я використовую AI в тестуванні. Основний інструмент — Claude Code CLI (термінальний агент від Anthropic) + Cursor AI. Найактивніший use-case — UI-автоматизація (Playwright/Selenium):
+- генерація Page Objects зі сторінки/DOM зі стабільними локаторами (data-testid > role > text > css);
+- скафолдинг spec-файлів із тест-кейсів / Gherkin-сценаріїв;
+- рефактор і дедуплікація хелперів одразу по всій кодовій базі;
+- розбір flaky-тестів по trace/video/логах, локалізація race conditions і фікс auto-wait / retry-політик;
+- CI-конфіги (GitHub Actions, Docker-обгортки ранерів, шардинг паралелізації).
+
+Поза UI — генерація чек-лістів і negative/boundary кейсів з OpenAPI, Postman-колекції зі Swagger, розбір стектрейсів / network HAR / серверних логів для локалізації root cause, SQL-запити для верифікації даних, тестова документація в TestRail/Jira-форматі.
+
+Принцип: AI робить рутину й boilerplate, архітектурні рішення й рев’ю коду — за мною. Цей флоу обкатаний end-to-end на моїх пет-проєктах — від генерації POM до CI.
+
+Що я приношу під ваші вимоги:
+- E-commerce full-flow: checkout, кошик, замовлення, платіжні інтеграції, промокоди, каталог, пошук/фільтри, валідація форм і адрес — на практиці на electro-motors.com і bestprice.com.ua
+- Повний цикл тестування веб-застосунків: функціональне, регресійне, інтеграційне, API
+- REST API testing у Postman (позитивні/негативні кейси, контракти, колекції для CI)
+- SQL для верифікації даних (SELECT, JOIN, фільтри, агрегати) — MySQL/PostgreSQL/MongoDB
+- Аналіз логів і локалізація дефектів: DevTools, HTTP, network-інспекція, клієнт-серверна архітектура
+- Jira/TestRail як щоденні інструменти, тестова документація й звітність
+- Базова автоматизація (Selenium/Playwright/Cypress-подібний стек) — підтримка існуючих наборів
+- High-load і транзакційні системи: iGaming-досвід (депозити, виведення, ledger) + великі e-commerce каталоги з пет-проєктів
+- WebSocket / real-time — маю практичний досвід із iGaming-провайдерами та live-іграми
+- Git, Linux-консоль, Docker, базовий JMeter для non-functional перевірок
+- Українська — рідна, English — B2
+
+Релевантні приклади з портфоліо:
+- Live web product (iGaming demo): https://pyavchikstream.online
+- CV (PDF): https://pyavchikstream.online/QA_Oleksander_Pyavchik_CV.pdf
+- QA strategy and approach: https://pyavchikstream.online/qa-strategy.html
+- Requirements analysis: https://pyavchikstream.online/requirements.html
+- Test cases: https://pyavchikstream.online/test-cases.html
+- Bug reports: https://pyavchikstream.online/bug-report.html
+- API testing (Postman): https://pyavchikstream.online/postman-tests.html
+- Swagger/OpenAPI contract testing: https://pyavchikstream.online/swager.html
+- SQL for data verification: https://pyavchikstream.online/sql.html
+- Network & DevTools: https://pyavchikstream.online/network-testing.html
+- JMeter load testing: https://pyavchikstream.online/jmeter-load.html
+- Playwright automation: https://pyavchikstream.online/playwright.html
+- Java/Selenium automation: https://pyavchikstream.online/java-automation.html
+
+Буду радий обговорити, як мій досвід і AI-driven підхід можуть бути корисними вашій команді.
+
+З повагою,
+Олександр Пявчик
+pyavchik@gmail.com
++380 63 997 7874
+Odesa, Ukraine
+
+
+Compact Djinni Version
+
+Вітаю, командо Kozak Group!
+
+Відгукуюсь на General AI-driven QA Engineer. 7+ років у QA. Основний фокус — e-commerce: на двох власних пет-проєктах electro-motors.com (інтернет-магазин електромоторів) і bestprice.com.ua (порівняння цін / маркетплейс) я практично щодня відпрацьовую повний customer journey — каталог, пошук/фільтри, кошик, checkout, платіжні інтеграції, замовлення, статуси, промокоди, валідацію форм, SEO та крос-браузерність, плюс API/SQL-верифікацію. Паралельно — iGaming-демо з full-cycle QA (web + API + DB + адмінка) як джерело досвіду з транзакційними системами, ledger, WebSocket/real-time.
+
+AI у щоденному процесі. Основний інструмент — Claude Code CLI (термінальний агент) + Cursor AI. Головний use-case — UI-автоматизація (Playwright/Selenium): генерація Page Objects зі стабільними локаторами, скафолдинг spec-файлів із тест-кейсів, рефактор по всій кодовій базі, розбір flaky-тестів по trace/логах, CI-конфіги. Плюс генерація чек-лістів, negative/boundary кейсів з OpenAPI, Postman-колекцій зі Swagger, розбір стектрейсів і network-логів, SQL для верифікації даних. AI робить рутину — архітектурні рішення й рев’ю коду за мною.
+
+Під вашу вакансію: функціональне/регресійне/інтеграційне тестування веб- і мобільних застосунків, REST API у Postman, SQL (SELECT/JOIN/фільтри), аналіз логів і DevTools, Jira/TestRail, базова автоматизація (Selenium/Playwright/Cypress). High-load, WebSocket/real-time, Git, Docker, JMeter — ок. Українська рідна, English B2.
+
+Портфоліо: https://pyavchikstream.online, CV https://pyavchikstream.online/QA_Oleksander_Pyavchik_CV.pdf, https://pyavchikstream.online/qa-strategy.html, https://pyavchikstream.online/test-cases.html, https://pyavchikstream.online/bug-report.html, https://pyavchikstream.online/postman-tests.html, https://pyavchikstream.online/sql.html, https://pyavchikstream.online/network-testing.html, https://pyavchikstream.online/playwright.html, https://pyavchikstream.online/java-automation.html, https://pyavchikstream.online/jmeter-load.html.
+
+З повагою,
+Олександр Пявчик
+pyavchik@gmail.com
++380 63 997 7874

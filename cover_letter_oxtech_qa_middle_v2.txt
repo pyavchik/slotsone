@@ -1,0 +1,65 @@
+Cover Letter — QA Engineer (Middle+), Ox Tech (v2 — with AI-context hook)
+
+Hello Ox Tech team,
+
+One thing I want to flag up front, because it's the question that decides whether AI in QA actually works: the main practical limitation of any AI agent is the context window. Once your codebase, test suite, or domain knowledge stops fitting into a single session, the model starts losing track — hallucinating locators, forgetting conventions, regenerating helpers that already exist, drifting away from your test design. Most teams hit this wall and conclude "AI doesn't really work for our product." I've spent serious time solving exactly this on real projects — repo-level instruction files (CLAUDE.md / .cursorrules), a persistent memory directory the agent reads and writes between sessions, scoped subagents that handle isolated parts of a task in parallel without polluting the main context, structured retrieval over the test base instead of dumping everything into the prompt, and disciplined task decomposition. I'd be glad to walk through this in an interview — it's the difference between AI as a demo toy and AI as a reliable teammate on a long-lived gambling product.
+
+I'm applying for the QA Engineer (Middle+) position. I have 7+ years of QA experience, around 7 of those in the gambling industry, plus a daily AI-driven workflow built around Claude Code CLI and Cursor — which directly matches your two key requirements: mandatory iGaming background and hands-on use of AI to optimize testing processes.
+
+Gambling experience. At Innovation Group (2014–2019) I spent 5 years testing HTML5 slots, roulette, and card games across browsers and devices — validating game rules, payout tables, RTP, admin panels, game history, payment flows, and partner-program modules, including documentation for game certification. At Digicode (2019–2021) I worked on an online casino platform: testing HTML5 slots through all phases, building UI and API automation frameworks from scratch, writing test plans for game mechanics / RTP / bonus features, and running JMeter load tests against game servers. At EG (2021–2025) I maintained 1500+ automated tests across multiple environments in a team of QA automation engineers. In parallel I run my own iGaming demo (slots + roulette) with full-cycle QA — backend on Node/Express + PostgreSQL, frontend on React/Vite, and a Next.js admin panel — which keeps me current on transactional systems, ledger logic, and provably-fair mechanics.
+
+How I use AI in QA. Main toolchain: Claude Code CLI (Anthropic's terminal agent) + Cursor AI. The most active use case is UI automation (Playwright / Selenium): generating Page Objects from the DOM with stable locator priorities (data-testid > role > text > css), scaffolding spec files from test cases or Gherkin, refactoring helpers across the whole codebase, debugging flaky tests via trace/video/logs, and tuning auto-wait / retry policies. Outside UI: generating checklists and negative/boundary cases from OpenAPI, building Postman collections from Swagger, parsing stack traces / HAR / server logs to localize root cause, writing SQL for data verification, and producing test documentation in TestRail/Jira format. Principle: AI handles boilerplate and routine, architecture and review stay with me.
+
+What I bring against your requirements:
+- 7+ years QA, ~7 years in gambling — well over the 5-year minimum
+- Manual testing of web applications across desktop and mobile, cross-browser/cross-device
+- Regression, smoke, functional, integration, and exploratory testing
+- Test design techniques (equivalence partitioning, boundary values, decision tables, state transitions, pairwise)
+- SQL for data verification (SELECT/JOIN/aggregates) — MySQL / PostgreSQL / MongoDB
+- Jira and TestRail as daily tools; clear bug reports, checklists, test cases, test plans
+- Reviewing requirements and product documentation for consistency before implementation
+- Client-side performance analysis: DevTools, network/HAR inspection, HTTP, client-server architecture
+- Third-party integrations: payment providers, game providers, WebSocket / real-time flows
+- Automation background (Java/Selenide, Rest Assured, Playwright, JMeter) used as a debugging multiplier on top of manual QA
+- English B2+, Ukrainian native
+
+Relevant portfolio links:
+- Live iGaming demo: https://pyavchikstream.online
+- CV (PDF): https://pyavchikstream.online/QA_Oleksander_Pyavchik_CV.pdf
+- Game math & RTP model: https://pyavchikstream.online/game-math.html
+- JMeter RTP validation: https://pyavchikstream.online/jmeter-rtp.html
+- QA strategy: https://pyavchikstream.online/qa-strategy.html
+- Test cases: https://pyavchikstream.online/test-cases.html
+- Bug reports: https://pyavchikstream.online/bug-report.html
+- API testing (Postman): https://pyavchikstream.online/postman-tests.html
+- SQL for data verification: https://pyavchikstream.online/sql.html
+- Network & DevTools: https://pyavchikstream.online/network-testing.html
+- Playwright automation + Allure: https://pyavchik.github.io/slotsone-playwright/
+- Java/Selenium automation: https://pyavchikstream.online/java-automation.html
+
+Based in Odesa, Ukraine, available remotely, ready to start immediately.
+
+Best regards,
+Oleksander Pyavchik
+pyavchik@gmail.com
++380 63 997 7874
+
+
+Short Djinni Message
+
+Hello Ox Tech team,
+
+I'm applying for the QA Engineer (Middle+) role. Quick angle first, because it's what most QA-with-AI conversations hinge on: the real limit of using AI in testing is the context window — agents drift once your codebase or test base stops fitting into one session. I've solved this on real projects with repo-level instruction files (CLAUDE.md / .cursorrules), persistent memory directories, scoped subagents for parallel work, and structured retrieval instead of dumping everything into the prompt. Glad to walk through it in an interview.
+
+Background: 7+ years in QA, around 7 of them in the gambling industry — HTML5 slots, roulette, card games, casino platforms, RTP/payout validation, payment integrations, game history, admin panels, and game-certification documentation (Innovation Group, Digicode, EG). In parallel I run my own iGaming demo with full-cycle QA — slots + roulette, Node/Express + PostgreSQL backend, React/Vite frontend, Next.js admin panel — covering transactional logic, ledger, and provably-fair mechanics.
+
+AI workflow: Claude Code CLI + Cursor. UI automation (Playwright/Selenium) — Page Objects with stable locators, specs from test cases, codebase-wide refactors, flaky-test triage by trace/logs. Plus checklists and negative cases from OpenAPI, Postman collections from Swagger, log/HAR analysis for root cause, SQL for verification, TestRail/Jira documentation. AI handles routine; architecture and review stay with me.
+
+Against your requirements: manual testing of web apps on desktop/mobile, regression/smoke/functional, cross-browser, test design techniques, SQL, Jira, requirements review, third-party integrations, client-side performance analysis with DevTools/HAR. English B2+, Ukrainian native.
+
+Portfolio: https://pyavchikstream.online — CV https://pyavchikstream.online/QA_Oleksander_Pyavchik_CV.pdf, game math/RTP https://pyavchikstream.online/game-math.html, JMeter RTP https://pyavchikstream.online/jmeter-rtp.html, test cases https://pyavchikstream.online/test-cases.html, bug reports https://pyavchikstream.online/bug-report.html, Postman https://pyavchikstream.online/postman-tests.html, SQL https://pyavchikstream.online/sql.html, Playwright https://pyavchik.github.io/slotsone-playwright/.
+
+Best regards,
+Oleksander Pyavchik
+pyavchik@gmail.com
++380 63 997 7874

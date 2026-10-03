@@ -2,13 +2,13 @@
   "info": {
     "_postman_id": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
     "name": "SlotsOne iGaming Platform API",
-    "description": "Comprehensive API test collection for the SlotsOne iGaming platform.\n\nCovers: Auth, Slots, European Roulette, American Roulette, Book of Dead, Wallet (player + admin top-up), History, Provably Fair, System probes, and Negative test cases.\n\n**Environments:**\n- Production: https://pyavchik.space\n- Prod (domain): https://pyavchik.space\n- Local dev: http://localhost:3001\n\n**Test execution order:**\n1. System > Health & Ready (verify server is up)\n2. Auth > Register (creates test user, sets token)\n3. Auth > Login (verifies credentials, refreshes token)\n4. Slots > Init > Spin (core game loop)\n5. Roulette > Init > Spin (European)\n6. American Roulette > Init > Spin\n7. Book of Dead > Init > Spin\n8. Wallet > Player Top-Up + Admin Top-Up\n9. History & Provably Fair\n10. Negative Tests\n\n**Author:** QA Engineering | SlotsOne Platform",
+    "description": "Comprehensive API test collection for the SlotsOne iGaming platform.\n\nCovers: Auth, Slots, European Roulette, American Roulette, Book of Dead, Wallet (player + admin top-up), History, Provably Fair, System probes, and Negative test cases.\n\n**Environments:**\n- Production: https://pyavchikstream.online\n- Prod (domain): https://pyavchikstream.online\n- Local dev: http://localhost:3001\n\n**Test execution order:**\n1. System > Health & Ready (verify server is up)\n2. Auth > Register (creates test user, sets token)\n3. Auth > Login (verifies credentials, refreshes token)\n4. Slots > Init > Spin (core game loop)\n5. Roulette > Init > Spin (European)\n6. American Roulette > Init > Spin\n7. Book of Dead > Init > Spin\n8. Wallet > Player Top-Up + Admin Top-Up\n9. History & Provably Fair\n10. Negative Tests\n\n**Author:** QA Engineering | SlotsOne Platform",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
   },
   "variable": [
     {
       "key": "base_url",
-      "value": "https://pyavchik.space",
+      "value": "https://pyavchikstream.online",
       "type": "string"
     },
     {

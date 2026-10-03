@@ -1,0 +1,32 @@
+Cover Letter — QA Automation Engineer, SoftButler
+
+Hi SoftButler team,
+
+I'm Oleksander Pyavchik, an Automated QA Engineer with 7+ years of experience in test automation, CI/CD, and framework development. I'm excited to apply for the QA Automation Engineer position.
+
+Why I'm a strong fit:
+
+Your role requires JavaScript + Playwright expertise — I've built a full Playwright + TypeScript automation suite for my iGaming portfolio project. You can see the live Allure report here: https://pyavchik.github.io/slotsone-playwright/, and the test code details at https://pyavchikstream.online/playwright.html.
+
+For API testing, I've designed and documented Postman-based API test suites covering auth flows, game logic, and wallet operations: https://pyavchikstream.online/postman-tests.html. My public Postman workspace with runnable collections is here: https://www.postman.com/pyavchik/portfolio. The full API spec with Swagger is available at https://pyavchikstream.online/api-docs.
+
+Regarding CI/CD and GitHub Actions — the Playwright tests are integrated into a CI pipeline that automatically publishes Allure reports to GitHub Pages on every run.
+
+Beyond automation, I bring a structured approach to QA as a whole:
+- QA Strategy & Test Design: https://pyavchikstream.online/qa-strategy.html | https://pyavchikstream.online/test-design.html
+- Test Cases & Bug Reports: https://pyavchikstream.online/test-cases.html | https://pyavchikstream.online/bug-report.html
+- Performance Testing (JMeter): https://pyavchikstream.online/jmeter-load.html | https://pyavchikstream.online/jmeter-rtp.html
+- Exploratory Testing: https://pyavchikstream.online/exploratory-testing.html
+
+The entire portfolio is built around a live iGaming demo application at https://pyavchikstream.online — a fully functional slots platform with a React + PixiJS frontend, Express + TypeScript backend, PostgreSQL persistence, and provably fair game logic. I built both the application and the complete QA ecosystem around it from scratch.
+
+My background:
+- EG (2021-2025) — Maintained 1500+ automated tests, ensured stability across environments
+- Digicode (2019-2021) — Built UI E2E and API automation frameworks from the ground up
+- Innovation Group (2014-2019) — Java-based automation, manual testing of web/mobile apps
+
+I'd be happy to walk you through any of the portfolio artifacts in more detail during an interview.
+
+Best regards,
+Oleksander Pyavchik
+pyavchik@gmail.com | +380 63 997 7874 | Odesa, Ukraine

@@ -1,0 +1,67 @@
+Cover Letter — QA Engineer, Collaborator.pro
+
+Вітаю, командо Collaborator!
+
+Мене звати Олександр, маю 7+ років досвіду в QA: manual testing, API, SQL, тестова документація, баг-репорти, регресія, UI/UX перевірки та автоматизація. Хочу відгукнутися на позицію QA Engineer, тому що у вас продуктова роль із прямим впливом на якість маркетплейсу, роботою з вимогами, користувацькими зверненнями, веб/API тестуванням і тісною взаємодією з Product Owner, розробниками та data-командою.
+
+Мій досвід добре збігається з вашими задачами:
+- 7+ років у QA, з них багато роботи з web-продуктами, адмін-панелями, платіжними/транзакційними модулями та складною бізнес-логікою
+- Практичний e-commerce / marketplace experience на bestprice.com.ua: каталог, пошук, фільтри, сортування, ціни від мерчантів, переходи на партнерські сторінки та консистентність офферів
+- Аналіз вимог, підготовка checklist/test cases/test plans, пошук ризиків до реалізації
+- Функціональне, регресійне, інтеграційне, exploratory та UI/UX тестування
+- API testing через Postman/Swagger/OpenAPI, перевірка request/response, статусів, валідацій і бізнес-правил
+- SQL для перевірки даних, історії операцій, станів користувача та бекенд-логіки
+- Чіткі баг-репорти: steps, actual/expected result, severity/priority, logs/screenshots/HAR, швидке інформування про критичні проблеми
+- Досвід роботи з Jira-подібними процесами, backlog дефектів, пріоритизація і комунікація з dev-командою
+- Використовую AI-інструменти для швидшого аналізу вимог, генерації тестових ідей, підтримки автотестів і підготовки тестових даних
+
+У попередніх ролях я працював із системами, де важлива точність даних і поведінки продукту. На bestprice.com.ua тестував price-comparison / marketplace-логіку: коректність цін і офферів від мерчантів, пошук, фільтри, сортування, каталоги, переходи на партнерські сторінки та edge-кейси з розбіжностями в даних. В Innovation Group тестував HTML5 ігри, адмін-панелі, історію ігор, платіжні модулі та партнерські програми. У Digicode будував UI та API automation framework з нуля, писав тест-плани для складної логіки продукту, перевіряв інтеграції та навантаження. В EG працював у команді QA automation engineers, підтримував 1500+ автотестів на різних середовищах і стежив за стабільністю регресії.
+
+Також маю практичні навички, які у вас зазначені як плюс: Java, Selenide/Selenium, Git/GitHub/GitLab, Jenkins/GitLab CI, Postman, Docker, Allure, JMeter. Англійська — B1+/B2, українська — рідна.
+
+Окремо можу показати власний QA-портфоліо проєкт: повноцінний web-продукт із React/Vite frontend, Node/Express API, PostgreSQL, адмін-панеллю, Postman/OpenAPI, SQL-прикладами, баг-репортами, тест-кейсами, Playwright/Java/Python automation і CI/CD.
+
+Релевантні посилання:
+- Portfolio / CV: https://pyavchikstream.online
+- CV PDF: https://pyavchikstream.online/QA_Oleksander_Pyavchik_CV.pdf
+- Test cases: https://pyavchikstream.online/test-cases.html
+- Bug reports: https://pyavchikstream.online/bug-report.html
+- API/Postman: https://pyavchikstream.online/postman-tests.html
+- Postman workspace: https://www.postman.com/pyavchik/portfolio
+- SQL: https://pyavchikstream.online/sql.html
+- UI/UX та responsive testing: https://pyavchikstream.online/responsive-testing.html
+- Java automation: https://pyavchikstream.online/java-automation.html
+
+Я в Одесі, готовий працювати віддалено full-time. Буду радий обговорити, як можу допомогти Collaborator.pro швидше знаходити ризики, якісніше описувати дефекти та стабільно покращувати продукт.
+
+З повагою,
+Олександр Пявчик
+pyavchik@gmail.com
++380 63 997 7874
+
+---
+
+Compact Djinni Message
+
+Вітаю, командо Collaborator!
+
+Маю 7+ років досвіду в QA: manual testing, API, SQL, тестова документація, баг-репорти, регресія, UI/UX перевірки та автоматизація. Відгукуюся на позицію QA Engineer, тому що ваші задачі — аналіз вимог, web/mobile/API testing, робота з користувацькими зверненнями, backlog дефектів і співпраця з Product Owner/dev/data командами — добре збігаються з моїм досвідом.
+
+Працював із web-продуктами, адмін-панелями, платіжними/транзакційними модулями та складною бізнес-логікою. Маю практичний e-commerce / marketplace experience на bestprice.com.ua: каталог, пошук, фільтри, сортування, ціни й оффери від мерчантів, переходи на партнерські сторінки та консистентність даних. Впевнено пишу checklists/test cases/test plans, описую дефекти з пріоритетами, logs/screenshots/HAR, перевіряю дані через SQL, тестую API через Postman/Swagger/OpenAPI. Використовую AI-інструменти для аналізу вимог, генерації тестових ідей, тестових даних і підтримки автотестів.
+
+Ваші плюси також закриваю: Java, Selenide/Selenium, Git/GitHub/GitLab, Jenkins/GitLab CI, Postman, Docker, Allure, JMeter. Українська — рідна, English B1+/B2.
+
+Портфоліо:
+- CV / QA portfolio: https://pyavchikstream.online
+- Test cases: https://pyavchikstream.online/test-cases.html
+- Bug reports: https://pyavchikstream.online/bug-report.html
+- API/Postman: https://pyavchikstream.online/postman-tests.html
+- Postman workspace: https://www.postman.com/pyavchik/portfolio
+- SQL: https://pyavchikstream.online/sql.html
+
+Я в Одесі, готовий працювати віддалено full-time. Буду радий обговорити деталі.
+
+З повагою,
+Олександр Пявчик
+pyavchik@gmail.com
++380 63 997 7874

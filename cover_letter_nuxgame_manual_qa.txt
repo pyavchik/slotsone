@@ -1,0 +1,32 @@
+Cover Letter — Manual QA, NuxGame
+
+Hello NuxGame team,
+
+I’m applying for the Manual QA position. I have 7+ years of QA experience, including around 7 years in iGaming, and my background matches your focus on web application testing, test documentation, defect analysis, and close collaboration with developers.
+
+I started my QA career in a Manual/Automation QA role at Innovation Group, where I spent 5 years testing web and mobile products, writing test cases and documentation, and supporting fast issue resolution with the development team. Later, at Digicode, I created test plans from scratch, tested product functionality end-to-end, and worked with UI, API, and performance testing. Most recently, at EG, I maintained more than 1500 automated tests across multiple environments, which strengthened my understanding of stable release processes, regression coverage, and defect prevention.
+
+Although my recent roles were more automation-focused, manual QA has always remained the foundation of my work. I’m comfortable with exploratory, functional, regression, smoke, and acceptance testing; writing clear bug reports, checklists, and test cases; and validating requirements before and during implementation. I also have practical knowledge of HTML, CSS, SQL, HTTP, client-server architecture, and web application behavior on both desktop and mobile. My automation background with Java-based UI testing, including Selenium/Selenide-based approaches and end-to-end frameworks, is an additional advantage when analyzing issues and working with development teams.
+
+Your iGaming domain is especially relevant to my experience. I have worked with slot games, roulette, and other casino products, including validation of game logic, payout behavior, integrations, and back-office functionality. Because of that, I can contribute quickly in a product environment where accuracy, structured testing, and attention to detail matter.
+
+I’d be glad to discuss how my background can support NuxGame’s QA team.
+
+Best regards,
+Oleksander Pyavchik
+pyavchik@gmail.com
++380 63 997 7874
+Odesa, Ukraine
+
+Short Djinni Message
+
+Hello NuxGame team,
+
+I’m interested in your Manual QA position. I have 7+ years in QA, including around 7 years in iGaming. My background includes manual testing of web and mobile applications, writing test cases/checklists/bug reports, test plan creation, and close collaboration with developers on defect analysis and fixes.
+
+I also have practical knowledge of HTML, CSS, SQL, HTTP, and client-server architecture, plus automation experience with Java/UI/API testing and Selenium-based approaches, which helps me investigate issues faster and understand product behavior more deeply. Your domain is especially relevant to me because I’ve worked with casino products including slots and roulette.
+
+I’d be glad to discuss my experience in more detail.
+
+Best regards,
+Oleksander Pyavchik

@@ -1,0 +1,88 @@
+Cover Letter — Junior AI Engineer / AI Automation Specialist, HiringBand
+Djinni: https://djinni.co/jobs/822963-junior-ai-engineer-ai-automation-specialist/
+
+Вітаю, командо HiringBand!
+
+Мене звати Олександр. Відгукуюсь на Junior AI Engineer / AI Automation Specialist. Маю 7+ років у QA / тест-автоматизації, з 2025-го системно перейшов на AI-driven workflow і вже шиплю реальні автоматизації під свої щоденні задачі — не «вчу AI», а будую штуки, які працюють у проді. Те, що ви описуєте у вакансії (агенти/боти на GPT/LLM, інтеграції через API, інструменти для оптимізації команди), — це формат, у якому я вже живу.
+
+На питання з форми: працювати з iGaming-нішею комфортно — у мене є досвід в цьому домені (Digicode, Innovation Group), знаю продуктовий бік казино/слотів зсередини.
+
+1) Telegram-бот для моніторингу вакансій
+   Особистий tool, який крутиться на моєму VPS під cron */5 і шле мені Telegram-алерти про нові/оновлені вакансії з Djinni.
+   - Python 3, requests, парсинг RSS через ElementTree, dedupe по job_id + pubDate (зберігаю стан у JSON-файлі, мігрую legacy-формати, є --dry-run і --reset).
+   - Інтеграція з Telegram Bot API: HTML-форматовані повідомлення, fail-safe запис state при помилці відправки.
+   - Деплой: Linux, systemd-юзер, .env (chmod 600), cron, лог-ротація. Бот: @jinni_pyavchik_bot.
+   Це найближчий аналог того, що ви описуєте під «AI-агенти/боти + інтеграції через API» — повний цикл від ідеї до прод-крону.
+
+2) Captcha recognition для скрейпера Google Search
+   У рамках QA-валідації SEO-даних для bestprice.com.ua і electro-motors.com (порівняння цін і SERP-позицій) робив автоматизацію збору пошукової видачі з обходом reCAPTCHA: Python + headless-браузер, інтеграція з API розпізнавання капч (2Captcha / Anti-Captcha-сумісне), proxy-ротація, бекоф під rate-limit. Результат — стабільний пайплайн збору позицій без ручного клацання чекбоксів.
+
+3) AI chat-bot інтеграція (LLM-as-a-service)
+   Інтегрував GPT/Claude чат-бота в живі продакшен-сайти: https://electro-motors.com/ (інтернет-магазин електромоторів — консультант по підбору товару, відповіді на питання по каталогу/доставці) і https://bestprice.com.ua/ (порівняння цін — асистент по пошуку й порівнянню офферів). Стек: офіційні OpenAI / Anthropic API, prompt engineering під товарний контекст, structured output через JSON-схеми, tool-use / function calling для виклику внутрішніх endpoints (каталог, наявність, ціни), MCP-сервери. Це не «чатик на лендингу для галочки» — це агентний флоу, де LLM викликає реальні дії в системі.
+
+4) LLM-driven full-stack pet-project (slotsone) — https://pyavchikstream.online/login
+   iGaming RGS (Node/Express + PostgreSQL) + React/PixiJS frontend + Next.js адмінка — побудовано переважно через агентні флоу в Claude Code CLI. OpenAPI/Zod-контракти, які LLM споживає для генерації клієнтських типів автоматично. Деплой за Caddy/TLS на VPS через GitHub Actions. Це — мій основний полігон по prompt engineering, tool use і LLM-orchestration.
+
+Стек, з яким відразу можу заходити в задачі:
+- Python (API-інтеграції, requests, парсинг JSON/XML, скрипти-автоматизації)
+- JSON / REST API — 7+ років щоденно (Postman, REST Assured, контрактні тести, OpenAPI)
+- LLM API: OpenAI / Anthropic / Claude, prompt engineering, structured output, tool use, MCP
+- TypeScript / Node.js — для full-stack проєктів і ботів
+- Linux, cron, Docker, Git/GitHub Actions, базовий SQL (PostgreSQL/MySQL)
+- Telegram Bot API, веб-скрейпінг, RSS-парсинг, captcha-сервіси
+- n8n / Make / Zapier — на рівні concept-знайомства, готовий швидко зайти в продакшен-сценарії команди
+- Українська рідна, English B2
+
+Релевантне портфоліо:
+- Live web product (iGaming demo): https://pyavchikstream.online
+- CV (PDF): https://pyavchikstream.online/QA_Oleksander_Pyavchik_CV.pdf
+- GitHub: https://github.com/pyavchik
+- API testing (Postman/OpenAPI): https://pyavchikstream.online/postman-tests.html
+- Swagger/OpenAPI contract testing: https://pyavchikstream.online/swager.html
+- SQL for data verification: https://pyavchikstream.online/sql.html
+- Playwright automation + Allure: https://pyavchik.github.io/slotsone-playwright/
+
+Чому ця вакансія мені цікава: ви описуєте AI не як «галочку», а як щоденний інструмент для реальних задач — це збігається з тим, куди я вже рік системно рухаюсь. Готовий заходити в продукт як інженер, який швидко збирає робочі автоматизації під SEO-флоу команди й бере на себе відповідальність за результат, а не за «процес ознайомлення».
+
+Базуюсь в Одесі, працюю повністю віддалено, можу стартувати одразу.
+
+З повагою,
+Олександр Пявчик
+pyavchik@gmail.com
++380 63 997 7874
+Odesa, Ukraine
+
+
+---
+
+Коротка версія для Djinni (поле «Повідомлення»)
+
+Вітаю, командо HiringBand!
+
+Відгукуюсь на Junior AI Engineer / AI Automation Specialist. 7+ років у QA, з 2025-го системно на AI-driven workflow — будую реальні автоматизації, а не «вчу AI». iGaming-домен комфортний (10+ років, Digicode/Innovation Group + власний iGaming пет-проєкт).
+
+З релевантного:
+
+1) Telegram-бот для моніторингу вакансій (Python, прод на VPS під cron). RSS-парсинг, dedupe по job_id+pubDate у JSON-state, Telegram Bot API з HTML-розміткою, fail-safe state. Бот @jinni_pyavchik_bot.
+
+2) Captcha recognition для скрейпера Google Search — збір SERP/позицій під SEO-задачі: Python + headless-браузер + 2Captcha API + proxy-ротація + backoff. Стабільний пайплайн без ручного клацання.
+
+3) AI chat-bot інтеграція в живий прод — https://electro-motors.com/ (консультант по каталогу) і https://bestprice.com.ua/ (асистент по порівнянню цін). GPT/Claude через офіційні API: prompt engineering під товарний контекст, structured output (JSON-схеми), tool use / function calling до внутрішніх endpoints, MCP-сервери.
+
+4) Full-stack pet-project slotsone (https://pyavchikstream.online/login) — iGaming RGS + React/PixiJS frontend + Next.js адмінка, побудований переважно через Claude Code CLI. OpenAPI/Zod-контракти, GitHub Actions, прод за Caddy/TLS.
+
+Стек: Python, JSON, REST API (Postman/OpenAPI), OpenAI/Anthropic SDK, Telegram Bot API, TypeScript/Node, Linux/cron, Docker, Git. n8n / Make / Zapier — concept-знайомство, готовий швидко зайти. Українська рідна, English B2.
+
+Портфоліо: https://pyavchikstream.online, CV https://pyavchikstream.online/QA_Oleksander_Pyavchik_CV.pdf, GitHub https://github.com/pyavchik, API https://pyavchikstream.online/postman-tests.html, Playwright+Allure https://pyavchik.github.io/slotsone-playwright/.
+
+Одеса, віддалено, можу стартувати одразу.
+
+З повагою,
+Олександр Пявчик
+pyavchik@gmail.com | +380 63 997 7874
+
+---
+
+Відповіді на запитання рекрутера:
+
+«Чи комфортно вам працювати з проєктами в ніші iGaming (гемблінг)?» — Так

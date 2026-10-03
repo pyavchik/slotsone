@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Test Cases — pyavchik.space</title>
+    <title>Test Cases — pyavchikstream.online</title>
     <style>
       *, *::before, *::after { box-sizing: border-box; }
 
@@ -244,7 +244,7 @@
       <!-- Header -->
       <section class="card">
         <h1>Test Cases</h1>
-        <p class="subtitle">pyavchik.space — Full test coverage for UI, Auth API, Game API, E2E flows &amp; Security</p>
+        <p class="subtitle">pyavchikstream.online — Full test coverage for UI, Auth API, Game API, E2E flows &amp; Security</p>
         <div class="stats" id="stats-row">
           <!-- populated by JS -->
         </div>
@@ -323,11 +323,11 @@
           title: 'CV page renders with correct name heading',
           preconditions: 'Application is running and reachable in a browser.',
           steps: [
-            'Open a browser and navigate to https://pyavchik.space/.',
+            'Open a browser and navigate to https://pyavchikstream.online/.',
             'Wait for the page to fully load (network idle).',
             'Locate the main heading element.'
           ],
-          testData: 'URL: https://pyavchik.space/',
+          testData: 'URL: https://pyavchikstream.online/',
           expected: 'h1[data-testid="cv-title"] is visible and contains exactly "Oleksander Pyavchik".'
         },
         {
@@ -335,7 +335,7 @@
           title: 'Avatar photo loads without a broken-image icon',
           preconditions: 'Application running. Asset /cv-photo.png exists on the server.',
           steps: [
-            'Navigate to https://pyavchik.space/.',
+            'Navigate to https://pyavchikstream.online/.',
             'Wait for the page to fully load.',
             'Locate img[alt="Oleksander Pyavchik"].',
             'Inspect whether the image renders or shows a broken placeholder.'
@@ -348,7 +348,7 @@
           title: 'All 5 action bar items are visible',
           preconditions: 'Application running.',
           steps: [
-            'Navigate to https://pyavchik.space/.',
+            'Navigate to https://pyavchikstream.online/.',
             'Locate the .cv-actions container in the page header.',
             'Verify the "slots" button is visible.',
             'Verify the "test cases" link is visible.',
@@ -364,7 +364,7 @@
           title: '"test cases" link has correct href and opens in a new tab',
           preconditions: 'Application running.',
           steps: [
-            'Navigate to https://pyavchik.space/.',
+            'Navigate to https://pyavchikstream.online/.',
             'Locate a[data-testid="cv-test-cases"].',
             'Inspect its href, target, and rel attributes.',
             'Click the link.'
@@ -377,7 +377,7 @@
           title: '"postman" link opens postman-tests page in a new tab',
           preconditions: 'Application running.',
           steps: [
-            'Navigate to https://pyavchik.space/.',
+            'Navigate to https://pyavchikstream.online/.',
             'Inspect the "postman" link\'s href, target, and rel attributes.',
             'Click the "postman" link.'
           ],
@@ -389,7 +389,7 @@
           title: '"swager" link opens API docs in a new tab',
           preconditions: 'Application running.',
           steps: [
-            'Navigate to https://pyavchik.space/.',
+            'Navigate to https://pyavchikstream.online/.',
             'Inspect the "swager" link\'s href, target, and rel attributes.',
             'Click the "swager" link.'
           ],
@@ -401,7 +401,7 @@
           title: '"Download PDF CV" link opens the PDF in a new tab',
           preconditions: 'Application running. /QA_Oleksander_Pyavchik_CV.pdf exists on the server.',
           steps: [
-            'Navigate to https://pyavchik.space/.',
+            'Navigate to https://pyavchikstream.online/.',
             'Inspect the "Download PDF CV" link\'s href, target, and rel attributes.',
             'Click the "Download PDF CV" link.'
           ],
@@ -413,7 +413,7 @@
           title: 'Work Experience section renders all 4 roles',
           preconditions: 'Application running.',
           steps: [
-            'Navigate to https://pyavchik.space/.',
+            'Navigate to https://pyavchikstream.online/.',
             'Scroll to the "Work Experience" section.',
             'Count the number of .cv-experience-item article elements.',
             'Read the role and company name of each article.'
@@ -426,7 +426,7 @@
           title: 'Core Skills section renders all skill pills',
           preconditions: 'Application running.',
           steps: [
-            'Navigate to https://pyavchik.space/.',
+            'Navigate to https://pyavchikstream.online/.',
             'Scroll to the "Core Skills" section.',
             'Count all .cv-skill-pill span elements.'
           ],
@@ -438,7 +438,7 @@
           title: 'Contact email link has correct mailto: href',
           preconditions: 'Application running.',
           steps: [
-            'Navigate to https://pyavchik.space/.',
+            'Navigate to https://pyavchikstream.online/.',
             'Locate the contact list (.cv-contact-list).',
             'Inspect the email anchor element\'s href attribute.'
           ],
@@ -450,7 +450,7 @@
           title: 'Footer CTA contains a second "slots" button',
           preconditions: 'Application running.',
           steps: [
-            'Navigate to https://pyavchik.space/.',
+            'Navigate to https://pyavchikstream.online/.',
             'Scroll to the bottom of the page to the "Project Demo" section.',
             'Locate the button inside .cv-final-cta.'
           ],
@@ -462,7 +462,7 @@
           title: 'Action bar items appear in the correct left-to-right order',
           preconditions: 'Application running.',
           steps: [
-            'Navigate to https://pyavchik.space/.',
+            'Navigate to https://pyavchikstream.online/.',
             'Inspect the DOM children of .cv-actions in document order.',
             'Note the text content of each direct child element.'
           ],
@@ -475,7 +475,7 @@
           preconditions: 'Application running. Browser DevTools available.',
           steps: [
             'Open DevTools and set the viewport to 375 × 812 px (iPhone SE).',
-            'Navigate to https://pyavchik.space/.',
+            'Navigate to https://pyavchikstream.online/.',
             'Run in console: document.body.scrollWidth.',
             'Visually inspect for a horizontal scrollbar.'
           ],
@@ -836,26 +836,26 @@
           title: 'Header "slots" button navigates browser to /slots',
           preconditions: 'Application running. Browser at /. Backend running or API mocked.',
           steps: [
-            'Navigate to https://pyavchik.space/.',
+            'Navigate to https://pyavchikstream.online/.',
             'Confirm h1[data-testid="cv-title"] is visible.',
             'Click the first [data-testid="cv-open-slots"] button in the header actions bar.',
             'Observe the URL and rendered screen.'
           ],
           testData: null,
-          expected: 'URL changes to https://pyavchik.space/slots. Either the game loading screen or the Auth screen is shown.'
+          expected: 'URL changes to https://pyavchikstream.online/slots. Either the game loading screen or the Auth screen is shown.'
         },
         {
           id: 'E2E-02', module: 'E2E', priority: 'MED',
           title: 'Footer CTA "slots" button also navigates to /slots',
           preconditions: 'Application running. Browser at /.',
           steps: [
-            'Navigate to https://pyavchik.space/.',
+            'Navigate to https://pyavchikstream.online/.',
             'Scroll to the bottom of the page to the "Project Demo" section.',
             'Click the "slots" button inside .cv-final-cta.',
             'Observe the URL.'
           ],
           testData: null,
-          expected: 'URL changes to https://pyavchik.space/slots.'
+          expected: 'URL changes to https://pyavchikstream.online/slots.'
         },
         {
           id: 'E2E-03', module: 'E2E', priority: 'HIGH',
@@ -863,7 +863,7 @@
           preconditions: 'No auth token in localStorage. No refresh cookie present (clear all browser storage).',
           steps: [
             'Open DevTools → Application → clear all cookies and localStorage.',
-            'Navigate directly to https://pyavchik.space/slots.',
+            'Navigate directly to https://pyavchikstream.online/slots.',
             'Observe the rendered screen.'
           ],
           testData: 'No stored token. No refresh cookie.',
@@ -874,7 +874,7 @@
           title: 'Valid login redirects to /slots and game initialises',
           preconditions: 'Registered user account exists. Backend running. No current session (logged out).',
           steps: [
-            'Navigate to https://pyavchik.space/slots (expect auth redirect).',
+            'Navigate to https://pyavchikstream.online/slots (expect auth redirect).',
             'Enter a valid email address in the email field.',
             'Enter the correct password in the password field.',
             'Click the "Login" button.',

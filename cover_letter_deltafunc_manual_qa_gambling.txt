@@ -1,0 +1,89 @@
+Cover Letter — Manual QA Engineer (Gambling), DeltaFunc
+
+Hello DeltaFunc team,
+
+I’m applying for the Manual QA Engineer (Gambling) position. I have 7+ years of QA experience, including around 7 years in iGaming/gambling products, and your role matches my background very closely: manual testing of gambling games, slot game logic, bonus features, regression coverage, UI/UX behavior, and release stability.
+
+I started my QA career in a Manual/Automation QA role and worked with web and mobile products, test cases, checklists, bug reports, and close communication with developers. Later I worked with iGaming products more deeply: HTML5 slot games, casino platforms, game server and payment integrations, back-office functionality, API testing, and automated regression suites. Because of this, I understand both the player-facing side of gambling games and the technical risks behind game logic, balance, payouts, and integrations.
+
+What is especially relevant to your position:
+- manual testing of slot games and gambling mechanics;
+- functional, regression, cross-browser, and cross-platform testing;
+- validation of free spins, bonus features, multipliers, payout behavior, and RTP-related logic;
+- UI/UX, animation, game-state, and edge-case checks;
+- clear bug reports with reproducible steps, actual/expected result, severity, priority, screenshots/video/logs when needed;
+- test cases, checklists, test plans, and QA process improvements;
+- DevTools, Postman/API testing, HTTP, SQL, Git, and client-server architecture;
+- automation background with Java/Selenium/Selenide, REST Assured, Playwright, and CI/CD as an additional advantage.
+
+I’ve also built a live iGaming QA portfolio around my own demo slots/roulette product, which shows how I approach game testing, documentation, API checks, and defect reporting:
+
+- Live portfolio:
+https://pyavchikstream.online
+- Test cases:
+https://pyavchikstream.online/test-cases.html
+- Jira workflow:
+https://pyavchikstream.online/jira.html
+- Zephyr Scale:
+https://pyavchikstream.online/zephyr.html
+- Bug reports:
+https://pyavchikstream.online/bug-report.html
+- API/Postman:
+https://pyavchikstream.online/postman-tests.html
+- Postman collection:
+https://pyavchikstream.online/postman/slots-collection.json
+- DevTools/network testing:
+https://pyavchikstream.online/network-testing.html
+- Responsive/mobile testing:
+https://pyavchikstream.online/responsive-testing.html
+- iGaming game logic:
+https://pyavchikstream.online/game-math.html
+- RTP/JMeter validation:
+https://pyavchikstream.online/jmeter-rtp.html
+
+I’m interested in a role where manual QA has real impact on game quality and release stability, while also leaving room to grow automation coverage where it makes sense. I’d be glad to discuss how my gambling QA experience can support DeltaFunc’s product team.
+
+Best regards,
+Oleksander Pyavchik
+pyavchik@gmail.com
++380 63 997 7874
+
+---
+
+Compact Djinni Version
+
+Hello DeltaFunc team,
+
+I’m interested in the Manual QA Engineer (Gambling) position. I have 7+ years of QA experience, including around 7 years in iGaming/gambling products. My background matches your role directly: manual testing of slot games, gambling game logic, free spins, bonus features, multipliers, payout/RTP-related behavior, UI/UX, animations, regression, cross-browser and cross-platform testing.
+
+I’m comfortable writing test cases, checklists, test plans, and clear bug reports with reproducible steps, actual/expected result, severity, priority, screenshots/video/logs when needed. I also use DevTools, Postman/API testing, HTTP, SQL, Git, and client-server architecture in day-to-day QA work. Automation background with Java/Selenium/Selenide, REST Assured, Playwright, and CI/CD is an additional advantage if the team wants to grow automation later.
+
+Portfolio examples:
+
+- Live portfolio:
+https://pyavchikstream.online
+- Test cases:
+https://pyavchikstream.online/test-cases.html
+- Jira workflow:
+https://pyavchikstream.online/jira.html
+- Zephyr Scale:
+https://pyavchikstream.online/zephyr.html
+- Bug reports:
+https://pyavchikstream.online/bug-report.html
+- API/Postman:
+https://pyavchikstream.online/postman-tests.html
+- Postman collection:
+https://pyavchikstream.online/postman/slots-collection.json
+- DevTools/network:
+https://pyavchikstream.online/network-testing.html
+- Mobile/responsive:
+https://pyavchikstream.online/responsive-testing.html
+- iGaming logic:
+https://pyavchikstream.online/game-math.html
+- RTP/JMeter:
+https://pyavchikstream.online/jmeter-rtp.html
+
+I’d be glad to discuss how my gambling QA experience can help DeltaFunc improve game quality and release stability.
+
+Best regards,
+Oleksander Pyavchik

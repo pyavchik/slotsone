@@ -1,0 +1,68 @@
+Cover Letter — Junior Manual QA Engineer, Gamzix
+
+Hello, Gamzix team!
+
+I'd like to apply for the Junior Manual QA Engineer position. What caught my attention is the product itself — web-based slot games on mobile and desktop. Slots are the domain I've been growing in for years and the one I'm genuinely interested in, so working on a focused slots product is a strong fit for me.
+
+I have 7+ years of QA experience, most of it in iGaming, with around 5 years specifically on HTML5 slot games. At Innovation Group I tested slots, roulette and card games across browsers and devices, validated game rules, payout tables and RTP, and covered admin panels, game history and back-office modules. At Digicode I continued with an online casino platform — slot games across all development phases, test plans for game mechanics, RTP validation and bonus features, plus JMeter load testing of the game server.
+
+How this maps to your requirements:
+- iGaming slot games — your essential requirement and my core domain;
+- web slots on mobile and desktop — cross-browser and cross-device testing of HTML5 games;
+- TestRail — used for test cases and test runs; JIRA — daily for bug tracking, board work and team communication;
+- structured approach — test plans, test cases, checklists, clear bug reports with steps to reproduce, actual/expected, severity and priority;
+- client-server architecture — DevTools, HTTP, basic API testing/Postman, understanding how the client talks to the game server;
+- collaboration with frontend developers, animators, producers and artists — standard Agile/Scrum workflow for me.
+
+I also built an iGaming portfolio around my own HTML5 slots product (provably fair, RTP validation, admin panel):
+
+- Live demo: https://pyavchikstream.online
+- Game math & RTP model: https://pyavchikstream.online/game-math.html
+- JMeter RTP validation: https://pyavchikstream.online/jmeter-rtp.html
+- Test cases: https://pyavchikstream.online/test-cases.html
+- Jira workflow: https://pyavchikstream.online/jira.html
+- Zephyr Scale (test management, TestRail analog): https://pyavchikstream.online/zephyr.html
+- Bug reports: https://pyavchikstream.online/bug-report.html
+- API/Postman: https://pyavchikstream.online/postman-tests.html
+- DevTools/network testing: https://pyavchikstream.online/network-testing.html
+- Responsive/mobile testing: https://pyavchikstream.online/responsive-testing.html
+
+I understand the role is Junior — that doesn't stop me: for me the domain, product and team matter most. Happy to complete the test assignment and discuss the details.
+
+Best regards,
+Oleksander Pyavchik
+pyavchik@gmail.com
++380 63 997 7874
+
+---
+
+Compact Djinni Version
+
+Hello, Gamzix team!
+
+I'd like to apply for the Junior Manual QA Engineer position. I have 7+ years in QA, ~5 of them specifically on HTML5 slot games (Innovation Group, Digicode) — tested slots/roulette/card games on web and mobile, validated game rules, payout tables, RTP, worked with the game server, admin panels and back-office.
+
+Relevant to your role:
+- iGaming slot games — core domain (your essential requirement);
+- web slots on mobile + desktop, cross-browser/cross-device;
+- TestRail and JIRA — for test cases, test runs, bug tracking;
+- test plans, checklists, bug reports with steps/actual/expected/severity;
+- client-server: DevTools, HTTP, API testing/Postman;
+- collaboration with frontend, animators, producers, artists in Scrum.
+
+Portfolio around my own HTML5 slots product:
+- Live demo: https://pyavchikstream.online
+- Game math/RTP: https://pyavchikstream.online/game-math.html
+- JMeter RTP validation: https://pyavchikstream.online/jmeter-rtp.html
+- Test cases: https://pyavchikstream.online/test-cases.html
+- Jira workflow: https://pyavchikstream.online/jira.html
+- Zephyr Scale (TestRail analog): https://pyavchikstream.online/zephyr.html
+- Bug reports: https://pyavchikstream.online/bug-report.html
+- API/Postman: https://pyavchikstream.online/postman-tests.html
+- Mobile/responsive: https://pyavchikstream.online/responsive-testing.html
+
+Ready for the test assignment and an interview.
+
+Best regards,
+Oleksander Pyavchik
+pyavchik@gmail.com

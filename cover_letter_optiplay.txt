@@ -1,0 +1,33 @@
+Senior QA Engineer — Oleksander Pyavchik
+
+Hello,
+
+I'm applying for the Senior QA Engineer position at OptiPlay. With 7+ years in QA and roughly 7 of those in iGaming, I believe I'm a strong fit for this role.
+
+At Innovation Group (2014-2019), I spent 5 years testing HTML5 slot games, roulette, and card games across browsers and devices. I validated game rules, payout tables, and RTP compliance for multiple titles, tested admin panels, game history, payment systems, and partner program modules, and wrote test documentation for game certification.
+
+At Digicode (2019-2021), I worked on an online casino platform — testing HTML5 slot games across all development phases, building UI and API automation frameworks from scratch for the casino product, creating test plans covering game mechanics, RTP validation, and bonus features, and running JMeter load tests on game servers.
+
+At EG (2021-2025), I maintained 1500+ automated tests across multiple environments and worked in a team of 5 QA automation engineers.
+
+What I bring that aligns with your requirements:
+- Deep hands-on experience testing HTML5 slot games and casino platforms end-to-end
+- Understanding of game mathematics, RTP validation, and bonus mechanics
+- Strong automation background (Java, Selenide, Rest Assured, JMeter) to complement manual testing
+- Experience with cross-browser/cross-device testing of HTML5 games
+- Familiarity with client-server architecture and game server integrations
+
+I've also built a personal iGaming portfolio — a fully functional HTML5 slots game with provably fair mechanics, RTP validation, and admin panel:
+
+- Live demo: https://pyavchikstream.online
+- Game math & RTP model: https://pyavchikstream.online/game-math.html
+- JMeter RTP validation: https://pyavchikstream.online/jmeter-rtp.html
+- Test cases: https://pyavchikstream.online/test-cases.html
+- Playwright automation + Allure report: https://pyavchik.github.io/slotsone-playwright/
+
+I'm based in Ukraine, comfortable working remotely in CET hours, and available to start immediately.
+
+Looking forward to hearing from you.
+
+Best regards,
+Oleksander Pyavchik

@@ -1,0 +1,96 @@
+Cover Letter — Middle Manual QA Engineer, Next Era Solutions
+
+Hello Next Era Solutions team,
+
+I'm applying for the Middle Manual QA Engineer position. I have 7+ years of QA experience, around 7 of those in iGaming, and the role description — slots, live casino, betting, payments, KYC, multi-geo, REST API testing — maps almost one-to-one to my background.
+
+iGaming experience. At Innovation Group (2014–2019) I spent 5 years testing HTML5 slots, roulette, and card games across browsers and devices — validating game rules, payout tables, RTP, admin panels, game history, payment flows, and partner-program modules, including documentation for game certification. At Digicode (2019–2021) I worked on an online casino platform: testing HTML5 slots through all phases, building UI and API automation frameworks from scratch, writing test plans for game mechanics / RTP / bonus features, and running JMeter load tests against game servers. At EG (2021–2025) I maintained 1500+ automated tests across multiple environments in a team of QA automation engineers. In parallel I run my own iGaming demo (slots + admin panel) with full-cycle QA — Node/Express + PostgreSQL backend, React/Vite frontend, Next.js admin — which keeps me current on transactional systems, ledger logic, wallet/balance correctness, and provably-fair mechanics.
+
+What I bring against your requirements:
+- 7+ years QA, ~7 in iGaming — well above the 2+ year minimum
+- Manual testing of web and mobile across desktop/mobile and cross-browser/cross-device
+- Functional, regression, smoke, exploratory, and integration testing
+- Slots, live casino, and betting modules — game logic, payouts, bonus features
+- Payment systems: deposits, withdrawals, provider integrations, ledger/transaction validation
+- KYC and responsible gambling flows; back-office and admin tooling
+- Multi-geo / localization and regional compliance checks
+- REST API testing — Postman / Swagger / OpenAPI, request/response validation, backend business logic
+- Jira for defect tracking; clear bug reports, checklists, test cases, test plans
+- SDLC and Agile/Scrum — daily standups, sprint planning, release cycles
+- Production monitoring and post-release verification (logs, Sentry, DevTools, HAR)
+- English B2+, Ukrainian native
+
+Nice-to-haves you listed — I have all of them:
+- Playwright automation (TypeScript) — running on my live iGaming demo
+- JavaScript / Node.js working knowledge; Go familiarity from reading services
+- GitLab CI/CD pipelines (and GitHub Actions) — building, running tests, gating deploys
+- AWS S3 and cloud — recently added an AWS-integrated test layer (boto3 + moto + LocalStack) to my Python/Pytest framework
+
+Relevant portfolio links:
+- Live iGaming product (slots + roulette): https://pyavchikstream.online/login
+  Demo login — email: demo@pyavchikstream.online   password: BeMyGuest!
+- Portfolio / CV landing: https://pyavchikstream.online
+- CV (PDF): https://pyavchikstream.online/QA_Oleksander_Pyavchik_CV.pdf
+
+iGaming / game logic:
+- Game math & RTP model: https://pyavchikstream.online/game-math.html
+- JMeter RTP validation: https://pyavchikstream.online/jmeter-rtp.html
+- JMeter load testing: https://pyavchikstream.online/jmeter-load.html
+
+QA documentation:
+- QA strategy: https://pyavchikstream.online/qa-strategy.html
+- Test cases: https://pyavchikstream.online/test-cases.html
+- Test design techniques: https://pyavchikstream.online/test-design.html
+- Requirements review: https://pyavchikstream.online/requirements.html
+- Bug reports: https://pyavchikstream.online/bug-report.html
+- Exploratory testing: https://pyavchikstream.online/exploratory-testing.html
+
+Web/mobile + multi-geo (matches your responsibilities):
+- Localization testing (multi-geo): https://pyavchikstream.online/localization-testing.html
+- Responsive / cross-device: https://pyavchikstream.online/responsive-testing.html
+- Visual regression: https://pyavchikstream.online/visual-regression.html
+- Network & DevTools: https://pyavchikstream.online/network-testing.html
+
+REST API testing:
+- Postman collection: https://pyavchikstream.online/postman-tests.html
+- Swagger / OpenAPI: https://pyavchikstream.online/swager.html
+- GraphQL testing: https://pyavchikstream.online/graphql-testing.html
+- SQL for data verification: https://pyavchikstream.online/sql.html
+
+Automation (your nice-to-haves):
+- Playwright + Allure report: https://pyavchik.github.io/slotsone-playwright/
+- Playwright overview: https://pyavchikstream.online/playwright.html
+- Python (Pytest + Playwright + AWS/boto3/moto/LocalStack): https://pyavchikstream.online/python-automation.html
+- Java (Selenide + Rest Assured): https://pyavchikstream.online/java-automation.html
+
+Based in Odesa, Ukraine, available remotely, ready to start immediately.
+
+Best regards,
+Oleksander Pyavchik
+pyavchik@gmail.com
++380 63 997 7874
+
+---
+
+Short Djinni Message
+
+Hello Next Era Solutions team,
+
+I'm interested in your Middle Manual QA Engineer role. I have 7+ years in QA, around 7 of those in iGaming — slots, roulette, casino platforms, payment integrations, admin panels, and game certification documentation.
+
+The role matches my background closely: manual web/mobile testing, functional/regression/smoke/exploratory, REST API (Postman/Swagger), Jira, SDLC/Agile, payments, KYC, and multi-geo. I also cover all your nice-to-haves — Playwright (TS), JavaScript/Node, GitLab CI/CD, and AWS S3 (recently added an AWS test layer with boto3 + moto + LocalStack).
+
+In parallel I run my own iGaming demo (slots + admin panel) with full-cycle QA — Node/Express + PostgreSQL backend, React/Vite frontend, Next.js admin — covering wallets, ledger transactions, provably-fair RNG, and RTP validation.
+
+- Live iGaming product: https://pyavchikstream.online/login  (demo@pyavchikstream.online / BeMyGuest!)
+- Portfolio / CV landing: https://pyavchikstream.online
+- Test cases: https://pyavchikstream.online/test-cases.html
+- Bug reports: https://pyavchikstream.online/bug-report.html
+- API testing (Postman / Swagger): https://pyavchikstream.online/postman-tests.html
+- Localization (multi-geo): https://pyavchikstream.online/localization-testing.html
+- Playwright + Allure: https://pyavchik.github.io/slotsone-playwright/
+
+English B2+, Ukrainian native. Based in Odesa, available remotely, ready to start immediately.
+
+Best regards,
+Oleksander Pyavchik

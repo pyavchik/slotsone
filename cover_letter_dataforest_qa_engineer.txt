@@ -1,0 +1,70 @@
+Cover Letter — QA Engineer, Dataforest
+
+Вітаю, команда Dataforest!
+
+Хочу подати заявку на позицію QA Engineer. Ваш фокус — тестування високонавантажених gambling-платформ із перевіркою критичних флоу (транзакції, оновлення балансу, цілісність сесій), backend/API-тестування та робота з фронтендом на React.js / Next.js / React Native — це майже повний збіг з тим, чим я займаюся щодня.
+
+У мене 7+ років досвіду в QA, більша частина — саме в iGaming. В Innovation Group я тестував слоти, рулетку та карткові ігри в браузерах і на мобільних, перевіряв ігрові правила, payout-таблиці та RTP, покривав адмін-панелі, історію ігор і back-office. В Digicode працював над онлайн-казино: тест-плани для ігрових механік, RTP-валідація, бонусні фічі та навантажувальне тестування ігрового сервера через JMeter. В EG підтримував 1500+ автотестів у кількох середовищах, що добре прокачало розуміння регресійного покриття та стабільності релізів.
+
+Як це лягає на ваші вимоги:
+- Backend і API-тестування (REST) — Postman, перевірка контрактів, статусів, негативних кейсів, валідація даних на стику клієнт-сервер;
+- Web full-stack (React.js, Next.js, React Native) — крос-браузерне та крос-девайс тестування, DevTools, мережа, адаптивність;
+- SQL — запити для звірки даних і валідації стану після транзакцій;
+- Навантажувальне тестування high-traffic платформ — JMeter (є практичний досвід валідації ігрового сервера під навантаженням);
+- Критичні флоу gambling — транзакції, оновлення балансу, цілісність сесій, RNG / ігрова логіка та payout — це мій основний домен;
+- JIRA, Confluence, Git/Bitbucket — щоденний інструментарій для баг-трекінгу, документації та роботи з кодом;
+- Чітка дефект-документація — баг-репорти зі steps to reproduce, actual/expected, severity та priority.
+
+Я зібрав живе iGaming QA-портфоліо навколо власного HTML5-слот-продукту (provably fair, RTP, адмін-панель). Релевантні саме під вашу вакансію приклади:
+
+- Живий продукт: https://pyavchikstream.online
+- API / Postman (REST): https://pyavchikstream.online/postman-tests.html
+- SQL для валідації даних: https://pyavchikstream.online/sql.html
+- Навантажувальне тестування (JMeter): https://pyavchikstream.online/jmeter-load.html
+- RTP-валідація під навантаженням: https://pyavchikstream.online/jmeter-rtp.html
+- Ігрова математика, RNG, payout та цілісність балансу: https://pyavchikstream.online/game-math.html
+- Тестування мережі / DevTools (транзакції, сесії): https://pyavchikstream.online/network-testing.html
+- Адаптивне та мобільне тестування (web / React Native): https://pyavchikstream.online/responsive-testing.html
+- Тест-кейси та структуроване покриття: https://pyavchikstream.online/test-cases.html
+- Баг-репорти: https://pyavchikstream.online/bug-report.html
+- Робота в Jira: https://pyavchikstream.online/jira.html
+
+Gambling-домен для мене не новий — я працював з ігровою логікою, payout-поведінкою, інтеграціями та back-office, тому можу швидко включитися в продукт, де точність і структуроване тестування критичні. Буду радий обговорити деталі та виконати тестове завдання.
+
+З повагою,
+Олександр Пявчик
+pyavchik@gmail.com
++380 63 997 7874
+Одеса, Україна
+
+---
+
+Compact Djinni Version
+
+Вітаю, команда Dataforest!
+
+Подаюся на позицію QA Engineer. 7+ років у QA, більшість — в iGaming (Innovation Group, Digicode, EG): слоти/рулетка/карткові на web і mobile, RTP, payout, ігровий сервер, адмін-панелі та back-office.
+
+Під вашу вакансію:
+- Backend/API (REST) — Postman, валідація даних клієнт-сервер;
+- Web full-stack (React.js, Next.js, React Native) — крос-браузер/девайс, DevTools;
+- SQL — звірка даних після транзакцій;
+- Навантажувальне тестування high-traffic — JMeter;
+- Критичні флоу: транзакції, баланс, цілісність сесій, RNG/ігрова логіка;
+- JIRA, Confluence, Git/Bitbucket — щоденно; чіткі баг-репорти (steps/actual/expected/severity).
+
+Портфоліо навколо власного HTML5-слот-продукту:
+- Живий продукт: https://pyavchikstream.online
+- API/Postman: https://pyavchikstream.online/postman-tests.html
+- SQL: https://pyavchikstream.online/sql.html
+- JMeter навантаження: https://pyavchikstream.online/jmeter-load.html
+- Ігрова математика/RTP/payout: https://pyavchikstream.online/game-math.html
+- Мережа/DevTools: https://pyavchikstream.online/network-testing.html
+- Тест-кейси: https://pyavchikstream.online/test-cases.html
+- Баг-репорти: https://pyavchikstream.online/bug-report.html
+
+Готовий до тестового завдання та співбесіди.
+
+З повагою,
+Олександр Пявчик
+pyavchik@gmail.com

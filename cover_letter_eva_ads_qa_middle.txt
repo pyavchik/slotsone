@@ -1,0 +1,45 @@
+Супровідний лист — Middle QA Engineer, EVA.ADS
+
+Вітаю, команда EVA.ADS,
+
+Подаюся на позицію Middle QA Engineer. Маю 7+ років досвіду QA на складних web-продуктах — функціональне та API-тестування, JS-важкі фронтенди, інтеграції сторонніх скриптів та високонавантажені транзакційні флоу. Це напряму лягає на тестування рекламних кабінетів, інтеграції JS SDK з сайтом та event/data-pipeline частину AdTech-платформи.
+
+Як мій досвід відповідає вашому стеку:
+
+- API-автоматизація (Postman, REST Assured). У Digicode будував API-автоматизацію з нуля та писав REST Assured-сьюти; у власному портфоліо працюю з Postman через pre-request скрипти, ланцюжки оточень та перевірки схеми/цілісності даних у відповідях. Приклади: https://pyavchikstream.online/postman-tests.html
+- JS SDK / браузерне тестування. Щоденна робота з Chrome DevTools — Network/HAR, Cookies/Storage, Application/Performance, дебаг інтеграції сторонніх скриптів на хост-сторінці. Підхід: https://pyavchikstream.online/network-testing.html
+- Клієнт-сервер та highload. Побудував і протестував iGaming-платформу (React/Vite фронт, Node/Express + PostgreSQL бек, Redis для сесій/кешу). Для навантаження запускаю JMeter-сценарії з валідацією RTP/пропускної здатності: https://pyavchikstream.online/jmeter-rtp.html
+- Черги повідомлень / event-pipelines. У проді з Kafka не працював, але добре розумію модель (producers/consumers, partitions, offsets, порядок, at-least-once delivery, DLQ) і працював з event-driven ledger транзакцій та idempotency keys у власній платформі — питання при тестуванні ті самі: втрата/дублювання подій, порядок, наскрізне трасування через Kibana-подібний пошук по логах.
+- SQL для верифікації даних. SELECT/JOIN/агрегації по PostgreSQL/MySQL — звіряння стану беку з відповідями API та цифрами на дашбордах: https://pyavchikstream.online/sql.html
+- Тест-документація. Чек-листи, тест-кейси, баг-репорти, тест-плани — Jira / TestRail / TestMo як щоденні інструменти. Приклади: https://pyavchikstream.online/test-cases.html, https://pyavchikstream.online/bug-report.html
+- Git: стандартний flow з гілками та PR, щоденно — https://github.com/pyavchik
+
+AdTech-кут. Прямого досвіду в ad network не маю, але ключові болі — точність трекінгу подій, коректність атрибуції, поведінка SDK у різних браузерах, гарантії доставки/латентність event pipeline, збіг цифр на дашборді з беком — це ті самі задачі, які я тестую на власній платформі (game rounds, транзакції, гаманець-ledger, provably-fair audit trail). Ввімкнусь у домен EVA.ADS швидко.
+
+Мови: українська рідна (C2), англійська B2+.
+
+Портфоліо: https://pyavchikstream.online
+CV (PDF): https://pyavchikstream.online/QA_Oleksander_Pyavchik_CV.pdf
+Playwright + Allure звіт: https://pyavchik.github.io/slotsone-playwright/
+
+Базуюся в Одесі, готовий працювати віддалено, можу стартувати одразу.
+
+З повагою,
+Олександр Пявчик
+pyavchik@gmail.com
++380 63 997 7874
+
+
+Коротка версія для Djinni
+
+Вітаю, команда EVA.ADS,
+
+Подаюся на Middle QA Engineer. 7+ років QA на складних web-продуктах — Postman API-автоматизація з pre-request скриптами та ассертами (https://pyavchikstream.online/postman-tests.html), дебаг JS-інтеграцій і Network/HAR-аналіз через DevTools (https://pyavchikstream.online/network-testing.html), SQL для верифікації даних (https://pyavchikstream.online/sql.html), JMeter-навантаження (https://pyavchikstream.online/jmeter-rtp.html), тест-документація в Jira/TestRail.
+
+Побудував власну event-driven платформу (React + Node/Express + PostgreSQL + Redis) — задачі при тестуванні ті самі, що й в AdTech-pipeline: втрата/дублювання подій, idempotency, звіряння дашборд-vs-бек. З Kafka знайомий концептуально (producers/consumers, partitions, offsets, DLQ), готовий швидко підняти Kafka UI / Kibana / Grafana на проєкті.
+
+Українська C2, англійська B2+. Портфоліо: https://pyavchikstream.online
+
+З повагою,
+Олександр Пявчик
+pyavchik@gmail.com | +380 63 997 7874 | Одеса, Україна

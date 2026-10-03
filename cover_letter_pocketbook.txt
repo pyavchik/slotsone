@@ -1,0 +1,47 @@
+Cover Letter — Automation QA Engineer, Pocketbook
+
+Hi Pocketbook team,
+
+I'm Oleksander Pyavchik, an Automation QA Engineer with 7+ years of commercial experience. I'm applying for the Automation QA Engineer (Middle/Middle+) position.
+
+Your requirements map directly to my daily stack. Here's how, with links to working code:
+
+Java + Selenide + Selenoid:
+I've built a complete Java test automation suite with Selenide UI tests, Selenoid containerized execution (docker-compose + VNC/video), and Page Object Model. Full code and architecture details: https://pyavchikstream.online/java-automation.html
+
+Rest Assured + TestNG:
+24 API tests across auth, game spin, and history endpoints — Rest Assured with Allure integration, JSON Schema validation, idempotency checks. TestNG suites with parallel execution and 5 Maven profiles (api, ui, bdd, all, headless): https://pyavchikstream.online/java-automation.html
+
+Cucumber / BDD:
+19 Gherkin scenarios covering user journeys — registration, gameplay, history. CucumberRunner integrated with TestNG + AllureCucumber7Jvm reporting. Feature files with @smoke, @negative, @idempotency tags and data-driven Scenario Outlines: https://pyavchikstream.online/java-automation.html
+
+CI/CD — Jenkins + GitLab CI:
+Both pipelines configured: Jenkins with parameterized builds (BASE_URL, TEST_SUITE selector, USE_SELENOID toggle) and GitLab CI with Selenoid as a Docker service for parallel stages. Allure reports aggregated from all test layers: https://pyavchikstream.online/java-automation.html
+
+Maven:
+pom.xml with profiles, Surefire plugin, AspectJ weaver for Allure, and Owner-based typed configuration (system properties -> env vars -> test.properties): https://pyavchikstream.online/java-automation.html
+
+API Testing — Postman + JMeter:
+- Postman collections for auth, game, wallet APIs: https://pyavchikstream.online/postman-tests.html
+- JMeter load testing: https://pyavchikstream.online/jmeter-load.html
+- JMeter RTP statistical analysis (100K+ spins): https://pyavchikstream.online/jmeter-rtp.html
+
+Nice-to-haves I also bring:
+- Test strategy and framework design: https://pyavchikstream.online/qa-strategy.html
+- Docker — Selenoid compose, production Docker Compose with Caddy TLS
+- Performance testing — JMeter suites with Groovy scripts
+- Test design techniques: https://pyavchikstream.online/test-design.html
+- Agile/Scrum — worked in cross-functional teams at EG and Digicode
+
+Everything is built around a live application at https://pyavchikstream.online — a fully functional iGaming platform (React + PixiJS frontend, Express + TypeScript backend, PostgreSQL, provably fair logic). I built both the product and the entire QA ecosystem from scratch.
+
+Background:
+- EG (2021-2025) — Maintained 1500+ automated tests across multiple environments
+- Digicode (2019-2021) — Built UI E2E and API automation frameworks from the ground up
+- Innovation Group (2014-2019) — Java-based automation, manual testing of web/mobile apps
+
+Happy to walk through any of the code or portfolio artifacts during an interview.
+
+Best regards,
+Oleksander Pyavchik
+pyavchik@gmail.com | +380 63 997 7874 | Odesa, Ukraine

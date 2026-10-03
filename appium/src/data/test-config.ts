@@ -1,8 +1,8 @@
 export const TEST_CONFIG = {
-  baseUrl: process.env.BASE_URL || 'https://pyavchik.space',
+  baseUrl: process.env.BASE_URL || 'https://pyavchikstream.online',
   apiBaseUrl: process.env.BASE_URL
     ? `${process.env.BASE_URL}/api/v1`
-    : 'https://pyavchik.space/api/v1',
+    : 'https://pyavchikstream.online/api/v1',
 
   timeouts: {
     pageLoad: 15000,

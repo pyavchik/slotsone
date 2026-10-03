@@ -1,0 +1,274 @@
+Cover Letter — Junior QA Engineer (Backend), ATLASLIVE
+
+Hello ATLASLIVE team,
+
+I'm applying for the Junior QA Engineer (Backend) position. I have 7+ years of commercial QA experience, around 7 of them in iGaming, and the day-to-day work in your job description — REST API and WebSocket testing, log tracing, defect documentation in Jira, requirement analysis — is exactly what I do. Below is a direct mapping to your requirements, followed by portfolio links that demonstrate each point.
+
+Theory & process
+- Testing theory and test design (equivalence partitioning, boundary values, decision tables, state transition, pairwise) applied daily
+- Agile/Scrum — planning, grooming, daily syncs, retrospectives
+- SDLC and STLC fluency, including the full defect lifecycle (new → in progress → ready for QA → re-test → verified / reopened / closed)
+
+Technical
+- Client-server architecture: HTTP methods, status codes, headers, JSON request/response shapes
+- REST API testing in Postman/Newman — 30+ regression tests across slots, roulette, wallet and auth, covering happy path, negative cases, idempotency, rate limiting, JWT algorithm validation, IDOR, SQL injection and XSS; Newman CLI runs with htmlextra reports
+- WebSocket testing — connection lifecycle, frame inspection, event ordering, reconnect behavior
+- Chrome DevTools — Console, Network (incl. WS frames), device emulation, request blocking and response overrides/mocks, throttling
+- Log tracing — Kibana/OpenSearch-style log search to correlate errors with test runs and trace requests across services
+- Backend-side validation: SQL against the game database to verify rounds, transactions and wallet versions after API calls
+
+Tools & documentation
+- Daily work in Jira and Confluence; test management in TestRail and Zephyr Scale
+- Bug reports with steps, expected vs actual, request/response payloads, logs, screenshots and HAR
+- Checklists, test cases and test reports as sprint deliverables
+
+Responsibilities I'm comfortable owning from day one
+- Functional, non-functional, regression, smoke and exploratory testing of web applications
+- Defect work in Jira: identification, localization, detailed description, re-test, closing the loop with developers
+- Maintaining and updating test documentation as features evolve
+- Active participation in sprint ceremonies and retrospectives; collaboration with developers, designers and product managers
+- Early requirement review to catch ambiguity and risk before implementation
+
+"Nice-to-have" — all confirmed with concrete evidence
+- iGaming domain: ~7 years across Innovation Group, Digicode and EG — slots, roulette, payments, game history, back-office, RTP and payout validation
+- Backend service testing: REST API contract validation, DB-level checks, async/event flows, log inspection
+- CI/CD and Git: GitHub Actions and Jenkins pipelines running API/UI suites on every PR; Git daily for branching, PR review, history bisecting
+- AI in testing — this was explicitly part of my role at EG: I used AI tools to accelerate automated test generation and maintenance across the 1500+ test suite. In my personal portfolio I extend that to LLM-assisted test case design, Postman collection generation, bug-report drafting from raw logs, exploratory test idea generation, and requirement analysis (ambiguity detection, edge-case prompts before implementation). I treat AI as a productivity layer over deterministic testing, never as a replacement for verification.
+
+Concrete portfolio evidence (each point above is backed by a page):
+
+Portfolio (main):
+https://pyavchikstream.online
+
+API & backend testing
+- Postman/Newman regression suite (30+ tests, security + idempotency + provably fair):
+https://pyavchikstream.online/postman-tests.html
+- Public Postman workspace:
+https://www.postman.com/pyavchik/workspace/portfolio
+- Swagger / OpenAPI spec for the RGS:
+https://pyavchikstream.online/api-docs
+- Network testing — Playwright route interception, Authorization/Idempotency-Key header validation, 500/401/429 error simulation:
+https://pyavchikstream.online/network-testing.html
+- SQL — DB-level checks against rounds, transactions, wallets:
+https://pyavchikstream.online/sql.html
+
+Performance & game math
+- JMeter load testing — 50 concurrent users, ~47ms avg response, P95 142ms, 0.02% error rate:
+https://pyavchikstream.online/jmeter-load.html
+- JMeter RTP simulation — 17,945+ spins, theoretical vs empirical RTP:
+https://pyavchikstream.online/jmeter-rtp.html
+- Game math model:
+https://pyavchikstream.online/game-math.html
+
+Test documentation & process
+- Test cases:
+https://pyavchikstream.online/test-cases.html
+- Bug reports:
+https://pyavchikstream.online/bug-report.html
+- Jira workflow:
+https://pyavchikstream.online/jira.html
+- Zephyr Scale:
+https://pyavchikstream.online/zephyr.html
+- QA strategy:
+https://pyavchikstream.online/qa-strategy.html
+- Exploratory testing:
+https://pyavchikstream.online/exploratory-testing.html
+
+Automation
+- Playwright + Allure (live CI run):
+https://pyavchik.github.io/slotsone-playwright/
+- Python automation (Pytest, schema validation, provably fair verification):
+https://pyavchikstream.online/python-automation.html
+- Java automation (Selenide, Rest Assured, TestNG, Cucumber):
+https://pyavchikstream.online/java-automation.html
+
+I'm based in Ukraine, available remotely, and ready to start immediately. Open to discussing the level that fits your team.
+
+Best regards,
+Oleksander Pyavchik
+pyavchik@gmail.com
++380 63 997 7874
+Odesa, Ukraine
+
+
+Short Djinni Message
+
+Hello ATLASLIVE team,
+
+I'm interested in your Junior QA Engineer (Backend) role. Direct mapping to your requirements:
+
+- Theory: testing theory, Agile/Scrum, SDLC, full defect lifecycle — daily practice 7+ years
+- Client-server / HTTP / JSON / status codes — confident, including backend-side DB validation
+- REST API in Postman/Newman — 30+ regression tests with security (SQL injection, XSS, IDOR, JWT), idempotency, rate limiting; Newman CLI + htmlextra
+- WebSocket testing and Chrome DevTools (Console, Network/WS, device emulation, response mocking)
+- Log tracing in Kibana/OpenSearch
+- Jira, Confluence, TestRail/Zephyr — clean, reproducible test cases / checklists / bug reports
+- AI in testing — used at EG to accelerate test generation/maintenance across 1500+ tests; in my portfolio I use LLMs for test case design, Postman collection generation, bug-report drafting, exploratory ideas and requirement-ambiguity analysis
+- Plus: ~7 years iGaming, backend testing, CI/CD + Git
+
+Personal iGaming backend portfolio:
+
+Main:
+https://pyavchikstream.online
+
+Postman regression suite:
+https://pyavchikstream.online/postman-tests.html
+https://www.postman.com/pyavchik/workspace/portfolio
+
+Swagger / API docs:
+https://pyavchikstream.online/api-docs
+
+Network testing (route interception, error simulation):
+https://pyavchikstream.online/network-testing.html
+
+JMeter load (50 VU, P95 142ms, 0.02% errors) & RTP (17,945+ spins):
+https://pyavchikstream.online/jmeter-load.html
+https://pyavchikstream.online/jmeter-rtp.html
+
+Playwright + Allure:
+https://pyavchik.github.io/slotsone-playwright/
+
+Open to discussing the level. Available immediately.
+
+Best regards,
+Oleksander Pyavchik
+
+
+==============================
+Українська версія
+==============================
+
+Супровідний лист — Junior QA Engineer (Backend), ATLASLIVE
+
+Вітаю, команда ATLASLIVE,
+
+Хочу подати заявку на позицію Junior QA Engineer (Backend). У мене 7+ років комерційного досвіду в QA, з них близько 7 — в iGaming. Робота, яку ви описуєте — тестування REST API та WebSocket, трасування логів, документація дефектів у Jira, аналіз вимог — це моя щоденна практика. Нижче — пряма відповідність вашим вимогам, з посиланнями на портфоліо, які підтверджують кожен пункт.
+
+Теорія та процес
+- Теорія тестування і техніки тест-дизайну (класи еквівалентності, граничні значення, таблиці рішень, state transition, pairwise) — щодня
+- Agile/Scrum — планування, грумінг, daily, ретроспективи
+- SDLC та STLC, включно з повним життєвим циклом дефекту (new → in progress → ready for QA → re-test → verified / reopened / closed)
+
+Технічні навички
+- Клієнт-серверна архітектура: HTTP-методи, статуси, заголовки, JSON, request/response flow
+- Тестування REST API в Postman/Newman — 30+ регресійних тестів для слотів, рулетки, гаманця та авторизації; happy path, негативні кейси, ідемпотентність, rate limiting, валідація JWT-алгоритмів, IDOR, SQL injection, XSS; запуск через Newman CLI з htmlextra-репортами
+- Тестування WebSocket — життєвий цикл з'єднання, інспекція фреймів, порядок подій, reconnect
+- Chrome DevTools — Console, Network (зокрема WS frames), емуляція пристроїв, блокування запитів та response overrides/моки, throttling
+- Трасування логів у Kibana/OpenSearch — пошук у сервісах та кореляція помилок з тест-ранами
+- Валідація на стороні backend: SQL-запити до БД для перевірки раундів, транзакцій та версій гаманця після API-викликів
+
+Інструменти та документація
+- Щоденна робота в Jira та Confluence; тест-менеджмент у TestRail і Zephyr Scale
+- Баг-репорти з кроками, expected vs actual, payload-ами, логами, скріншотами, HAR
+- Чек-листи, тест-кейси та тест-репорти як частина спринтових deliverables
+
+Обов'язки, які я готовий брати з першого дня
+- Функціональне, нефункціональне, регресійне, smoke та exploratory тестування веб-додатків
+- Робота з дефектами в Jira: виявлення, локалізація, опис, re-test, закриття разом з розробниками
+- Підтримка та оновлення тестової документації при еволюції фіч
+- Активна участь у спринтових мітингах і ретроспективах; робота з розробниками, дизайнерами, продакт-менеджерами
+- Аналіз вимог на ранніх етапах — для запобігання помилкам
+
+«Буде плюсом» — все підтверджено конкретикою
+- iGaming: ~7 років (Innovation Group → Digicode → EG) — слоти, рулетка, платежі, game history, back-office, RTP/виплати
+- Тестування backend-сервісів: контрактна валідація REST API, перевірки на рівні БД, асинхронні/event-флоу, аналіз логів
+- CI/CD та Git: пайплайни GitHub Actions та Jenkins з прогоном API/UI наборів на кожен PR; Git щодня — гілки, code review, bisect
+- ШІ (нейронні мережі) у тестуванні — це була пряма частина моєї ролі в EG: використовував AI-інструменти для прискорення генерації та підтримки автотестів у пакеті з 1500+ тестів. У власному портфоліо розширюю це до LLM-асистованої розробки тест-кейсів, генерації Postman-колекцій, чернеток баг-репортів з raw-логів, генерації exploratory-ідей та аналізу вимог (виявлення двозначностей, edge-case промпти ще до імплементації). ШІ використовую як шар продуктивності над детермінованим тестуванням — не як заміну верифікації.
+
+Конкретні докази з портфоліо (кожен пункт вище підтверджується сторінкою):
+
+Портфоліо (головна):
+https://pyavchikstream.online
+
+API та backend-тестування
+- Postman/Newman регресійний пакет (30+ тестів, security + ідемпотентність + provably fair):
+https://pyavchikstream.online/postman-tests.html
+- Публічний Postman workspace:
+https://www.postman.com/pyavchik/workspace/portfolio
+- Swagger / OpenAPI для RGS:
+https://pyavchikstream.online/api-docs
+- Network testing — Playwright route interception, валідація Authorization/Idempotency-Key, симуляція помилок 500/401/429:
+https://pyavchikstream.online/network-testing.html
+- SQL — перевірки на рівні БД (раунди, транзакції, гаманці):
+https://pyavchikstream.online/sql.html
+
+Performance та математика гри
+- JMeter load — 50 concurrent users, ~47ms avg, P95 142ms, 0.02% error rate:
+https://pyavchikstream.online/jmeter-load.html
+- JMeter RTP — 17 945+ спінів, теоретичне vs емпіричне RTP:
+https://pyavchikstream.online/jmeter-rtp.html
+- Математика гри:
+https://pyavchikstream.online/game-math.html
+
+Тестова документація та процес
+- Тест-кейси:
+https://pyavchikstream.online/test-cases.html
+- Баг-репорти:
+https://pyavchikstream.online/bug-report.html
+- Jira workflow:
+https://pyavchikstream.online/jira.html
+- Zephyr Scale:
+https://pyavchikstream.online/zephyr.html
+- QA strategy:
+https://pyavchikstream.online/qa-strategy.html
+- Exploratory testing:
+https://pyavchikstream.online/exploratory-testing.html
+
+Автоматизація
+- Playwright + Allure (останній прогон CI):
+https://pyavchik.github.io/slotsone-playwright/
+- Python automation (Pytest, schema validation, provably fair):
+https://pyavchikstream.online/python-automation.html
+- Java automation (Selenide, Rest Assured, TestNG, Cucumber):
+https://pyavchikstream.online/java-automation.html
+
+Перебуваю в Україні, готовий працювати віддалено та доступний до старту одразу. Відкритий до обговорення рівня, який підходить вашій команді.
+
+З повагою,
+Олександр П'явчик
+pyavchik@gmail.com
++380 63 997 7874
+Одеса, Україна
+
+
+Коротке повідомлення на Djinni
+
+Вітаю, команда ATLASLIVE,
+
+Зацікавила ваша вакансія Junior QA Engineer (Backend). Пряма відповідність вашим вимогам:
+
+- Теорія: тестування, Agile/Scrum, SDLC, повний життєвий цикл дефекту — щоденна практика 7+ років
+- Клієнт-сервер / HTTP / JSON / статуси — впевнено, включно з валідацією на рівні БД
+- REST API в Postman/Newman — 30+ регресійних тестів з security (SQL injection, XSS, IDOR, JWT), ідемпотентність, rate limiting; Newman CLI + htmlextra
+- Тестування WebSocket та Chrome DevTools (Console, Network/WS, емуляція пристроїв, response mocking)
+- Трасування логів у Kibana/OpenSearch
+- Jira, Confluence, TestRail/Zephyr — чисті, відтворювані тест-кейси / чек-листи / баг-репорти
+- ШІ у тестуванні — використовував у EG для прискорення генерації та підтримки 1500+ автотестів; у портфоліо застосовую LLM для тест-кейсів, Postman-колекцій, чернеток баг-репортів, exploratory-ідей та аналізу вимог
+- Плюси: ~7 років iGaming, backend-тестування, CI/CD + Git
+
+Власне iGaming backend-портфоліо:
+
+Головна:
+https://pyavchikstream.online
+
+Postman регресія:
+https://pyavchikstream.online/postman-tests.html
+https://www.postman.com/pyavchik/workspace/portfolio
+
+Swagger / API docs:
+https://pyavchikstream.online/api-docs
+
+Network testing (route interception, симуляція помилок):
+https://pyavchikstream.online/network-testing.html
+
+JMeter load (50 VU, P95 142ms, 0.02% errors) та RTP (17 945+ спінів):
+https://pyavchikstream.online/jmeter-load.html
+https://pyavchikstream.online/jmeter-rtp.html
+
+Playwright + Allure:
+https://pyavchik.github.io/slotsone-playwright/
+
+Відкритий до обговорення рівня. Готовий стартувати одразу.
+
+З повагою,
+Олександр П'явчик

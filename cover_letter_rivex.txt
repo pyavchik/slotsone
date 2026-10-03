@@ -1,0 +1,50 @@
+Cover Letter — Middle QA Engineer (Manual + Automation), Rivex Software Limited
+
+Hello Rivex team,
+
+I'm applying for the Middle QA Engineer position. I have 7+ years of QA experience, including both manual and automation testing of web applications, and my background aligns well with what you're looking for.
+
+At Innovation Group (2014-2019), I spent 5 years doing manual and automation QA — testing web applications across browsers and devices, writing detailed test cases and documentation, performing functional, regression, exploratory, and smoke testing, and collaborating directly with developers on defect investigation and resolution. At Digicode (2019-2021), I built UI and API automation frameworks from scratch, created comprehensive test plans, and worked with REST API testing and JMeter performance testing. At EG (2021-2025), I maintained 1500+ automated tests across multiple environments, ensuring regression coverage and release stability.
+
+What I bring that matches your requirements:
+- Strong manual testing foundation: functional, regression, exploratory, smoke, and acceptance testing (https://pyavchikstream.online/test-cases.html)
+- REST API testing experience with Postman (documented examples: https://pyavchikstream.online/postman-tests.html)
+- Playwright automation experience — live Allure report: https://pyavchik.github.io/slotsone-playwright/
+- CI/CD pipeline experience (Jenkins, GitLab CI, GitHub Actions)
+- Git workflow and cross-browser testing experience (https://github.com/pyavchik)
+- Comfortable with DevTools for debugging and network analysis
+- Test documentation: test cases, bug reports, checklists (examples: https://pyavchikstream.online/test-cases.html, https://pyavchikstream.online/bug-report.html)
+
+I've also built a live QA portfolio around my own web application at https://pyavchikstream.online — it includes a React frontend, Express + TypeScript backend, and PostgreSQL database. The portfolio demonstrates my approach to both manual and automated testing, including API testing, exploratory testing (https://pyavchikstream.online/exploratory-testing.html), responsive testing (https://pyavchikstream.online/responsive-testing.html), and test design techniques (https://pyavchikstream.online/test-design.html).
+
+I'm based in Ukraine, available for the 10:00-19:00 UTC+3 schedule, and comfortable working in a small product team with direct communication.
+
+Looking forward to hearing from you.
+
+Best regards,
+Oleksander Pyavchik
+pyavchik@gmail.com | +380 63 997 7874 | Odesa, Ukraine
+
+Short Djinni Version
+
+Hello Rivex team,
+
+I'm applying for the Middle QA Engineer (Manual + Automation) position. I have 7+ years in QA — functional, regression, exploratory testing of web applications, REST API testing with Postman, test documentation (test cases, bug reports, checklists), and automation experience with Playwright and Java-based frameworks. I've worked with CI/CD pipelines, Git, cross-browser testing, and DevTools.
+
+Portfolio with live examples: https://pyavchikstream.online — includes test cases (https://pyavchikstream.online/test-cases.html), bug reports (https://pyavchikstream.online/bug-report.html), Postman API tests (https://pyavchikstream.online/postman-tests.html), Playwright automation with Allure report (https://pyavchik.github.io/slotsone-playwright/), and exploratory testing (https://pyavchikstream.online/exploratory-testing.html).
+
+Based in Ukraine, available for 10:00-19:00 UTC+3 schedule.
+
+Best regards,
+Oleksander Pyavchik
+
+Compact Djinni Version
+
+Hello Rivex team,
+
+I'm applying for the Middle QA Engineer position. 7+ years in QA — manual testing (functional, regression, exploratory), REST API testing (Postman), test automation (Playwright, Java/Selenide), CI/CD, Git, cross-browser testing, DevTools. Strong test documentation skills.
+
+Portfolio: https://pyavchikstream.online — test cases, bug reports, API tests, Playwright + Allure report (https://pyavchik.github.io/slotsone-playwright/), exploratory testing. Based in Ukraine, available 10:00-19:00 UTC+3.
+
+Best regards,
+Oleksander Pyavchik

@@ -1,7 +1,7 @@
 import { defineConfig, devices } from '@playwright/test';
 
 /**
- * Playwright config for running E2E tests against production (pyavchik.space).
+ * Playwright config for running E2E tests against production (pyavchikstream.online).
  * No local webserver — tests hit the live site directly.
  *
  * Usage:
@@ -16,7 +16,7 @@ export default defineConfig({
   workers: 2,
   reporter: [['list'], ['html', { open: 'never' }]],
   use: {
-    baseURL: 'https://pyavchik.space',
+    baseURL: 'https://pyavchikstream.online',
     trace: 'on-first-retry',
   },
   projects: [

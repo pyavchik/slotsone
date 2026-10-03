@@ -1,0 +1,79 @@
+Cover Letter — Junior Full-Stack Dev (AI-Powered), Dr.Fit
+Djinni: https://djinni.co/jobs/826283-junior-full-stack-dev-ai-powered/
+
+Hi Dr.Fit team!
+
+I'm Oleksander. Applying for the Junior Full-Stack Dev (AI-Powered) role. I read the post carefully and it lines up with how I already work day-to-day: Claude Code / Cursor as my main driver, focus on shipping a working feature or fix instead of architectural perfectionism. I haven't written React Native or Go in production yet, but your post explicitly says that's not a blocker — and these are exactly the kind of projects where I want to close that gap quickly, because the base full-stack pattern (TS/Node + Postgres + REST/JSON, React patterns, async flows, SQL) is already there from real products.
+
+So you don't have to take my word for it — separate offer at the bottom, but first the substance.
+
+What I already have in production (not tutorials):
+
+1) https://electro-motors.com/ — online store for electric motors. My site, I built it and I maintain it. Catalog, product pages, cart, checkout. On top of it I integrated an AI chatbot (GPT / Claude via official APIs) — not a "widget for the sake of it", but an agent that answers questions about the catalog, helps with product selection, handles shipping questions. Prompt engineering tuned to the product context, structured output via JSON schemas, tool use / function calling into internal endpoints (stock, prices, categories).
+
+2) https://bestprice.com.ua/ — price comparison. Also mine. AI assistant that helps users search and compare offers: same APIs, MCP servers, agentic flow instead of a static FAQ. Separately for this product I wrote a Python SERP scraper with reCAPTCHA bypass (headless browser + 2Captcha API + proxy rotation + backoff) to collect SEO positions.
+
+3) slotsone (https://pyavchikstream.online/login) — my full-stack pet project, built mostly through agentic flows in Claude Code CLI. Node/Express + TypeScript + PostgreSQL backend (RGS logic, JWT RS256, optimistic locking on wallets, provably fair via HMAC-SHA256), React/PixiJS frontend, Next.js 14 admin panel with Prisma. OpenAPI/Zod contracts that auto-generate frontend types. Deployed behind Caddy/TLS on a VPS via GitHub Actions. This is my daily playground for working with LLMs as a development tool.
+
+4) Telegram bot @jinni_pyavchik_bot — runs on my VPS under cron */5, monitors Djinni via RSS, sends me alerts. Python, dedupe by job_id+pubDate, fail-safe state, systemd, .env (chmod 600). Small but fully mine — from idea to prod cron.
+
+How I work with AI (the part you actually care about):
+- Claude Code CLI — primary driver. Agent loops, sub-agents, MCP servers (Playwright, Atlassian, Zephyr, Gmail). Hooks and slash commands for my repeatable workflows.
+- Cursor — secondary, for in-IDE point edits.
+- LLM APIs directly (Anthropic / OpenAI SDKs) — prompt engineering, tool use / function calling, structured JSON output, prompt caching, edge-case handling.
+- Approach: break a feature into small tasks, lock the contract (type / API / test), let the LLM write, read the diff with my own eyes, run it against real environment, catch regressions. User-first mode — no over-engineering.
+
+Stack I can jump into right away:
+- TypeScript / Node (Express, Next.js), React, Python — daily.
+- PostgreSQL — in production (slotsone: migrations, optimistic locking, BIGINT cents for money).
+- REST / JSON APIs — 7+ years (Postman, OpenAPI / Swagger, contract testing via Zod).
+- Linux / VPS, Docker, cron, GitHub Actions, systemd, Caddy.
+- React Native and Go — still at the reading-code + tutorials level, but with production React and production TS backend behind me, I'll ramp fast. Your post says this is fine.
+- English — between B2 and C1, working proficiency. Read and write fluently, hold meetings.
+
+The separate offer you asked me to highlight:
+I'm ready to start unpaid — take the first task / week as an unpaid trial on top of your standard $250 paid trial, or instead of it, whichever you prefer. The logic is simple: I'm confident in my AI-driven dev flow and I want you to see real code and pace, not take a junior without Go/React Native on his word. If the pace and quality work for you — we move to your standard offer. If they don't — you've lost nothing.
+
+Happy to take your public GitHub test task with a recorded session and open the PR — send the link and I'm on it.
+
+Based in Odesa, fully remote, 4 hours/day in the team's working window — fine. Wise — fine.
+
+Best regards,
+Oleksander Pyavchik
+pyavchik@gmail.com
++380 63 997 7874
+Odesa, Ukraine
+
+Portfolio:
+- Live sites I built: https://electro-motors.com/ , https://bestprice.com.ua/
+- Full-stack pet project: https://pyavchikstream.online/login
+- CV (PDF): https://pyavchikstream.online/QA_Oleksander_Pyavchik_CV.pdf
+- GitHub: https://github.com/pyavchik
+
+
+---
+
+Short version for the Djinni "Message" field
+
+Hi Dr.Fit team!
+
+Applying for the Junior Full-Stack Dev (AI-Powered) role. Claude Code / Cursor is my daily driver — not "learning AI", already shipping with it.
+
+Live sites I built (development + AI integrations):
+- https://electro-motors.com/ — online store for electric motors, integrated a GPT/Claude chatbot as a catalog consultant (tool use into internal endpoints, structured JSON output).
+- https://bestprice.com.ua/ — price comparison, AI assistant for searching/comparing offers + Python SERP scraper with reCAPTCHA bypass (2Captcha, proxy rotation).
+
+Full-stack pet: https://pyavchikstream.online/login — Node/Express + Postgres + React/PixiJS + Next.js admin, built through Claude Code CLI with OpenAPI/Zod contracts and GitHub Actions deploy behind Caddy/TLS.
+
+Stack I'd come in on: TypeScript/Node, React, Python, PostgreSQL, REST/JSON, Docker, GitHub Actions, Linux/VPS. React Native and Go — not yet in production, but you said that's not a blocker, and the base pattern (TS+Postgres+React) is already there from real products. English — between B2 and C1.
+
+Separately: ready to start unpaid — first week as an unpaid trial on top of your $250 paid trial, or instead of it, whichever suits you. I want you to see real AI-driven pace and code, not take a junior on his word. If it doesn't fit — you've lost nothing.
+
+Happy to take your GitHub test task with a recorded session and open the PR right away.
+
+Odesa, fully remote, 4 hours/day — fine. Wise — fine.
+
+Best regards,
+Oleksander Pyavchik
+pyavchik@gmail.com | +380 63 997 7874
+GitHub: https://github.com/pyavchik

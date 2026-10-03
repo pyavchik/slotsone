@@ -1,0 +1,100 @@
+Cover Letter — Automation QA Engineer (Java), SharksCode
+
+Привіт, командо SharksCode!
+
+Мене звати Олександр Пявчик, відгукуюсь на позицію Automation QA Engineer (Java). Маю 7+ років досвіду в QA, з них приблизно 7 в iGaming, і весь цей час автоматизація йшла поруч із мануальним тестуванням — від першого джоба до підтримки 1500+ автотестів у регресійних пайплайнах. Стек, який ви описали (Java + Playwright + Rest Assured + TestNG + Maven + CI/CD + Docker), — це саме той інструментарій, з яким я працював на комерційних проєктах і який щодня використовую на власному iGaming-демо.
+
+Коротко по релевантному досвіду:
+
+- Innovation Group (2014-2019, ~5 років) — Manual/Automation QA на HTML5 слотах, рулетці, карткових іграх. Java + Selenium для UI-автоматизації, валідація game rules, payout tables, RTP, тестування адмінок і платіжних систем, документація під сертифікацію.
+- Digicode (2019-2021) — онлайн-казино: будував UI- та API-фреймворки з нуля (Java/Selenide + Rest Assured + TestNG + Maven + Allure), Page Object / Component layering, інтеграція в CI, JMeter для game-server load.
+- EG (2021-2025) — підтримка та розвиток automation suite на 1500+ тестів у мікросервісній архітектурі, паралельне виконання, тегування, оптимізація pipeline-часу та боротьба з flaky-тестами на shared environments. Команда — 5 AQA, регулярні code review.
+
+Як я закриваю ваші вимоги:
+
+- Java, ООП, SOLID, design patterns, Clean Code — основа всього, що пишу. Page Object / Component / Facade як стандарт для UI-фреймворків.
+- UI-автоматизація — Java/Selenide + Selenium, плюс Playwright (зараз основний driver на пет-проєкті, з Allure-репортом і CI на GitHub Actions). Готовий перейти на Playwright Java як primary tool.
+- API automation — Rest Assured: позитивні/негативні сценарії, контракт-перевірки проти OpenAPI, дані з БД, ланцюжки запитів. На своєму проєкті покрив весь backend (auth, spin, history, wallet, provably fair) Postman + Rest Assured.
+- TestNG — test suites, groups/tags, parallelization, retry-логіка, listeners під Allure.
+- Test pyramid та coverage strategy — на пет-проєкті свідомо тримаю баланс: unit/contract на сервісі, API як основний рівень регресії, UI лише для critical user journeys; саме так пропоную підходити до coverage decisions.
+- Flaky tests — зрозумілі мені больові точки: race conditions, неправильні waits, дані, які пливуть між тестами. Лікую через trace/video/log analysis, ізоляцію тестових даних, retry-політики там, де це обґрунтовано, а не глобально.
+- Мікросервіси та розподілені системи — мій iGaming-стек на пет-проєкті побудований саме як розподілена система (RGS backend, frontend, admin panel, окрема БД, transaction ledger), і EG-проєкт був мікросервісним. Розумію testability на стиках сервісів і чому contract testing критичний.
+- CI/CD — GitHub Actions, інтеграція автотестів як quality gates, шардинг, артефакти/репорти, Docker-обгортки ранерів.
+- Git, Maven, Docker — щоденні інструменти.
+- Mobile — розумію специфіку Android/iOS-тестування і test design під mobile, з Appium практичний досвід обмежений (готовий донавчити швидко в межах проєкту).
+- SDLC, Agile, code review, менторинг — вів onboarding нових AQA на EG, регулярно проводив рев’ю і знав, як ставити стандарти на тестовий код.
+
+З "буде плюсом":
+- JMeter — використовую активно, у тому числі для RTP-валідації iGaming-математики (https://pyavchikstream.online/jmeter-rtp.html).
+- SQL та БД — щоденно, MySQL/PostgreSQL/MongoDB.
+- Mocks/stubs — мав справу з MockServer на Digicode, на пет-проєкті імітую провайдерські сервіси через локальні моки.
+- Test data management — на iGaming-демо реалізував окремий шар зі seed-даними, ізольованими користувачами під автотести і "rotate seed pair" для provably fair.
+- Kafka / event-driven — теоретичне розуміння + досвід тестування асинхронних інтеграцій, з Kafka конкретно практика менш глибока, готовий швидко включитись.
+- Security testing — базовий рівень: OWASP-перевірки на пет-проєкті (auth flows, JWT validation, rate limiting, input validation).
+
+Чому SharksCode цікавий саме мені — iGaming-домен (slot games, roulette, payments, back-office) — це те, де я виріс як QA, і де мені цікаво продовжувати працювати. B2B-платформи з фокусом на якість релізів і test strategy — те, що я готовий тягнути на рівні tech lead в межах AQA-домену.
+
+Портфоліо (живий iGaming-демо, який я будую і тестую сам):
+
+Продукт і стратегія
+- Live web product: https://pyavchikstream.online
+- CV (PDF): https://pyavchikstream.online/QA_Oleksander_Pyavchik_CV.pdf
+- QA strategy: https://pyavchikstream.online/qa-strategy.html
+- Test design: https://pyavchikstream.online/test-design.html
+
+Java-автоматизація і API
+- Java/Selenium + Selenide + Rest Assured + TestNG: https://pyavchikstream.online/java-automation.html
+- Playwright e2e + Allure: https://pyavchikstream.online/playwright.html, репорт https://pyavchik.github.io/slotsone-playwright/
+- API testing (Postman): https://pyavchikstream.online/postman-tests.html
+- Swagger/OpenAPI contract testing: https://pyavchikstream.online/swager.html
+
+Performance, дані, домен
+- JMeter load: https://pyavchikstream.online/jmeter-load.html
+- JMeter RTP validation: https://pyavchikstream.online/jmeter-rtp.html
+- SQL: https://pyavchikstream.online/sql.html
+- Game math / payout logic: https://pyavchikstream.online/game-math.html
+
+Test docs
+- Test cases: https://pyavchikstream.online/test-cases.html
+- Bug reports: https://pyavchikstream.online/bug-report.html
+
+Буду радий поспілкуватись на Interview з рекрутером і далі по технічній частині.
+
+З повагою,
+Олександр Пявчик
+pyavchik@gmail.com
++380 63 997 7874
+Odesa, Ukraine
+
+
+Compact Djinni Version
+
+Привіт, командо SharksCode!
+
+Відгукуюсь на Automation QA Engineer (Java). 7+ років у QA, ~7 в iGaming. Стек збігається: Java + Selenide/Selenium + Rest Assured + TestNG + Maven + Allure (Digicode — будував UI- і API-фреймворки з нуля; EG — підтримував 1500+ автотестів у мікросервісній архітектурі з parallelization, tagging, flaky stabilization). На пет-проєкті — повноцінний iGaming-демо (slots, roulette, RGS backend, admin panel) з Playwright + Allure + GitHub Actions, Rest Assured-покриттям API, JMeter для RTP-валідації. Page Object / Component / Facade, test pyramid, coverage strategy, code review, менторинг — все це частина щоденної роботи.
+
+Доменно: HTML5 slots, payments, ledger, back-office, RTP/game math, provably fair — це моя глибина по iGaming.
+
+З "буде плюсом" — JMeter (active), SQL (active), MockServer / тестові моки (used), test data management (built on pet-project), security basics (OWASP, JWT, rate limiting). Appium і Kafka — на рівні розуміння і готовності швидко зануритись.
+
+Портфоліо:
+- https://pyavchikstream.online — live iGaming demo
+- https://pyavchikstream.online/QA_Oleksander_Pyavchik_CV.pdf — CV
+- https://pyavchikstream.online/java-automation.html — Java/Selenium/Selenide + Rest Assured + TestNG
+- https://pyavchikstream.online/playwright.html — Playwright e2e (+ https://pyavchik.github.io/slotsone-playwright/)
+- https://pyavchikstream.online/postman-tests.html — API testing
+- https://pyavchikstream.online/swager.html — OpenAPI contract testing
+- https://pyavchikstream.online/jmeter-rtp.html — JMeter RTP validation
+- https://pyavchikstream.online/jmeter-load.html — JMeter load
+- https://pyavchikstream.online/sql.html — SQL
+- https://pyavchikstream.online/game-math.html — iGaming math / payout
+- https://pyavchikstream.online/qa-strategy.html — QA strategy
+- https://pyavchikstream.online/test-cases.html — test cases
+- https://pyavchikstream.online/bug-report.html — bug reports
+
+Радий обговорити деталі.
+
+З повагою,
+Олександр Пявчик
+pyavchik@gmail.com
++380 63 997 7874

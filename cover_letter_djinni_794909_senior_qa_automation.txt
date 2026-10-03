@@ -1,0 +1,66 @@
+Cover Letter - Senior QA Automation Engineer, Zepuff
+
+Hi Zepuff team,
+
+My name is Oleksandr, and I would like to apply for the Senior QA Automation Engineer position. I have 7+ years of QA experience, including strong gaming / gambling / iGaming experience, and hands-on automation work with Playwright, TypeScript/JavaScript, API testing, CI/CD, SQL, JMeter, and Allure reporting.
+
+Your role is a very strong match for my background because it combines exactly the areas where I can bring value: building scalable Playwright E2E automation, validating API reliability and performance, improving CI feedback, and working closely with R&D, DevOps, and product teams on complex high-performance web systems.
+
+What is most relevant for this role:
+
+- Playwright + TypeScript/JavaScript: UI automation, API checks, fixtures, stable locators, traces/screenshots/videos, Allure reports, and GitHub Actions.
+- Gaming background: HTML5 slots, roulette/card games, paytables, RTP, payout logic, game history, admin panels, partner flows, payments, and transaction-heavy business logic.
+- Framework ownership: at Digicode I built UI and API automation frameworks from scratch for an online casino product.
+- Large automation suites: at EG I worked in a QA automation team supporting 1500+ automated tests across environments, with focus on stability, parallel execution, tagging, regression reliability, and flaky-test analysis.
+- API and reliability testing: REST, Postman, Swagger/OpenAPI, request/response validation, negative/boundary scenarios, backend state checks, and SQL.
+- Performance testing: JMeter for load scenarios, game-server checks, and RTP/math validation.
+- CI/CD: Jenkins, GitHub Actions, GitLab CI, pipeline artifacts, reporting, retries, smoke/regression jobs, and release-quality feedback.
+
+In my previous roles, I worked with products where quality directly affects money flows, user trust, and release confidence. At Innovation Group, I spent 5 years testing HTML5 casino games, admin panels, game history, payment modules, partner programs, and certification documentation. At Digicode, I worked on an online casino product, created automation from scratch, and tested API integrations, payments, and performance. At EG, I helped maintain a large automation suite in a microservice-based product and worked on making regression more stable and useful for the team.
+
+I also have public portfolio projects that demonstrate my current automation approach:
+
+- TypeScript Playwright API automation with public Allure report:
+  https://pyavchik.github.io/slotsone/
+- Bestprice Playwright UI automation with public Allure report:
+  https://pyavchik.github.io/playwright-bestprice-com-ua/
+- Bestprice Playwright repository:
+  https://github.com/pyavchik/playwright-bestprice-com-ua
+- QA portfolio / CV:
+  https://pyavchikstream.online
+
+My approach as a Senior QA Automation Engineer is pragmatic: API-first regression where possible, UI E2E tests for critical user journeys, clean test data, readable reports, CI artifacts on failure, and continuous stabilization of flaky tests. I also use AI tools in daily QA work for faster test idea generation, log analysis, automation scaffolding, and documentation, while keeping final decisions and quality ownership under human QA review.
+
+English: B2. Ukrainian: native. I am based in Odesa and ready for full-time remote work.
+
+Best regards,
+Oleksandr
+pyavchik@gmail.com
++380 63 997 7874
+
+---
+
+Best Djinni Message
+
+Hi Zepuff team,
+
+I would like to apply for the Senior QA Automation Engineer position. I have 7+ years of QA experience, including strong gaming / gambling / iGaming background and hands-on automation with Playwright, TypeScript/JavaScript, API testing, CI/CD, SQL, JMeter, and Allure.
+
+Your vacancy matches my strongest experience: scalable Playwright E2E automation for complex web systems, REST/Postman API reliability checks, functional/regression/integration strategy, CI/CD feedback, and close collaboration with R&D, DevOps, and product teams.
+
+At Innovation Group, I spent 5 years testing HTML5 slots, roulette/card games, RTP, paytables, game history, admin panels, payment modules, partner programs, and certification documentation. At Digicode, I worked on an online casino product and built UI/API automation frameworks from scratch. At EG, I worked in a QA automation team supporting 1500+ automated tests across environments, focusing on stability, parallel execution, tagging, flaky-test analysis, and regression reliability.
+
+Public automation examples:
+- TypeScript Playwright API automation + Allure: https://pyavchik.github.io/slotsone/
+- Playwright UI automation + Allure: https://pyavchik.github.io/playwright-bestprice-com-ua/
+- Bestprice Playwright repo: https://github.com/pyavchik/playwright-bestprice-com-ua
+- QA portfolio / CV: https://pyavchikstream.online
+
+My focus as a Senior AQA is practical test pyramid, API-first regression, UI tests for critical flows, stable test data, clear Allure reports, CI artifacts on failure, and fast feedback for releases.
+
+English: B2. Ukrainian: native. Odesa, full-time remote.
+
+Best regards,
+Oleksandr Piavchyk
+pyavchik@gmail.com
++380 63 997 7874

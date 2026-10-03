@@ -1,0 +1,82 @@
+Cover Letter — Junior Manual QA, Novoplex
+
+Вітаю, командо Novoplex!
+
+Хочу відгукнутися на позицію Junior Manual QA. Мене зацікавила саме продуктова iGaming-команда та можливість бути залученим у повний QA-процес: від аналізу вимог і перевірки нового функціоналу до регресії, sanity-перевірок, тестової документації та комунікації з розробниками, дизайнерами й PO.
+
+Маю 7+ років досвіду в QA, значну частину — в iGaming. Починав із Manual/Automation QA, тому manual testing для мене залишається базою: функціональне, регресійне, smoke/sanity, exploratory testing, перевірка web і mobile, написання тест-кейсів, чеклістів і зрозумілих bug reports з чіткими steps to reproduce, actual/expected result, severity та пріоритетом.
+
+Мій досвід добре перетинається з вашими вимогами:
+- тестування Web і Mobile продуктів;
+- робота з Jira/аналогами, тест-кейсами, чеклістами та баг-репортами;
+- DevTools, HTTP, базове API testing/Postman, клієнт-серверна архітектура;
+- Git, SQL, Linux-консоль як додатковий технічний бекграунд;
+- уважність до деталей, робота з вимогами та комунікація з командою в Agile/Scrum-процесах.
+
+Окремо хочу підкреслити інтерес до iGaming. Я працював із HTML5 slot games, casino platforms, game server/payment integrations і back-office системами. Також зібрав власне QA-портфоліо навколо demo iGaming продукту, де показані приклади тестової документації, API testing, bug reports, responsive/mobile checks і game logic validation:
+
+- Live portfolio:
+https://pyavchikstream.online
+- Test cases:
+https://pyavchikstream.online/test-cases.html
+- Jira workflow:
+https://pyavchikstream.online/jira.html
+- Zephyr Scale:
+https://pyavchikstream.online/zephyr.html
+- Bug reports:
+https://pyavchikstream.online/bug-report.html
+- API/Postman:
+https://pyavchikstream.online/postman-tests.html
+- Postman collection:
+https://pyavchikstream.online/postman/slots-collection.json
+- DevTools/network testing:
+https://pyavchikstream.online/network-testing.html
+- Responsive/mobile testing:
+https://pyavchikstream.online/responsive-testing.html
+- iGaming game logic:
+https://pyavchikstream.online/game-math.html
+
+Буду радий обговорити, як мій досвід може бути корисним Novoplex, і долучитися до команди, де важлива якість продукту, уважність до деталей і розвиток у QA.
+
+З повагою,
+Олександр Пявчик
+pyavchik@gmail.com
++380 63 997 7874
+
+---
+
+Compact Djinni Version
+
+Вітаю, командо Novoplex!
+
+Хочу відгукнутися на позицію Junior Manual QA. Маю 7+ років досвіду в QA, значну частину — в iGaming. Починав із Manual/Automation QA, тому добре розумію базу manual testing: функціональне, регресійне, smoke/sanity, exploratory testing, тест-кейси, чеклісти, bug reports, перевірка фіксів і робота з вимогами.
+
+Релевантно до вашої вакансії: тестував Web і Mobile продукти, працював із Jira/аналогами, DevTools, HTTP, базовим API testing/Postman, клієнт-серверною архітектурою, Git і Scrum-комунікацією з розробниками та PO. Також маю практичний iGaming досвід: slot games, casino platforms, game server/payment integrations і back-office.
+
+Портфоліо з прикладами:
+
+- Live portfolio:
+https://pyavchikstream.online
+- Test cases:
+https://pyavchikstream.online/test-cases.html
+- Jira workflow:
+https://pyavchikstream.online/jira.html
+- Zephyr Scale:
+https://pyavchikstream.online/zephyr.html
+- Bug reports:
+https://pyavchikstream.online/bug-report.html
+- API/Postman:
+https://pyavchikstream.online/postman-tests.html
+- Postman collection:
+https://pyavchikstream.online/postman/slots-collection.json
+- DevTools/network:
+https://pyavchikstream.online/network-testing.html
+- Mobile/responsive:
+https://pyavchikstream.online/responsive-testing.html
+- iGaming logic:
+https://pyavchikstream.online/game-math.html
+
+Буду радий обговорити, як можу бути корисним вашій продуктовій команді.
+
+З повагою,
+Олександр Пявчик

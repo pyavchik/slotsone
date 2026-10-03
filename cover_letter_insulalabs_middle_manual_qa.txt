@@ -1,0 +1,90 @@
+Cover Letter — Middle Manual QA Engineer, InsulaLabs
+
+Job:
+https://djinni.co/jobs/775722-middle-manual-qa-engineer/
+
+Research notes:
+- Company: InsulaLabs.
+- Position: Middle Manual QA engineer.
+- Domain: Gambling, web project, outstaff, full remote.
+- Required: 3+ years QA, testing processes/methodologies, web testing, defining test scope and testing approach, attention to detail, analytical/scientific problem solving, basic SQL, Jira/bug tracking, test documentation, English B1+.
+- Plus: i18n/l10n testing, API testing.
+
+Full version:
+
+Hello InsulaLabs team,
+
+I’m applying for the Middle Manual QA Engineer position. I have 7+ years of QA experience, including around 7 years in iGaming/gambling products, and your gambling web project matches my background very well: manual web testing, test documentation, defect management, SQL checks, API testing, and close collaboration with developers and product teams.
+
+My manual QA foundation includes functional, smoke, regression, exploratory, cross-browser, responsive/mobile-web, and acceptance testing. I’m comfortable defining the scope of testing, choosing a practical testing approach based on product risks, writing and maintaining test cases/checklists/test plans, and reporting defects clearly in Jira-style workflows with steps, expected/actual result, severity, priority, screenshots, logs, and impact.
+
+What is especially relevant to your vacancy:
+- Gambling domain experience: slot/casino products, game logic, balance/history flows, integrations, payouts/RTP-related risks, UI/UX and release stability.
+- Web testing: desktop/mobile web behavior, responsive layouts, browser DevTools, network requests, UI state, forms, sessions, and error handling.
+- Test design and documentation: test cases, checklists, test plans, exploratory charters, regression scope, release checklist, requirements review.
+- SQL: basic and practical database checks for users, sessions/tokens, wallets, game rounds, transactions/history, constraints, and data consistency.
+- Jira/Zephyr-style workflow: defect lifecycle, structured test cases, backlog/test-cycle organization, and readable QA documentation.
+- API testing as a plus: Postman/Newman, REST requests, auth flows, negative cases, schema/data validation, and client-server consistency checks.
+- i18n/l10n as a plus: currency, numeric/date formats, layout resilience for longer translations, untranslated keys, and locale-specific UI checks.
+
+I’ve also built a live iGaming QA portfolio around my own demo casino product, which shows my practical approach to manual and technical testing:
+
+- Live iGaming portfolio:
+https://pyavchikstream.online
+- Test cases and structured coverage:
+https://pyavchikstream.online/test-cases.html
+- Test design techniques:
+https://pyavchikstream.online/test-design.html
+- QA strategy and release approach:
+https://pyavchikstream.online/qa-strategy.html
+- Jira workflow:
+https://pyavchikstream.online/jira.html
+- Zephyr Scale test cases:
+https://pyavchikstream.online/zephyr.html
+- Bug reports:
+https://pyavchikstream.online/bug-report.html
+- SQL/database verification:
+https://pyavchikstream.online/sql.html
+- API/Postman:
+https://pyavchikstream.online/postman-tests.html
+- Direct Postman collection:
+https://pyavchikstream.online/postman/slots-collection.json
+- Localization/i18n testing:
+https://pyavchikstream.online/localization-testing.html
+- Responsive/mobile-web testing:
+https://pyavchikstream.online/responsive-testing.html
+- Exploratory testing:
+https://pyavchikstream.online/exploratory-testing.html
+
+I’d be glad to discuss how my gambling QA experience and structured manual testing approach can help the InsulaLabs team maintain product quality and release stability.
+
+Best regards,
+Oleksander Pyavchik
+
+
+Compact Djinni version:
+
+Hello InsulaLabs team,
+
+I’m interested in the Middle Manual QA Engineer position. I have 7+ years of QA experience, including around 7 years in iGaming/gambling products, and your gambling web project matches my background very well: manual web testing, test documentation, defect management, SQL checks, API testing, and collaboration with developers/product teams.
+
+I’m comfortable with functional, smoke, regression, exploratory, cross-browser, responsive/mobile-web, and acceptance testing. I can define test scope and testing approach based on product risks, write and maintain test cases/checklists/test plans, and report defects clearly in Jira-style workflows with steps, expected/actual result, severity, priority, screenshots/logs, and impact.
+
+Relevant portfolio links:
+- Live iGaming portfolio: https://pyavchikstream.online
+- Test cases: https://pyavchikstream.online/test-cases.html
+- Test design: https://pyavchikstream.online/test-design.html
+- QA strategy: https://pyavchikstream.online/qa-strategy.html
+- Jira workflow: https://pyavchikstream.online/jira.html
+- Zephyr Scale: https://pyavchikstream.online/zephyr.html
+- Bug reports: https://pyavchikstream.online/bug-report.html
+- SQL/database verification: https://pyavchikstream.online/sql.html
+- API/Postman: https://pyavchikstream.online/postman-tests.html
+- Postman collection: https://pyavchikstream.online/postman/slots-collection.json
+- Localization/i18n testing: https://pyavchikstream.online/localization-testing.html
+- Responsive/mobile-web testing: https://pyavchikstream.online/responsive-testing.html
+
+I’d be glad to discuss how my gambling QA experience can support InsulaLabs’ project quality and release stability.
+
+Best regards,
+Oleksander Pyavchik

@@ -1,0 +1,51 @@
+Djinni Form Answers — Space Dinosaurs, Middle QA Engineer (Manual + Automation)
+
+1. Do you have hands-on experience writing and maintaining UI automation tests (not only running them)?
+
+Select: Yes / Так
+
+2. Describe your most recent automation work: stack, what you automated, and your personal contribution
+
+My most recent automation work is a Playwright + TypeScript E2E suite for my own iGaming/web portfolio project. The stack includes Playwright, TypeScript, Page Object Model, fixtures, stable locator strategy, GitHub Actions, Playwright traces/videos, and Allure reporting.
+
+I automated core user flows: auth, lobby/game launch, game UI behavior, spin flow, history/round details, responsive checks, and API-backed scenarios where UI state must match backend data. My personal contribution was full implementation and maintenance: test design, page objects, locators, assertions, CI setup, debugging failed/flaky tests, and report publishing.
+
+Example report: https://pyavchik.github.io/slotsone-playwright/
+
+3. Are you comfortable working daily in English (Slack/Jira/calls)?
+
+Select: Yes / Так
+
+4. Are you comfortable working in a hybrid QA role? E.g some projects may have limited automation scope (around 20% of the work) or no automation at all for certain periods. Would you be comfortable working primarily as a manual QA during those periods?
+
+Yes, I’m comfortable with a hybrid QA role and with periods where the work is mostly manual QA. My background started from manual/automation QA, and I still treat manual testing as the base: requirements analysis, test design, smoke/regression/functional testing, exploratory testing, bug reporting, and release verification.
+
+Automation is valuable when it supports regression stability, but I’m fine working primarily as a manual QA when the project needs that. I can also use my automation/API/DevTools experience to investigate defects deeper and improve coverage when automation scope appears.
+
+5. In case of hire, when would you be available to start?
+
+I can start immediately or within a few business days after agreement.
+
+6. Expected monthly compensation in USD?
+
+1800
+
+Main Message
+
+Hello Space Dinosaurs team,
+
+I’m applying for the Middle QA Engineer (Manual + Automation) position. I have 7+ years of QA experience across web products, iGaming/casino platforms, admin panels, APIs, and automation. Your role fits my profile well: strong manual QA fundamentals plus practical contribution to an existing automation stack.
+
+Manual QA: requirements analysis, test design, smoke/regression/functional/exploratory testing, cross-browser checks, clear bug reports, and release verification. Automation: Playwright + TypeScript with Page Object patterns, stable locators, fixtures, trace/video artifacts, GitHub Actions, and Allure reporting. Example: https://pyavchik.github.io/slotsone-playwright/
+
+I’m comfortable maintaining existing automated tests, adding new coverage, updating locators, debugging failures, and using automation as support for regression stability. At EG I worked with an existing automation framework and maintained 1500+ tests. I also use Postman/API testing, SQL, Git, CI/CD, Jira/TestRail-style documentation, and AI tools responsibly for test design, automation scaffolding, log/HAR analysis, and documentation.
+
+Portfolio: https://pyavchikstream.online
+CV: https://pyavchikstream.online/QA_Oleksander_Pyavchik_CV.pdf
+Examples: test cases https://pyavchikstream.online/test-cases.html, bug reports https://pyavchikstream.online/bug-report.html, API/Postman https://pyavchikstream.online/postman-tests.html, SQL https://pyavchikstream.online/sql.html
+
+Ukrainian native, English B2+. Based in Odesa, ready for full remote work.
+
+Best regards,
+Oleksander Pyavchik
+pyavchik@gmail.com | +380 63 997 7874

@@ -1,0 +1,30 @@
+Доброго дня, Софіє! Дуже приємно познайомитись 🙂
+
+Дякую за повідомлення — переглянув опис позиції, нижче чесний фіт-чек, щоб не витрачати час ні вам, ні мені:
+
+Що збігається з вашими вимогами:
+- 7+ років в QA automation (бекграунд переважно Java, але архітектура фреймворків, API testing, CI/CD — переноситься 1:1)
+- API testing — глибоко: Rest Assured, Postman, JSON Schema валідація проти живого OpenAPI
+- Pytest + Playwright — нещодавно зібрав робочий фреймворк саме під ваш стек: 27 тестів проти живого бекенду в CI (API + UI + AWS-інтеграції)
+- AWS testing — boto3 + moto/LocalStack: assertions для S3 (artifact pipeline), SQS (event publication), CloudWatch Logs (observability post-conditions). Окремий GitHub Actions job піднімає LocalStack як service-контейнер і ганяє ці тести в CI
+- CI/CD з Jenkins і GitLab CI — обидва є в моєму Java-фреймворку (Jenkinsfile + .gitlab-ci.yml), плюс GitHub Actions у Python-фреймворку
+- BDD досвід — Cucumber/Gherkin сценарії в продакшені
+- Git (GitHub, GitLab) — щоденно
+- English: B2
+
+Де я слабший за вимоги (одразу чесно):
+- Python не мій основний продакшн-стек.
+- AWS не мій основний продакшн-стек
+
+Посилання, щоб подивитися самим:
+- Портфоліо: https://pyavchikstream.online
+- Python framework (Pytest + Playwright + AWS): https://pyavchikstream.online/python-automation.html
+- AWS-інтеграції — код: https://github.com/pyavchik/slotsone/tree/main/qa-python/framework/aws
+- AWS-інтеграції — тести: https://github.com/pyavchik/slotsone/tree/main/qa-python/tests/aws
+- Java framework (основний досвід): https://pyavchikstream.online/java-automation.html
+- CV: https://pyavchikstream.online/QA_Oleksander_Pyavchik_CV.pdf
+
+Якщо команда готова розглянути сильного automation-інженера з Java-бекграундом, який активно вростає в Python + AWS — буду радий зідзвонитись. Якщо потрібні саме 4 роки комерційного Python + AWS — теж розумію, дякую за контакт.
+
+Гарного дня!
+Олександр

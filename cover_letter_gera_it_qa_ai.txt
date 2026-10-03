@@ -1,0 +1,171 @@
+Супровідний лист — QA Engineer Manual (AI skills as +), Gera-IT
+
+Вітаю, командо Gera-IT!
+
+Маю 7+ років досвіду в QA і відгукуюсь на позицію QA Engineer Manual (AI skills as +). Ваше формулювання «максимально використовувати автономних агентів та AI-driven IDE» — це буквально мій щоденний workflow останній рік, не «спробую освоїти», а вже базова робоча звичка.
+
+AI-стек, який я використовую щодня:
+
+- Claude Code CLI — основний інструмент. Працює прямо в репозиторії, бачить усю кодову базу, виконує bash/git/тести. Через нього генерую Page Objects зі стабільними локаторами (data-testid > role > text > css), скафолджу spec-файли з тест-кейсів, роблю послідовний рефактор по всіх spec-ах одразу, розбираю flaky-тести по trace/video/логах і чиню race conditions через auto-wait / retry-політики.
+- Cursor AI — для редакторної роботи, inline-рефакторів, швидких ітерацій по тест-документації.
+- Codex / Windsurf — пробував, тримаю руку на пульсі; для production-флоу залишився на Claude Code CLI як на найсильнішому агенті під складні multi-file рефактори. Antigravity готовий підняти під ваш стек.
+
+Окремо тримаю «LLM wiki» по підходу Karpathy (https://gist.github.com/karpathy/442a6bf555914893e9891c11519de94f) — структуровані markdown-нотатки по проєкту (архітектура, конвенції, відомі болі, decisions, словник доменних термінів), які підгружаю в контекст агенту на старті сесії. Це той самий принцип, що описує Karpathy: щоб LLM не «втрачав контекст» між сесіями й не вигадував файлові шляхи / API, які не існують. На практиці — різко падає кількість галюцинацій і помилок у згенерованих тест-кейсах та locator-ах.
+
+Що з цього виходить на практиці (а не у відео-демо):
+
+- Тестова документація (чек-листи, тест-кейси з негативними / boundary / equivalence partitioning сценаріями, баг-репорти, тест-плани) — генерую draft з вимог / Figma / OpenAPI-специфікації, потім сам рев'юю на ризики й покриття. Це не «AI пише за мене» — це AI знімає рутину з 80% boilerplate.
+- API-тестування. Postman-колекції з OpenAPI/Swagger, pre-request скрипти, ассерти, контрактні перевірки, негативні сценарії, mock-дані й JWT для фікстур. Приклад: https://pyavchikstream.online/postman-tests.html
+- Аналіз логів. Stack trace / network HAR / серверний лог → AI дає гіпотези root cause з посиланням на конкретні рядки; я верифікую через SQL / повторне відтворення / DevTools.
+- SQL для верифікації даних. Формулюю задачу під схему, отримую запит, перевіряю результат — підхід відпрацьований: https://pyavchikstream.online/sql.html
+- CI. GitHub Actions, Docker-обгортки для ранерів, шардинг паралелізації — генерую конфіги через агента, далі сам тримаю responsibility за стабільність пайплайну.
+
+Принцип, який тримаю чітко: AI відповідає за «як» і «скільки», QA відповідає за «що» і які ризики пріоритетні. Кожен AI-вихід йде через моє рев'ю — інакше це не QA, а cargo cult.
+
+E-commerce / Marketplace домен — у вас saved as required, і у мене він живий, а не теоретичний:
+
+- electro-motors.com — інтернет-магазин: повний customer journey (каталог, картка товару, кошик, checkout для гостя й авторизованого юзера, інтеграція платіжного шлюзу, статуси замовлень, поштові сповіщення, промокоди/знижки, фільтри/сортування, пошук, SEO-база, крос-браузерність, мобільна поведінка).
+- bestprice.com.ua — порівняння цін / маркетплейс: парсинг і коректність цін від мерчантів, логіка пошуку й фільтрів, сортування, переходи на партнерські сторінки, консистентність каталогу, edge-кейси з великими обсягами офферів і розбіжностями в даних.
+- iGaming-демо (slotsone) — самостійно зробив повний цикл: backend Node/Express + PostgreSQL, frontend React/Vite, адмінка на Next.js, ledger-транзакції, idempotency keys, provably-fair. Це джерело досвіду з транзакційними флоу й real-time.
+
+Інші вимоги з вакансії:
+
+- 3+ роки комерційного QA — 7+ (Digicode, поточні e-commerce/iGaming проєкти).
+- REST API (Postman/Insomnia) — щоденно, плюс REST Assured-сьюти на Java з Digicode.
+- SQL (SELECT/JOIN/фільтри) — PostgreSQL/MySQL/MongoDB, звіряю стан DB з API і UI.
+- Аналіз логів — DevTools (Network/HAR, Cookies/Storage, Application/Performance), серверні логи, стектрейси.
+- Читання коду — TypeScript / JavaScript / Python / Java читаю вільно, на пет-проєктах сам пишу.
+- Самостійне планування тестування — на пет-проєктах планую все сам від requirements до regression suite.
+- Англійська B2+, українська рідна (C2).
+- Критичне й системне мислення — основа моєї роботи, без цього AI-інструменти перетворюються на генератор сміття.
+
+Чому ваша вакансія мені цікава: «small team < 10, no micromanagement, flexible scheduling» + ставка на AI-Native підхід — це рідке поєднання на українському ринку. У більшості команд AI ще обережно «під наглядом», а у вас він уже базовий інструмент. Готовий заходити в продукт як автономна QA-одиниця, що знімає з команди тестову рутину й піднімає покриття.
+
+Релевантні артефакти з портфоліо:
+
+- Live web product (iGaming demo):
+  https://pyavchikstream.online
+
+- CV (PDF):
+  https://pyavchikstream.online/QA_Oleksander_Pyavchik_CV.pdf
+
+- QA strategy:
+  https://pyavchikstream.online/qa-strategy.html
+
+- Requirements analysis:
+  https://pyavchikstream.online/requirements.html
+
+- Test cases:
+  https://pyavchikstream.online/test-cases.html
+
+- Bug reports:
+  https://pyavchikstream.online/bug-report.html
+
+- API testing (Postman):
+  https://pyavchikstream.online/postman-tests.html
+
+- Postman workspace (public):
+  https://www.postman.com/pyavchik/workspace/portfolio
+
+- Postman collection (download):
+  https://pyavchikstream.online/postman/slots-collection.json
+
+- Swagger/OpenAPI contract testing:
+  https://pyavchikstream.online/swager.html
+
+- SQL for data verification:
+  https://pyavchikstream.online/sql.html
+
+- Network & DevTools:
+  https://pyavchikstream.online/network-testing.html
+
+- Playwright automation + Allure report:
+  https://pyavchik.github.io/slotsone-playwright/
+
+- Java/Selenium automation:
+  https://pyavchikstream.online/java-automation.html
+
+- GitHub:
+  https://github.com/pyavchik
+
+Базуюсь в Одесі, працюю віддалено, можу стартувати одразу.
+
+З повагою,
+Олександр Пявчик
+pyavchik@gmail.com
++380 63 997 7874
+Odesa, Ukraine
+
+
+---
+
+Коротка версія для Djinni
+
+Вітаю, командо Gera-IT!
+
+Відгукуюсь на QA Engineer Manual (AI skills as +). 7+ років у QA. Ваше «AI-Native» — це мій реальний щоденний workflow, не майбутній план.
+
+AI-стек у щоденній роботі: Claude Code CLI (основний агент — генерація Page Objects, скафолдинг spec-файлів, рефактор по всій кодовій базі, розбір flaky-тестів по trace/логах, CI-конфіги), Cursor AI (inline-рефактори, документація), Codex/Windsurf пробував, Antigravity готовий підняти. Контекст-менеджмент — за «LLM wiki» підходом Karpathy (https://gist.github.com/karpathy/442a6bf555914893e9891c11519de94f): тримаю структуровані markdown-нотатки по проєкту, які підгружаю агенту на старті сесії, щоб він не «втрачав контекст» і не галюцинував файлові шляхи / API. Принцип — AI робить рутину, рев'ю й архітектурні рішення за мною.
+
+Поза автоматизацією AI використовую щодня: тест-документація (чек-листи, кейси з негативними/boundary сценаріями, баг-репорти) — draft з вимог/OpenAPI, далі сам рев'юю; аналіз логів і стектрейсів для root cause; SQL для верифікації даних; Postman-колекції з Swagger.
+
+E-commerce / marketplace домен — на двох власних пет-проєктах: electro-motors.com (інтернет-магазин: каталог, кошик, checkout, платіжні інтеграції, промокоди, статуси замовлень) і bestprice.com.ua (порівняння цін: парсинг, фільтри, edge-кейси з обсягами офферів). Плюс iGaming-демо з full-cycle QA для досвіду з транзакційними флоу.
+
+Стек: REST API (Postman/Insomnia, REST Assured), SQL (PostgreSQL/MySQL — SELECT/JOIN/фільтри/агрегації), DevTools, читання коду (TS/JS/Python/Java), Jira/TestRail, Git, Docker. Українська C2, English B2+.
+
+Портфоліо: https://pyavchikstream.online
+CV: https://pyavchikstream.online/QA_Oleksander_Pyavchik_CV.pdf
+Postman: https://pyavchikstream.online/postman-tests.html
+Postman workspace: https://www.postman.com/pyavchik/workspace/portfolio
+SQL: https://pyavchikstream.online/sql.html
+Playwright+Allure: https://pyavchik.github.io/slotsone-playwright/
+
+Одеса, віддалено, можу стартувати одразу.
+
+З повагою,
+Олександр Пявчик
+pyavchik@gmail.com | +380 63 997 7874
+
+
+---
+
+DJINNI FORM — версія під два поля форми
+
+===========================================
+ПОЛЕ 1: «Як ви використовуєте AI у роботі?»
+===========================================
+
+AI у мене — щоденний робочий інструмент, не експеримент. Основний стек — Claude Code CLI (термінальний агент від Anthropic) + Cursor AI; Codex / Windsurf пробував, Antigravity готовий підняти.
+
+Як використовую щодня:
+
+1) UI-автоматизація (Playwright/Selenium) через Claude Code CLI — основний use-case:
+- генерую Page Objects з live-сторінки / DOM зі стабільними локаторами (data-testid > role > text > css), з типізацією;
+- скафолджу spec-файли з тест-кейсів у Gherkin / табличному вигляді — далі сам доводжу до production quality (асерти, data-driven, тайм-аути);
+- рефактор і дедуплікація хелперів одразу по всій кодовій базі (агент бачить увесь репозиторій);
+- розбір flaky-тестів по trace/video/логах — локалізація race conditions, фікс auto-wait / network idle / retry-політик;
+- CI-конфіги (GitHub Actions, Docker-обгортки ранерів, шардинг паралелізації).
+
+2) Тестова документація й test design:
+- генерація чек-лістів і тест-кейсів із вимог / Figma / OpenAPI (негативні кейси, boundary values, equivalence partitioning);
+- рев'ю баг-репортів — другий погляд на severity, reproduction steps, missing info;
+- TestRail/Jira-формат за 1 prompt.
+
+3) Аналіз логів і дефектів:
+- stack trace / network HAR / серверний лог → гіпотези root cause з посиланням на конкретні рядки;
+- SQL-діагностика під схему («знайди всі замовлення з неконсистентним статусом»).
+
+4) API-тестування:
+- Postman-колекції з OpenAPI, негативні сценарії, контрактні перевірки;
+- mock-дані, payload'и, JWT для фікстур.
+
+Контекст-менеджмент — за «LLM wiki» підходом Karpathy (https://gist.github.com/karpathy/442a6bf555914893e9891c11519de94f). Тримаю структуровані markdown-нотатки по проєкту (архітектура, конвенції, decisions, словник доменних термінів, відомі болі), які підгружаю агенту на старті сесії. Це різко знижує галюцинації — агент не вигадує файлові шляхи й API, яких немає.
+
+Принцип, який тримаю чітко: AI відповідає за «як» і «скільки», QA відповідає за «що» і які ризики пріоритетні. Кожен AI-вихід йде через моє рев'ю — інакше це не QA, а cargo cult. Цей флоу обкатаний end-to-end на пет-проєктах (electro-motors.com, bestprice.com.ua, iGaming-демо) — можу показати живі артефакти, а не «теорію».
+
+
+===========================================
+ПОЛЕ 2: «Повідомлення»
+===========================================
+
+can

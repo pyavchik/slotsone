@@ -1,0 +1,107 @@
+Cover Letter — QA Manual (iGaming), SharksCode
+
+Hello SharksCode team,
+
+I'm applying for the QA Manual (iGaming) position. I have 7+ years of QA experience, with around 7 years in iGaming, and my background covers exactly what you listed: manual testing of web products, payment systems, requirements analysis, estimation, test documentation, and regular status reporting — plus a solid grounding in SDLC, QA methodologies, API testing, and both MySQL and MongoDB on the data side.
+
+I started my QA career in a Manual/Automation QA role at Innovation Group, where I spent 5 years testing web and mobile products end-to-end, writing test cases and checklists, and working closely with developers on defect investigation. At Digicode I created test plans from scratch and covered UI, API, and performance testing. Most recently, at EG, I maintained 1500+ automated tests across multiple environments, which sharpened my sense for regression coverage and release stability. Manual QA has remained the foundation of every role — it's how I approach new features and risk analysis first, before deciding what to automate.
+
+For this role specifically, I'm comfortable with:
+- Functional and regression testing of web products, with clear requirements-to-test mapping
+- Payment systems testing (deposits, withdrawals, transaction ledger, integration edge cases)
+- Test documentation: test cases, checklists, test plans, bug reports, and Test Summary reports
+- Non-functional testing — basic performance work with JMeter and usability checks
+- API testing in Postman, reading responses, checking contracts, negative scenarios
+- SQL on MySQL for data verification; MongoDB queries for NoSQL-backed services
+- JIRA as daily driver for bug tracking, estimation, and status reporting
+- Gaming provider integrations, game logic, RTP validation, and back-office behavior from iGaming roles
+- An automation mindset (Java/Selenium, Playwright) that helps when investigating defects with developers
+
+I've also built a live iGaming QA portfolio around my own demo slots/roulette product, which shows how I work in practice:
+
+Product and strategy
+- Live web product: https://pyavchikstream.online
+- CV (PDF): https://pyavchikstream.online/QA_Oleksander_Pyavchik_CV.pdf
+- QA strategy and approach: https://pyavchikstream.online/qa-strategy.html
+- Requirements analysis: https://pyavchikstream.online/requirements.html
+- Test design techniques: https://pyavchikstream.online/test-design.html
+
+Test documentation
+- Test cases and structured coverage: https://pyavchikstream.online/test-cases.html
+- Bug reports and defect documentation: https://pyavchikstream.online/bug-report.html
+- Exploratory testing examples: https://pyavchikstream.online/exploratory-testing.html
+
+Functional and cross-platform
+- Responsive/cross-device testing: https://pyavchikstream.online/responsive-testing.html
+- Localization testing: https://pyavchikstream.online/localization-testing.html
+- Visual regression: https://pyavchikstream.online/visual-regression.html
+- Network and DevTools testing: https://pyavchikstream.online/network-testing.html
+
+API, data, and performance
+- API testing (Postman): https://pyavchikstream.online/postman-tests.html
+- Swagger/OpenAPI contract testing: https://pyavchikstream.online/swager.html
+- GraphQL testing: https://pyavchikstream.online/graphql-testing.html
+- SQL for data verification: https://pyavchikstream.online/sql.html
+- JMeter load testing: https://pyavchikstream.online/jmeter-load.html
+- JMeter RTP validation (iGaming math): https://pyavchikstream.online/jmeter-rtp.html
+
+Automation (supporting, not primary)
+- Java/Selenium automation background: https://pyavchikstream.online/java-automation.html
+- Playwright end-to-end automation: https://pyavchikstream.online/playwright.html
+
+iGaming domain
+- Game math and payout logic validation: https://pyavchikstream.online/game-math.html
+
+Because I've worked on slot games, roulette, casino back-office features, and payment flows — and done my own end-to-end QA setup for an iGaming demo — I can onboard quickly and contribute to regression coverage and new-feature testing from the first sprint.
+
+I'd be glad to discuss how my background fits your QA team.
+
+Best regards,
+Oleksander Pyavchik
+pyavchik@gmail.com
++380 63 997 7874
+Odesa, Ukraine
+
+
+Short Djinni Version
+
+Hello SharksCode team,
+
+I'm interested in your QA Manual (iGaming) position. I have 7+ years in QA, including around 7 years in iGaming — functional and regression testing of web products, payment systems testing, requirements analysis, estimation, test cases/checklists, bug reports, and Test Summary reporting. Comfortable with JIRA, API testing in Postman, MySQL and MongoDB for data verification, and basic non-functional testing (JMeter, usability). Java/Selenium and Playwright automation background as a bonus.
+
+Portfolio (live iGaming demo I built):
+- https://pyavchikstream.online — live web product
+- https://pyavchikstream.online/QA_Oleksander_Pyavchik_CV.pdf — CV (PDF)
+- https://pyavchikstream.online/qa-strategy.html — QA strategy and approach
+- https://pyavchikstream.online/requirements.html — requirements analysis
+- https://pyavchikstream.online/test-design.html — test design techniques
+- https://pyavchikstream.online/test-cases.html — test cases
+- https://pyavchikstream.online/bug-report.html — bug reports
+- https://pyavchikstream.online/exploratory-testing.html — exploratory testing
+- https://pyavchikstream.online/responsive-testing.html — cross-device testing
+- https://pyavchikstream.online/network-testing.html — DevTools / network
+- https://pyavchikstream.online/postman-tests.html — API testing (Postman)
+- https://pyavchikstream.online/swager.html — Swagger/OpenAPI contract testing
+- https://pyavchikstream.online/sql.html — SQL for data verification
+- https://pyavchikstream.online/jmeter-load.html — JMeter load testing
+- https://pyavchikstream.online/jmeter-rtp.html — JMeter RTP validation (iGaming math)
+- https://pyavchikstream.online/game-math.html — iGaming domain and payout logic
+- https://pyavchikstream.online/java-automation.html — Java/Selenium background
+- https://pyavchikstream.online/playwright.html — Playwright automation
+
+I'd be glad to discuss in more detail.
+
+Best regards,
+Oleksander Pyavchik
+
+
+Compact Djinni Version
+
+Hello SharksCode team,
+
+I'm applying for the QA Manual (iGaming) role. 7+ years in QA, ~7 in iGaming: functional and regression testing of web products, payment systems testing, requirements analysis, estimation, test cases, checklists, bug reports, and Test Summary reports. Comfortable with JIRA, Postman, MySQL and MongoDB, JMeter, and usability testing. Java/Selenium and Playwright automation as a supporting skill.
+
+Portfolio: https://pyavchikstream.online, CV PDF https://pyavchikstream.online/QA_Oleksander_Pyavchik_CV.pdf, https://pyavchikstream.online/qa-strategy.html, https://pyavchikstream.online/test-cases.html, https://pyavchikstream.online/bug-report.html, https://pyavchikstream.online/postman-tests.html, https://pyavchikstream.online/swager.html, https://pyavchikstream.online/sql.html, https://pyavchikstream.online/jmeter-rtp.html, https://pyavchikstream.online/responsive-testing.html, https://pyavchikstream.online/game-math.html, https://pyavchikstream.online/java-automation.html, https://pyavchikstream.online/playwright.html.
+
+Best regards,
+Oleksander Pyavchik

@@ -1,0 +1,459 @@
+- generic [ref=e3]:
+  - banner [ref=e9]:
+    - generic [ref=e13]:
+      - button "Navigation menu" [ref=e14] [cursor=pointer]:
+        - img [ref=e16]
+        - img [ref=e19]
+      - button "Public Workspace portfolio · Oleksander Pyavchik" [ref=e24] [cursor=pointer]:
+        - generic [ref=e25]:
+          - generic [ref=e26]:
+            - img "Public Workspace" [ref=e28]:
+              - img [ref=e29]
+            - generic [ref=e31]:
+              - generic [ref=e32]: portfolio
+              - generic [ref=e34]:
+                - generic [ref=e35]: ·
+                - generic [ref=e39]:
+                  - generic [ref=e40]: Oleksander Pyavchik
+                  - img [ref=e42]
+          - img [ref=e45]
+    - generic "Open search" [ref=e48]:
+      - generic [ref=e51] [cursor=pointer]:
+        - img [ref=e53]
+        - generic [ref=e56]: Search
+        - generic:
+          - generic: (
+          - text: Ctrl+K
+          - generic: )
+    - toolbar "Toolbar" [ref=e60]:
+      - button "Invite" [ref=e68] [cursor=pointer]:
+        - generic [ref=e69]: Invite
+      - button "Upgrade" [ref=e72] [cursor=pointer]:
+        - generic [ref=e73]: Upgrade
+      - button "Notifications" [ref=e76] [cursor=pointer]:
+        - img [ref=e78]
+      - button "Settings" [ref=e82] [cursor=pointer]:
+        - img [ref=e84]
+      - button "Manage accounts" [ref=e87]:
+        - button "Manage accounts" [ref=e88] [cursor=pointer]:
+          - img [ref=e90]
+  - generic [ref=e104]:
+    - generic [ref=e107]:
+      - generic [ref=e109]:
+        - tablist [ref=e111]:
+          - tab "Items" [selected] [ref=e113] [cursor=pointer]:
+            - img [ref=e116]
+          - tab "Services" [ref=e119] [cursor=pointer]:
+            - img [ref=e122]
+          - tab "History" [ref=e126] [cursor=pointer]:
+            - img [ref=e129]
+        - generic [ref=e131]:
+          - generic [ref=e132]:
+            - generic [ref=e135]:
+              - button "Filter panels" [ref=e137] [cursor=pointer]:
+                - img [ref=e139]
+              - textbox "Input field" [ref=e141]:
+                - /placeholder: ""
+            - generic [ref=e142]:
+              - button "Create new" [ref=e144] [cursor=pointer]:
+                - img [ref=e146]
+              - button [ref=e149] [cursor=pointer]:
+                - img [ref=e151]
+          - generic [ref=e156]:
+            - generic [ref=e158]:
+              - button "Collections" [expanded] [ref=e159] [cursor=pointer]:
+                - img [ref=e162]
+                - generic [ref=e165]: Collections
+              - region "Collections" [ref=e166]:
+                - tree "Collections" [ref=e170]:
+                  - treeitem "Expand SlotsOne iGaming Platform API" [level=1] [ref=e173] [cursor=pointer]:
+                    - generic [ref=e175]:
+                      - button "Expand" [ref=e177]:
+                        - img [ref=e179]
+                      - generic [ref=e184]: SlotsOne iGaming Platform API
+                      - button [ref=e187]:
+                        - img [ref=e189]
+            - button "Environments" [ref=e193] [cursor=pointer]:
+              - img [ref=e196]
+              - generic [ref=e199]: Environments
+            - button "Specs" [ref=e202] [cursor=pointer]:
+              - img [ref=e205]
+              - generic [ref=e208]: Specs
+            - button "Flows" [ref=e211] [cursor=pointer]:
+              - img [ref=e214]
+              - generic [ref=e217]: Flows
+      - separator [ref=e218]
+      - generic [ref=e220]:
+        - generic [ref=e223]:
+          - generic [ref=e224]:
+            - generic [ref=e225]:
+              - generic [ref=e231] [cursor=pointer]:
+                - img "Request" [ref=e233]:
+                  - img [ref=e234]
+                - generic [ref=e236]: SlotsOne iGaming Platform API
+              - button "Create new request" [ref=e240] [cursor=pointer]:
+                - img [ref=e242]
+            - button "Search tabs" [ref=e245] [cursor=pointer]:
+              - img "Search tabs" [ref=e246]:
+                - img [ref=e247]
+            - generic [ref=e252]:
+              - combobox "Environment No environment" [ref=e258] [cursor=pointer]:
+                - generic [ref=e259]: Environment
+                - generic [ref=e260]:
+                  - generic [ref=e263]: No environment
+                  - img "Select environment" [ref=e265]:
+                    - img [ref=e266]
+              - button [ref=e271] [cursor=pointer]:
+                - img [ref=e273]
+          - generic [ref=e279]:
+            - generic [ref=e280]:
+              - generic [ref=e281]:
+                - generic [ref=e282]:
+                  - navigation "Breadcrumb navigation" [ref=e284]:
+                    - list [ref=e285]:
+                      - listitem [ref=e286]:
+                        - generic [ref=e288]: SlotsOne iGaming Platform API - Run results
+                      - listitem
+                  - toolbar "Run actions" [ref=e290]:
+                    - button [ref=e291] [cursor=pointer]:
+                      - img [ref=e293]
+                    - button [ref=e295] [cursor=pointer]:
+                      - img [ref=e297]
+                    - button "New Run" [ref=e299] [cursor=pointer]:
+                      - img [ref=e301]
+                      - generic [ref=e303]: New Run
+                    - button [ref=e304] [cursor=pointer]:
+                      - img [ref=e306]
+                      - img [ref=e309]
+                    - generic [ref=e312] [cursor=pointer]:
+                      - button "Share" [ref=e313]:
+                        - generic [ref=e314]: Share
+                      - button "Copy Link" [ref=e316]:
+                        - img [ref=e318]
+                    - button [ref=e321] [cursor=pointer]:
+                      - img [ref=e323]
+                - generic [ref=e328]:
+                  - generic [ref=e329]:
+                    - img [ref=e332]
+                    - generic [ref=e334]: Ran today at 04:09:54 PM
+                  - button "View all runs" [ref=e336] [cursor=pointer]:
+                    - generic [ref=e337]: View all runs
+                - generic [ref=e339]:
+                  - generic [ref=e340]:
+                    - generic [ref=e341]: Source
+                    - heading "Runner" [level=4] [ref=e342]
+                  - generic [ref=e343]:
+                    - generic [ref=e344]: Environment
+                    - heading "none" [level=4] [ref=e345]
+                  - generic [ref=e346]:
+                    - generic [ref=e347]: Iterations
+                    - heading "1" [level=4] [ref=e348]
+                  - generic [ref=e349]:
+                    - generic [ref=e350]: Duration
+                    - heading "3m 18s" [level=4] [ref=e351]
+                  - generic [ref=e352]:
+                    - generic [ref=e353]: All tests
+                    - heading "171" [level=4] [ref=e354]
+                  - generic [ref=e355]:
+                    - generic [ref=e356]: Errors
+                    - heading "0" [level=4] [ref=e357]
+                  - generic [ref=e358]:
+                    - generic [ref=e359]: Avg. Resp. Time
+                    - heading "615 ms" [level=4] [ref=e360]
+              - generic [ref=e361]:
+                - tablist [ref=e364]:
+                  - tab "All" [ref=e365] [cursor=pointer]:
+                    - text: All
+                    - generic [ref=e366]: "171"
+                  - tab "Passed" [ref=e367] [cursor=pointer]:
+                    - text: Passed
+                    - generic [ref=e368]: "156"
+                  - tab "Failed" [selected] [ref=e369] [cursor=pointer]:
+                    - text: Failed
+                    - generic [ref=e370]: "15"
+                  - tab "Skipped" [ref=e371] [cursor=pointer]:
+                    - text: Skipped
+                    - generic [ref=e372]: "0"
+                  - tab "Errors" [ref=e373] [cursor=pointer]:
+                    - text: Errors
+                    - generic [ref=e374]: "0"
+                  - tab "Console log" [ref=e375] [cursor=pointer]
+                - button "List" [ref=e379] [cursor=pointer]:
+                  - generic [ref=e380]: List
+                  - img [ref=e382]
+            - generic [ref=e384]:
+              - generic [ref=e387]:
+                - generic [ref=e390]:
+                  - generic [ref=e392]:
+                    - heading "Iteration 1" [level=6] [ref=e394]
+                    - generic [ref=e396]:
+                      - generic [ref=e397]:
+                        - generic [ref=e398]: GET
+                        - navigation "Breadcrumb navigation" [ref=e401]:
+                          - list [ref=e402]:
+                            - listitem [ref=e403]:
+                              - generic [ref=e405]: System
+                              - img [ref=e408]
+                            - listitem [ref=e410]:
+                              - generic [ref=e412]: Health Check (Liveness)
+                      - generic [ref=e413]:
+                        - generic [ref=e415]: https://pyavchik.space/health
+                        - generic [ref=e416]:
+                          - generic [ref=e417]:
+                            - generic [ref=e420]: "200"
+                            - generic [ref=e422]: 1762 ms
+                            - generic [ref=e424]: 773 B
+                          - generic [ref=e426]: "1"
+                      - generic [ref=e428]:
+                        - generic [ref=e430]: FAIL
+                        - generic [ref=e431]: "Response time < 500ms | AssertionError: expected 1762 to be below 500"
+                  - generic [ref=e434] [cursor=pointer]:
+                    - generic [ref=e435]:
+                      - generic [ref=e436]: POST
+                      - navigation "Breadcrumb navigation" [ref=e439]:
+                        - list [ref=e440]:
+                          - listitem [ref=e441]:
+                            - generic [ref=e443]: Slots Game
+                            - img [ref=e446]
+                          - listitem [ref=e448]:
+                            - generic [ref=e450]: Spin (Standard Bet)
+                    - generic [ref=e451]:
+                      - generic [ref=e453]: https://pyavchik.space/api/v1/spin
+                      - generic [ref=e454]:
+                        - generic [ref=e455]:
+                          - generic [ref=e458]: "400"
+                          - generic [ref=e460]: 370 ms
+                          - generic [ref=e462]: 363 B
+                        - generic [ref=e464]: "6"
+                    - generic [ref=e465]:
+                      - generic [ref=e466]:
+                        - generic [ref=e468]: FAIL
+                        - generic [ref=e469]: "Status code is 200 | AssertionError: expected response to have status code 200 but got 400"
+                      - generic [ref=e470]:
+                        - generic [ref=e472]: FAIL
+                        - generic [ref=e473]: "Spin response schema is valid | AssertionError: expected { error: 'Unknown slot game', …(1) } to have property 'spin_id'"
+                      - generic [ref=e474]:
+                        - generic [ref=e476]: FAIL
+                        - generic [ref=e477]: "Outcome has reel_matrix and win breakdown | AssertionError: Target cannot be null or undefined."
+                      - generic [ref=e478]:
+                        - generic [ref=e480]: FAIL
+                        - generic [ref=e481]: "Balance decreased by bet (accounting for wins) | TypeError: Cannot read properties of undefined (reading 'amount')"
+                      - generic [ref=e482]:
+                        - generic [ref=e484]: FAIL
+                        - generic [ref=e485]: "Win breakdown amounts sum to total win | TypeError: Cannot read properties of undefined (reading 'win')"
+                      - generic [ref=e486]:
+                        - generic [ref=e488]: FAIL
+                        - generic [ref=e489]: "bonus_triggered is null or valid object | TypeError: Cannot read properties of undefined (reading 'bonus_triggered')"
+                  - generic [ref=e492]:
+                    - generic [ref=e493]:
+                      - generic [ref=e494]: POST
+                      - navigation "Breadcrumb navigation" [ref=e497]:
+                        - list [ref=e498]:
+                          - listitem [ref=e499]:
+                            - generic [ref=e501]: Slots Game
+                            - img [ref=e504]
+                          - listitem [ref=e506]:
+                            - generic [ref=e508]: Spin (with Idempotency Key)
+                    - generic [ref=e509]:
+                      - generic [ref=e511]: https://pyavchik.space/api/v1/spin
+                      - generic [ref=e512]:
+                        - generic [ref=e513]:
+                          - generic [ref=e516]: "400"
+                          - generic [ref=e518]: 1439 ms
+                          - generic [ref=e520]: 363 B
+                        - generic [ref=e522]: "3"
+                    - generic [ref=e523]:
+                      - generic [ref=e524]:
+                        - generic [ref=e526]: FAIL
+                        - generic [ref=e527]: "Status code is 200 | AssertionError: expected response to have status code 200 but got 400"
+                      - generic [ref=e528]:
+                        - generic [ref=e530]: FAIL
+                        - generic [ref=e531]: "Response time < 500ms | AssertionError: expected 1439 to be below 500"
+                      - generic [ref=e532]:
+                        - generic [ref=e534]: FAIL
+                        - generic [ref=e535]: "Spin response contains all required fields | AssertionError: expected { error: 'Unknown slot game', …(1) } to have property 'spin_id'"
+                  - generic [ref=e538]:
+                    - generic [ref=e539]:
+                      - generic [ref=e540]: POST
+                      - navigation "Breadcrumb navigation" [ref=e543]:
+                        - list [ref=e544]:
+                          - listitem [ref=e545]:
+                            - generic [ref=e547]: European Roulette
+                            - img [ref=e550]
+                          - listitem [ref=e552]:
+                            - generic [ref=e554]: Roulette Spin (Straight Bet on 17)
+                    - generic [ref=e555]:
+                      - generic [ref=e557]: https://pyavchik.space/api/v1/roulette/spin
+                      - generic [ref=e558]:
+                        - generic [ref=e559]:
+                          - generic [ref=e562]: "200"
+                          - generic [ref=e564]: 536 ms
+                          - generic [ref=e566]: 766 B
+                        - generic [ref=e568]: "1"
+                    - generic [ref=e570]:
+                      - generic [ref=e572]: FAIL
+                      - generic [ref=e573]: "Response time < 500ms | AssertionError: expected 536 to be below 500"
+                  - generic [ref=e576]:
+                    - generic [ref=e577]:
+                      - generic [ref=e578]: POST
+                      - navigation "Breadcrumb navigation" [ref=e581]:
+                        - list [ref=e582]:
+                          - listitem [ref=e583]:
+                            - generic [ref=e585]: Negative Tests
+                            - img [ref=e588]
+                          - listitem [ref=e590]:
+                            - generic [ref=e592]: Spin - Bet Exceeds Maximum
+                    - generic [ref=e593]:
+                      - generic [ref=e595]: https://pyavchik.space/api/v1/spin
+                      - generic [ref=e596]:
+                        - generic [ref=e597]:
+                          - generic [ref=e600]: "400"
+                          - generic [ref=e602]: 321 ms
+                          - generic [ref=e604]: 363 B
+                        - generic [ref=e606]: "1"
+                    - generic [ref=e608]:
+                      - generic [ref=e610]: FAIL
+                      - generic [ref=e611]: "Error code indicates bet or balance issue | AssertionError: expected 'invalid_request' to be one of [ 'invalid_bet', …(2) ]"
+                  - generic [ref=e614]:
+                    - generic [ref=e615]:
+                      - generic [ref=e616]: POST
+                      - navigation "Breadcrumb navigation" [ref=e619]:
+                        - list [ref=e620]:
+                          - listitem [ref=e621]:
+                            - generic [ref=e623]: Negative Tests
+                            - img [ref=e626]
+                          - listitem [ref=e628]:
+                            - generic [ref=e630]: Spin - Invalid Currency
+                    - generic [ref=e631]:
+                      - generic [ref=e633]: https://pyavchik.space/api/v1/spin
+                      - generic [ref=e634]:
+                        - generic [ref=e635]:
+                          - generic [ref=e638]: "400"
+                          - generic [ref=e640]: 377 ms
+                          - generic [ref=e642]: 363 B
+                        - generic [ref=e644]: "1"
+                    - generic [ref=e646]:
+                      - generic [ref=e648]: FAIL
+                      - generic [ref=e649]: "Error code is invalid_currency or invalid_body | AssertionError: expected 'invalid_request' to be one of [ 'invalid_currency', 'invalid_body' ]"
+                  - generic [ref=e652]:
+                    - generic [ref=e653]:
+                      - generic [ref=e654]: POST
+                      - navigation "Breadcrumb navigation" [ref=e657]:
+                        - list [ref=e658]:
+                          - listitem [ref=e659]:
+                            - generic [ref=e661]: Negative Tests
+                            - img [ref=e664]
+                          - listitem [ref=e666]:
+                            - generic [ref=e668]: Idempotency Key Reuse (Conflict)
+                    - generic [ref=e669]:
+                      - generic [ref=e671]: https://pyavchik.space/api/v1/spin
+                      - generic [ref=e672]:
+                        - generic [ref=e673]:
+                          - generic [ref=e676]: "400"
+                          - generic [ref=e678]: 374 ms
+                          - generic [ref=e680]: 363 B
+                        - generic [ref=e682]: "2"
+                    - generic [ref=e683]:
+                      - generic [ref=e684]:
+                        - generic [ref=e686]: FAIL
+                        - generic [ref=e687]: "Status code is 409 or 422 (idempotency conflict) | AssertionError: expected 400 to be one of [ 409, 422 ]"
+                      - generic [ref=e688]:
+                        - generic [ref=e690]: FAIL
+                        - generic [ref=e691]: "Error code is idempotency_key_reused | AssertionError: expected 'invalid_request' to equal 'idempotency_key_reused'"
+                - generic [ref=e696] [cursor=pointer]: "1"
+              - generic [ref=e701]:
+                - generic:
+                  - generic:
+                    - generic:
+                      - navigation "Breadcrumb navigation":
+                        - list:
+                          - listitem
+                  - button [ref=e703] [cursor=pointer]:
+                    - img [ref=e705]
+                - generic:
+                  - generic:
+                    - button "Response" [ref=e708] [cursor=pointer]:
+                      - generic [ref=e709]: Response
+                      - img [ref=e711]
+                    - generic [ref=e713]:
+                      - tabpanel "Response":
+                        - generic [ref=e716]:
+                          - heading [level=3]
+                          - paragraph [ref=e717]: This response doesn't have a body.
+        - separator [ref=e718]
+      - separator [ref=e719]
+      - generic [ref=e720]:
+        - tablist [ref=e723]:
+          - tab "AI" [selected] [ref=e725] [cursor=pointer]:
+            - img [ref=e728]
+            - generic [ref=e730]: AI
+          - tab "Variables" [ref=e732] [cursor=pointer]:
+            - img [ref=e736]
+          - tab "Comments" [ref=e740] [cursor=pointer]:
+            - img [ref=e744]
+        - generic [ref=e748]:
+          - generic [ref=e750]:
+            - generic [ref=e752]:
+              - heading "Build faster with Agent Mode" [level=4] [ref=e754]
+              - paragraph [ref=e755]: Use Agent Mode to transform the way you work with APIs.
+            - generic [ref=e758]:
+              - generic [ref=e759]:
+                - generic [ref=e760]:
+                  - img [ref=e764]
+                  - heading "Get your API working" [level=4] [ref=e766]
+                - generic [ref=e767]: Fix configurations, scripts, or anything else to get your request working.
+              - generic [ref=e768]:
+                - generic [ref=e769]:
+                  - img [ref=e773]
+                  - heading "Document" [level=4] [ref=e775]
+                - generic [ref=e776]: Describe what type of documentation you'd like, and watch Agent Mode do the rest.
+              - generic [ref=e777]:
+                - generic [ref=e778]:
+                  - img [ref=e782]
+                  - heading "Explore" [level=4] [ref=e784]
+                - generic [ref=e785]: Let Agent Mode configure requests and identify use-cases.
+              - generic [ref=e786]:
+                - generic [ref=e787]:
+                  - img [ref=e791]
+                  - heading "And much more!" [level=4] [ref=e793]
+                - generic [ref=e794]: Use Agent Mode across Flows, Monitors, Mocks, and more!
+          - generic [ref=e796]:
+            - generic [ref=e798]:
+              - text: By using this AI product, you agree to Postman's
+              - link "Terms of Service" [ref=e799] [cursor=pointer]:
+                - /url: https://go.pstmn.io/eula
+                - generic [ref=e801]: Terms of Service
+            - button "Agree and Continue" [ref=e802] [cursor=pointer]:
+              - generic [ref=e803]: Agree and Continue
+    - generic [ref=e804]:
+      - generic [ref=e805]:
+        - status [ref=e807]:
+          - generic [ref=e808]:
+            - img [ref=e811]
+            - generic [ref=e813]: Online
+        - button "Console" [ref=e814] [cursor=pointer]:
+          - img [ref=e816]
+          - generic [ref=e818]: Console
+        - button "Terminal" [disabled] [ref=e820]:
+          - img [ref=e822]
+          - generic [ref=e824]: Terminal
+      - generic [ref=e825]:
+        - button "Cloud Agent" [ref=e827] [cursor=pointer]:
+          - generic [ref=e829]:
+            - img [ref=e831]
+            - generic [ref=e833]: Cloud Agent
+        - button "Globals" [ref=e834] [cursor=pointer]:
+          - generic [ref=e835]: Globals
+        - button "Vault" [ref=e836] [cursor=pointer]:
+          - generic [ref=e837]: Vault
+        - button "Tools" [ref=e839] [cursor=pointer]:
+          - generic [ref=e840]: Tools
+        - button [ref=e842] [cursor=pointer]:
+          - img [ref=e844]
+        - generic [ref=e846]:
+          - button [ref=e847] [cursor=pointer]:
+            - img [ref=e849]
+          - button [ref=e851] [cursor=pointer]:
+            - img [ref=e853]
+          - button [ref=e855] [cursor=pointer]:
+            - img [ref=e857]

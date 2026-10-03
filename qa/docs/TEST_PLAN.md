@@ -404,7 +404,7 @@ Used for roulette multi-bet scenarios: combinations of bet types placed simultan
 |-------------|--------------------------------------------|-----------------------|-----------------|
 | Local       | Docker Compose: backend + PostgreSQL + frontend | Developer testing   | Seeded test data |
 | CI          | GitHub Actions: build + lint + unit + integration | Automated regression | Ephemeral DB   |
-| Staging     | Docker Compose Prod: Caddy TLS on `pyavchik.space` | Pre-release validation | Snapshot of production |
+| Staging     | Docker Compose Prod: Caddy TLS on `pyavchikstream.online` | Pre-release validation | Snapshot of production |
 | Production  | Same as staging                             | Smoke tests only      | Real player data |
 
 ### 5.2 Database Configuration
