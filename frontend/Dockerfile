@@ -20,7 +20,9 @@ COPY index.html ./
 COPY public ./public
 COPY src ./src
 
-RUN NODE_OPTIONS=--max-old-space-size=4096 npm run build
+ARG APP_REVISION=unknown
+RUN printf '{"commit":"%s"}\n' "$APP_REVISION" > public/version.json \
+    && NODE_OPTIONS=--max-old-space-size=4096 npm run build
 
 FROM nginx:1.27-alpine AS runtime
 

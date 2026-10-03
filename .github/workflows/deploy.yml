@@ -14,68 +14,21 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
-  validate:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: 20
-          cache: npm
-          cache-dependency-path: |
-            backend/package-lock.json
-            frontend/package-lock.json
-            admin/package-lock.json
-
-      - name: Build backend
-        working-directory: backend
-        run: |
-          npm ci
-          npm run build
-
-      - name: Build frontend
-        working-directory: frontend
-        run: |
-          npm ci
-          npm run build
-        env:
-          NODE_OPTIONS: --max-old-space-size=4096
-
-      - name: Build admin
-        working-directory: admin
-        run: |
-          npm ci
-          npx prisma generate
-          npm run build
-
   deploy:
-    needs: validate
     runs-on: ubuntu-latest
+    timeout-minutes: 30
     env:
-      DEPLOY_HOST: ${{ secrets.DEPLOY_HOST }}
-      DEPLOY_PORT: ${{ secrets.DEPLOY_PORT }}
-      DEPLOY_USER: ${{ secrets.DEPLOY_USER }}
-      DEPLOY_PATH: ${{ secrets.DEPLOY_PATH }}
+      DEPLOY_HOST: 64.176.66.50
+      DEPLOY_PORT: "22"
+      DEPLOY_USER: ${{ vars.DEPLOY_USER || 'root' }}
+      DEPLOY_PATH: /opt/slotsone
       DEPLOY_SSH_KEY: ${{ secrets.DEPLOY_SSH_KEY }}
       DEPLOY_SSH_KEY_B64: ${{ secrets.DEPLOY_SSH_KEY_B64 }}
       DEPLOY_KNOWN_HOSTS: ${{ secrets.DEPLOY_KNOWN_HOSTS }}
+      PRODUCTION_URL: https://pyavchikstream.online
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-
-      - name: Validate deploy secrets
-        run: |
-          set -euo pipefail
-          test -n "${DEPLOY_HOST}" || { echo "Missing DEPLOY_HOST secret"; exit 1; }
-          test -n "${DEPLOY_USER}" || { echo "Missing DEPLOY_USER secret"; exit 1; }
-          test -n "${DEPLOY_PATH}" || { echo "Missing DEPLOY_PATH secret"; exit 1; }
-          if [ -z "${DEPLOY_SSH_KEY}" ] && [ -z "${DEPLOY_SSH_KEY_B64}" ]; then
-            echo "Missing SSH key secret: set DEPLOY_SSH_KEY or DEPLOY_SSH_KEY_B64"
-            exit 1
-          fi
 
       - name: Configure SSH
         run: |
@@ -85,55 +38,84 @@ jobs:
 
           if [ -n "${DEPLOY_SSH_KEY_B64}" ]; then
             printf '%s' "${DEPLOY_SSH_KEY_B64}" | base64 -d > ~/.ssh/id_ed25519
-          else
-            # Supports both "real multiline key" and "\n"-escaped single-line key.
+          elif [ -n "${DEPLOY_SSH_KEY}" ]; then
             printf '%s' "${DEPLOY_SSH_KEY}" | tr -d '\r' | perl -pe 's/\\n/\n/g' > ~/.ssh/id_ed25519
+          else
+            echo 'Missing production SSH key secret'
+            exit 1
           fi
 
           chmod 600 ~/.ssh/id_ed25519
           ssh-keygen -y -f ~/.ssh/id_ed25519 >/dev/null
-
-          if [ -n "${DEPLOY_KNOWN_HOSTS}" ]; then
-            printf '%s\n' "${DEPLOY_KNOWN_HOSTS}" > ~/.ssh/known_hosts
-          else
-            ssh-keyscan -p "${DEPLOY_PORT:-22}" -H "${DEPLOY_HOST}" > ~/.ssh/known_hosts
-          fi
-
+          test -n "${DEPLOY_KNOWN_HOSTS}" || { echo 'Missing DEPLOY_KNOWN_HOSTS'; exit 1; }
+          printf '%s\n' "${DEPLOY_KNOWN_HOSTS}" > ~/.ssh/known_hosts
           chmod 644 ~/.ssh/known_hosts
+          cat > ~/.ssh/config <<'EOF'
+          Host *
+            BatchMode yes
+            StrictHostKeyChecking yes
+            ConnectTimeout 15
+            ServerAliveInterval 30
+            ServerAliveCountMax 6
+          EOF
 
-      - name: Sync project to server
+      - name: Check production access
+        run: |
+          ssh -p "$DEPLOY_PORT" "$DEPLOY_USER@$DEPLOY_HOST" \
+            "cd '$DEPLOY_PATH' && test -f .env.production && test -f backend/.env.production && test -f admin/.env.production && docker info >/dev/null"
+
+      - name: Build release images
         run: |
           set -euo pipefail
-          rsync -az --delete \
-            --exclude '.git/' \
-            --exclude 'node_modules/' \
-            --exclude 'dist/' \
-            --exclude '.idea/' \
-            --exclude '.playwright-mcp/' \
-            --exclude 'backend/.env.production' \
-            --exclude 'backend/.env.development' \
-            --exclude 'admin/.env.production' \
-            --exclude '.env' \
-            --exclude '.env.production' \
-            --exclude 'frontend/.env.production' \
-            -e "ssh -p ${DEPLOY_PORT:-22}" \
-            ./ "${DEPLOY_USER}@${DEPLOY_HOST}:${DEPLOY_PATH}/"
+          docker build --label "org.opencontainers.image.revision=$GITHUB_SHA" \
+            -t "slotsone-backend:$GITHUB_SHA" backend
+          docker build --label "org.opencontainers.image.revision=$GITHUB_SHA" \
+            --build-arg "APP_REVISION=$GITHUB_SHA" \
+            -t "slotsone-frontend:$GITHUB_SHA" frontend
+          docker build --label "org.opencontainers.image.revision=$GITHUB_SHA" \
+            -t "slotsone-admin:$GITHUB_SHA" admin
 
-      - name: Deploy with Docker Compose
+      - name: Load images on production server
         run: |
           set -euo pipefail
-          ssh -p "${DEPLOY_PORT:-22}" "${DEPLOY_USER}@${DEPLOY_HOST}" "set -euo pipefail; \
-            cd '${DEPLOY_PATH}'; \
-            test -f backend/.env.production || { echo 'Missing backend/.env.production on server'; exit 1; }; \
-            test -f admin/.env.production || { echo 'Missing admin/.env.production on server'; exit 1; }; \
-            test -f .env.production || { echo 'Missing .env.production on server'; exit 1; }; \
-            TLS_DOMAIN=\$(grep '^TLS_DOMAIN=' .env.production | cut -d= -f2- || true); \
-            ACME_EMAIL=\$(grep '^ACME_EMAIL=' .env.production | cut -d= -f2- || true); \
-            test -n \"\${TLS_DOMAIN}\" || { echo 'Missing TLS_DOMAIN in .env.production'; exit 1; }; \
-            test -n \"\${ACME_EMAIL}\" || { echo 'Missing ACME_EMAIL in .env.production'; exit 1; }; \
-            if ! docker compose --env-file .env.production -f docker-compose.prod.yml up -d --build --remove-orphans; then \
-              echo 'compose up failed; clearing stale container names and retrying'; \
-              docker rm -f slotsone-backend slotsone-frontend slotsone-admin slotsone-caddy 2>/dev/null || true; \
-              docker compose --env-file .env.production -f docker-compose.prod.yml up -d --build --remove-orphans; \
-            fi; \
-            docker image prune -f"
+          docker save "slotsone-backend:$GITHUB_SHA" "slotsone-frontend:$GITHUB_SHA" "slotsone-admin:$GITHUB_SHA" \
+            | gzip -1 \
+            | ssh -p "$DEPLOY_PORT" "$DEPLOY_USER@$DEPLOY_HOST" 'set -o pipefail; gzip -d | docker load'
+
+      - name: Sync deployment configuration
+        run: |
+          set -euo pipefail
+          ssh -p "$DEPLOY_PORT" "$DEPLOY_USER@$DEPLOY_HOST" "mkdir -p '$DEPLOY_PATH/ops/server'"
+          rsync -az --inplace -e "ssh -p $DEPLOY_PORT" \
+            Caddyfile docker-compose.prod.yml "$DEPLOY_USER@$DEPLOY_HOST:$DEPLOY_PATH/"
+          rsync -az -e "ssh -p $DEPLOY_PORT" \
+            ops/server/compose.prebuilt.yml "$DEPLOY_USER@$DEPLOY_HOST:$DEPLOY_PATH/ops/server/"
+
+      - name: Start release and verify containers
+        run: |
+          ssh -p "$DEPLOY_PORT" "$DEPLOY_USER@$DEPLOY_HOST" \
+            bash -s -- "$GITHUB_SHA" "$DEPLOY_PATH" < ops/server/deploy-prebuilt.sh
+
+      - name: Verify public deployment
+        run: |
+          set -euo pipefail
+          curl --fail --silent --show-error --retry 12 --retry-delay 5 --retry-all-errors \
+            "$PRODUCTION_URL/ready" > /tmp/slotsone-ready.json
+          curl --fail --silent --show-error --retry 12 --retry-delay 5 --retry-all-errors \
+            "$PRODUCTION_URL/version.json?commit=$GITHUB_SHA" > /tmp/slotsone-version.json
+          python3 - <<'PYCODE'
+          import json, os
+          with open('/tmp/slotsone-ready.json') as file:
+              assert json.load(file)['status'] == 'ready', 'Production is not ready'
+          with open('/tmp/slotsone-version.json') as file:
+              assert json.load(file)['commit'] == os.environ['GITHUB_SHA'], 'Production revision mismatch'
+          print('Verified live commit:', os.environ['GITHUB_SHA'])
+          PYCODE
+          curl --fail --silent --show-error "$PRODUCTION_URL/" >/dev/null
+          curl --fail --silent --show-error "$PRODUCTION_URL/admin/login" >/dev/null
+          {
+            echo '### Production deployed'
+            echo "- Site: $PRODUCTION_URL"
+            echo "- Commit: $GITHUB_SHA"
+            echo '- Readiness, release version, home page, and admin login verified.'
+          } >> "$GITHUB_STEP_SUMMARY"

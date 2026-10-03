@@ -1,6 +1,6 @@
 # Portfolio deployment
 
-Deployed on 2026-09-24.
+Last recorded manual deployment: 2026-09-24.
 
 - Server: `64.176.66.50` (Ubuntu, SSH user `root`).
 - Portfolio: https://pyavchikstream.online
@@ -8,6 +8,32 @@ Deployed on 2026-09-24.
 - API documentation: https://pyavchikstream.online/api-docs
 - Application directory: `/opt/slotsone`.
 - Image tag: `20260924`.
+
+## Automated releases
+
+The `Deploy Production` workflow targets this server on pushes to `main`,
+or when dispatched manually. It checks SSH access first, builds the three
+Docker images on the GitHub runner, and transfers them to the server.
+Only the Compose files and Caddy configuration are synced. Runtime environment
+files, credentials, and database volumes remain on the server.
+
+Configure `DEPLOY_SSH_KEY_B64` (preferred) or `DEPLOY_SSH_KEY` with a key that
+can access this server, and set `DEPLOY_KNOWN_HOSTS` to its verified SSH host
+key entry. These secrets must match `64.176.66.50`; credentials for the old
+server will not work. The SSH user defaults to `root`; set the repository
+variable `DEPLOY_USER` to use another account with Docker and application
+directory access.
+
+Images are tagged and labeled with the full Git commit SHA. The deployment
+script waits for containers, checks the admin login and frontend revision,
+and restores the previous images if those checks fail. After success, it
+persists `SLOTSONE_IMAGE_TAG` in the server's `.env.production`. Previous
+images are retained for rollback. Database migrations are not rolled back.
+
+The workflow then verifies `/ready`, `/version.json`, `/`, and `/admin/login`
+over HTTPS. `/version.json` identifies the deployed frontend commit.
+
+## Manual releases
 
 Both the apex and `www` DNS records point to the server. Caddy obtains and
 renews Let's Encrypt certificates automatically. HTTP redirects to HTTPS;
@@ -21,7 +47,7 @@ Use the prebuilt-image override when starting or updating this deployment.
 ```bash
 # Run on the development machine from the repository root.
 docker build -t slotsone-backend:20260924 backend
-docker build -t slotsone-frontend:20260924 frontend
+docker build --build-arg APP_REVISION="$(git rev-parse HEAD)" -t slotsone-frontend:20260924 frontend
 docker build -t slotsone-admin:20260924 admin
 set -o pipefail
 docker save slotsone-backend:20260924 slotsone-frontend:20260924 slotsone-admin:20260924 \
@@ -37,8 +63,8 @@ docker compose --env-file .env.production \
 For a new release, choose a new image tag and update `SLOTSONE_IMAGE_TAG` in
 the server's `.env.production` to match. Sync changed application source and
 deployment configuration separately, preserving the production environment
-files and `secrets/` directory. The GitHub deployment workflow was not
-retargeted as part of this manual deployment.
+files and `secrets/` directory. The original September deployment used this
+manual process; new automated releases use commit SHA tags as described above.
 
 Production secrets are stored only in root-readable server files:
 
