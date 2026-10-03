@@ -1,0 +1,420 @@
+- generic [ref=e1]:
+  - generic [ref=e3]:
+    - banner [ref=e9]:
+      - generic [ref=e13]:
+        - button "Navigation menu" [ref=e14] [cursor=pointer]:
+          - img [ref=e16]
+          - img [ref=e19]
+        - button "Public Workspace portfolio · Oleksander Pyavchik" [ref=e24] [cursor=pointer]:
+          - generic [ref=e25]:
+            - generic [ref=e26]:
+              - img "Public Workspace" [ref=e28]:
+                - img [ref=e29]
+              - generic [ref=e31]:
+                - generic [ref=e32]: portfolio
+                - generic [ref=e34]:
+                  - generic [ref=e35]: ·
+                  - generic [ref=e39]:
+                    - generic [ref=e40]: Oleksander Pyavchik
+                    - img [ref=e42]
+            - img [ref=e45]
+      - generic "Open search" [ref=e48]:
+        - generic [ref=e51] [cursor=pointer]:
+          - img [ref=e53]
+          - generic [ref=e56]: Search
+          - generic:
+            - generic: (
+            - text: Ctrl+K
+            - generic: )
+      - toolbar "Toolbar" [ref=e60]:
+        - button "Invite" [ref=e68] [cursor=pointer]:
+          - generic [ref=e69]: Invite
+        - button "Upgrade" [ref=e72] [cursor=pointer]:
+          - generic [ref=e73]: Upgrade
+        - button "Notifications" [ref=e76] [cursor=pointer]:
+          - img [ref=e78]
+        - button "Settings" [ref=e82] [cursor=pointer]:
+          - img [ref=e84]
+        - button "Manage accounts" [ref=e87]:
+          - button "Manage accounts" [ref=e88] [cursor=pointer]:
+            - img [ref=e90]
+    - generic [ref=e104]:
+      - generic [ref=e107]:
+        - generic [ref=e109]:
+          - tablist [ref=e111]:
+            - tab "Items" [selected] [ref=e113] [cursor=pointer]:
+              - img [ref=e116]
+            - tab "Services" [ref=e119] [cursor=pointer]:
+              - img [ref=e122]
+            - tab "History" [ref=e126] [cursor=pointer]:
+              - img [ref=e129]
+          - generic [ref=e131]:
+            - generic [ref=e132]:
+              - generic [ref=e135]:
+                - button "Filter panels" [ref=e137] [cursor=pointer]:
+                  - img [ref=e139]
+                - textbox "Input field" [ref=e141]:
+                  - /placeholder: ""
+              - generic [ref=e142]:
+                - button "Create new" [ref=e144] [cursor=pointer]:
+                  - img [ref=e146]
+                - button [ref=e149] [cursor=pointer]:
+                  - img [ref=e151]
+            - generic [ref=e156]:
+              - generic [ref=e158]:
+                - button "Collections" [expanded] [ref=e159] [cursor=pointer]:
+                  - img [ref=e162]
+                  - generic [ref=e165]: Collections
+                - region "Collections" [ref=e166]:
+                  - tree "Collections" [ref=e170]:
+                    - generic [ref=e751]:
+                      - treeitem "Collapse SlotsOne iGaming Platform API" [expanded] [level=1] [ref=e865] [cursor=pointer]:
+                        - generic [ref=e754]:
+                          - button "Collapse" [expanded] [ref=e866]:
+                            - img [ref=e868]
+                          - generic [ref=e763]: SlotsOne iGaming Platform API
+                          - button [ref=e766]:
+                            - img [ref=e768]
+                      - treeitem "Expand System" [level=2] [ref=e870] [cursor=pointer]:
+                        - generic [ref=e873]:
+                          - generic [ref=e874]:
+                            - button "Expand" [ref=e875]:
+                              - img [ref=e877]
+                            - img [ref=e880]
+                          - generic [ref=e885]: System
+                      - treeitem "Expand Auth" [level=2] [ref=e886] [cursor=pointer]:
+                        - generic [ref=e889]:
+                          - generic [ref=e890]:
+                            - button "Expand" [ref=e891]:
+                              - img [ref=e893]
+                            - img [ref=e896]
+                          - generic [ref=e901]: Auth
+                      - treeitem "Collapse Slots Game" [expanded] [level=2] [ref=e902] [cursor=pointer]:
+                        - generic [ref=e905]:
+                          - generic [ref=e906]:
+                            - button "Collapse" [expanded] [ref=e907]:
+                              - img [ref=e909]
+                            - img [ref=e912]
+                          - generic [ref=e917]: Slots Game
+                      - treeitem "POST Init Game Session" [level=3] [ref=e918] [cursor=pointer]:
+                        - generic [ref=e922]:
+                          - generic [ref=e924]: POST
+                          - generic [ref=e928]: Init Game Session
+                      - treeitem "POST Spin (Standard Bet)" [level=3] [selected] [ref=e929] [cursor=pointer]:
+                        - generic [ref=e933]:
+                          - generic [ref=e935]: POST
+                          - generic [ref=e939]: Spin (Standard Bet)
+                      - treeitem "POST Spin (with Idempotency Key)" [level=3] [ref=e940] [cursor=pointer]:
+                        - generic [ref=e944]:
+                          - generic [ref=e946]: POST
+                          - generic [ref=e950]: Spin (with Idempotency Key)
+                      - treeitem "Expand European Roulette" [level=2] [ref=e951] [cursor=pointer]:
+                        - generic [ref=e954]:
+                          - generic [ref=e955]:
+                            - button "Expand" [ref=e956]:
+                              - img [ref=e958]
+                            - img [ref=e961]
+                          - generic [ref=e966]: European Roulette
+                      - treeitem "Expand American Roulette" [level=2] [ref=e967] [cursor=pointer]:
+                        - generic [ref=e970]:
+                          - generic [ref=e971]:
+                            - button "Expand" [ref=e972]:
+                              - img [ref=e974]
+                            - img [ref=e977]
+                          - generic [ref=e982]: American Roulette
+                      - treeitem "Expand Book of Dead" [level=2] [ref=e983] [cursor=pointer]:
+                        - generic [ref=e986]:
+                          - generic [ref=e987]:
+                            - button "Expand" [ref=e988]:
+                              - img [ref=e990]
+                            - img [ref=e993]
+                          - generic [ref=e998]: Book of Dead
+                      - treeitem "Expand Wallet" [level=2] [ref=e999] [cursor=pointer]:
+                        - generic [ref=e1002]:
+                          - generic [ref=e1003]:
+                            - button "Expand" [ref=e1004]:
+                              - img [ref=e1006]
+                            - img [ref=e1009]
+                          - generic [ref=e1014]: Wallet
+                      - treeitem "Expand History & Provably Fair" [level=2] [ref=e1015] [cursor=pointer]:
+                        - generic [ref=e1018]:
+                          - generic [ref=e1019]:
+                            - button "Expand" [ref=e1020]:
+                              - img [ref=e1022]
+                            - img [ref=e1025]
+                          - generic [ref=e1030]: History & Provably Fair
+                      - treeitem "Expand Negative Tests" [level=2] [ref=e1031] [cursor=pointer]:
+                        - generic [ref=e1034]:
+                          - generic [ref=e1035]:
+                            - button "Expand" [ref=e1036]:
+                              - img [ref=e1038]
+                            - img [ref=e1041]
+                          - generic [ref=e1046]: Negative Tests
+              - button "Environments" [ref=e173] [cursor=pointer]:
+                - img [ref=e176]
+                - generic [ref=e179]: Environments
+              - button "Specs" [ref=e182] [cursor=pointer]:
+                - img [ref=e185]
+                - generic [ref=e188]: Specs
+              - button "Flows" [ref=e191] [cursor=pointer]:
+                - img [ref=e194]
+                - generic [ref=e197]: Flows
+        - separator [ref=e198]
+        - generic [ref=e200]:
+          - generic [active] [ref=e203]:
+            - generic [ref=e204]:
+              - generic [ref=e205]:
+                - generic [ref=e208]:
+                  - generic [ref=e211] [cursor=pointer]:
+                    - img "Request" [ref=e213]:
+                      - img [ref=e214]
+                    - generic [ref=e216]: SlotsOne iGaming Platform API
+                  - generic [ref=e1049] [cursor=pointer]:
+                    - generic [ref=e1052]: POST
+                    - generic [ref=e1053]: Spin (Standard Bet)
+                - button "Create new request" [ref=e220] [cursor=pointer]:
+                  - img [ref=e222]
+              - button "Search tabs" [ref=e225] [cursor=pointer]:
+                - img "Search tabs" [ref=e226]:
+                  - img [ref=e227]
+              - generic [ref=e232]:
+                - combobox "Environment No environment" [ref=e238] [cursor=pointer]:
+                  - generic [ref=e239]: Environment
+                  - generic [ref=e240]:
+                    - generic [ref=e243]: No environment
+                    - img "Select environment" [ref=e245]:
+                      - img [ref=e246]
+                - button [ref=e251] [cursor=pointer]:
+                  - img [ref=e253]
+            - generic [ref=e1059]:
+              - generic [ref=e1062]:
+                - img "HTTP" [ref=e1066]:
+                  - img [ref=e1067]
+                - navigation "Breadcrumb navigation" [ref=e1070]:
+                  - list [ref=e1071]:
+                    - listitem [ref=e1072]:
+                      - generic [ref=e1074]: SlotsOne iGaming Platform API
+                      - img [ref=e1077]
+                    - listitem [ref=e1079]:
+                      - link "Slots Game" [ref=e1080] [cursor=pointer]:
+                        - /url: https://www.postman.com/pyavchik/portfolio/folder/4436536-9af31045-a4d8-4cd6-ad30-5c9d1035d226
+                        - generic [ref=e1081]: Slots Game
+                      - img [ref=e1084]
+                    - listitem [ref=e1086]:
+                      - generic [ref=e1090]: Spin (Standard Bet)
+                    - listitem
+                - generic [ref=e1092]:
+                  - button "Button group" [ref=e1097]:
+                    - group "Button group" [ref=e1098]:
+                      - button "Save" [disabled] [ref=e1100]:
+                        - img [ref=e1102]
+                        - generic [ref=e1104]: Save
+                      - button "button" [ref=e1105] [cursor=pointer]:
+                        - img [ref=e1107]
+                  - generic [ref=e1111] [cursor=pointer]:
+                    - button "Share" [ref=e1112]:
+                      - generic [ref=e1113]: Share
+                    - button "Copy Link" [ref=e1115]:
+                      - img [ref=e1117]
+              - generic [ref=e1120]:
+                - generic [ref=e1121]:
+                  - generic [ref=e1124]:
+                    - searchbox "search" [ref=e1127]: POST
+                    - button "Open dropdown" [ref=e1128] [cursor=pointer]:
+                      - img [ref=e1130]
+                  - combobox [ref=e1255]:
+                    - generic [ref=e1258]:
+                      - generic [ref=e1260]: "{{base_url}}"
+                      - generic [ref=e1261]: /api/v1/spin
+                - generic [ref=e1139] [cursor=pointer]:
+                  - button "Send" [ref=e1140]:
+                    - generic [ref=e1141]: Send
+                  - button "Send options" [ref=e1143]:
+                    - img [ref=e1145]
+              - generic [ref=e1147]:
+                - generic [ref=e1149]:
+                  - generic [ref=e1151]:
+                    - tablist [ref=e1154]:
+                      - tab "Overview" [selected] [ref=e1155] [cursor=pointer]
+                      - tab "Params" [ref=e1156] [cursor=pointer]
+                      - tab "Authorization" [ref=e1157] [cursor=pointer]
+                      - tab "Headers" [ref=e1158] [cursor=pointer]:
+                        - text: Headers
+                        - generic [ref=e1159]: "11"
+                      - tab "Body" [ref=e1160] [cursor=pointer]: Body
+                      - tab "Scripts" [ref=e1162] [cursor=pointer]: Scripts
+                      - tab "Settings" [ref=e1164] [cursor=pointer]
+                    - button "Cookies" [ref=e1166] [cursor=pointer]:
+                      - generic [ref=e1167]: Cookies
+                  - tabpanel "Overview" [ref=e1171]:
+                    - generic [ref=e1268]:
+                      - generic [ref=e1269]:
+                        - heading "Spin (Standard Bet)" [level=1] [ref=e1271]
+                        - link "View complete documentation" [ref=e1272] [cursor=pointer]:
+                          - /url: https://www.postman.com/pyavchik/documentation/4436536-ee81dee5-df67-4645-b31c-0d2cbdc11c51?entity=request-4436536-f017b993-6a3a-4255-ba62-36677164dec3
+                          - generic [ref=e1273]: View complete documentation
+                          - img [ref=e1275]
+                      - generic [ref=e1277]:
+                        - generic [ref=e1278]: "{{base_url}}/api/v1/spin"
+                        - button [ref=e1279] [cursor=pointer]:
+                          - img [ref=e1281]
+                      - textbox [ref=e1342]:
+                        - paragraph [ref=e1343]:
+                          - generic [ref=e1345]: Execute a standard spin with $1.00 bet across 20 lines.
+                        - paragraph [ref=e1346]
+                      - generic [ref=e1287]:
+                        - generic [ref=e1288]:
+                          - heading "Body" [level=2] [ref=e1289]
+                          - generic [ref=e1290]: raw (json)
+                        - generic [ref=e1292]:
+                          - generic [ref=e1293]:
+                            - generic [ref=e1294]: json
+                            - generic [ref=e1295]:
+                              - button [ref=e1296] [cursor=pointer]:
+                                - img [ref=e1298]
+                              - button [ref=e1300] [cursor=pointer]:
+                                - img [ref=e1302]
+                          - code [ref=e1308]: "{ \"session_id\": \"{{session_id}}\", \"game_id\": \"{{game_id}}\", \"bet\": { \"amount\": 1.0, \"currency\": \"USD\", \"lines\": 20 }, \"client_timestamp\": 1700000000 }"
+                      - generic [ref=e1309]:
+                        - heading "Code Snippet" [level=2] [ref=e1310]
+                        - generic [ref=e1312]:
+                          - generic [ref=e1315]:
+                            - generic [ref=e1319]:
+                              - log [ref=e1321]
+                              - generic [ref=e1322]:
+                                - generic [ref=e1323]:
+                                  - generic [ref=e1324]: cURL
+                                  - combobox [ref=e1326]
+                                - img [ref=e1330]
+                            - button [ref=e1334] [cursor=pointer]:
+                              - img [ref=e1336]
+                          - code [ref=e1351]:
+                            - generic [ref=e1352]:
+                              - textbox "Editor content" [ref=e1353]
+                              - generic [ref=e1355]:
+                                - generic [ref=e1358]: "1"
+                                - generic [ref=e1360]: "2"
+                                - generic [ref=e1362]: "3"
+                                - generic [ref=e1364]: "4"
+                                - generic [ref=e1366]: "5"
+                                - generic [ref=e1368]: "6"
+                                - generic [ref=e1370]: "7"
+                                - generic [ref=e1372]: "8"
+                                - generic [ref=e1374]: "9"
+                                - generic [ref=e1376]: "10"
+                                - generic [ref=e1378]: "11"
+                                - generic [ref=e1380]: "12"
+                              - generic [ref=e1394]:
+                                - generic [ref=e1396]: curl --location 'https://pyavchik.space/api/v1/spin' \
+                                - generic [ref=e1398]: "--header 'Content-Type: application/json' \\"
+                                - generic [ref=e1400]: "--header 'Authorization: Bearer ' \\"
+                                - generic [ref=e1402]: "--data '{"
+                                - generic [ref=e1404]: "\"session_id\": \"\","
+                                - generic [ref=e1406]: "\"game_id\": \"slot_mega_fortune_001\","
+                                - generic [ref=e1408]: "\"bet\": {"
+                                - generic [ref=e1410]: "\"amount\": 1.0,"
+                                - generic [ref=e1412]: "\"currency\": \"USD\","
+                                - generic [ref=e1414]: "\"lines\": 20"
+                                - generic [ref=e1416]: "},"
+                                - generic [ref=e1418]: "\"client_timestamp\": 1700000000"
+                - generic [ref=e1182]:
+                  - generic [ref=e1184]:
+                    - heading "Response" [level=5] [ref=e1187] [cursor=pointer]
+                    - button "Collapse" [expanded] [ref=e1188] [cursor=pointer]:
+                      - img [ref=e1190]
+                  - generic [ref=e1195]:
+                    - button "Send + Get a successful response" [ref=e1196] [cursor=pointer]:
+                      - img [ref=e1198]
+                      - generic [ref=e1200]: Send + Get a successful response
+                    - button "Send + Visualize response" [ref=e1201] [cursor=pointer]:
+                      - img [ref=e1203]
+                      - generic [ref=e1205]: Send + Visualize response
+                    - button "Send + Write tests" [ref=e1206] [cursor=pointer]:
+                      - img [ref=e1208]
+                      - generic [ref=e1210]: Send + Write tests
+          - separator [ref=e610]
+        - separator [ref=e611]
+        - generic [ref=e612]:
+          - tablist [ref=e615]:
+            - tab "AI" [selected] [ref=e617] [cursor=pointer]:
+              - img [ref=e620]
+              - generic [ref=e622]: AI
+            - tab "Variables" [ref=e624] [cursor=pointer]:
+              - img [ref=e628]
+            - tab "Documentation" [ref=e1213] [cursor=pointer]:
+              - img [ref=e1216]
+            - tab "Comments" [ref=e1220] [cursor=pointer]:
+              - img [ref=e1224]
+            - tab "Code" [ref=e1228] [cursor=pointer]:
+              - img [ref=e1231]
+            - tab "Info" [ref=e1235] [cursor=pointer]:
+              - img [ref=e1238]
+          - generic [ref=e639]:
+            - generic [ref=e641]:
+              - generic [ref=e643]:
+                - heading "Build faster with Agent Mode" [level=4] [ref=e645]
+                - paragraph [ref=e646]: Use Agent Mode to transform the way you work with APIs.
+              - generic [ref=e649]:
+                - generic [ref=e650]:
+                  - generic [ref=e651]:
+                    - img [ref=e655]
+                    - heading "Get your API working" [level=4] [ref=e657]
+                  - generic [ref=e658]: Fix configurations, scripts, or anything else to get your request working.
+                - generic [ref=e659]:
+                  - generic [ref=e660]:
+                    - img [ref=e664]
+                    - heading "Document" [level=4] [ref=e666]
+                  - generic [ref=e667]: Describe what type of documentation you'd like, and watch Agent Mode do the rest.
+                - generic [ref=e668]:
+                  - generic [ref=e669]:
+                    - img [ref=e673]
+                    - heading "Explore" [level=4] [ref=e675]
+                  - generic [ref=e676]: Let Agent Mode configure requests and identify use-cases.
+                - generic [ref=e677]:
+                  - generic [ref=e678]:
+                    - img [ref=e682]
+                    - heading "And much more!" [level=4] [ref=e684]
+                  - generic [ref=e685]: Use Agent Mode across Flows, Monitors, Mocks, and more!
+            - generic [ref=e687]:
+              - generic [ref=e689]:
+                - text: By using this AI product, you agree to Postman's
+                - link "Terms of Service" [ref=e690] [cursor=pointer]:
+                  - /url: https://go.pstmn.io/eula
+                  - generic [ref=e692]: Terms of Service
+              - button "Agree and Continue" [ref=e693] [cursor=pointer]:
+                - generic [ref=e694]: Agree and Continue
+      - generic [ref=e695]:
+        - generic [ref=e696]:
+          - status [ref=e698]:
+            - generic [ref=e699]:
+              - img [ref=e702]
+              - generic [ref=e704]: Online
+          - button "Console" [ref=e705] [cursor=pointer]:
+            - img [ref=e707]
+            - generic [ref=e709]: Console
+          - button "Terminal" [disabled] [ref=e711]:
+            - img [ref=e713]
+            - generic [ref=e715]: Terminal
+        - generic [ref=e716]:
+          - button "Cloud Agent" [ref=e1241] [cursor=pointer]:
+            - generic [ref=e1243]:
+              - img [ref=e1245]
+              - generic [ref=e1247]: Cloud Agent
+          - button "Globals" [ref=e1248] [cursor=pointer]:
+            - generic [ref=e1249]: Globals
+          - button "Vault" [ref=e727] [cursor=pointer]:
+            - generic [ref=e728]: Vault
+          - button "Tools" [ref=e730] [cursor=pointer]:
+            - generic [ref=e731]: Tools
+          - button [ref=e733] [cursor=pointer]:
+            - img [ref=e735]
+          - generic [ref=e737]:
+            - button [ref=e738] [cursor=pointer]:
+              - img [ref=e740]
+            - button [ref=e742] [cursor=pointer]:
+              - img [ref=e744]
+            - button [ref=e746] [cursor=pointer]:
+              - img [ref=e748]
+  - generic [ref=e1419]:
+    - alert
+    - alert

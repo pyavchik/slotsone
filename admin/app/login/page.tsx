@@ -93,7 +93,7 @@ export default function LoginPage() {
               {loading ? "Signing in..." : "Sign in"}
             </Button>
             <p className="text-center text-xs text-muted-foreground">
-              Demo: admin@slotsone.com / admin123
+              Sign in with your administrator account.
             </p>
           </form>
         </CardContent>

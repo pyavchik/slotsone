@@ -1,0 +1,17 @@
+Hi TechMagic team,
+
+Applying for Middle Strong General QA (with AI). 7+ years in QA, manual + automation. Your "AI-first mindset / actively use AI tools" is my daily workflow, not a future plan.
+
+Example: I take a screenshot of a bug and hand it to Claude Code CLI in the terminal, with Jira, Zephyr and GitHub connected to the agent over their APIs (MCP). From that one screenshot it produces, end to end: a clean Jira bug report (title, description, steps to reproduce, expected vs actual, priority, severity, screenshot attached), a detailed manual test case in Zephyr, and a Playwright + TypeScript test committed to GitHub. AI removes the boilerplate, I own severity, repro quality and coverage. That is the "agentic QA workflow" you list as a plus, already running.
+
+You can log into the live Jira and Zephyr and check the artifacts yourself (reviewer credentials provided):
+- Jira: https://pyavchikstream.online/jira.html
+- Zephyr: https://pyavchikstream.online/zephyr.html
+
+Stack fit: TypeScript is my automation language (Playwright/TS, Allure); CLI/terminal is where I work daily (Claude Code CLI, git, bash, Docker). Straight answer on Appium: my automation today is web (Playwright), not Appium, but it is the same TS + terminal + agentic flow, so the ramp is short. Manual + automation 7+ yrs; NoSQL via MongoDB (DynamoDB new but same model); fintech/transactional via a self-built iGaming demo with ledger, idempotency, provably-fair. Fully remote, fine with early-morning Australian-timezone standups, can start immediately. English B2+.
+
+Portfolio: Jira https://pyavchikstream.online/jira.html, Zephyr https://pyavchikstream.online/zephyr.html, Playwright+Allure https://pyavchik.github.io/slotsone-playwright/, live product https://pyavchikstream.online, CV https://pyavchikstream.online/QA_Oleksander_Pyavchik_CV.pdf, GitHub https://github.com/pyavchik.
+
+Best regards,
+Oleksandr Pyavchik
+pyavchik@gmail.com | +380 63 997 7874

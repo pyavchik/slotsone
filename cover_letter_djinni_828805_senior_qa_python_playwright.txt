@@ -1,0 +1,68 @@
+Cover Letter — Senior QA Engineer (Manual/Automation, Python + Playwright), JT Marketing (Djinni 828805)
+
+Hi JT Marketing team,
+
+I'm applying for the Senior QA Engineer role on your international iGaming product. I have 7+ years in QA (manual + automation), of which roughly 7 in total are in iGaming — online casino and slots. That's a domain of complex business logic and money-sensitive scenarios where I feel at home: game math, RTP, paytables, bonus mechanics, game history, admin panels, and payment integrations.
+
+Let me be upfront about your main requirement: I don't have commercial experience specifically with Python — my production automation was in TypeScript/JavaScript (Playwright). But I'm confident that for this role it's not a blocker, and I'd rather prove it than claim it. The engineering foundation of automation is language-agnostic: framework architecture (POM, fixtures, data-driven), an API-first approach, stable locators, traces/screenshots, Allure reporting, parallel execution, flaky-test stabilization, and CI/CD integration — I've been doing all of this for years. The Playwright API is nearly identical across TS and Python, so moving these skills onto a Python stack is a change of syntax, not of profession — and I've already done exactly that: I built a Playwright automation suite in Python, which you can see in my portfolio below (https://pyavchikstream.online/python-automation.html).
+
+My working approach reinforces this: I actively use AI in daily work — Jira, Zephyr, and GitHub are connected to Claude CLI over their APIs (MCP), so from a single bug screenshot I get a ready Jira bug report, a manual test case in Zephyr, and a Playwright test committed to GitHub. Today the pipeline's target language is TypeScript; retargeting test generation and review to Python-Playwright is, for me, a change of template, not of concept. Final decisions — severity, repro quality, coverage — always stay under manual QA review, because without review it's cargo cult, not QA.
+
+How I map to your requirements:
+- 5+ years testing web and backend services — 7+ years across commercial projects and my own products.
+- Playwright — UI and API automation, fixtures, stable locators, traces/Allure, runs in GitHub Actions. At Digicode I built UI and API automation frameworks from scratch for a game server and payment integrations; at EG I worked in an automation team maintaining 1500+ automated tests across environments (stability, parallel execution, tagging, flaky-test analysis).
+- REST API — Postman, response and contract validation, negative and boundary scenarios, backend state checks.
+- Strong SQL — daily, for verifying data integrity and financial transactions.
+- CI/CD — GitHub Actions, Jenkins, GitLab CI; artifacts and reports on failures, smoke/regression jobs.
+- Senior ownership — automated-test code review, mentoring junior QAs, and participating in release readiness follow naturally from owning a framework and a large automation suite.
+
+Honest on the rest of the stack too: Docker is a daily tool; I've tested real-time game flows, but I haven't done targeted WebSocket-protocol testing or worked with brokers (Kafka/RabbitMQ), Kubernetes, or Redis. I understand queue, container, and real-time architecture, so I ramp up fast and without drama.
+
+To back this up — a portfolio built on my own product (a real slot game I built and test myself):
+- Python automation (Playwright, in Python): https://pyavchikstream.online/python-automation.html
+- Live product (slot game): https://pyavchikstream.online
+- Playwright + Allure (TypeScript API automation): https://pyavchik.github.io/slotsone/
+- Playwright + Allure (UI automation): https://pyavchik.github.io/playwright-bestprice-com-ua/
+- Jira bug reports (live login): https://pyavchikstream.online/jira.html
+- Zephyr test cases (live login): https://pyavchikstream.online/zephyr.html
+- API / Postman: https://pyavchikstream.online/postman-tests.html
+- JMeter / RTP validation: https://pyavchikstream.online/jmeter-rtp.html
+- GitHub: https://github.com/pyavchik
+
+English: B2. Ukrainian: native. Russian: fluent (C2). Based in Odesa, ready for full-time remote. Happy to walk through the live AI workflow on a call and discuss details.
+
+Best regards,
+Oleksandr Pyavchik
+pyavchik@gmail.com
++380 63 997 7874
+Odesa, Ukraine
+
+----------------------------------------
+
+COMPACT DJINNI VERSION
+
+Hi JT Marketing team,
+
+Applying for the Senior QA Engineer role. 7+ years in QA (manual + automation), ~7 in total in iGaming (online casino and slots): game math, RTP, paytables, bonus mechanics, payment integrations, admin panels.
+
+Straight answer: I don't have commercial experience specifically with Python — my production automation was in TypeScript (Playwright). But it's not a blocker: the engineering foundation (POM, fixtures, data-driven, API-first, Allure, parallel execution, flaky analysis, CI/CD) is language-agnostic, and the Playwright API is nearly identical in TS and Python — a change of syntax, not of profession. I've already proven it: I built a Playwright suite in Python (portfolio link below).
+
+I actively use AI in daily work: Jira, Zephyr, and GitHub are connected to Claude CLI over their APIs, so from a bug screenshot I get a Jira bug report, a Zephyr test case, and a Playwright test in GitHub. Retargeting generation to Python-Playwright is a change of template, not concept; final decisions always stay under manual QA review.
+
+Stack fit: Playwright (UI+API, Allure, GitHub Actions), REST/Postman, strong SQL, CI/CD (Jenkins, GitLab CI, GitHub Actions), Docker. At Digicode I built UI/API automation frameworks from scratch; at EG I maintained 1500+ automated tests. I haven't done targeted WebSocket-protocol testing or worked with brokers (Kafka/RabbitMQ), K8s/Redis — ready to ramp up fast.
+
+Portfolio on my own slot:
+- Python automation (Playwright, in Python): https://pyavchikstream.online/python-automation.html
+- Live product: https://pyavchikstream.online
+- Playwright + Allure (API): https://pyavchik.github.io/slotsone/
+- Playwright + Allure (UI): https://pyavchik.github.io/playwright-bestprice-com-ua/
+- Jira (live login): https://pyavchikstream.online/jira.html
+- Zephyr (live login): https://pyavchikstream.online/zephyr.html
+- GitHub: https://github.com/pyavchik
+
+English: B2. Ukrainian: native. Russian: fluent. Odesa, full-time remote.
+
+Best regards,
+Oleksandr Pyavchik
+pyavchik@gmail.com
++380 63 997 7874

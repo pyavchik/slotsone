@@ -3,6 +3,7 @@ name: slotsone
 services:
   postgres:
     image: postgres:16-alpine
+    restart: unless-stopped
     environment:
       POSTGRES_DB: ${POSTGRES_DB}
       POSTGRES_USER: ${POSTGRES_USER}
@@ -64,6 +65,7 @@ services:
 
   postgres-admin:
     image: postgres:16-alpine
+    restart: unless-stopped
     environment:
       POSTGRES_DB: ${ADMIN_POSTGRES_DB:-slotsone_admin}
       POSTGRES_USER: ${ADMIN_POSTGRES_USER:-slotsone_admin}

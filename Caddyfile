@@ -2,6 +2,10 @@
   email {$ACME_EMAIL}
 }
 
+www.{$TLS_DOMAIN} {
+  redir https://{$TLS_DOMAIN}{uri} permanent
+}
+
 {$TLS_DOMAIN} {
   encode gzip zstd
 

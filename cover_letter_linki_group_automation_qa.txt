@@ -1,0 +1,52 @@
+Супровідний лист — Middle Automation QA, linki.group
+
+Вітаю, команда linki.group,
+
+Подаюся на позицію Middle Automation QA. Маю 7+ років досвіду QA, з них ~7 років в iGaming, активну Playwright + TypeScript автоматизацію та щоденний AI-driven воркфлоу на базі Claude Code CLI і Cursor — тобто покриваю і ваші основні вимоги (Playwright/TS, API, БД, CI/CD, iGaming-домен), і "nice-to-have" по LLM/Claude API та training AI-агентів для QA.
+
+Як мій досвід лягає на ваш стек:
+
+- Playwright + TypeScript. Маю живий E2E-сьют на Playwright з POM, фікстурами, стабільною ієрархією локаторів (data-testid > role > text > css), trace/video/HAR на падіннях і Allure-звітом у GitHub Pages: https://pyavchik.github.io/slotsone-playwright/. Покриває auth, ігровий флоу, історію раундів, провайдер-fair перевірку.
+- API-тестування. REST/HTTP, генерація тест-даних, перевірка схеми та цілісності у відповідях; Postman із pre-request скриптами, ланцюжками оточень та ассертами — приклади: https://pyavchikstream.online/postman-tests.html. У Digicode писав API-автоматизацію (REST Assured) з нуля.
+- Бази даних. PostgreSQL/MySQL — SELECT/JOIN/агрегації для звіряння стану беку з API та UI: https://pyavchikstream.online/sql.html. З MongoDB працював на попередніх проєктах (find/aggregate, перевірка документів після API-операцій).
+- CI/CD. Jenkins та GitHub Actions — щоденно; GitLab CI — використовував на попередніх проєктах. Налаштовував джоби для regression/smoke, артефакти (Allure, trace, скріни), retry-стратегії, паралелізацію за shard'ами.
+- Test management. Jira + TestRail як основні; Qase — інструмент того ж класу, ввімкнусь швидко (структура suites/cases/runs, інтеграція з CI через API/CLI, прив'язка автотестів до case ID).
+- Web automation desktop + mobile. Cross-browser (Chromium/Firefox/WebKit), емуляція мобільних в'юпортів і реальні пристрої через DevTools/BrowserStack-сценарії.
+
+iGaming-домен. У Innovation Group (2014–2019) — 5 років тестування HTML5-слотів, рулетки та карткових ігор: правила гри, paytable, RTP, адмінка, історія раундів, платіжні флоу, партнерські модулі та сертифікаційна документація. У Digicode (2019–2021) — онлайн-казино, повний цикл QA, UI/API-фреймворки з нуля, JMeter-навантаження на game server. У EG (2021–2025) — підтримка 1500+ автотестів. Паралельно веду власне iGaming-демо (слоти + рулетка) з повним циклом QA: бек на Node/Express + PostgreSQL, фронт на React/Vite, адмінка на Next.js — тримає мене в актуальному контексті по транзакційних системах, ledger-логіці та provably-fair.
+
+AI / LLM / Claude API (ваш "nice-to-have", мій щоденний інструмент).
+
+- Daily toolchain: Claude Code CLI (термінальний агент Anthropic) + Cursor AI. Найактивніший use-case — UI-автоматизація на Playwright/Selenium: генерація POM з DOM зі стабільною ієрархією локаторів, скаффолдинг spec-файлів з тест-кейсів або Gherkin, рефакторинг хелперів по всій кодбазі, дебаг flaky-тестів через trace/video/логи, тюнінг auto-wait/retry.
+- Поза UI: генерація чек-лістів та negative/boundary кейсів з OpenAPI, побудова Postman-колекцій зі Swagger, парсинг стек-трейсів / HAR / серверних логів для локалізації root cause, SQL для верифікації даних, тест-документація у форматі TestRail/Jira.
+- Training AI testing systems / knowledge bases. На власних проєктах будую rules-файли (CLAUDE.md / .cursorrules) і memory/knowledge bases для агента — кодстайл, патерни локаторів, вимоги до тест-документації, домен-специфічна логіка (RTP, ledger, idempotency). Це і є "minimal-intervention AI QA pipeline" — агент рутинно генерує/підтримує тести, людина тримає архітектуру і review.
+- Принцип: AI бере на себе boilerplate і рутину, архітектура і review — за мною.
+
+Мови: українська рідна, англійська B2+ (вище за вашу вимогу B1).
+
+Портфоліо: https://pyavchikstream.online
+CV (PDF): https://pyavchikstream.online/QA_Oleksander_Pyavchik_CV.pdf
+Playwright + Allure звіт: https://pyavchik.github.io/slotsone-playwright/
+GitHub: https://github.com/pyavchik
+
+Базуюся в Одесі, готовий до повністю віддаленого формату, можу стартувати одразу.
+
+З повагою,
+Олександр Пявчик
+pyavchik@gmail.com
++380 63 997 7874
+
+
+Коротка версія для Djinni
+
+Вітаю, команда linki.group,
+
+Подаюся на Middle Automation QA. 7+ років QA, ~7 з них в iGaming. Playwright + TypeScript з POM, фікстурами та Allure-звітом — живий приклад: https://pyavchik.github.io/slotsone-playwright/. API-тестування (Postman + pre-request скрипти, REST Assured), SQL/PostgreSQL та MongoDB для верифікації даних, CI/CD на Jenkins і GitHub Actions (GitLab CI — на попередніх проєктах), Jira/TestRail (Qase — того ж класу).
+
+Окремо по вашому "nice-to-have" — LLM/Claude API: щоденно працюю з Claude Code CLI + Cursor для генерації POM, scaffolding spec-файлів, дебагу flaky-тестів, парсингу логів і тест-документації. Будую rules/knowledge-bases для агента (CLAUDE.md, memory) під QA-задачі — це і є minimal-intervention AI QA pipeline.
+
+Українська рідна, англійська B2+. Портфоліо: https://pyavchikstream.online
+
+З повагою,
+Олександр Пявчик
+pyavchik@gmail.com | +380 63 997 7874 | Одеса, Україна

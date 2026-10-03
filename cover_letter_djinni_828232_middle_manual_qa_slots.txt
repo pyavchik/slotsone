@@ -1,0 +1,63 @@
+Cover Letter — Middle Manual QA, Slots
+
+Hello,
+
+I’d like to apply for the Middle Manual QA position for slots. I have 7+ years of QA experience, including strong iGaming/gambling background and practical work with HTML5 slot games, roulette/card games, game history, admin/back-office modules, payment/game-server integrations, and regression coverage across web and mobile.
+
+This role is relevant to my experience because I’ve tested slot products from the player-facing side and from the technical side: game rules, paylines/paytables, free spins, bonus features, multipliers, win/loss states, balance updates, game history, API responses, network behavior, browser/device compatibility, RTP-related behavior, and edge cases around sessions and interrupted gameplay.
+
+What I can bring to the team:
+- functional, smoke, regression, exploratory, cross-browser, and cross-device testing of HTML5 games;
+- clear test cases, checklists, test plans, and bug reports with steps, actual/expected result, severity, priority, screenshots/video/logs;
+- strong attention to game logic, payout behavior, RTP-related risks, balance consistency, and user-visible defects;
+- RTP validation approach: comparing theoretical RTP from game math/paytable with simulated RTP from large spin samples, checking payout distribution, hit frequency, edge cases, and suspicious deviations;
+- DevTools/network checks, Postman/API testing, SQL basics, HTTP/client-server understanding, Jira/TestRail/Zephyr-style test management;
+- automation background with Java/Selenium/Selenide, REST Assured, Playwright, CI/CD, and Allure, which helps with deeper defect analysis and regression thinking.
+
+I also built a live iGaming QA portfolio around my own slots product, so you can quickly see my approach:
+
+- Portfolio / live demo: https://pyavchikstream.online
+- Game math and RTP model: https://pyavchikstream.online/game-math.html
+- JMeter RTP validation: https://pyavchikstream.online/jmeter-rtp.html
+- Test cases: https://pyavchikstream.online/test-cases.html
+- Bug reports: https://pyavchikstream.online/bug-report.html
+- Exploratory testing: https://pyavchikstream.online/exploratory-testing.html
+- API/Postman testing: https://pyavchikstream.online/postman-tests.html
+- DevTools/network testing: https://pyavchikstream.online/network-testing.html
+- Mobile/responsive testing: https://pyavchikstream.online/responsive-testing.html
+- Jira workflow: https://pyavchikstream.online/jira.html
+- Zephyr Scale / test management: https://pyavchikstream.online/zephyr.html
+
+I’m interested in a focused slots QA role where manual testing has direct impact on release quality, game stability, and player experience. I’d be glad to discuss the position and complete a test assignment if needed.
+
+Best regards,
+Oleksander Pyavchik
+pyavchik@gmail.com
++380 63 997 7874
+
+---
+
+Compact Djinni Version
+
+Hello,
+
+I’d like to apply for the Middle Manual QA position for slots. I have 7+ years of QA experience, including strong iGaming/gambling background and practical work with HTML5 slot games, roulette/card games, game history, admin/back-office modules, payment/game-server integrations, and regression coverage across web and mobile.
+
+Relevant to your role: functional, smoke, regression, exploratory, cross-browser and cross-device testing; validation of game rules, paylines/paytables, free spins, bonus features, multipliers, win/loss states, balance updates, game history, API responses, RTP-related behavior, and session edge cases. For RTP, I can compare theoretical RTP from game math/paytable with simulated RTP from large spin samples, review payout distribution/hit frequency, and flag suspicious deviations. I write clear test cases, checklists, test plans, and bug reports with steps, actual/expected result, severity, priority, screenshots/video/logs.
+
+Portfolio links:
+- Live portfolio: https://pyavchikstream.online
+- Game math/RTP: https://pyavchikstream.online/game-math.html
+- JMeter RTP validation: https://pyavchikstream.online/jmeter-rtp.html
+- Test cases: https://pyavchikstream.online/test-cases.html
+- Bug reports: https://pyavchikstream.online/bug-report.html
+- Exploratory testing: https://pyavchikstream.online/exploratory-testing.html
+- API/Postman: https://pyavchikstream.online/postman-tests.html
+- Network testing: https://pyavchikstream.online/network-testing.html
+- Mobile/responsive: https://pyavchikstream.online/responsive-testing.html
+- Jira/Zephyr: https://pyavchikstream.online/jira.html, https://pyavchikstream.online/zephyr.html
+
+I’d be glad to discuss the position and complete a test assignment if needed.
+
+Best regards,
+Oleksander Pyavchik

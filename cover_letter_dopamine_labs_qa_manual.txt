@@ -1,0 +1,86 @@
+Cover Letter — QA Manual, Dopamine Labs Ltd
+
+Job:
+https://djinni.co/jobs/825881-qa-manual/
+
+Research notes:
+- Dopamine Labs is a product company focused on online poker software.
+- The role is backend-heavy manual QA for a live, high-load, real-time poker platform.
+- Key requirements: REST API testing, client-server architecture, real-time sync/reconnect/error handling, smoke/regression/integration/exploratory testing, SQL checks, log analysis, clear bug reports, ownership of QA processes.
+- Product context is cross-platform: mobile and desktop testing are a priority, and public listings show PokerCasta on iOS and Android.
+
+Full version:
+
+Hello Dopamine Labs team,
+
+I’m applying for the QA Manual position. I have 7+ years of QA experience, including around 7 years in iGaming/gambling products, and this role matches the strongest part of my background: backend-heavy testing, API validation, client-server behavior, data consistency checks, and game/product quality in a live gambling environment.
+
+What caught my attention is that Dopamine Labs is building a live high-load real-time poker platform with real users, frequent releases, clear specs, Figma designs, and CI/CD. I’ve worked with web and mobile gambling products, game logic, platform integrations, regression coverage, bug investigation, and release stability. I’m comfortable testing not only UI flows, but also the technical behavior behind them: REST requests, auth/session flows, error handling, state synchronization, reconnect scenarios, database records, and logs.
+
+Relevant to your requirements:
+- REST API testing with Postman/Newman, Swagger/OpenAPI, JSON payload validation, auth/session checks, negative cases, and contract-style assertions.
+- Client-server testing: checking that UI state, API response, history, wallet/balance, and database state stay consistent after user actions.
+- Real-time and unstable-network thinking: sync issues, duplicate requests, slow network behavior, reconnect/session scenarios, idempotency, and graceful error handling.
+- SQL/database validation: PostgreSQL checks for users, wallets, refresh tokens, game rounds, transaction/history records, constraints, and data integrity.
+- Manual QA fundamentals: test design, checklists, regression/smoke/integration/exploratory testing, bug lifecycle, clear reports with steps, expected/actual result, screenshots/logs, severity and impact.
+- Mobile and desktop coverage: responsive/mobile-web testing, cross-device checks, and Appium/WebdriverIO mobile automation experience as an additional technical advantage.
+- Ownership: I have built QA process artifacts from scratch in previous roles and in my own portfolio product: requirements, test cases, bug reports, QA strategy, API collections, SQL documentation, and regression suites.
+
+I also built a live iGaming QA portfolio around my own demo casino product, which is close to your domain and demonstrates how I approach product testing:
+
+- Live iGaming portfolio:
+https://pyavchikstream.online
+- API/Postman regression suite:
+https://pyavchikstream.online/postman-tests.html
+- Direct Postman collection:
+https://pyavchikstream.online/postman/slots-collection.json
+- Public Postman workspace:
+https://www.postman.com/pyavchik/workspace/portfolio
+- Network/API validation and error handling:
+https://pyavchikstream.online/network-testing.html
+- SQL/database verification:
+https://pyavchikstream.online/sql.html
+- Test cases:
+https://pyavchikstream.online/test-cases.html
+- Bug reports:
+https://pyavchikstream.online/bug-report.html
+- Exploratory testing:
+https://pyavchikstream.online/exploratory-testing.html
+- Mobile/responsive testing:
+https://pyavchikstream.online/responsive-testing.html
+- Load/backend stability checks:
+https://pyavchikstream.online/jmeter-load.html
+- iGaming math/RTP validation:
+https://pyavchikstream.online/game-math.html
+
+Although your product is poker rather than slots/roulette, the QA risks are very familiar to me: real users, game state, account/session behavior, money-like balances, fairness, backend correctness, mobile/desktop clients, and regressions that must be caught before release. I’d be glad to discuss how I can help Dopamine Labs improve product quality and QA process maturity.
+
+Best regards,
+Oleksander Pyavchik
+
+
+Compact Djinni version:
+
+Hello Dopamine Labs team,
+
+I’m interested in the QA Manual position. I have 7+ years of QA experience, including around 7 years in iGaming/gambling products, and your role matches my background well: backend-heavy testing, REST API validation, client-server behavior, SQL/data consistency checks, exploratory/regression testing, log/bug investigation, and release quality.
+
+Your product is especially interesting because it is a live high-load real-time poker platform with real users and mobile/desktop clients. I’m comfortable testing API flows, auth/session behavior, UI/API/database consistency, reconnect/error scenarios, duplicate requests/idempotency, slow network behavior, game history/balance updates, and edge cases around real-time product state.
+
+Relevant portfolio links:
+- Live iGaming portfolio: https://pyavchikstream.online
+- API/Postman: https://pyavchikstream.online/postman-tests.html
+- Direct Postman collection: https://pyavchikstream.online/postman/slots-collection.json
+- Postman workspace: https://www.postman.com/pyavchik/workspace/portfolio
+- Network/API/error handling: https://pyavchikstream.online/network-testing.html
+- SQL/database verification: https://pyavchikstream.online/sql.html
+- Test cases: https://pyavchikstream.online/test-cases.html
+- Bug reports: https://pyavchikstream.online/bug-report.html
+- Exploratory testing: https://pyavchikstream.online/exploratory-testing.html
+- Mobile/responsive testing: https://pyavchikstream.online/responsive-testing.html
+- Load/backend checks: https://pyavchikstream.online/jmeter-load.html
+
+Although my portfolio product is casino slots/roulette rather than poker, the QA risks are very close: real users, game state, backend correctness, client-server sync, mobile/desktop behavior, balances/history, and release stability. I’d be glad to discuss how my experience can help Dopamine Labs.
+
+Best regards,
+Oleksander Pyavchik

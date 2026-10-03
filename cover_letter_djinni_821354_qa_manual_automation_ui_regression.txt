@@ -1,0 +1,59 @@
+Cover Letter — QA Engineer (Manual + Automation, UI Regression), Crew Matrix
+
+Вітаю, команда Crew Matrix!
+
+Подаюся на позицію QA Engineer (Manual + Automation, UI Regression). Маю 7+ років досвіду в QA з сильним мануальним і автоматизаційним бекграундом. Ваш фокус — pixel-by-pixel візуальна регресія, стабільні UI-автотести на Playwright + TypeScript і їх надійний прогін у headless CI — це саме те, що я роблю на практиці, тож зупинюся на цьому докладніше.
+
+Візуальна регресія в CI — мій профільний напрям. У власному продукті я підняв suite візуальної регресії на Playwright + TypeScript із порівнянням скриншотів попіксельно: toHaveScreenshot, поріг maxDiffPixelRatio: 0.02, базові снапшоти + diff-зображення при розбіжностях, оновлення baseline через --update-snapshots після свідомих змін UI. Покриття йде по трьох в'юпортах (desktop 1280×720, iPhone SE 375×667, iPad mini 768×1024), по компонентах і повних сторінках, з перевіркою світлої/темної теми через emulateMedia(). Прогін стабільний у headless-режимі та в CI з артефактами при падінні. Окремо зазначу чесно: у вашому стеку згадано Applitools — я роблю screenshot-based візуалку на нативних снапшотах Playwright (принцип той самий — baseline/diff/поріг розбіжності), а Applitools готовий підхопити швидко; у вакансії й самі допускаєте «Applitools (or Playwright visual snapshots)».
+
+Що ще релевантне для ролі:
+- Playwright + TypeScript: UI E2E і API-перевірки, стабільні локатори, фікстури, traces/screenshots/videos, Allure-звіти, mock/route для стабільних даних.
+- GitHub Actions / CI: складання pipeline, smoke/regression job'и, ретраї, артефакти на падіння, публічні Allure-звіти через GitHub Actions — швидкий і читабельний фідбек для релізів.
+- Мануальне тестування повного циклу: функціональне, регресійне, smoke, exploratory, крос-браузерне і крос-девайсне; чіткі тест-кейси, чеклісти, тест-плани та баг-репорти (кроки, expected/actual, severity/priority, скриншоти/відео/логи).
+- Стек React/TypeScript на фронтенді мені близький (мій демо-продукт — React + Vite); по бекенду — REST/HTTP, client-server, Postman/Swagger, перевірка стану на боці бекенду та SQL.
+
+На попередніх ролях quality напряму впливав на гроші, довіру користувачів і впевненість у релізах. В Innovation Group я 5 років тестував HTML5-ігри, адмін-панелі, історію раундів, платіжні модулі та сертифікаційну документацію. У Digicode будував UI/API автоматизацію з нуля для онлайн-казино. В EG працював у команді автоматизації, що підтримувала 1500+ автотестів, з фокусом на стабільності, паралельному прогоні, тегуванні, аналізі flaky-тестів і надійності регресії.
+
+Також активно застосовую AI у щоденній роботі: Jira, Zephyr і GitHub підключені до Claude CLI через API, тож зі скриншота бага отримую готовий баг-репорт у Jira, мануальний тест-кейс у Zephyr і автотест на Playwright (TypeScript) — менше рутини, більше фокусу на покритті та якості. Фінальні рішення лишаю під ручним QA-контролем.
+
+Живе портфоліо, де видно мій підхід:
+- Візуальна регресія (Playwright, попіксельне порівняння, в'юпорти, теми): https://pyavchikstream.online/visual-regression.html
+- TypeScript Playwright API-автоматизація + публічний Allure (CI): https://pyavchik.github.io/slotsone/
+- Playwright UI-автоматизація + публічний Allure: https://pyavchik.github.io/playwright-bestprice-com-ua/
+- Репозиторій Playwright (UI): https://github.com/pyavchik/playwright-bestprice-com-ua
+- Тест-кейси: https://pyavchikstream.online/test-cases.html
+- Баг-репорти: https://pyavchikstream.online/bug-report.html
+- QA-портфоліо / CV: https://pyavchikstream.online
+
+English: B2. Українська: рідна. Базуюсь в Одесі, готовий до full-time remote. Із задоволенням обговорю деталі та виконаю тестове, якщо потрібно.
+
+З повагою,
+Олександр Пявчик
+pyavchik@gmail.com
++380 63 997 7874
+
+
+Коротка версія для Djinni
+
+Вітаю, команда Crew Matrix!
+
+Подаюся на QA Engineer (Manual + Automation, UI Regression). 7+ років у QA, сильний мануал + автоматизація. Ваш фокус — pixel-by-pixel візуальна регресія на Playwright + TypeScript у headless CI — це мій профільний напрям.
+
+У власному продукті підняв suite візуальної регресії на Playwright + TS: попіксельне порівняння скриншотів (toHaveScreenshot, maxDiffPixelRatio: 0.02), baseline + diff, оновлення через --update-snapshots, три в'юпорти (desktop/mobile/tablet), компонентні та full-page снапшоти, перевірка світлої/темної теми, стабільний прогін у headless CI з артефактами. Чесно: візуалку роблю на нативних снапшотах Playwright (принцип той самий, що в Applitools), Applitools готовий підхопити швидко.
+
+Також: Playwright + TS (UI E2E, API, фікстури, traces, Allure), GitHub Actions (smoke/regression, ретраї, артефакти, публічні Allure-звіти), повний цикл мануалу (функціональне/регресійне/smoke/exploratory, тест-кейси, чеклісти, баг-репорти), React/TS-фронтенд, REST/Postman/SQL. Досвід: Innovation Group (5 років HTML5-ігри/адмінки/платежі), Digicode (UI/API автоматизація з нуля), EG (1500+ автотестів, стабільність, flaky-аналіз).
+
+Портфоліо:
+- Візуальна регресія: https://pyavchikstream.online/visual-regression.html
+- Playwright API + Allure (CI): https://pyavchik.github.io/slotsone/
+- Playwright UI + Allure: https://pyavchik.github.io/playwright-bestprice-com-ua/
+- Тест-кейси: https://pyavchikstream.online/test-cases.html
+- Баг-репорти: https://pyavchikstream.online/bug-report.html
+- CV: https://pyavchikstream.online
+
+English B2, українська рідна, Одеса, full-time remote. Радо обговорю деталі та зроблю тестове.
+
+З повагою,
+Олександр Пявчик
+pyavchik@gmail.com
++380 63 997 7874

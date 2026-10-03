@@ -1,0 +1,100 @@
+Cover Letter — Automation QA Engineer (Java), SharksCode
+
+Hello SharksCode team,
+
+My name is Oleksander Pyavchik. I'm applying for the Automation QA Engineer (Java) position. I have 7+ years of QA experience, around 7 of them in iGaming, and automation has run alongside manual testing across every role — from my first QA job to maintaining 1,500+ automated tests in regression pipelines. The stack you describe (Java + Playwright + Rest Assured + TestNG + Maven + CI/CD + Docker) is exactly the toolset I've worked with on commercial projects and use daily on my own iGaming demo product.
+
+Relevant experience:
+
+- Innovation Group (2014-2019, ~5 years) — Manual/Automation QA on HTML5 slots, roulette, and card games. Java + Selenium for UI automation, validation of game rules, payout tables, RTP, back-office and payment system testing, certification documentation.
+- Digicode (2019-2021) — online casino: built UI and API frameworks from scratch (Java/Selenide + Rest Assured + TestNG + Maven + Allure), Page Object / Component layering, CI integration, JMeter for game-server load testing.
+- EG (2021-2025) — supported and extended an automation suite of 1,500+ tests in a microservices architecture: parallel execution, tagging, pipeline-time optimization, and flaky-test stabilization on shared environments. Team of 5 AQA, regular code reviews.
+
+How I cover your requirements:
+
+- Java, OOP, SOLID, design patterns, Clean Code — the foundation of everything I write. Page Object / Component / Facade as the default for UI frameworks.
+- UI automation — Java/Selenide + Selenium, plus Playwright (currently the primary driver on my pet project, with Allure reporting and CI on GitHub Actions). Ready to move to Playwright Java as the primary tool.
+- API automation — Rest Assured: positive/negative scenarios, contract checks against OpenAPI, DB-backed assertions, request chaining. On my own product I cover the full backend (auth, spin, history, wallet, provably fair) with Postman and Rest Assured.
+- TestNG — test suites, groups/tags, parallelization, retry logic, listeners with Allure.
+- Test pyramid and coverage strategy — on the pet project I deliberately keep the balance: unit/contract on the service, API as the main regression layer, UI only for critical user journeys. That's the same way I'd approach coverage decisions here.
+- Flaky tests — familiar pain points: race conditions, wrong waits, leaking test data. I treat them via trace/video/log analysis, isolated test data, and targeted retry policies — not blanket retries.
+- Microservices and distributed systems — my iGaming pet project is built as a distributed system (RGS backend, frontend, admin panel, separate DB, transaction ledger), and the EG project was microservice-based. Comfortable reasoning about testability at service boundaries and why contract testing matters there.
+- CI/CD — GitHub Actions, integrating tests as quality gates, sharding, artifacts/reports, Docker-wrapped runners.
+- Git, Maven, Docker — daily tools.
+- Mobile — I understand the specifics of Android/iOS testing and test design for mobile; hands-on Appium experience is limited (ready to ramp up quickly within the project).
+- SDLC, Agile, code review, mentoring — onboarded new AQA engineers at EG, ran regular reviews, set standards for test code.
+
+From the "nice to have" list:
+- JMeter — I use it actively, including for RTP validation of iGaming math (https://pyavchik.online/jmeter-rtp.html).
+- SQL and databases — daily, MySQL/PostgreSQL/MongoDB.
+- Mocks/stubs — worked with MockServer at Digicode; on the pet project I stub provider services with local mocks.
+- Test data management — implemented a dedicated layer with seed data, isolated users for autotests, and "rotate seed pair" logic for provably fair.
+- Kafka / event-driven — solid theoretical understanding plus experience testing async integrations; hands-on Kafka itself is lighter, ready to ramp up fast.
+- Security testing — basic level: OWASP-style checks on the pet project (auth flows, JWT validation, rate limiting, input validation).
+
+Why SharksCode is interesting to me — iGaming (slot games, roulette, payments, back-office) is where I grew up as a QA, and where I want to keep working. B2B platforms with a real focus on release quality and test strategy are exactly the environment where I'm ready to take tech-lead responsibility within the AQA domain.
+
+Portfolio (a live iGaming demo I build and test myself):
+
+Product and strategy
+- Live web product: https://pyavchik.online
+- CV (PDF): https://pyavchik.online/QA_Oleksander_Pyavchik_CV.pdf
+- QA strategy: https://pyavchik.online/qa-strategy.html
+- Test design: https://pyavchik.online/test-design.html
+
+Java automation and API
+- Java/Selenium + Selenide + Rest Assured + TestNG: https://pyavchik.online/java-automation.html
+- Playwright e2e + Allure: https://pyavchik.online/playwright.html, report https://pyavchik.github.io/slotsone-playwright/
+- API testing (Postman): https://pyavchik.online/postman-tests.html
+- Swagger/OpenAPI contract testing: https://pyavchik.online/swager.html
+
+Performance, data, domain
+- JMeter load: https://pyavchik.online/jmeter-load.html
+- JMeter RTP validation: https://pyavchik.online/jmeter-rtp.html
+- SQL: https://pyavchik.online/sql.html
+- Game math / payout logic: https://pyavchik.online/game-math.html
+
+Test docs
+- Test cases: https://pyavchik.online/test-cases.html
+- Bug reports: https://pyavchik.online/bug-report.html
+
+Happy to talk through this with the recruiter and continue with the technical interview.
+
+Best regards,
+Oleksander Pyavchik
+pyavchik@gmail.com
++380 63 997 7874
+Odesa, Ukraine
+
+
+Compact Djinni Version
+
+Hello SharksCode team,
+
+I'm applying for the Automation QA Engineer (Java) role. 7+ years in QA, ~7 in iGaming. The stack matches: Java + Selenide/Selenium + Rest Assured + TestNG + Maven + Allure (Digicode — built UI and API frameworks from scratch; EG — maintained 1,500+ automated tests in a microservices architecture with parallelization, tagging, and flaky-test stabilization). On my pet project I run a full iGaming demo (slots, roulette, RGS backend, admin panel) with Playwright + Allure + GitHub Actions, Rest Assured-backed API coverage, and JMeter for RTP validation. Page Object / Component / Facade, test pyramid, coverage strategy, code review, and mentoring are part of the daily routine.
+
+Domain depth: HTML5 slots, payments, ledger, back-office, RTP / game math, provably fair.
+
+From the "nice to have" list — JMeter (active), SQL (active), MockServer / test mocks (used), test data management (built on pet project), security basics (OWASP, JWT, rate limiting). Appium and Kafka — at the understanding level, ready to ramp up fast.
+
+Portfolio:
+- https://pyavchik.online — live iGaming demo
+- https://pyavchik.online/QA_Oleksander_Pyavchik_CV.pdf — CV
+- https://pyavchik.online/java-automation.html — Java/Selenium/Selenide + Rest Assured + TestNG
+- https://pyavchik.online/playwright.html — Playwright e2e (+ https://pyavchik.github.io/slotsone-playwright/)
+- https://pyavchik.online/postman-tests.html — API testing
+- https://pyavchik.online/swager.html — OpenAPI contract testing
+- https://pyavchik.online/jmeter-rtp.html — JMeter RTP validation
+- https://pyavchik.online/jmeter-load.html — JMeter load
+- https://pyavchik.online/sql.html — SQL
+- https://pyavchik.online/game-math.html — iGaming math / payout
+- https://pyavchik.online/qa-strategy.html — QA strategy
+- https://pyavchik.online/test-cases.html — test cases
+- https://pyavchik.online/bug-report.html — bug reports
+
+Happy to discuss the details.
+
+Best regards,
+Oleksander Pyavchik
+pyavchik@gmail.com
++380 63 997 7874

@@ -1,0 +1,167 @@
+Cover Letter — QA Lead, Plexsupply (Plexon Inc)
+
+Вітаю, команда Plexsupply,
+
+Подаюся на позицію QA Lead. Маю 7+ років комерційного QA-досвіду — ручне функціональне та регресійне тестування web-додатків, побудова QA-процесів і автоматизації з нуля, робота крос-функціонально з розробниками та PM. Опис вашої позиції з її 60-90 day plan, високим обсягом багів і прогалинами в регресії — це саме та задача, яку я вмію розв'язувати, бо весь свій pet-проєкт пройшов цей шлях від нуля до стабільного процесу.
+
+Чесно про seniority. Формальної посади QA Lead я раніше не обіймав — буду прозорим. Працював як Senior QA на командах до 5 інженерів (EG), писав тест-плани та QA-документацію з нуля для нових продуктів (Digicode), і вів власну QA-платформу end-to-end без керівника. Готовий взяти Lead-роль і результати, які з нею йдуть.
+
+Як мій досвід відповідає вашим вимогам:
+
+- QA-процеси з нуля + регресія. На власній iGaming-платформі написав повну QA-стратегію (scope, risks, environments, entry/exit criteria, defect lifecycle, metrics). Саме той документ, який стабілізує регресію та зменшує повторні цикли.
+  QA strategy:
+  https://pyavchikstream.online/qa-strategy.html
+
+- Test cases / scenarios / checklists. Артефакти у Jira/Zephyr Scale з реального проєкту, з read-only guest-доступом для рев'ю.
+  Live Zephyr Scale (guest access):
+  https://pyavchikstream.online/zephyr.html
+  Live Jira (SCRUM, backlog, sprints, bug tickets):
+  https://pyavchikstream.online/jira.html
+  Static test cases:
+  https://pyavchikstream.online/test-cases.html
+  Test design techniques (equivalence, boundary, decision tables, state transition):
+  https://pyavchikstream.online/test-design.html
+  Bug reports (repro / screenshots / expected-vs-actual):
+  https://pyavchikstream.online/bug-report.html
+
+- Manual + exploratory + regression. 7 років практичного ручного тестування — Innovation Group (5 років казино-продуктів, адмін-панелі, платіжні модулі), Digicode (test plans з нуля для нової платформи), EG (підтримка регресійного покриття на 1500+ кейсах у команді з 5 QA).
+  Exploratory testing approach:
+  https://pyavchikstream.online/exploratory-testing.html
+  Requirements analysis:
+  https://pyavchikstream.online/requirements.html
+
+- Test automation (advancing capabilities — пункт у відповідальності). Маю практичний досвід Java/Selenide/Rest Assured/TestNG, плюс Playwright + TypeScript на власному стеку (E2E-suite з Allure-репортом і CI у GitHub Actions). Можу обрати або розширити стек під продукт.
+  Playwright + TypeScript framework:
+  https://pyavchikstream.online/playwright.html
+  Java automation:
+  https://pyavchikstream.online/java-automation.html
+  Python automation:
+  https://pyavchikstream.online/python-automation.html
+  Allure report (live):
+  https://pyavchik.github.io/slotsone-playwright/
+
+- API + data validation для e-commerce / ERP-сценаріїв. Postman + REST Assured для API-тестування, SQL для верифікації даних на беку проти UI/звітів — критично для інтеграцій з SAP/ERP та Amazon-фідами.
+  SQL verification:
+  https://pyavchikstream.online/sql.html
+  DevTools / Network analysis:
+  https://pyavchikstream.online/network-testing.html
+
+- QA metrics + process improvement. На власному проєкті веду defect lifecycle, test coverage по фічах, flake rate на E2E, і incident tracking через Sentry. Готовий встановити дефолтний набір метрик у вашій команді (escape rate, MTTD, regression cycle time, flaky test ratio) на перший місяць.
+  Performance / load (JMeter):
+  https://pyavchikstream.online/jmeter-rtp.html
+
+- Mentoring. Mentoring Junior/Middle — досвід неформальний (на EG був найдосвідченішим у команді), але я маю чіткий QA-фреймворк думання, який можу прозоро передавати. Pet-проєкт навмисно структурований як навчальний матеріал — кожна тех-практика з прикладом і поясненням.
+
+E-commerce / Amazon домен — буду чесним: прямого e-commerce досвіду немає. Але core-задачі (інтеграції, високі об'єми даних, точність ledger-операцій, регресія на платіжних флоу) у мене щодня — на iGaming-платформі є wallet ledger, audit trail, idempotency keys, KYC-документи, payment-флоу. Перенесу швидко.
+
+Schedule. Графік 16:00-01:00 за Київським часом мене влаштовує — готовий до US-овелапу.
+
+Англійська — Upper-Intermediate+ (B2+). Українська — рідна (C2).
+
+Portfolio:
+https://pyavchikstream.online
+CV (PDF):
+https://pyavchikstream.online/QA_Oleksander_Pyavchik_CV.pdf
+GitHub:
+https://github.com/pyavchik
+
+Базуюся в Одесі. Готовий стартувати швидко. Буду радий обговорити деталі.
+
+З повагою,
+Олександр Пявчик
+pyavchik@gmail.com
++380 63 997 7874
+
+
+───────────────────────────────────────────────
+Compact Djinni Version (Ukrainian)
+───────────────────────────────────────────────
+
+Вітаю, команда Plexsupply,
+
+Подаюся на QA Lead. 7+ років QA — manual + regression на web/API, побудова QA-процесів з нуля (Digicode + власний pet-проєкт), Java/Selenide/Playwright у стеку.
+
+Чесно про seniority: формальної Lead-посади не мав. Працював Senior QA в команді з 5 інженерів, писав QA-документацію з нуля, вів власну QA-платформу end-to-end без керівника. Готовий до Lead-роботи і метрик, які з нею йдуть.
+
+Прямі збіги з вимогами:
+
+- QA-процеси / регресія / metrics — повна QA strategy для власної платформи.
+  https://pyavchikstream.online/qa-strategy.html
+
+- Live Jira (SCRUM, backlog, спринти, bug-тікети) + Zephyr Scale тест-кейси з guest-доступом.
+  https://pyavchikstream.online/jira.html
+  https://pyavchikstream.online/zephyr.html
+
+- Test design + manual depth — техніки, exploratory, requirements, статичні тест-кейси/баг-репорти.
+  https://pyavchikstream.online/test-design.html
+  https://pyavchikstream.online/exploratory-testing.html
+  https://pyavchikstream.online/requirements.html
+  https://pyavchikstream.online/test-cases.html
+  https://pyavchikstream.online/bug-report.html
+
+- Test automation — Java/Selenide/Rest Assured + Playwright/TypeScript з Allure + GitHub Actions CI.
+  https://pyavchikstream.online/java-automation.html
+  https://pyavchikstream.online/playwright.html
+  https://pyavchik.github.io/slotsone-playwright/
+
+- API + SQL — для інтеграцій з SAP/ERP/Amazon-фідами, верифікація даних бек vs UI.
+  https://pyavchikstream.online/sql.html
+
+E-commerce домену напряму не маю — буду чесним. Але інтеграції, ledger-операції, регресія на платіжних флоу — це щоденна робота на iGaming-pipeline (admin panel, transaction ledger, idempotency, audit trail).
+
+Графік 16:00-01:00 Kyiv — підходить.
+English B2+, українська C2.
+
+Portfolio:
+https://pyavchikstream.online
+
+З повагою,
+Олександр Пявчик
+pyavchik@gmail.com | +380 63 997 7874 | Одеса, Україна
+
+
+───────────────────────────────────────────────
+Compact English Version (for English-side review)
+───────────────────────────────────────────────
+
+Hi Plexsupply team,
+
+Applying for the QA Lead role. 7+ years in QA — manual + regression on web/API, building QA processes from scratch (Digicode + my own portfolio platform), Java/Selenide/Playwright in the automation stack.
+
+Upfront on seniority: I haven't held a formal Lead title before. I worked as a Senior QA in a 5-engineer team, wrote QA documentation from zero for new products, and run my own QA platform end-to-end without a manager. Ready for the Lead workload and the metrics that come with it.
+
+Direct matches to your requirements:
+
+- QA processes / regression / metrics — full QA strategy I wrote for my own platform.
+  https://pyavchikstream.online/qa-strategy.html
+
+- Live Jira (SCRUM, backlog, sprints, bug tickets) + live Zephyr Scale test cases with guest access.
+  https://pyavchikstream.online/jira.html
+  https://pyavchikstream.online/zephyr.html
+
+- Test design + manual depth — techniques, exploratory, requirements, static test cases / bug reports.
+  https://pyavchikstream.online/test-design.html
+  https://pyavchikstream.online/exploratory-testing.html
+  https://pyavchikstream.online/requirements.html
+  https://pyavchikstream.online/test-cases.html
+  https://pyavchikstream.online/bug-report.html
+
+- Test automation — Java/Selenide/Rest Assured + Playwright/TypeScript with Allure and GitHub Actions CI.
+  https://pyavchikstream.online/java-automation.html
+  https://pyavchikstream.online/playwright.html
+  https://pyavchik.github.io/slotsone-playwright/
+
+- API + SQL — for SAP/ERP/Amazon-feed integrations and backend-vs-UI data verification.
+  https://pyavchikstream.online/sql.html
+
+To be straightforward: no direct e-commerce experience. But integrations, ledger accuracy, and regression on payment flows are daily work on my iGaming pipeline (admin panel, transaction ledger, idempotency, audit trail). I'll ramp up quickly.
+
+Schedule 16:00-01:00 Kyiv works.
+English B2+ (Upper-Intermediate+), Ukrainian native.
+
+Portfolio:
+https://pyavchikstream.online
+
+Best regards,
+Oleksander Pyavchik
+pyavchik@gmail.com | +380 63 997 7874 | Odesa, Ukraine

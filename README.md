@@ -1,5 +1,8 @@
 # Slots — iGaming Slot (Backend + Frontend)
 
+Live portfolio: [https://pyavchikstream.online/](https://pyavchikstream.online/).
+Use this domain for portfolio links and production API and test URLs.
+
 Reference implementation of a slot game:
 - backend: RNG, spin engine, JWT-protected API
 - frontend: React + PixiJS reel rendering and game UI
@@ -277,7 +280,7 @@ App is served by frontend nginx container on port `80` and proxies `/api` to bac
 Production compose now includes a Caddy reverse proxy with automatic TLS.
 
 Requirements:
-1. Point your DNS A record to the server IP.
+1. Point your domain and `www` DNS A records to the server IP.
 2. Ensure inbound ports `80` and `443` are open.
 3. Set these values in `/opt/slotsone/.env.production`:
 
@@ -287,6 +290,11 @@ ACME_EMAIL=<ops-email@example.com>
 ```
 
 After deploy, Caddy requests and renews certificates automatically.
+The `www` hostname redirects to the primary domain.
+
+For the portfolio at `pyavchikstream.online`, see
+[the server deployment notes](docs/DEPLOYMENT_PYAVCHIKSTREAM.md), including
+the prebuilt-image workflow used for its 1 GB server.
 
 ## Manual Build Commands
 

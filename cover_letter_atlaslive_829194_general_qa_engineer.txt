@@ -1,0 +1,91 @@
+Супровідний лист — General QA Engineer, ATLASLIVE (Djinni 829194)
+
+Вітаю, команда ATLASLIVE!
+
+Мене звати Олександр Пявчик, відгукуюсь на позицію General QA Engineer. Маю 7+ років комерційного досвіду в QA, з них приблизно 7 — в iGaming, і весь цей час автоматизація йшла поруч із мануальним тестуванням. Ваш стек і формат ролі — Java + Selenium/Selenide + TestNG, мануальні та автоматизовані UI-тести, стабільність фреймворку, валідація поведінки в різних браузерах і робота в тісній зв'язці з розробниками та продактами — це рівно те, чим я займаюся щодня.
+
+Релевантний досвід коротко:
+- Innovation Group (~5 років) — Manual/Automation QA на HTML5 слотах, рулетці, карткових іграх. Java + Selenium для UI-автоматизації, валідація game rules, payout tables, RTP, тестування адмінок і платіжних інтеграцій.
+- Digicode (онлайн-казино) — будував UI- та API-фреймворки з нуля (Java/Selenide + Rest Assured + TestNG + Allure), Page Object / Component layering, інтеграція в CI, JMeter для навантаження ігрового сервера.
+- EG — підтримка та розвиток automation suite на 1500+ тестів у мікросервісній архітектурі: паралельне виконання, тегування, оптимізація pipeline-часу, боротьба з flaky-тестами на shared environments. Команда — 5 AQA, регулярні code review.
+
+Як я закриваю ваші вимоги:
+- Аналіз вимог і визначення тестового покриття — звична практика. На поточному проєкті будував QA-процес із нуля: перетворював продуктові вимоги на документацію з acceptance criteria, проєктував тест-кейси і регресійне покриття, мислив від ризиків ще ДО старту розробки.
+- Мануальне + автоматизоване UI-тестування — функціональне, регресійне, smoke, exploratory; плюс UI-автоматизація на Java/Selenide + Selenium.
+- Java-стек автоматизації — Selenide/Selenium, TestNG (suites, groups/tags, parallelization, retry-логіка, listeners під Allure). Збірка в мене на проєктах була переважно через Maven; Gradle — інша система збірки тих самих залежностей, тож перехід тривіальний.
+- Стабільність фреймворку та flaky tests — розумію больові точки: race conditions, неправильні waits, дані, що пливуть між тестами. Лікую через trace/video/log-аналіз, ізоляцію тестових даних і обґрунтовані retry-політики, а не глобальні.
+- Браузери та девайси — крос-браузерна валідація, Chrome DevTools (Console, Network, емуляція пристроїв, throttling, response overrides). З виконанням у grid-середовищах працював через Selenium Grid / Docker; Selenoid — той самий підхід (контейнеризований grid), увійду швидко.
+- CI/CD — налаштовував автотести як quality gates у GitHub Actions та Jenkins (прогон API/UI на кожен PR, артефакти, репорти, Docker-обгортки ранерів). GitLab CI і TeamCity концептуально те саме — pipeline-as-config і стейджі; перенесу досвід без проблем.
+- Test management — TestRail і Zephyr Scale: чисті, відтворювані тест-кейси, чек-листи, тест-репорти як спринтові deliverables.
+- Git, DevTools — щоденні інструменти. Моніторинг і логи — предметно працював з Kibana/OpenSearch для трасування дефектів; Grafana/Datadog освою швидко, бо логіка та сама.
+- Agile/Scrum — планування, грумінг, daily, ретроспективи; QA як повноцінний учасник команди.
+
+З "буде плюсом":
+- Playwright + TypeScript — зараз основний driver на моєму пет-проєкті, з Allure-репортом і CI на GitHub Actions.
+- Visual regression — є практика screenshot-порівнянь у Playwright.
+- API-тестування — Postman/Newman + Rest Assured: позитивні/негативні сценарії, контракт-перевірки проти OpenAPI, дані з БД, ланцюжки запитів. Покрив увесь backend пет-проєкту (auth, spin, history, wallet, provably fair).
+- Allure — стандартний репорт у моїх Java- і Playwright-наборах.
+- HTML/CSS/JS — читаю і розумію на рівні, достатньому для локалізації UI-дефектів.
+
+Чому ATLASLIVE цікавий саме мені — iGaming/беттинг це домен, у якому я виріс як QA: точність математики, цілісність фінансових транзакцій і коректна поведінка під навантаженням. Скажу чесно: мій hands-on iGaming-досвід — це переважно онлайн-казино та слоти, sportsbook руками я не тестував, але логіку ставок, коефіцієнтів і розрахунку виграшів розумію, бо вона стоїть на тому ж фундаменті. Тому сприймаю беттинг не як білу пляму, а як логічне продовження свого досвіду.
+
+Щоб не бути голослівним, зібрав портфоліо на власному прикладі — це реальний iGaming-демо (слот-гра + RGS backend + admin panel), який я будую і тестую сам:
+
+Java-автоматизація та API
+- Java/Selenium + Selenide + Rest Assured + TestNG: https://pyavchikstream.online/java-automation.html
+- Playwright e2e + Allure (живий CI-прогон): https://pyavchik.github.io/slotsone-playwright/
+- API testing (Postman/Newman): https://pyavchikstream.online/postman-tests.html
+- Swagger / OpenAPI contract testing: https://pyavchikstream.online/api-docs
+- Network / DevTools (route interception, симуляція помилок 500/401/429): https://pyavchikstream.online/network-testing.html
+
+Домен, performance, дані
+- Живий продукт (слот-гра): https://pyavchikstream.online
+- Математика гри / RTP / валідація логіки: https://pyavchikstream.online/game-math.html
+- JMeter load (50 VU, P95 142ms, 0.02% errors): https://pyavchikstream.online/jmeter-load.html
+- JMeter RTP (17 945+ спінів, теоретичне vs емпіричне): https://pyavchikstream.online/jmeter-rtp.html
+- SQL — перевірки на рівні БД: https://pyavchikstream.online/sql.html
+
+Процес і документація
+- Тест-кейси: https://pyavchikstream.online/test-cases.html
+- Баг-репорти: https://pyavchikstream.online/bug-report.html
+- QA strategy: https://pyavchikstream.online/qa-strategy.html
+
+Перебуваю в Україні, готовий працювати віддалено, доступний до старту одразу. Буду радий обговорити деталі на співбесіді.
+
+З повагою,
+Олександр Пявчик
+pyavchik@gmail.com
++380 63 997 7874
+Одеса, Україна
+
+
+----------------------------------------
+
+КОРОТКА ВЕРСІЯ ДЛЯ DJINNI
+
+Вітаю, команда ATLASLIVE!
+
+Відгукуюсь на General QA Engineer. 7+ років у QA, ~7 в iGaming, мануал і автоматизація завжди поруч. Ваш стек збігається з моїм: Java + Selenide/Selenium + TestNG, мануальні та авто UI-тести, стабільність фреймворку, крос-браузерна валідація, CI/CD.
+
+- Innovation Group — Java/Selenium UI-автоматизація на слотах і рулетці; Digicode — будував UI/API-фреймворки з нуля (Selenide + Rest Assured + TestNG + Allure); EG — підтримував 1500+ автотестів у мікросервісах (parallelization, tagging, flaky stabilization, code review).
+- Аналіз вимог і покриття ДО старту розробки, test-дизайн від ризиків, TestRail/Zephyr, чисті баг-репорти.
+- Gradle vs Maven — тривіальний перехід; Selenoid — той самий контейнеризований grid, що Selenium Grid/Docker; GitLab CI/TeamCity — як GitHub Actions/Jenkins, з якими працював.
+- Моніторинг: Kibana/OpenSearch hands-on, Grafana/Datadog освою швидко.
+- Плюси: Playwright + TS (основний driver на пет-проєкті), visual regression, API (Postman + Rest Assured), Allure.
+
+Доменно чесно: hands-on iGaming — казино та слоти; sportsbook руками не тестував, але беттинг-логіку розумію — той самий фундамент (математика, фінансові транзакції, поведінка під навантаженням).
+
+Портфоліо на власному iGaming-демо:
+- https://pyavchikstream.online — живий продукт
+- https://pyavchikstream.online/java-automation.html — Java/Selenide/Selenium + Rest Assured + TestNG
+- https://pyavchik.github.io/slotsone-playwright/ — Playwright + Allure
+- https://pyavchikstream.online/postman-tests.html — API testing
+- https://pyavchikstream.online/jmeter-rtp.html — JMeter RTP
+- https://pyavchikstream.online/game-math.html — математика гри / RTP
+
+Готовий стартувати одразу.
+
+З повагою,
+Олександр Пявчик
+pyavchik@gmail.com
++380 63 997 7874

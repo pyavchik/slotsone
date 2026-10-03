@@ -103,7 +103,7 @@ mvn allure:serve
 
 ### Target a different environment
 ```bash
-mvn clean test -Papi -Dbase.url=https://pyavchik.space
+mvn clean test -Papi -Dbase.url=https://pyavchikstream.online
 ```
 
 ## Test Coverage

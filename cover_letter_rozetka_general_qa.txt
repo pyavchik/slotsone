@@ -1,0 +1,38 @@
+Cover Letter — General QA Engineer, ROZETKA
+
+Вітаю, командо ROZETKA!
+
+Мене звати Олександр Пявчик. Маю 7+ років досвіду в QA і хочу відгукнутися на позицію General QA Engineer. Мені близький ваш підхід до технічних продуктів, внутрішніх сервісів і відповідального QA, де важливо не лише знаходити баги, а й розуміти причини їх появи, працювати з API, інтеграціями, документацією та автоматизацією.
+
+У своїй роботі я поєдную manual і technical QA. Маю практичний досвід функціонального, регресійного, інтеграційного та API-тестування, роботи з DevTools, HTTP, SQL, Git, Linux-консоллю та клієнт-серверною архітектурою. Також маю досвід побудови та підтримки автоматизації UI/API, роботи з Docker і JMeter. У попередніх ролях я створював тест-плани, писав тестову документацію, досліджував дефекти, підтримував великі автотестові набори та працював у тісній зв’язці з розробниками.
+
+Окремо мені цікава саме така General QA роль у продуктовій команді, де можна бути корисним практично: від аналізу вимог і ризиків до перевірки інтеграцій, API, даних і покращення процесів якості.
+
+Кілька релевантних прикладів із мого портфоліо:
+- API testing / Postman: https://pyavchikstream.online/postman-tests.html
+- Network & API validation / DevTools mindset: https://pyavchikstream.online/network-testing.html
+- SQL: https://pyavchikstream.online/sql.html
+- Test cases: https://pyavchikstream.online/test-cases.html
+- Bug reports: https://pyavchikstream.online/bug-report.html
+- Java / Selenium / Docker-based automation: https://pyavchikstream.online/java-automation.html
+- Load testing with JMeter: https://pyavchikstream.online/jmeter-load.html
+
+Буду радий обговорити, як мій досвід може бути корисним вашій команді.
+
+З повагою,
+Олександр Пявчик
+pyavchik@gmail.com
++380639977874
+
+Compact Version For Form
+
+Вітаю, командо ROZETKA!
+
+Маю 7+ років досвіду в QA і хочу відгукнутися на позицію General QA Engineer. Працюю на стику manual і technical QA: функціональне, регресійне, інтеграційне та API-тестування, тестова документація, аналіз дефектів, DevTools, HTTP, SQL, Git, Linux-консоль, клієнт-серверна архітектура. Також маю досвід автоматизації UI/API, роботи з Docker і JMeter.
+
+Мені цікава саме така General QA роль у продуктовій команді, де важливо не лише знаходити баги, а й розуміти їх причини, перевіряти інтеграції, працювати з даними та покращувати процеси якості.
+
+Релевантні приклади з портфоліо: Postman/API https://pyavchikstream.online/postman-tests.html, network/API validation https://pyavchikstream.online/network-testing.html, SQL https://pyavchikstream.online/sql.html, test cases https://pyavchikstream.online/test-cases.html, bug reports https://pyavchikstream.online/bug-report.html, Java/Selenium/Docker automation https://pyavchikstream.online/java-automation.html, JMeter https://pyavchikstream.online/jmeter-load.html.
+
+З повагою,
+Олександр Пявчик

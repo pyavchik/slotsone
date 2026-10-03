@@ -1,0 +1,96 @@
+Cover Letter — QA Engineer (iGaming), What's Up Partners
+
+Hello What's Up Partners team,
+
+I'm applying for the QA Engineer (iGaming) position. I have 7+ years of QA experience, with around 7 years in iGaming, and my background maps directly to what you described: functional and regression testing of web products, cross-browser checks, validating registration/authorization, payment flows, and bonuses, plus clear test documentation and close collaboration with developers and product managers.
+
+I started my QA career in a Manual/Automation QA role at Innovation Group, where I spent 5 years testing web and mobile products end-to-end, writing test cases and checklists, and working closely with developers on defect investigation. At Digicode I built test plans from scratch and covered UI, API, and performance testing. Most recently, at EG, I maintained 1500+ automated tests across multiple environments, which sharpened my sense for regression coverage and release stability.
+
+For this role specifically, I'm comfortable with:
+- Functional, regression, smoke, and cross-browser testing on desktop and mobile
+- Writing test cases, checklists, and bug reports (Jira/Asana) with clear repro steps and severity
+- Validating registration/auth flows, payment and bonus logic, and back-office behavior
+- API testing in Postman, reading responses, checking contracts, and debugging via browser DevTools
+- SQL for data verification (selects, joins, ledger/transaction checks)
+- Git, Confluence, and structured documentation as part of daily workflow
+- An automation mindset (Java/Selenium, Playwright) that helps when analyzing defects and talking to developers
+
+I've also built a live iGaming QA portfolio around my own demo slots/roulette product, which shows the practical side of how I work:
+
+Product and strategy
+- Live web product: https://pyavchikstream.online
+- QA strategy and approach: https://pyavchikstream.online/qa-strategy.html
+- Requirements analysis: https://pyavchikstream.online/requirements.html
+- Test design techniques: https://pyavchikstream.online/test-design.html
+
+Test documentation
+- Test cases and structured coverage: https://pyavchikstream.online/test-cases.html
+- Bug reports and defect documentation: https://pyavchikstream.online/bug-report.html
+- Exploratory testing examples: https://pyavchikstream.online/exploratory-testing.html
+
+Functional and cross-platform
+- Responsive/cross-device testing: https://pyavchikstream.online/responsive-testing.html
+- Localization testing: https://pyavchikstream.online/localization-testing.html
+- Visual regression: https://pyavchikstream.online/visual-regression.html
+- Network and DevTools testing: https://pyavchikstream.online/network-testing.html
+
+API, data, and performance
+- API testing (Postman): https://pyavchikstream.online/postman-tests.html
+- Swagger/OpenAPI contract testing: https://pyavchikstream.online/swager.html
+- GraphQL testing: https://pyavchikstream.online/graphql-testing.html
+- SQL for data verification: https://pyavchikstream.online/sql.html
+- JMeter load testing: https://pyavchikstream.online/jmeter-load.html
+- JMeter RTP validation (iGaming math): https://pyavchikstream.online/jmeter-rtp.html
+
+Automation
+- Java/Selenium automation background: https://pyavchikstream.online/java-automation.html
+- Playwright end-to-end automation: https://pyavchikstream.online/playwright.html
+
+iGaming domain
+- Game math and payout logic validation: https://pyavchikstream.online/game-math.html
+
+Because I've worked on slot games, roulette, and casino back-office features — including payout logic, integrations, and bonus/payment validation — I can pick up your product quickly and contribute from the first sprint.
+
+I'd be glad to discuss how my experience can support your QA team.
+
+Best regards,
+Oleksander Pyavchik
+pyavchik@gmail.com
++380 63 997 7874
+Odesa, Ukraine
+
+
+Short Djinni Version
+
+Hello What's Up Partners team,
+
+I'm interested in your QA Engineer (iGaming) position. I have 7+ years in QA with around 7 years in iGaming, covering functional, regression, and cross-browser testing of web products, registration/auth flows, payment systems, and bonuses. I'm comfortable writing test cases, checklists, and bug reports in Jira/Asana, working in Git and Confluence, and using Postman and browser DevTools. I also have SQL for data verification and a Java/Selenium + Playwright automation background.
+
+Portfolio (live iGaming demo I built):
+- https://pyavchikstream.online — live web product
+- https://pyavchikstream.online/test-cases.html — test cases
+- https://pyavchikstream.online/bug-report.html — bug reports
+- https://pyavchikstream.online/postman-tests.html — API testing
+- https://pyavchikstream.online/sql.html — SQL
+- https://pyavchikstream.online/responsive-testing.html — cross-device testing
+- https://pyavchikstream.online/network-testing.html — DevTools / network
+- https://pyavchikstream.online/playwright.html — Playwright automation
+- https://pyavchikstream.online/java-automation.html — Java/Selenium
+- https://pyavchikstream.online/game-math.html — iGaming domain
+
+I'd be glad to discuss in more detail.
+
+Best regards,
+Oleksander Pyavchik
+
+
+Compact Djinni Version
+
+Hello What's Up Partners team,
+
+I'm applying for the QA Engineer (iGaming) role. 7+ years in QA, ~7 in iGaming: functional, regression, and cross-browser testing of web products, validation of registration/auth, payments, and bonuses, plus test cases, checklists, and bug reports in Jira/Asana. Comfortable with Git, Confluence, Postman, DevTools, and SQL. Java/Selenium and Playwright automation background as a bonus.
+
+Portfolio: https://pyavchikstream.online, https://pyavchikstream.online/test-cases.html, https://pyavchikstream.online/bug-report.html, https://pyavchikstream.online/postman-tests.html, https://pyavchikstream.online/sql.html, https://pyavchikstream.online/responsive-testing.html, https://pyavchikstream.online/playwright.html, https://pyavchikstream.online/java-automation.html, https://pyavchikstream.online/game-math.html.
+
+Best regards,
+Oleksander Pyavchik

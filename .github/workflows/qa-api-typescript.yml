@@ -69,10 +69,11 @@ jobs:
       - name: Start backend
         working-directory: backend
         run: |
-          export JWT_PRIVATE_KEY="$(cat jwt_private.pem)"
-          export JWT_PUBLIC_KEY="$(cat jwt_public.pem)"
+          JWT_PRIVATE_KEY="$(cat jwt_private.pem)"
+          JWT_PUBLIC_KEY="$(cat jwt_public.pem)"
+          export JWT_PRIVATE_KEY JWT_PUBLIC_KEY
           nohup node dist/index.js > backend.log 2>&1 &
-          for i in $(seq 1 40); do
+          for _ in $(seq 1 40); do
             if curl -sf http://localhost:3001/ready >/dev/null; then
               echo "backend up"; exit 0
             fi
@@ -130,7 +131,7 @@ jobs:
     name: Deploy TypeScript API report
     runs-on: ubuntu-latest
     needs: api
-    if: github.event_name != 'pull_request'
+    if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}

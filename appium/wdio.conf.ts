@@ -2,7 +2,7 @@ import 'dotenv/config';
 import type { Options } from '@wdio/types';
 import { addStep, addScreenshot } from './src/helpers/allure.helper.js';
 
-const BASE_URL = process.env.BASE_URL || 'https://pyavchik.space';
+const BASE_URL = process.env.BASE_URL || 'https://pyavchikstream.online';
 
 export const baseConfig: Options.Testrunner = {
   runner: 'local',

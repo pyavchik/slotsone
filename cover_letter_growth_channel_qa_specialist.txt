@@ -1,0 +1,159 @@
+Cover Letter — QA Specialist, Growth Channel
+
+Hi Growth Channel team,
+
+Applying for the QA Specialist role. I have 7+ years of commercial QA experience with a focus on manual functional and regression testing of web applications, plus hands-on experience setting up QA processes from scratch — which directly matches your framing of "building QA practice from inception, not following the existing one."
+
+How my background lines up with your requirements:
+
+- Building QA from inception. The clearest direct match for your "build it from scratch, not follow existing process" framing — I wrote a full QA strategy document for my own platform covering scope, risk, environments, entry/exit criteria, defect management, and metrics.
+  QA strategy:
+  https://pyavchikstream.online/qa-strategy.html
+
+- Manual + regression web testing. 7 years of practical hands-on testing of web UIs — Innovation Group (5 years on casino products, admin panels, payment modules), Digicode (built test plans for a new online casino platform), EG (regression coverage on 1500+ existing test cases). Exploratory testing approach with charters, time-boxing, and notes.
+  Exploratory testing:
+  https://pyavchikstream.online/exploratory-testing.html
+
+- Test cases / scenarios / checklists from scratch. At Digicode I wrote test plans and checklists from zero for a brand-new platform. Test design techniques (equivalence partitioning, boundary, decision tables, state transition) applied to real features.
+  Zephyr Scale (live, read-only guest access):
+  https://pyavchikstream.online/zephyr.html
+  Static test cases:
+  https://pyavchikstream.online/test-cases.html
+  Test design:
+  https://pyavchikstream.online/test-design.html
+
+- Requirements analysis. Standard part of sprint planning and refinement — I parse a brief into ambiguities, edge cases, and a test plan before story implementation.
+  Worked example:
+  https://pyavchikstream.online/requirements.html
+
+- Jira bug reports + sprint workflow. Daily tool since 2014. Live SCRUM board with backlog, sprints, and bug tickets — read-only guest credentials provided on the portfolio page.
+  Live Jira (guest access):
+  https://pyavchikstream.online/jira.html
+  Static bug-report examples (repro / screenshots / expected-vs-actual):
+  https://pyavchikstream.online/bug-report.html
+
+- Data-heavy dashboards, exports, filters, reports. On my pet project I built a full admin panel (Next.js + Prisma + PostgreSQL): player tables with filters and pagination, a transaction ledger, KYC documents, bonuses, Recharts dashboards. I test exactly the kinds of things you mentioned — aggregation accuracy, filter/export consistency, dashboard-vs-backend data reconciliation.
+  SQL verification:
+  https://pyavchikstream.online/sql.html
+  DevTools / Network analysis (HAR, request inspection, third-party integrations):
+  https://pyavchikstream.online/network-testing.html
+
+- SaaS / AI products. On my own project I integrated the OpenAI API for asset generation, set up Sentry observability across frontend/backend/admin, and run CI/CD via GitHub Actions with auto-deploy. At EG I used AI tools daily to accelerate test generation and maintenance.
+
+- Sprint processes. Requirements review, planning, standups, demos, release discussions — standard daily routine for the last 7 years.
+
+- Self-direction. My entire portfolio was built solo without a manager — architecture, deployment, and test documentation. I'm comfortable in no-micromanagement environments where I have to decompose problems independently and ship them end to end.
+  Portfolio:
+  https://pyavchikstream.online
+
+AdTech/MarTech angle — to be straightforward: I don't have direct AdTech/MarTech experience. But the core testing challenges of the domain (event tracking accuracy, attribution correctness, dashboard metric consistency vs backend, integration behavior across browsers) overlap heavily with what I test daily on my iGaming pipeline — transaction ledger, provably-fair audit trail, RTP validation via JMeter, balance/history reconciliation against the API. I'll ramp up quickly.
+JMeter RTP validation:
+https://pyavchikstream.online/jmeter-rtp.html
+
+English B2+ (above the listed B1). Ukrainian native (C2).
+
+Portfolio:
+https://pyavchikstream.online
+CV (PDF):
+https://pyavchikstream.online/QA_Oleksander_Pyavchik_CV.pdf
+Playwright + Allure report:
+https://pyavchik.github.io/slotsone-playwright/
+GitHub:
+https://github.com/pyavchik
+
+Based in Odesa, Ukraine. Remote-first works perfectly, can start immediately. Happy to discuss in more detail.
+
+Best regards,
+Oleksander Pyavchik
+pyavchik@gmail.com
++380 63 997 7874
+
+
+───────────────────────────────────────────────
+Compact Djinni Version (English)
+───────────────────────────────────────────────
+
+Hi Growth Channel team,
+
+Applying for the QA Specialist role. 7+ years of commercial QA — manual functional and regression testing of web apps, building QA processes from scratch (Digicode), data-heavy admin panels with filters/exports/charts on my pet project.
+
+Direct matches to your requirements:
+
+- "Build QA from inception" — full QA strategy I wrote for my own platform.
+  https://pyavchikstream.online/qa-strategy.html
+
+- Live Jira board (SCRUM, backlog, sprints, bug tickets) and live Zephyr Scale test cases — read-only guest access.
+  https://pyavchikstream.online/jira.html
+  https://pyavchikstream.online/zephyr.html
+
+- Test design + manual depth — techniques (equivalence, boundary, decision tables), exploratory, requirements analysis, plus static test cases and bug reports.
+  https://pyavchikstream.online/test-design.html
+  https://pyavchikstream.online/exploratory-testing.html
+  https://pyavchikstream.online/requirements.html
+  https://pyavchikstream.online/test-cases.html
+  https://pyavchikstream.online/bug-report.html
+
+- Data-heavy dashboards — built and tested a full admin panel (Next.js + Prisma + PostgreSQL): player tables, filters, transaction ledger, Recharts dashboards, exports, SQL verification, DevTools/Network analysis.
+  https://pyavchikstream.online/sql.html
+  https://pyavchikstream.online/network-testing.html
+
+- SaaS / AI — OpenAI integration, Sentry, GitHub Actions CI/CD all on my own stack.
+
+- Self-direction — portfolio built solo, no manager.
+  https://pyavchikstream.online
+
+To be upfront: no direct AdTech/MarTech experience. But event tracking, attribution accuracy, and dashboard-vs-backend reconciliation are exactly what I test daily on my iGaming pipeline (provably fair, RTP, ledger).
+
+English B2+, Ukrainian native. Comfortable with remote-first / no time tracking, can start immediately.
+
+Portfolio:
+https://pyavchikstream.online
+
+Best regards,
+Oleksander Pyavchik
+pyavchik@gmail.com | +380 63 997 7874 | Odesa, Ukraine
+
+
+───────────────────────────────────────────────
+Compact Ukrainian Version (fallback for UA recruiter screen)
+───────────────────────────────────────────────
+
+Вітаю, команда Growth Channel,
+
+Подаюся на QA Specialist. 7+ років QA — ручне функціональне та регресійне тестування web-додатків, побудова QA-процесів з нуля (Digicode), data-heavy admin-панелі з фільтрами/експортами/чартами на власному pet-проєкті.
+
+Прямі збіги з вашими вимогами:
+
+- "Build QA from inception" — повна QA-стратегія для власної платформи.
+  https://pyavchikstream.online/qa-strategy.html
+
+- Живий Jira board (SCRUM, backlog, спринти, bug-тікети) і живі Zephyr Scale тест-кейси — read-only guest доступ.
+  https://pyavchikstream.online/jira.html
+  https://pyavchikstream.online/zephyr.html
+
+- Test design + manual depth — техніки (eq. partitioning, boundary, decision tables), exploratory, requirements analysis, плюс статичні тест-кейси та bug reports.
+  https://pyavchikstream.online/test-design.html
+  https://pyavchikstream.online/exploratory-testing.html
+  https://pyavchikstream.online/requirements.html
+  https://pyavchikstream.online/test-cases.html
+  https://pyavchikstream.online/bug-report.html
+
+- Data-heavy дашборди — побудував і протестував admin panel (Next.js + Prisma + PostgreSQL): таблиці, фільтри, ledger, чарти, експорти, SQL-верифікація, DevTools/Network.
+  https://pyavchikstream.online/sql.html
+  https://pyavchikstream.online/network-testing.html
+
+- SaaS/AI — OpenAI integration, Sentry, GitHub Actions CI/CD на власному стеку.
+
+- Self-direction — портфоліо побудовано solo, без керівника.
+  https://pyavchikstream.online
+
+Прямого AdTech/MarTech досвіду не маю — буду чесним. Але event-tracking, attribution accuracy, dashboard-vs-backend reconciliation тестую щоденно на iGaming-pipeline.
+
+English B2+, українська C2. Готовий до remote-first без time tracking.
+
+Портфоліо:
+https://pyavchikstream.online
+
+З повагою,
+Олександр Пявчик
+pyavchik@gmail.com | +380 63 997 7874 | Одеса, Україна

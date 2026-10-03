@@ -1,0 +1,64 @@
+Cover Letter — Middle QA Engineer (Manual + Automation), Space Dinosaurs
+
+Hello Space Dinosaurs team,
+
+I’m applying for the Middle QA Engineer (Manual + Automation) position. I have 7+ years of QA experience across web products, iGaming/casino platforms, admin panels, APIs, and automation, and your role fits the way I work: strong manual QA first, with practical automated coverage added and maintained where it brings value.
+
+For manual QA, I’m comfortable with requirements analysis, test design, regression/smoke/functional testing, exploratory testing, cross-browser checks, clear bug reports, and release verification. I’ve tested customer-facing web applications, back-office systems, payment/game flows, history/log views, and integrations, so I’m used to looking at both UI behavior and the underlying client-server state.
+
+For automation, I can contribute to an existing Playwright + TypeScript stack without needing to rebuild everything from scratch. In my current portfolio project I maintain Playwright E2E tests with Page Object patterns, stable locator strategy, fixtures, traces/videos on failures, GitHub Actions, and Allure reporting:
+https://pyavchik.github.io/slotsone-playwright/
+
+Relevant experience for your requirements:
+
+- 7+ years in QA, including manual, regression, bug reporting, API, and UI automation work;
+- Playwright + TypeScript automation for web flows, including test maintenance and locator updates;
+- maintaining large automated suites — at EG I worked with an existing framework and supported 1500+ automated tests;
+- API and integration testing with Postman, REST Assured, HTTP, JSON, SQL, and logs;
+- Git and CI/CD experience with GitHub Actions, Jenkins, and GitLab CI;
+- test documentation in Jira/TestRail style: test cases, checklists, bug reports, and regression coverage;
+- responsible use of AI tools for test design, automation scaffolding, log/HAR analysis, and documentation.
+
+I also have practical e-commerce/marketplace-adjacent experience from testing customer-facing transactional flows: registration/login, payments, user history, admin operations, partner modules, data validation, and end-to-end flows where UI, API, and database state must stay consistent.
+
+Portfolio:
+https://pyavchikstream.online
+
+CV:
+https://pyavchikstream.online/QA_Oleksander_Pyavchik_CV.pdf
+
+Examples:
+- Playwright + Allure: https://pyavchik.github.io/slotsone-playwright/
+- Test cases: https://pyavchikstream.online/test-cases.html
+- Bug reports: https://pyavchikstream.online/bug-report.html
+- API/Postman: https://pyavchikstream.online/postman-tests.html
+- SQL: https://pyavchikstream.online/sql.html
+
+Ukrainian is native, English is B2+. I’m based in Odesa and ready for full remote work.
+
+Best regards,
+Oleksander Pyavchik
+pyavchik@gmail.com
++380 63 997 7874
+
+---
+
+Compact Djinni Version
+
+Hello Space Dinosaurs team,
+
+I’m applying for the Middle QA Engineer (Manual + Automation) position. I have 7+ years of QA experience across web products, iGaming/casino platforms, admin panels, APIs, and automation. Your role fits my profile well: strong manual QA fundamentals plus practical contribution to an existing automation stack.
+
+Manual QA: requirements analysis, test design, smoke/regression/functional/exploratory testing, cross-browser checks, clear bug reports, and release verification. Automation: Playwright + TypeScript with Page Object patterns, stable locators, fixtures, trace/video artifacts, GitHub Actions, and Allure reporting. Example: https://pyavchik.github.io/slotsone-playwright/
+
+I’m comfortable maintaining existing automated tests, adding new coverage, updating locators, debugging failures, and using automation as support for regression stability. At EG I worked with an existing automation framework and maintained 1500+ tests. I also use Postman/API testing, SQL, Git, CI/CD, Jira/TestRail-style documentation, and AI tools responsibly for test design, automation scaffolding, log/HAR analysis, and documentation.
+
+Portfolio: https://pyavchikstream.online
+CV: https://pyavchikstream.online/QA_Oleksander_Pyavchik_CV.pdf
+Examples: test cases https://pyavchikstream.online/test-cases.html, bug reports https://pyavchikstream.online/bug-report.html, API/Postman https://pyavchikstream.online/postman-tests.html, SQL https://pyavchikstream.online/sql.html
+
+Ukrainian native, English B2+. Based in Odesa, ready for full remote work.
+
+Best regards,
+Oleksander Pyavchik
+pyavchik@gmail.com | +380 63 997 7874

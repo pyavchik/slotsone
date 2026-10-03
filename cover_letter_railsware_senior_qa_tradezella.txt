@@ -1,0 +1,21 @@
+Hi Railsware team,
+
+I'm applying for the Senior QA Engineer position on TradeZella. I have 7+ years of experience across manual testing, test automation, requirements analysis, and building QA processes. Your focus on product quality, issue investigation, and practical AI adoption aligns closely with how I work.
+
+About a year and a half ago, I started using Claude Code CLI in my testing workflow. The biggest challenge I encountered was losing product context between sessions: requirements, previous decisions, and how different features interact. I later addressed this by adapting Andrej Karpathy's LLM Wiki approach to project testing:
+https://gist.github.com/karpathy/442a6bf555914893e9891c11519de94f
+
+I maintain a persistent product knowledge wiki, updated daily with information from Jira, Confluence, and daily meeting notes. MCP connections make gathering updates and maintaining the wiki straightforward. This gives the AI a reusable foundation of product knowledge and reduces the need to explain the same context repeatedly.
+
+Before starting manual testing, I ask Claude to read the Jira ticket through MCP and use the wiki to help identify relevant scenarios, dependencies, and edge cases. Claude also connects to Codex as a subagent, which provides a second review to help identify anything the initial analysis may have missed. I review the suggestions and decide what needs testing.
+
+I use the same workflow throughout the testing cycle. A Figma MCP connection helps me compare the implementation against designs across desktop, tablet, and mobile layouts. I use AI to help create test coverage for new functionality in Zephyr, then automate suitable scenarios with TypeScript and Playwright, using the Page Object Model to keep tests maintainable. Through a Sentry MCP connection, I can investigate errors and analyze logs more quickly. AI also helps me review changes across Git branches and prepare targeted testing of new functionality on separate branches.
+
+This workflow helps me spend more time on exploratory testing, usability, and investigating defects while keeping documentation and regression coverage current. I remain responsible for reviewing AI output and making testing decisions.
+
+You can explore my work in my portfolio: https://pyavchikstream.online/
+
+I'd welcome the opportunity to demonstrate this workflow and discuss how my experience could support TradeZella's QA practices.
+
+Best regards,
+Oleksander Pyavchik

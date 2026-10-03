@@ -1,13 +1,11 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-# Temporary override for emergency/manual admin pushes.
-if [[ "${ALLOW_MAIN_PUSH:-0}" == "1" ]]; then
-  exit 0
-fi
+ref_updates="$(cat)"
 
 while read -r _local_ref _local_sha remote_ref _remote_sha; do
-  if [[ "${remote_ref}" == "refs/heads/main" ]]; then
+  # Temporary override for emergency/manual admin pushes.
+  if [[ "${remote_ref}" == "refs/heads/main" && "${ALLOW_MAIN_PUSH:-0}" != "1" ]]; then
     cat >&2 <<'EOF'
 Push blocked: direct pushes to "main" are disabled for this repository.
 Use a feature branch and open a pull request instead.
@@ -17,6 +15,11 @@ Temporary override (one command only):
 EOF
     exit 1
   fi
-done
+done <<< "$ref_updates"
 
-exit 0
+if ! command -v git-lfs >/dev/null 2>&1; then
+  echo 'Git LFS is required to push this repository. Install it from https://git-lfs.com/.' >&2
+  exit 1
+fi
+
+git lfs pre-push "$@" <<< "$ref_updates"

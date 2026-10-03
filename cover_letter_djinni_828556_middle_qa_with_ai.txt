@@ -1,0 +1,75 @@
+Cover Letter — Middle Strong General QA (with AI), TechMagic
+https://djinni.co/jobs/828556-middle-strong-general-qa-with-ai/
+
+Hi TechMagic team,
+
+I'm applying for the Middle Strong General QA (with AI) role. I have 7+ years in QA across manual and automation, and your "AI-first mindset — actively use AI tools to improve testing workflows" is not a plan I'd like to grow into; it's already how I work every day.
+
+Here's a concrete example of that workflow. I take a screenshot of a bug and hand it to Claude Code CLI in the terminal. Jira, Zephyr, and GitHub are connected to the agent over their APIs (MCP). From that single screenshot it produces, end to end:
+
+- a clean Jira bug report — concise title, description and summary, steps to reproduce, expected vs. actual result, priority and severity, with the screenshot attached;
+- a detailed manual test case in Zephyr;
+- an automated test in Playwright + TypeScript, committed to GitHub.
+
+I review and own every output. The agent removes the boilerplate; I stay responsible for severity, reproduction quality, and coverage. This is exactly the "agentic QA workflow" your posting lists as a plus — already running, not aspirational.
+
+You don't have to take my word for it — I'll give you reviewer credentials to log into the live Jira project and the Zephyr test repository and see the artifacts yourself:
+
+- Jira bug reports (live, with login): https://pyavchikstream.online/jira.html
+- Zephyr test cases (live, with login): https://pyavchikstream.online/zephyr.html
+
+How I map to your stack:
+
+- TypeScript — my automation language. Playwright + TS frameworks (POM, fixtures, data-driven, Allure reporting), built and maintained in pair with Claude Code CLI.
+- CLI / terminal — the workflow above lives in the terminal. Claude Code CLI, git, bash, Docker are daily tools, not occasional ones.
+- Appium / mobile hybrid — straight answer: my automation today is web (Playwright/TS), not Appium. But it's the same language, the same terminal, and the same agentic flow, so the ramp is short and I'm ready to pick it up fast rather than treat it as a hurdle.
+- Manual + automation, 3+ years — 7+ years across both, on commercial projects and my own products.
+- Non-relational DB — MongoDB in practice (collections, queries, data verification). DynamoDB is new to me, but it's the same NoSQL model and I'm comfortable getting hands-on.
+- Fintech / transactional domain — I built and QA an iGaming demo end to end (Node/Express + PostgreSQL backend, React/Vite frontend, Next.js admin) with ledger transactions, idempotency keys, and provably-fair — direct experience with money flows and transactional correctness.
+
+Beyond the screenshot→bug→test loop, I use AI across the rest of the QA cycle and always keep it under review: test documentation from requirements/OpenAPI (negative, boundary, equivalence-partitioning cases), root-cause analysis from stack traces / network HAR / server logs, SQL for data verification, and Postman collections generated from Swagger. The principle I hold firmly: AI owns the "how" and "how much," QA owns the "what" and which risks are priority. Every AI output goes through my review — otherwise it's cargo cult, not QA.
+
+On logistics: I'm fully remote and fine with early-morning standups aligned to the Australian time zone. Based in Odesa, Ukraine; can start immediately. English B2+, Ukrainian native.
+
+Relevant portfolio:
+
+- Jira bug reports (live login): https://pyavchikstream.online/jira.html
+- Zephyr test cases (live login): https://pyavchikstream.online/zephyr.html
+- Playwright + Allure report: https://pyavchik.github.io/slotsone-playwright/
+- Playwright automation write-up: https://pyavchikstream.online/playwright.html
+- Bug reports: https://pyavchikstream.online/bug-report.html
+- Test cases: https://pyavchikstream.online/test-cases.html
+- Live web product (iGaming demo): https://pyavchikstream.online
+- CV (PDF): https://pyavchikstream.online/QA_Oleksander_Pyavchik_CV.pdf
+- GitHub: https://github.com/pyavchik
+
+Happy to walk through the live agentic workflow on a call.
+
+Best regards,
+Oleksandr Pyavchik
+pyavchik@gmail.com
++380 63 997 7874
+Odesa, Ukraine
+
+
+---
+
+Compact Djinni Version
+
+Hi TechMagic team,
+
+Applying for Middle Strong General QA (with AI). 7+ years in QA, manual + automation. Your "AI-first mindset / actively use AI tools" is my actual daily workflow, not a future plan.
+
+A concrete example: I take a screenshot of a bug and hand it to Claude Code CLI in the terminal, with Jira, Zephyr, and GitHub connected to the agent over their APIs (MCP). From that one screenshot it produces, end to end: a clean Jira bug report (title, description/summary, steps to reproduce, expected vs. actual, priority, severity, screenshot attached), a detailed manual test case in Zephyr, and a Playwright + TypeScript automated test committed to GitHub. I review and own every output — AI removes the boilerplate, I own severity, repro quality, and coverage. That's the "agentic QA workflow" you list as a plus, already running.
+
+You can log into the live Jira and Zephyr and check the artifacts yourself (reviewer credentials provided):
+- Jira: https://pyavchikstream.online/jira.html
+- Zephyr: https://pyavchikstream.online/zephyr.html
+
+Stack fit: TypeScript is my automation language (Playwright/TS, Allure); CLI/terminal is where I work daily (Claude Code CLI, git, bash, Docker). Straight answer on Appium — my automation today is web (Playwright), not Appium, but it's the same TS + terminal + agentic flow, so the ramp is short. Manual + automation 7+ yrs; NoSQL via MongoDB (DynamoDB new but same model); fintech/transactional via a self-built iGaming demo with ledger, idempotency, provably-fair. Fully remote, fine with early-morning Australian-timezone standups, can start immediately. English B2+.
+
+Portfolio: Jira https://pyavchikstream.online/jira.html, Zephyr https://pyavchikstream.online/zephyr.html, Playwright+Allure https://pyavchik.github.io/slotsone-playwright/, live product https://pyavchikstream.online, CV https://pyavchikstream.online/QA_Oleksander_Pyavchik_CV.pdf, GitHub https://github.com/pyavchik.
+
+Best regards,
+Oleksandr Pyavchik
+pyavchik@gmail.com | +380 63 997 7874

@@ -1,0 +1,25 @@
+Hi Nadin,
+
+Thanks for reaching out — the product sounds interesting.
+
+To be upfront: I don't have commercial Cypress experience. My E2E automation background is primarily in Playwright (TypeScript), which the JD lists as a plus, plus solid JavaScript/Node.js, REST API testing (Postman, contract testing), SQL, CI/CD, and full ownership of QA processes end-to-end.
+
+A few things from my portfolio that show the relevant work:
+
+E2E automation (Playwright + TypeScript)
+- Portfolio overview: https://pyavchikstream.online/
+- Playwright project page: https://pyavchikstream.online/playwright.html
+- Framework repo (TS, POM, CI): https://github.com/pyavchik/slotsone-playwright
+- Live Allure report from the suite: https://pyavchik.github.io/slotsone-playwright/#suites/5678f8aab52dfa0091a25da5b8e4a7aa
+
+REST API testing (Postman + Newman)
+- Postman/Newman regression suite (30+ tests — happy path, negative, idempotency, rate limiting, JWT, IDOR, SQL injection, XSS; Newman CLI + htmlextra reports): https://pyavchikstream.online/postman-tests.html
+- Public Postman workspace: https://www.postman.com/pyavchik/workspace/portfolio
+- API docs: https://pyavchikstream.online/api-docs
+
+Cypress and Playwright share most concepts (auto-waits, fixtures, network interception, CI integration), so ramping up on Cypress would be quick for me — I just want to be transparent given that it's listed as a must.
+
+If the team is open to a strong Playwright background with fast Cypress onboarding, I'd be glad to chat further. Otherwise, no hard feelings — thanks for considering me!
+
+Best,
+Oleksander

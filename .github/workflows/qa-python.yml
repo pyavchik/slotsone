@@ -19,6 +19,8 @@ on:
 
 permissions:
   contents: read
+  pages: write
+  id-token: write
 
 jobs:
   api:
@@ -76,7 +78,7 @@ jobs:
         working-directory: backend
         run: |
           nohup node dist/index.js > backend.log 2>&1 &
-          for i in $(seq 1 40); do
+          for _ in $(seq 1 40); do
             if curl -sf http://localhost:3001/ready >/dev/null; then
               echo "backend up"; exit 0
             fi
@@ -111,6 +113,10 @@ jobs:
             --reruns 1 --reruns-delay 2 \
             --alluredir=allure-results
 
+      - name: Generate Allure HTML report
+        working-directory: qa-python
+        run: npx --yes allure-commandline generate allure-results --clean -o allure-report
+
       - name: Upload Allure results
         if: always()
         uses: actions/upload-artifact@v4
@@ -120,6 +126,15 @@ jobs:
           if-no-files-found: ignore
           retention-days: 14
 
+      - name: Upload Allure HTML report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: qa-python-api-allure-report
+          path: qa-python/allure-report
+          if-no-files-found: ignore
+          retention-days: 30
+
       - name: Upload backend log on failure
         if: failure()
         uses: actions/upload-artifact@v4
@@ -127,3 +142,30 @@ jobs:
           name: qa-python-backend-log
           path: backend/backend.log
           if-no-files-found: ignore
+
+  deploy:
+    name: Deploy Python API report
+    runs-on: ubuntu-latest
+    needs: api
+    if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Download Allure HTML report
+        uses: actions/download-artifact@v4
+        with:
+          name: qa-python-api-allure-report
+          path: allure-report
+
+      - name: Setup GitHub Pages
+        uses: actions/configure-pages@v5
+
+      - name: Upload API report to GitHub Pages
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: allure-report
+
+      - name: Deploy API report to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4

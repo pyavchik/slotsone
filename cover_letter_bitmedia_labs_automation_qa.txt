@@ -1,0 +1,25 @@
+Hi Bitmedia Labs team,
+
+I'd like to apply for your Automation QA Engineer role. Your focus on browser games caught my attention because my portfolio includes a gaming project where I put automation and API testing into practice.
+
+Portfolio: https://pyavchikstream.online/
+
+I have 7+ years of experience in QA, including building automation frameworks, maintaining regression suites, and investigating defects. Most recently, at Bestprice, I worked with TypeScript, Playwright, and Allure, and helped build the QA process from scratch.
+
+Here are a few examples relevant to your stack:
+
+Playwright automation: tests structured with Page Objects, reusable fixtures, API mocking, and Jenkins integration.
+https://pyavchikstream.online/playwright.html
+
+API testing with Postman: coverage for authentication, gameplay, balances, and error handling.
+https://pyavchikstream.online/postman-tests.html
+
+JMeter performance testing: load scenarios and bottleneck analysis.
+https://pyavchikstream.online/jmeter-load.html
+
+I'm comfortable with Git, Docker, and CI/CD. I care about keeping tests useful and reliable, and writing bug reports that help developers reproduce and fix issues.
+
+The chance to take ownership and work closely with a product team appeals to me. I'd be happy to walk you through my project and learn more about the games and automation challenges at Bitmedia Labs.
+
+Best regards,
+Oleksander Pyavchik

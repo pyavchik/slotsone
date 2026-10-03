@@ -1,0 +1,2 @@
+jmeter/results.jtl filter=lfs diff=lfs merge=lfs -text
+jmeter/jmeter_rtp_summary.csv filter=lfs diff=lfs merge=lfs -text

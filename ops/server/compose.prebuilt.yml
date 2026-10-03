@@ -1,0 +1,8 @@
+# Use with docker-compose.prod.yml and `up -d --no-build` after loading images.
+services:
+  backend:
+    image: slotsone-backend:${SLOTSONE_IMAGE_TAG:?Set SLOTSONE_IMAGE_TAG}
+  frontend:
+    image: slotsone-frontend:${SLOTSONE_IMAGE_TAG:?Set SLOTSONE_IMAGE_TAG}
+  admin:
+    image: slotsone-admin:${SLOTSONE_IMAGE_TAG:?Set SLOTSONE_IMAGE_TAG}
